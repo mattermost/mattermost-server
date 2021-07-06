@@ -9,8 +9,6 @@ import (
 	"html"
 	"html/template"
 	"io"
-	"net/url"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -114,7 +112,7 @@ func (a *App) sendNotificationEmail(notification *PostNotification, user *model.
 	}
 
 	a.Srv().Go(func() {
-		if nErr := a.Srv().EmailService.sendMailWithEmbeddedFiles(user.Email, html.UnescapeString(subjectText), bodyText, embeddedFiles); nErr != nil {
+		if nErr := a.Srv().EmailService.SendMailWithEmbeddedFiles(user.Email, html.UnescapeString(subjectText), bodyText, embeddedFiles); nErr != nil {
 			mlog.Error("Error while sending the email", mlog.String("user_email", user.Email), mlog.Err(nErr))
 		}
 	})
@@ -212,7 +210,7 @@ func (a *App) getNotificationEmailBody(recipient *model.User, post *model.Post, 
 		pData.Time = translateFunc("app.notification.body.dm.time", messageTime)
 	}
 
-	data := a.Srv().EmailService.newEmailTemplateData(recipient.Locale)
+	data := a.Srv().EmailService.NewEmailTemplateData(recipient.Locale)
 	data.Props["SiteURL"] = a.GetSiteURL()
 	if teamName != "select_team" {
 		data.Props["ButtonURL"] = landingURL + "/pl/" + post.Id
@@ -321,38 +319,6 @@ func (a *App) generateHyperlinkForChannels(postMessage, teamName, teamURL string
 	return postMessage, nil
 }
 
-func (s *Server) GetMessageForNotification(post *model.Post, translateFunc i18n.TranslateFunc) string {
-	if strings.TrimSpace(post.Message) != "" || len(post.FileIds) == 0 {
-		return post.Message
-	}
-
-	// extract the filenames from their paths and determine what type of files are attached
-	infos, err := s.Store.FileInfo().GetForPost(post.Id, true, false, true)
-	if err != nil {
-		mlog.Warn("Encountered error when getting files for notification message", mlog.String("post_id", post.Id), mlog.Err(err))
-	}
-
-	filenames := make([]string, len(infos))
-	onlyImages := true
-	for i, info := range infos {
-		if escaped, err := url.QueryUnescape(filepath.Base(info.Name)); err != nil {
-			// this should never error since filepath was escaped using url.QueryEscape
-			filenames[i] = escaped
-		} else {
-			filenames[i] = info.Name
-		}
-
-		onlyImages = onlyImages && info.IsImage()
-	}
-
-	props := map[string]interface{}{"Filenames": strings.Join(filenames, ", ")}
-
-	if onlyImages {
-		return translateFunc("api.post.get_message_for_notification.images_sent", len(filenames), props)
-	}
-	return translateFunc("api.post.get_message_for_notification.files_sent", len(filenames), props)
-}
-
 func (a *App) GetMessageForNotification(post *model.Post, translateFunc i18n.TranslateFunc) string {
-	return a.Srv().GetMessageForNotification(post, translateFunc)
+	return a.Srv().EmailService.GetMessageForNotification(post, translateFunc)
 }

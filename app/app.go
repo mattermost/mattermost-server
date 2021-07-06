@@ -369,7 +369,7 @@ func (a *App) NotifyAndSetWarnMetricAck(warnMetricId string, sender *model.User,
 				return model.NewAppError("NotifyAndSetWarnMetricAck", "api.email.send_warn_metric_ack.missing_server.app_error", nil, i18n.T("api.context.invalid_param.app_error", map[string]interface{}{"Name": "SMTPServer"}), http.StatusInternalServerError)
 			}
 			T := i18n.GetUserTranslations(sender.Locale)
-			data := a.Srv().EmailService.newEmailTemplateData(sender.Locale)
+			data := a.Srv().EmailService.NewEmailTemplateData(sender.Locale)
 			data.Props["ContactNameHeader"] = T("api.templates.warn_metric_ack.body.contact_name_header")
 			data.Props["ContactNameValue"] = sender.GetFullName()
 			data.Props["ContactEmailHeader"] = T("api.templates.warn_metric_ack.body.contact_email_header")

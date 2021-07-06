@@ -168,6 +168,7 @@ func TestHubSessionRevokeRace(t *testing.T) {
 		ConfigFn:     th.App.srv.Config,
 		Metrics:      th.App.Metrics(),
 		Cluster:      th.App.Cluster(),
+		LicenseFn:    th.App.srv.License,
 	})
 	require.NoError(t, err)
 	th.App.srv.userService = userService

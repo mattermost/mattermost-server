@@ -767,7 +767,7 @@ func (api *PluginAPI) SendMail(to, subject, htmlBody string) *model.AppError {
 		return model.NewAppError("SendMail", "plugin_api.send_mail.missing_htmlbody", nil, "", http.StatusBadRequest)
 	}
 
-	if err := api.app.Srv().EmailService.sendNotificationMail(to, subject, htmlBody); err != nil {
+	if err := api.app.Srv().EmailService.SendNotificationMail(to, subject, htmlBody); err != nil {
 		return model.NewAppError("SendMail", "plugin_api.send_mail.missing_htmlbody", nil, err.Error(), http.StatusInternalServerError)
 	}
 

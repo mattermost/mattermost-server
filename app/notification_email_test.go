@@ -256,10 +256,6 @@ func TestGetNotificationEmailBodyFullNotificationLocaleTimeNoTimezone(t *testing
 	zone, _ := tm.Zone()
 
 	formattedTime := formattedPostTime{
-		Time:     tm,
-		Year:     fmt.Sprintf("%d", tm.Year()),
-		Month:    translateFunc(tm.Month().String()),
-		Day:      fmt.Sprintf("%d", tm.Day()),
 		Hour:     fmt.Sprintf("%02d", tm.Hour()),
 		Minute:   fmt.Sprintf("%02d", tm.Minute()),
 		TimeZone: zone,

@@ -398,19 +398,19 @@ func TestUpdateUserEmail(t *testing.T) {
 		newEmail := th.MakeEmail()
 
 		user.Email = newEmail
-		user2, err := th.App.UpdateUser(user, false)
-		assert.Nil(t, err)
+		user2, appErr := th.App.UpdateUser(user, false)
+		assert.Nil(t, appErr)
 		assert.Equal(t, currentEmail, user2.Email)
 		assert.True(t, user2.EmailVerified)
 
 		token, err := th.App.Srv().EmailService.CreateVerifyEmailToken(user2.Id, newEmail)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
-		err = th.App.VerifyEmailFromToken(token.Token)
-		assert.Nil(t, err)
+		appErr = th.App.VerifyEmailFromToken(token.Token)
+		assert.Nil(t, appErr)
 
-		user2, err = th.App.GetUser(user2.Id)
-		assert.Nil(t, err)
+		user2, appErr = th.App.GetUser(user2.Id)
+		assert.Nil(t, appErr)
 		assert.Equal(t, newEmail, user2.Email)
 		assert.True(t, user2.EmailVerified)
 
@@ -425,8 +425,8 @@ func TestUpdateUserEmail(t *testing.T) {
 
 		newBotEmail := th.MakeEmail()
 		botuser.Email = newBotEmail
-		botuser2, err := th.App.UpdateUser(&botuser, false)
-		assert.Nil(t, err)
+		botuser2, appErr := th.App.UpdateUser(&botuser, false)
+		assert.Nil(t, appErr)
 		assert.Equal(t, botuser2.Email, newBotEmail)
 
 	})

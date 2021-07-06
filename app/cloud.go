@@ -179,8 +179,8 @@ func (a *App) CheckAndSendUserLimitWarningEmails(c *request.Context) *model.AppE
 	} else if remainingUsers == 0 {
 		// At limit
 		for admin := range sysAdmins {
-			_, appErr := a.Srv().EmailService.SendAtUserLimitWarningEmail(sysAdmins[admin].Email, sysAdmins[admin].Locale, *a.Config().ServiceSettings.SiteURL)
-			if appErr != nil {
+			_, err := a.Srv().EmailService.SendAtUserLimitWarningEmail(sysAdmins[admin].Email, sysAdmins[admin].Locale, *a.Config().ServiceSettings.SiteURL)
+			if err != nil {
 				a.Log().Error(
 					"Error sending user limit warning email to admin",
 					mlog.String("username", sysAdmins[admin].Username),

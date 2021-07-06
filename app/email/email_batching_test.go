@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package app
+package email
 
 import (
 	"context"
@@ -24,7 +24,7 @@ func TestHandleNewNotifications(t *testing.T) {
 	id3 := model.NewId()
 
 	// test queueing of received posts by user
-	job := NewEmailBatchingJob(th.Server.EmailService, 128)
+	job := NewEmailBatchingJob(th.service, 128)
 
 	job.handleNewNotifications()
 
@@ -59,7 +59,7 @@ func TestHandleNewNotifications(t *testing.T) {
 	require.Len(t, job.pendingNotifications[id3], 1, "should have received 1 post for user3")
 
 	// test ordering of received posts
-	job = NewEmailBatchingJob(th.Server.EmailService, 128)
+	job = NewEmailBatchingJob(th.service, 128)
 
 	job.Add(&model.User{Id: id1}, &model.Post{UserId: id1, Message: "test1"}, &model.Team{Name: "team"})
 	job.Add(&model.User{Id: id1}, &model.Post{UserId: id1, Message: "test2"}, &model.Team{Name: "team"})
@@ -78,7 +78,7 @@ func TestCheckPendingNotifications(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	job := NewEmailBatchingJob(th.Server.EmailService, 128)
+	job := NewEmailBatchingJob(th.service, 128)
 	job.pendingNotifications[th.BasicUser.Id] = []*batchedNotification{
 		{
 			post: &model.Post{
@@ -90,13 +90,13 @@ func TestCheckPendingNotifications(t *testing.T) {
 		},
 	}
 
-	channelMember, err := th.App.Srv().Store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
+	channelMember, err := th.store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
 	require.NoError(t, err)
 	channelMember.LastViewedAt = 9999999
-	_, err = th.App.Srv().Store.Channel().UpdateMember(channelMember)
+	_, err = th.store.Channel().UpdateMember(channelMember)
 	require.NoError(t, err)
 
-	nErr := th.App.Srv().Store.Preference().Save(&model.Preferences{{
+	nErr := th.store.Preference().Save(&model.Preferences{{
 		UserId:   th.BasicUser.Id,
 		Category: model.PREFERENCE_CATEGORY_NOTIFICATIONS,
 		Name:     model.PREFERENCE_NAME_EMAIL_INTERVAL,
@@ -111,14 +111,14 @@ func TestCheckPendingNotifications(t *testing.T) {
 	require.Len(t, job.pendingNotifications[th.BasicUser.Id], 1, "shouldn't have sent queued post")
 
 	// test that notifications are cleared if the user has acted
-	channelMember, err = th.App.Srv().Store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
+	channelMember, err = th.store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
 	require.NoError(t, err)
 	channelMember.LastViewedAt = 10001000
-	_, err = th.App.Srv().Store.Channel().UpdateMember(channelMember)
+	_, err = th.store.Channel().UpdateMember(channelMember)
 	require.NoError(t, err)
 
 	// We reset the interval to something shorter
-	nErr = th.App.Srv().Store.Preference().Save(&model.Preferences{{
+	nErr = th.store.Preference().Save(&model.Preferences{{
 		UserId:   th.BasicUser.Id,
 		Category: model.PREFERENCE_CATEGORY_NOTIFICATIONS,
 		Name:     model.PREFERENCE_NAME_EMAIL_INTERVAL,
@@ -197,13 +197,18 @@ func TestCheckPendingNotificationsDefaultInterval(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	job := NewEmailBatchingJob(th.Server.EmailService, 128)
+	job := NewEmailBatchingJob(th.service, 128)
 
 	// bypasses recent user activity check
-	channelMember, err := th.App.Srv().Store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
+	require.NotNil(t, th.store)
+	require.NotNil(t, th.store.Channel())
+
+	require.NotNil(t, th.BasicUser)
+	require.NotNil(t, th.BasicChannel)
+	channelMember, err := th.store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
 	require.NoError(t, err)
 	channelMember.LastViewedAt = 9999000
-	_, err = th.App.Srv().Store.Channel().UpdateMember(channelMember)
+	_, err = th.store.Channel().UpdateMember(channelMember)
 	require.NoError(t, err)
 
 	job.pendingNotifications[th.BasicUser.Id] = []*batchedNotification{
@@ -235,17 +240,21 @@ func TestCheckPendingNotificationsCantParseInterval(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	job := NewEmailBatchingJob(th.Server.EmailService, 128)
+	job := NewEmailBatchingJob(th.service, 128)
 
+	require.NotNil(t, th.store)
+	require.NotNil(t, th.store.Channel())
+	require.NotNil(t, th.BasicChannel)
+	require.NotNil(t, th.BasicUser)
 	// bypasses recent user activity check
-	channelMember, err := th.App.Srv().Store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
+	channelMember, err := th.store.Channel().GetMember(context.Background(), th.BasicChannel.Id, th.BasicUser.Id)
 	require.NoError(t, err)
 	channelMember.LastViewedAt = 9999000
-	_, err = th.App.Srv().Store.Channel().UpdateMember(channelMember)
+	_, err = th.store.Channel().UpdateMember(channelMember)
 	require.NoError(t, err)
 
 	// preference value is not an integer, so we'll fall back to the default 15min value
-	nErr := th.App.Srv().Store.Preference().Save(&model.Preferences{{
+	nErr := th.store.Preference().Save(&model.Preferences{{
 		UserId:   th.BasicUser.Id,
 		Category: model.PREFERENCE_CATEGORY_NOTIFICATIONS,
 		Name:     model.PREFERENCE_NAME_EMAIL_INTERVAL,

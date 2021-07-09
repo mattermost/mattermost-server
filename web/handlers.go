@@ -354,7 +354,7 @@ func (h *Handler) checkCSRFToken(c *Context, r *http.Request, token string, toke
 
 		if csrfHeader == session.GetCSRF() {
 			csrfCheckPassed = true
-		} else if r.Header.Get(model.HeaderRequestedWith) == model.HeaderRequestedWithXml {
+		} else if r.Header.Get(model.HeaderRequestedWith) == model.HeaderRequestedWithXML {
 			// ToDo(DSchalla) 2019/01/04: Remove after deprecation period and only allow CSRF Header (MM-13657)
 			csrfErrorMessage := "CSRF Header check failed for request - Please upgrade your web application or custom app to set a CSRF Header"
 

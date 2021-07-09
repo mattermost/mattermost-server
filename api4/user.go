@@ -1823,7 +1823,7 @@ func login(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	c.LogAuditWithUserID(user.ID, "success")
 
-	if r.Header.Get(model.HeaderRequestedWith) == model.HeaderRequestedWithXml {
+	if r.Header.Get(model.HeaderRequestedWith) == model.HeaderRequestedWithXML {
 		c.App.AttachSessionCookies(c.AppContext, w, r)
 	}
 

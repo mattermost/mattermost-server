@@ -35,7 +35,7 @@ const (
 	HeaderRemoteclusterToken = "X-RemoteCluster-Token"
 	HeaderRemoteclusterID    = "X-RemoteCluster-Id"
 	HeaderRequestedWith      = "X-Requested-With"
-	HeaderRequestedWithXml   = "XMLHttpRequest"
+	HeaderRequestedWithXML   = "XMLHttpRequest"
 	HeaderRange              = "Range"
 	STATUS                   = "status"
 	StatusOk                 = "OK"

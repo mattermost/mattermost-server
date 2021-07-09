@@ -36,7 +36,7 @@ func (*PurposeProvider) GetCommand(a *app.App, T i18n.TranslateFunc) *model.Comm
 }
 
 func (*PurposeProvider) DoCommand(a *app.App, c *request.Context, args *model.CommandArgs, message string) *model.CommandResponse {
-	channel, err := a.GetChannel(args.ChannelId)
+	channel, err := a.GetChannel(args.ChannelID)
 	if err != nil {
 		return &model.CommandResponse{
 			Text:         args.T("api.command_channel_purpose.channel.app_error"),
@@ -46,14 +46,14 @@ func (*PurposeProvider) DoCommand(a *app.App, c *request.Context, args *model.Co
 
 	switch channel.Type {
 	case model.ChannelTypeOpen:
-		if !a.HasPermissionToChannel(args.UserId, args.ChannelId, model.PermissionManagePublicChannelProperties) {
+		if !a.HasPermissionToChannel(args.UserID, args.ChannelID, model.PermissionManagePublicChannelProperties) {
 			return &model.CommandResponse{
 				Text:         args.T("api.command_channel_purpose.permission.app_error"),
 				ResponseType: model.CommandResponseTypeEphemeral,
 			}
 		}
 	case model.ChannelTypePrivate:
-		if !a.HasPermissionToChannel(args.UserId, args.ChannelId, model.PermissionManagePrivateChannelProperties) {
+		if !a.HasPermissionToChannel(args.UserID, args.ChannelID, model.PermissionManagePrivateChannelProperties) {
 			return &model.CommandResponse{
 				Text:         args.T("api.command_channel_purpose.permission.app_error"),
 				ResponseType: model.CommandResponseTypeEphemeral,
@@ -78,10 +78,10 @@ func (*PurposeProvider) DoCommand(a *app.App, c *request.Context, args *model.Co
 	}
 	*patch.Purpose = message
 
-	_, err = a.PatchChannel(c, channel, patch, args.UserId)
+	_, err = a.PatchChannel(c, channel, patch, args.UserID)
 	if err != nil {
 		text := args.T("api.command_channel_purpose.update_channel.app_error")
-		if err.Id == "model.channel.is_valid.purpose.app_error" {
+		if err.ID == "model.channel.is_valid.purpose.app_error" {
 			text = args.T("api.command_channel_purpose.update_channel.max_length", map[string]interface{}{
 				"MaxLength": model.ChannelPurposeMaxRunes,
 			})

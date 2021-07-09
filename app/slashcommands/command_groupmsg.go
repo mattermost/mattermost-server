@@ -41,7 +41,7 @@ func (*groupmsgProvider) GetCommand(a *app.App, T i18n.TranslateFunc) *model.Com
 
 func (*groupmsgProvider) DoCommand(a *app.App, c *request.Context, args *model.CommandArgs, message string) *model.CommandResponse {
 	targetUsers := map[string]*model.User{}
-	targetUsersSlice := []string{args.UserId}
+	targetUsersSlice := []string{args.UserID}
 	invalidUsernames := []string{}
 
 	users, parsedMessage := groupMsgUsernames(message)
@@ -55,7 +55,7 @@ func (*groupmsgProvider) DoCommand(a *app.App, c *request.Context, args *model.C
 			continue
 		}
 
-		canSee, err := a.UserCanSeeOtherUser(args.UserId, targetUser.Id)
+		canSee, err := a.UserCanSeeOtherUser(args.UserID, targetUser.ID)
 		if err != nil {
 			return &model.CommandResponse{Text: args.T("api.command_groupmsg.fail.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 		}
@@ -65,10 +65,10 @@ func (*groupmsgProvider) DoCommand(a *app.App, c *request.Context, args *model.C
 			continue
 		}
 
-		_, exists := targetUsers[targetUser.Id]
-		if !exists && targetUser.Id != args.UserId {
-			targetUsers[targetUser.Id] = targetUser
-			targetUsersSlice = append(targetUsersSlice, targetUser.Id)
+		_, exists := targetUsers[targetUser.ID]
+		if !exists && targetUser.ID != args.UserID {
+			targetUsers[targetUser.ID] = targetUser
+			targetUsersSlice = append(targetUsersSlice, targetUser.ID)
 		}
 	}
 
@@ -109,8 +109,8 @@ func (*groupmsgProvider) DoCommand(a *app.App, c *request.Context, args *model.C
 	var groupChannel *model.Channel
 	var channelErr *model.AppError
 
-	if a.HasPermissionTo(args.UserId, model.PermissionCreateGroupChannel) {
-		groupChannel, channelErr = a.CreateGroupChannel(targetUsersSlice, args.UserId)
+	if a.HasPermissionTo(args.UserID, model.PermissionCreateGroupChannel) {
+		groupChannel, channelErr = a.CreateGroupChannel(targetUsersSlice, args.UserID)
 		if channelErr != nil {
 			mlog.Error(channelErr.Error())
 			return &model.CommandResponse{Text: args.T("api.command_groupmsg.group_fail.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
@@ -125,14 +125,14 @@ func (*groupmsgProvider) DoCommand(a *app.App, c *request.Context, args *model.C
 	if parsedMessage != "" {
 		post := &model.Post{}
 		post.Message = parsedMessage
-		post.ChannelId = groupChannel.Id
-		post.UserId = args.UserId
+		post.ChannelID = groupChannel.ID
+		post.UserID = args.UserID
 		if _, err := a.CreatePostMissingChannel(c, post, true); err != nil {
 			return &model.CommandResponse{Text: args.T("api.command_groupmsg.fail.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 		}
 	}
 
-	team, err := a.GetTeam(args.TeamId)
+	team, err := a.GetTeam(args.TeamID)
 	if err != nil {
 		return &model.CommandResponse{Text: args.T("api.command_groupmsg.fail.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 	}

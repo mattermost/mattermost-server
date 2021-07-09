@@ -40,11 +40,11 @@ import (
 	"github.com/mattermost/mattermost-server/v5/utils"
 )
 
-func (a *App) DoPostAction(c *request.Context, postID, actionId, userID, selectedOption string) (string, *model.AppError) {
-	return a.DoPostActionWithCookie(c, postID, actionId, userID, selectedOption, nil)
+func (a *App) DoPostAction(c *request.Context, postID, actionID, userID, selectedOption string) (string, *model.AppError) {
+	return a.DoPostActionWithCookie(c, postID, actionID, userID, selectedOption, nil)
 }
 
-func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userID, selectedOption string, cookie *model.PostActionCookie) (string, *model.AppError) {
+func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionID, userID, selectedOption string, cookie *model.PostActionCookie) (string, *model.AppError) {
 
 	// PostAction may result in the original post being updated. For the
 	// updated post, we need to unconditionally preserve the original
@@ -63,10 +63,10 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 
 	datasource := ""
 	upstreamURL := ""
-	rootPostId := ""
+	rootPostID := ""
 	upstreamRequest := &model.PostActionIntegrationRequest{
-		UserId: userID,
-		PostId: postID,
+		UserID: userID,
+		PostID: postID,
 	}
 
 	// See if the post exists in the DB, if so ignore the cookie.
@@ -87,7 +87,7 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 
 	userChan := make(chan store.StoreResult, 1)
 	go func() {
-		user, err := a.Srv().Store.User().Get(context.Background(), upstreamRequest.UserId)
+		user, err := a.Srv().Store.User().Get(context.Background(), upstreamRequest.UserID)
 		userChan <- store.StoreResult{Data: user, NErr: err}
 		close(userChan)
 	}()
@@ -107,11 +107,11 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 			return "", model.NewAppError("DoPostActionWithCookie", "api.post.do_action.action_integration.app_error", nil, "no Integration in action cookie", http.StatusBadRequest)
 		}
 
-		if postID != cookie.PostId {
+		if postID != cookie.PostID {
 			return "", model.NewAppError("DoPostActionWithCookie", "api.post.do_action.action_integration.app_error", nil, "postId doesn't match", http.StatusBadRequest)
 		}
 
-		channel, err := a.Srv().Store.Channel().Get(cookie.ChannelId, true)
+		channel, err := a.Srv().Store.Channel().Get(cookie.ChannelID, true)
 		if err != nil {
 			var nfErr *store.ErrNotFound
 			switch {
@@ -122,16 +122,16 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 			}
 		}
 
-		upstreamRequest.ChannelId = cookie.ChannelId
+		upstreamRequest.ChannelID = cookie.ChannelID
 		upstreamRequest.ChannelName = channel.Name
-		upstreamRequest.TeamId = channel.TeamId
+		upstreamRequest.TeamID = channel.TeamID
 		upstreamRequest.Type = cookie.Type
 		upstreamRequest.Context = cookie.Integration.Context
 		datasource = cookie.DataSource
 
 		retain = cookie.RetainProps
 		remove = cookie.RemoveProps
-		rootPostId = cookie.RootPostId
+		rootPostID = cookie.RootPostID
 		upstreamURL = cookie.Integration.URL
 	} else {
 		post := result.Data.(*model.Post)
@@ -141,14 +141,14 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 		}
 		channel := result.Data.(*model.Channel)
 
-		action := post.GetAction(actionId)
+		action := post.GetAction(actionID)
 		if action == nil || action.Integration == nil {
 			return "", model.NewAppError("DoPostActionWithCookie", "api.post.do_action.action_id.app_error", nil, fmt.Sprintf("action=%v", action), http.StatusNotFound)
 		}
 
-		upstreamRequest.ChannelId = post.ChannelId
+		upstreamRequest.ChannelID = post.ChannelID
 		upstreamRequest.ChannelName = channel.Name
-		upstreamRequest.TeamId = channel.TeamId
+		upstreamRequest.TeamID = channel.TeamID
 		upstreamRequest.Type = action.Type
 		upstreamRequest.Context = action.Integration.Context
 		datasource = action.DataSource
@@ -167,10 +167,10 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 		originalIsPinned = post.IsPinned
 		originalHasReactions = post.HasReactions
 
-		if post.RootId == "" {
-			rootPostId = post.Id
+		if post.RootID == "" {
+			rootPostID = post.ID
 		} else {
-			rootPostId = post.RootId
+			rootPostID = post.RootID
 		}
 
 		upstreamURL = action.Integration.URL
@@ -182,11 +182,11 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 		defer close(teamChan)
 
 		// Direct and group channels won't have teams.
-		if upstreamRequest.TeamId == "" {
+		if upstreamRequest.TeamID == "" {
 			return
 		}
 
-		team, err := a.Srv().Store.Team().Get(upstreamRequest.TeamId)
+		team, err := a.Srv().Store.Team().Get(upstreamRequest.TeamID)
 		teamChan <- store.StoreResult{Data: team, NErr: err}
 	}()
 
@@ -229,7 +229,7 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 		}
 	}
 
-	clientTriggerId, _, appErr := upstreamRequest.GenerateTriggerId(a.AsymmetricSigningKey())
+	clientTriggerID, _, appErr := upstreamRequest.GenerateTriggerID(a.AsymmetricSigningKey())
 	if appErr != nil {
 		return "", appErr
 	}
@@ -242,7 +242,7 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 		}
 		return "", nil
 	}
-	resp, appErr = a.DoActionRequest(c, upstreamURL, upstreamRequest.ToJson())
+	resp, appErr = a.DoActionRequest(c, upstreamURL, upstreamRequest.ToJSON())
 	if appErr != nil {
 		return "", appErr
 	}
@@ -254,7 +254,7 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 	}
 
 	if response.Update != nil {
-		response.Update.Id = postID
+		response.Update.ID = postID
 
 		// Restore the post attributes and Props that need to be preserved
 		if response.Update.GetProps() == nil {
@@ -278,9 +278,9 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 	if response.EphemeralText != "" {
 		ephemeralPost := &model.Post{
 			Message:   response.EphemeralText,
-			ChannelId: upstreamRequest.ChannelId,
-			RootId:    rootPostId,
-			UserId:    userID,
+			ChannelID: upstreamRequest.ChannelID,
+			RootID:    rootPostID,
+			UserID:    userID,
 		}
 
 		if !response.SkipSlackParsing {
@@ -293,7 +293,7 @@ func (a *App) DoPostActionWithCookie(c *request.Context, postID, actionId, userI
 		a.SendEphemeralPost(userID, ephemeralPost)
 	}
 
-	return clientTriggerId, nil
+	return clientTriggerID, nil
 }
 
 // Perform an HTTP POST request to an integration's action endpoint.
@@ -406,7 +406,7 @@ func (a *App) doPluginRequest(c *request.Context, method, rawURL string, values 
 	if err != nil {
 		return nil, model.NewAppError("doPluginRequest", "api.post.do_action.action_integration.app_error", nil, "err="+err.Error(), http.StatusBadRequest)
 	}
-	r.Header.Set("Mattermost-User-Id", c.Session().UserId)
+	r.Header.Set("Mattermost-User-Id", c.Session().UserID)
 	r.Header.Set(model.HeaderAuth, "Bearer "+c.Session().Token)
 	params := make(map[string]string)
 	params["plugin_id"] = pluginID
@@ -435,8 +435,8 @@ func (a *App) doLocalWarnMetricsRequest(c *request.Context, rawURL string, upstr
 		return model.NewAppError("doLocalWarnMetricsRequest", "api.post.do_action.action_integration.app_error", nil, err.Error(), http.StatusBadRequest)
 	}
 
-	warnMetricId := filepath.Base(rawURL)
-	if warnMetricId == "" {
+	warnMetricID := filepath.Base(rawURL)
+	if warnMetricID == "" {
 		return model.NewAppError("doLocalWarnMetricsRequest", "api.post.do_action.action_integration.app_error", nil, "", http.StatusBadRequest)
 	}
 
@@ -446,37 +446,37 @@ func (a *App) doLocalWarnMetricsRequest(c *request.Context, rawURL string, upstr
 		return nil
 	}
 
-	user, appErr := a.GetUser(c.Session().UserId)
+	user, appErr := a.GetUser(c.Session().UserID)
 	if appErr != nil {
 		return appErr
 	}
 
 	botPost := &model.Post{
-		UserId:       upstreamRequest.Context["bot_user_id"].(string),
-		ChannelId:    upstreamRequest.ChannelId,
+		UserID:       upstreamRequest.Context["bot_user_id"].(string),
+		ChannelID:    upstreamRequest.ChannelID,
 		HasReactions: true,
 	}
 
 	isE0Edition := (model.BuildEnterpriseReady == "true") // license == nil was already validated upstream
-	_, warnMetricDisplayTexts := a.getWarnMetricStatusAndDisplayTextsForId(warnMetricId, i18n.T, isE0Edition)
+	_, warnMetricDisplayTexts := a.getWarnMetricStatusAndDisplayTextsForID(warnMetricID, i18n.T, isE0Edition)
 	botPost.Message = ":white_check_mark: " + warnMetricDisplayTexts.BotSuccessMessage
 
 	if isE0Edition {
-		if appErr = a.RequestLicenseAndAckWarnMetric(c, warnMetricId, true); appErr != nil {
+		if appErr = a.RequestLicenseAndAckWarnMetric(c, warnMetricID, true); appErr != nil {
 			botPost.Message = ":warning: " + i18n.T("api.server.warn_metric.bot_response.start_trial_failure.message")
 		}
 	} else {
 		forceAck := upstreamRequest.Context["force_ack"].(bool)
-		if appErr = a.NotifyAndSetWarnMetricAck(warnMetricId, user, forceAck, true); appErr != nil {
+		if appErr = a.NotifyAndSetWarnMetricAck(warnMetricID, user, forceAck, true); appErr != nil {
 			if forceAck {
 				return appErr
 			}
-			mailtoLinkText := a.buildWarnMetricMailtoLink(warnMetricId, user)
+			mailtoLinkText := a.buildWarnMetricMailtoLink(warnMetricID, user)
 			botPost.Message = ":warning: " + i18n.T("api.server.warn_metric.bot_response.notification_failure.message")
 			actions := []*model.PostAction{}
 			actions = append(actions,
 				&model.PostAction{
-					Id:   "emailUs",
+					ID:   "emailUs",
 					Name: i18n.T("api.server.warn_metric.email_us"),
 					Type: model.PostActionTypeButton,
 					Options: []*model.PostActionOptions{
@@ -486,12 +486,12 @@ func (a *App) doLocalWarnMetricsRequest(c *request.Context, rawURL string, upstr
 						},
 						{
 							Text:  "TrackEventId",
-							Value: warnMetricId,
+							Value: warnMetricID,
 						},
 					},
 					Integration: &model.PostActionIntegration{
 						Context: model.StringInterface{
-							"bot_user_id": botPost.UserId,
+							"bot_user_id": botPost.UserID,
 							"force_ack":   true,
 						},
 						URL: fmt.Sprintf("/warn_metrics/ack/%s", model.SystemWarnMetricNumberOfActiveUsers500),
@@ -508,7 +508,7 @@ func (a *App) doLocalWarnMetricsRequest(c *request.Context, rawURL string, upstr
 		}
 	}
 
-	if _, err := a.CreatePostAsUser(c, botPost, c.Session().Id, true); err != nil {
+	if _, err := a.CreatePostAsUser(c, botPost, c.Session().ID, true); err != nil {
 		return err
 	}
 
@@ -516,21 +516,21 @@ func (a *App) doLocalWarnMetricsRequest(c *request.Context, rawURL string, upstr
 }
 
 type MailToLinkContent struct {
-	MetricId      string `json:"metric_id"`
+	MetricID      string `json:"metric_id"`
 	MailRecipient string `json:"mail_recipient"`
 	MailCC        string `json:"mail_cc"`
 	MailSubject   string `json:"mail_subject"`
 	MailBody      string `json:"mail_body"`
 }
 
-func (mlc *MailToLinkContent) ToJson() string {
+func (mlc *MailToLinkContent) ToJSON() string {
 	b, _ := json.Marshal(mlc)
 	return string(b)
 }
 
-func (a *App) buildWarnMetricMailtoLink(warnMetricId string, user *model.User) string {
+func (a *App) buildWarnMetricMailtoLink(warnMetricID string, user *model.User) string {
 	T := i18n.GetUserTranslations(user.Locale)
-	_, warnMetricDisplayTexts := a.getWarnMetricStatusAndDisplayTextsForId(warnMetricId, T, false)
+	_, warnMetricDisplayTexts := a.getWarnMetricStatusAndDisplayTextsForID(warnMetricID, T, false)
 
 	mailBody := warnMetricDisplayTexts.EmailBody
 	mailBody += T("api.server.warn_metric.bot_response.mailto_contact_header", map[string]interface{}{"Contact": user.GetFullName()})
@@ -549,20 +549,20 @@ func (a *App) buildWarnMetricMailtoLink(warnMetricId string, user *model.User) s
 	mailBody += T("api.server.warn_metric.bot_response.mailto_site_url_header", map[string]interface{}{"SiteUrl": a.GetSiteURL()})
 	mailBody += "\r\n"
 
-	mailBody += T("api.server.warn_metric.bot_response.mailto_diagnostic_id_header", map[string]interface{}{"DiagnosticId": a.TelemetryId()})
+	mailBody += T("api.server.warn_metric.bot_response.mailto_diagnostic_id_header", map[string]interface{}{"DiagnosticId": a.TelemetryID()})
 	mailBody += "\r\n"
 
 	mailBody += T("api.server.warn_metric.bot_response.mailto_footer")
 
 	mailToLinkContent := &MailToLinkContent{
-		MetricId:      warnMetricId,
+		MetricID:      warnMetricID,
 		MailRecipient: model.MmSupportAdvisorAddress,
 		MailCC:        user.Email,
 		MailSubject:   T("api.server.warn_metric.bot_response.mailto_subject"),
 		MailBody:      mailBody,
 	}
 
-	return mailToLinkContent.ToJson()
+	return mailToLinkContent.ToJSON()
 }
 
 func (a *App) DoLocalRequest(c *request.Context, rawURL string, body []byte) (*http.Response, *model.AppError) {
@@ -570,12 +570,12 @@ func (a *App) DoLocalRequest(c *request.Context, rawURL string, body []byte) (*h
 }
 
 func (a *App) OpenInteractiveDialog(request model.OpenDialogRequest) *model.AppError {
-	clientTriggerId, userID, err := request.DecodeAndVerifyTriggerId(a.AsymmetricSigningKey())
+	clientTriggerID, userID, err := request.DecodeAndVerifyTriggerID(a.AsymmetricSigningKey())
 	if err != nil {
 		return err
 	}
 
-	request.TriggerId = clientTriggerId
+	request.TriggerID = clientTriggerID
 
 	jsonRequest, _ := json.Marshal(request)
 

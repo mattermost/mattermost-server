@@ -78,7 +78,7 @@ func (s *S3FileBackendNoBucketError) Error() string {
 func NewS3FileBackend(settings FileBackendSettings) (*S3FileBackend, error) {
 	backend := &S3FileBackend{
 		endpoint:   settings.AmazonS3Endpoint,
-		accessKey:  settings.AmazonS3AccessKeyId,
+		accessKey:  settings.AmazonS3AccessKeyID,
 		secretKey:  settings.AmazonS3SecretAccessKey,
 		secure:     settings.AmazonS3SSL,
 		signV2:     settings.AmazonS3SignV2,

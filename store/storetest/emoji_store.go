@@ -26,17 +26,17 @@ func TestEmojiStore(t *testing.T, ss store.Store) {
 
 func testEmojiSaveDelete(t *testing.T, ss store.Store) {
 	emoji1 := &model.Emoji{
-		CreatorId: model.NewId(),
-		Name:      model.NewId(),
+		CreatorID: model.NewID(),
+		Name:      model.NewID(),
 	}
 
 	_, err := ss.Emoji().Save(emoji1)
 	require.NoError(t, err)
 
-	assert.Len(t, emoji1.Id, 26, "should've set id for emoji")
+	assert.Len(t, emoji1.ID, 26, "should've set id for emoji")
 
 	emoji2 := model.Emoji{
-		CreatorId: model.NewId(),
+		CreatorID: model.NewID(),
 		Name:      emoji1.Name,
 	}
 	_, err = ss.Emoji().Save(&emoji2)
@@ -55,16 +55,16 @@ func testEmojiSaveDelete(t *testing.T, ss store.Store) {
 func testEmojiGet(t *testing.T, ss store.Store) {
 	emojis := []model.Emoji{
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 	}
 
@@ -81,29 +81,29 @@ func testEmojiGet(t *testing.T, ss store.Store) {
 	}()
 
 	for _, emoji := range emojis {
-		_, err := ss.Emoji().Get(context.Background(), emoji.Id, false)
-		require.NoErrorf(t, err, "failed to get emoji with id %v", emoji.Id)
+		_, err := ss.Emoji().Get(context.Background(), emoji.ID, false)
+		require.NoErrorf(t, err, "failed to get emoji with id %v", emoji.ID)
 	}
 
 	for _, emoji := range emojis {
-		_, err := ss.Emoji().Get(context.Background(), emoji.Id, true)
-		require.NoErrorf(t, err, "failed to get emoji with id %v", emoji.Id)
+		_, err := ss.Emoji().Get(context.Background(), emoji.ID, true)
+		require.NoErrorf(t, err, "failed to get emoji with id %v", emoji.ID)
 	}
 }
 
 func testEmojiGetByName(t *testing.T, ss store.Store) {
 	emojis := []model.Emoji{
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 	}
 
@@ -128,16 +128,16 @@ func testEmojiGetByName(t *testing.T, ss store.Store) {
 func testEmojiGetMultipleByName(t *testing.T, ss store.Store) {
 	emojis := []model.Emoji{
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 	}
 
@@ -182,16 +182,16 @@ func testEmojiGetMultipleByName(t *testing.T, ss store.Store) {
 func testEmojiGetList(t *testing.T, ss store.Store) {
 	emojis := []model.Emoji{
 		{
-			CreatorId: model.NewId(),
-			Name:      "00000000000000000000000000a" + model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      "00000000000000000000000000a" + model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      "00000000000000000000000000b" + model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      "00000000000000000000000000b" + model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      "00000000000000000000000000c" + model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      "00000000000000000000000000c" + model.NewID(),
 		},
 	}
 
@@ -214,13 +214,13 @@ func testEmojiGetList(t *testing.T, ss store.Store) {
 		found := false
 
 		for _, savedEmoji := range result {
-			if emoji.Id == savedEmoji.Id {
+			if emoji.ID == savedEmoji.ID {
 				found = true
 				break
 			}
 		}
 
-		require.Truef(t, found, "failed to get emoji with id %v", emoji.Id)
+		require.Truef(t, found, "failed to get emoji with id %v", emoji.ID)
 	}
 
 	remojis, err := ss.Emoji().GetList(0, 3, model.EmojiSortByName)
@@ -241,20 +241,20 @@ func testEmojiGetList(t *testing.T, ss store.Store) {
 func testEmojiSearch(t *testing.T, ss store.Store) {
 	emojis := []model.Emoji{
 		{
-			CreatorId: model.NewId(),
-			Name:      "blargh_" + model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      "blargh_" + model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId() + "_blargh",
+			CreatorID: model.NewID(),
+			Name:      model.NewID() + "_blargh",
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId() + "_blargh_" + model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID() + "_blargh_" + model.NewID(),
 		},
 		{
-			CreatorId: model.NewId(),
-			Name:      model.NewId(),
+			CreatorID: model.NewID(),
+			Name:      model.NewID(),
 		},
 	}
 
@@ -278,7 +278,7 @@ func testEmojiSearch(t *testing.T, ss store.Store) {
 		found := false
 
 		for _, savedEmoji := range result {
-			if emoji.Id == savedEmoji.Id {
+			if emoji.ID == savedEmoji.ID {
 				found = true
 				break
 			}
@@ -294,7 +294,7 @@ func testEmojiSearch(t *testing.T, ss store.Store) {
 		found := false
 
 		for _, savedEmoji := range result {
-			if emoji.Id == savedEmoji.Id {
+			if emoji.ID == savedEmoji.ID {
 				found = true
 				break
 			}

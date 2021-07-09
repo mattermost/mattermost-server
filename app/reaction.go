@@ -13,12 +13,12 @@ import (
 )
 
 func (a *App) SaveReactionForPost(c *request.Context, reaction *model.Reaction) (*model.Reaction, *model.AppError) {
-	post, err := a.GetSinglePost(reaction.PostId)
+	post, err := a.GetSinglePost(reaction.PostID)
 	if err != nil {
 		return nil, err
 	}
 
-	channel, err := a.GetChannel(post.ChannelId)
+	channel, err := a.GetChannel(post.ChannelID)
 	if err != nil {
 		return nil, err
 	}
@@ -29,12 +29,12 @@ func (a *App) SaveReactionForPost(c *request.Context, reaction *model.Reaction) 
 
 	if a.Srv().License() != nil && *a.Config().TeamSettings.ExperimentalTownSquareIsReadOnly && channel.Name == model.DefaultChannelName {
 		var user *model.User
-		user, err = a.GetUser(reaction.UserId)
+		user, err = a.GetUser(reaction.UserID)
 		if err != nil {
 			return nil, err
 		}
 
-		if !a.RolesGrantPermission(user.GetRoles(), model.PermissionManageSystem.Id) {
+		if !a.RolesGrantPermission(user.GetRoles(), model.PermissionManageSystem.ID) {
 			return nil, model.NewAppError("saveReactionForPost", "api.reaction.town_square_read_only", nil, "", http.StatusForbidden)
 		}
 	}
@@ -51,7 +51,7 @@ func (a *App) SaveReactionForPost(c *request.Context, reaction *model.Reaction) 
 	}
 
 	// The post is always modified since the UpdateAt always changes
-	a.invalidateCacheForChannelPosts(post.ChannelId)
+	a.invalidateCacheForChannelPosts(post.ChannelID)
 
 	if pluginsEnvironment := a.GetPluginsEnvironment(); pluginsEnvironment != nil {
 		a.Srv().Go(func() {
@@ -87,10 +87,10 @@ func (a *App) GetBulkReactionsForPosts(postIDs []string) (map[string][]*model.Re
 	}
 
 	for _, reaction := range allReactions {
-		reactionsForPost := reactions[reaction.PostId]
+		reactionsForPost := reactions[reaction.PostID]
 		reactionsForPost = append(reactionsForPost, reaction)
 
-		reactions[reaction.PostId] = reactionsForPost
+		reactions[reaction.PostID] = reactionsForPost
 	}
 
 	reactions = populateEmptyReactions(postIDs, reactions)
@@ -107,12 +107,12 @@ func populateEmptyReactions(postIDs []string, reactions map[string][]*model.Reac
 }
 
 func (a *App) DeleteReactionForPost(c *request.Context, reaction *model.Reaction) *model.AppError {
-	post, err := a.GetSinglePost(reaction.PostId)
+	post, err := a.GetSinglePost(reaction.PostID)
 	if err != nil {
 		return err
 	}
 
-	channel, err := a.GetChannel(post.ChannelId)
+	channel, err := a.GetChannel(post.ChannelID)
 	if err != nil {
 		return err
 	}
@@ -122,12 +122,12 @@ func (a *App) DeleteReactionForPost(c *request.Context, reaction *model.Reaction
 	}
 
 	if a.Srv().License() != nil && *a.Config().TeamSettings.ExperimentalTownSquareIsReadOnly && channel.Name == model.DefaultChannelName {
-		user, err := a.GetUser(reaction.UserId)
+		user, err := a.GetUser(reaction.UserID)
 		if err != nil {
 			return err
 		}
 
-		if !a.RolesGrantPermission(user.GetRoles(), model.PermissionManageSystem.Id) {
+		if !a.RolesGrantPermission(user.GetRoles(), model.PermissionManageSystem.ID) {
 			return model.NewAppError("DeleteReactionForPost", "api.reaction.town_square_read_only", nil, "", http.StatusForbidden)
 		}
 	}
@@ -137,7 +137,7 @@ func (a *App) DeleteReactionForPost(c *request.Context, reaction *model.Reaction
 	}
 
 	// The post is always modified since the UpdateAt always changes
-	a.invalidateCacheForChannelPosts(post.ChannelId)
+	a.invalidateCacheForChannelPosts(post.ChannelID)
 
 	if pluginsEnvironment := a.GetPluginsEnvironment(); pluginsEnvironment != nil {
 		a.Srv().Go(func() {
@@ -158,7 +158,7 @@ func (a *App) DeleteReactionForPost(c *request.Context, reaction *model.Reaction
 
 func (a *App) sendReactionEvent(event string, reaction *model.Reaction, post *model.Post) {
 	// send out that a reaction has been added/removed
-	message := model.NewWebSocketEvent(event, "", post.ChannelId, "", nil)
-	message.Add("reaction", reaction.ToJson())
+	message := model.NewWebSocketEvent(event, "", post.ChannelID, "", nil)
+	message.Add("reaction", reaction.ToJSON())
 	a.Publish(message)
 }

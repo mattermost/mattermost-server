@@ -29,7 +29,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
 )
 
-var hookNameToId map[string]int = make(map[string]int)
+var hookNameToID map[string]int = make(map[string]int)
 
 type hooksRPCClient struct {
 	client      *rpc.Client
@@ -181,8 +181,8 @@ var _ Hooks = &hooksRPCClient{}
 func (g *hooksRPCClient) Implemented() (impl []string, err error) {
 	err = g.client.Call("Plugin.Implemented", struct{}{}, &impl)
 	for _, hookName := range impl {
-		if hookId, ok := hookNameToId[hookName]; ok {
-			g.implemented[hookId] = true
+		if hookID, ok := hookNameToID[hookName]; ok {
+			g.implemented[hookID] = true
 		}
 	}
 	return
@@ -230,8 +230,8 @@ func (s *hooksRPCServer) Implemented(args struct{}, reply *[]string) error {
 }
 
 type Z_OnActivateArgs struct {
-	APIMuxId    uint32
-	DriverMuxId uint32
+	APIMuxID    uint32
+	DriverMuxID uint32
 }
 
 type Z_OnActivateReturns struct {
@@ -239,8 +239,8 @@ type Z_OnActivateReturns struct {
 }
 
 func (g *hooksRPCClient) OnActivate() error {
-	muxId := g.muxBroker.NextId()
-	go g.muxBroker.AcceptAndServe(muxId, &apiRPCServer{
+	muxID := g.muxBroker.NextId()
+	go g.muxBroker.AcceptAndServe(muxID, &apiRPCServer{
 		impl:      g.apiImpl,
 		muxBroker: g.muxBroker,
 	})
@@ -251,8 +251,8 @@ func (g *hooksRPCClient) OnActivate() error {
 	})
 
 	_args := &Z_OnActivateArgs{
-		APIMuxId:    muxId,
-		DriverMuxId: nextID,
+		APIMuxID:    muxID,
+		DriverMuxID: nextID,
 	}
 	_returns := &Z_OnActivateReturns{}
 
@@ -263,12 +263,12 @@ func (g *hooksRPCClient) OnActivate() error {
 }
 
 func (s *hooksRPCServer) OnActivate(args *Z_OnActivateArgs, returns *Z_OnActivateReturns) error {
-	connection, err := s.muxBroker.Dial(args.APIMuxId)
+	connection, err := s.muxBroker.Dial(args.APIMuxID)
 	if err != nil {
 		return err
 	}
 
-	conn2, err := s.muxBroker.Dial(args.DriverMuxId)
+	conn2, err := s.muxBroker.Dial(args.DriverMuxID)
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func (s *apiRPCServer) LoadPluginConfiguration(args *Z_LoadPluginConfigurationAr
 }
 
 func init() {
-	hookNameToId["ServeHTTP"] = ServeHTTPID
+	hookNameToID["ServeHTTP"] = ServeHTTPID
 }
 
 type Z_ServeHTTPArgs struct {
@@ -365,11 +365,11 @@ func (g *hooksRPCClient) ServeHTTP(c *Context, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	serveHTTPStreamId := g.muxBroker.NextId()
+	serveHTTPStreamID := g.muxBroker.NextId()
 	go func() {
-		connection, err := g.muxBroker.Accept(serveHTTPStreamId)
+		connection, err := g.muxBroker.Accept(serveHTTPStreamID)
 		if err != nil {
-			g.log.Error("Plugin failed to ServeHTTP, muxBroker couldn't accept connection", mlog.Uint32("serve_http_stream_id", serveHTTPStreamId), mlog.Err(err))
+			g.log.Error("Plugin failed to ServeHTTP, muxBroker couldn't accept connection", mlog.Uint32("serve_http_stream_id", serveHTTPStreamID), mlog.Err(err))
 			return
 		}
 		defer connection.Close()
@@ -382,11 +382,11 @@ func (g *hooksRPCClient) ServeHTTP(c *Context, w http.ResponseWriter, r *http.Re
 		rpcServer.ServeConn(connection)
 	}()
 
-	requestBodyStreamId := uint32(0)
+	requestBodyStreamID := uint32(0)
 	if r.Body != nil {
-		requestBodyStreamId = g.muxBroker.NextId()
+		requestBodyStreamID = g.muxBroker.NextId()
 		go func() {
-			bodyConnection, err := g.muxBroker.Accept(requestBodyStreamId)
+			bodyConnection, err := g.muxBroker.Accept(requestBodyStreamID)
 			if err != nil {
 				g.log.Error("Plugin failed to ServeHTTP, muxBroker couldn't Accept request body connection", mlog.Err(err))
 				return
@@ -410,9 +410,9 @@ func (g *hooksRPCClient) ServeHTTP(c *Context, w http.ResponseWriter, r *http.Re
 
 	if err := g.client.Call("Plugin.ServeHTTP", Z_ServeHTTPArgs{
 		Context:              c,
-		ResponseWriterStream: serveHTTPStreamId,
+		ResponseWriterStream: serveHTTPStreamID,
 		Request:              forwardedRequest,
-		RequestBodyStream:    requestBodyStreamId,
+		RequestBodyStream:    requestBodyStreamID,
 	}, nil); err != nil {
 		g.log.Error("Plugin failed to ServeHTTP, RPC call failed", mlog.Err(err))
 		http.Error(w, "500 internal server error", http.StatusInternalServerError)
@@ -523,7 +523,7 @@ func (s *apiRPCServer) PluginHTTP(args *Z_PluginHTTPArgs, returns *Z_PluginHTTPR
 }
 
 func init() {
-	hookNameToId["FileWillBeUploaded"] = FileWillBeUploadedID
+	hookNameToID["FileWillBeUploaded"] = FileWillBeUploadedID
 }
 
 type Z_FileWillBeUploadedArgs struct {
@@ -543,9 +543,9 @@ func (g *hooksRPCClient) FileWillBeUploaded(c *Context, info *model.FileInfo, fi
 		return info, ""
 	}
 
-	uploadedFileStreamId := g.muxBroker.NextId()
+	uploadedFileStreamID := g.muxBroker.NextId()
 	go func() {
-		uploadedFileConnection, err := g.muxBroker.Accept(uploadedFileStreamId)
+		uploadedFileConnection, err := g.muxBroker.Accept(uploadedFileStreamID)
 		if err != nil {
 			g.log.Error("Plugin failed to serve upload file stream. MuxBroker could not Accept connection", mlog.Err(err))
 			return
@@ -555,11 +555,11 @@ func (g *hooksRPCClient) FileWillBeUploaded(c *Context, info *model.FileInfo, fi
 	}()
 
 	replacementDone := make(chan bool)
-	replacementFileStreamId := g.muxBroker.NextId()
+	replacementFileStreamID := g.muxBroker.NextId()
 	go func() {
 		defer close(replacementDone)
 
-		replacementFileConnection, err := g.muxBroker.Accept(replacementFileStreamId)
+		replacementFileConnection, err := g.muxBroker.Accept(replacementFileStreamID)
 		if err != nil {
 			g.log.Error("Plugin failed to serve replacement file stream. MuxBroker could not Accept connection", mlog.Err(err))
 			return
@@ -570,7 +570,7 @@ func (g *hooksRPCClient) FileWillBeUploaded(c *Context, info *model.FileInfo, fi
 		}
 	}()
 
-	_args := &Z_FileWillBeUploadedArgs{c, info, uploadedFileStreamId, replacementFileStreamId}
+	_args := &Z_FileWillBeUploadedArgs{c, info, uploadedFileStreamID, replacementFileStreamID}
 	_returns := &Z_FileWillBeUploadedReturns{A: _args.B}
 	if err := g.client.Call("Plugin.FileWillBeUploaded", _args, _returns); err != nil {
 		g.log.Error("RPC call FileWillBeUploaded to plugin failed.", mlog.Err(err))
@@ -614,7 +614,7 @@ func (s *hooksRPCServer) FileWillBeUploaded(args *Z_FileWillBeUploadedArgs, retu
 // The special behaviour needed is decoding the returned post into the original one to avoid the unintentional removal
 // of fields by older plugins.
 func init() {
-	hookNameToId["MessageWillBePosted"] = MessageWillBePostedID
+	hookNameToID["MessageWillBePosted"] = MessageWillBePostedID
 }
 
 type Z_MessageWillBePostedArgs struct {
@@ -654,7 +654,7 @@ func (s *hooksRPCServer) MessageWillBePosted(args *Z_MessageWillBePostedArgs, re
 // The special behaviour needed is decoding the returned post into the original one to avoid the unintentional removal
 // of fields by older plugins.
 func init() {
-	hookNameToId["MessageWillBeUpdated"] = MessageWillBeUpdatedID
+	hookNameToID["MessageWillBeUpdated"] = MessageWillBeUpdatedID
 }
 
 type Z_MessageWillBeUpdatedArgs struct {

@@ -25,16 +25,16 @@ func (a *App) SlackImport(c *request.Context, fileData multipart.File, fileSize 
 			return a.UpdateActive(c, user, active)
 		},
 		AddUserToChannel: a.AddUserToChannel,
-		JoinUserToTeam: func(team *model.Team, user *model.User, userRequestorId string) (*model.TeamMember, *model.AppError) {
-			return a.JoinUserToTeam(c, team, user, userRequestorId)
+		JoinUserToTeam: func(team *model.Team, user *model.User, userRequestorID string) (*model.TeamMember, *model.AppError) {
+			return a.JoinUserToTeam(c, team, user, userRequestorID)
 		},
 		CreateDirectChannel: a.createDirectChannel,
 		CreateGroupChannel:  a.createGroupChannel,
 		CreateChannel: func(channel *model.Channel, addMember bool) (*model.Channel, *model.AppError) {
 			return a.CreateChannel(c, channel, addMember)
 		},
-		DoUploadFile: func(now time.Time, rawTeamId string, rawChannelId string, rawUserId string, rawFilename string, data []byte) (*model.FileInfo, *model.AppError) {
-			return a.DoUploadFile(c, now, rawTeamId, rawChannelId, rawUserId, rawFilename, data)
+		DoUploadFile: func(now time.Time, rawTeamID string, rawChannelID string, rawUserID string, rawFilename string, data []byte) (*model.FileInfo, *model.AppError) {
+			return a.DoUploadFile(c, now, rawTeamID, rawChannelID, rawUserID, rawFilename, data)
 		},
 		GenerateThumbnailImage: a.generateThumbnailImage,
 		GeneratePreviewImage:   a.generatePreviewImage,
@@ -55,7 +55,7 @@ func (a *App) SlackImport(c *request.Context, fileData multipart.File, fileSize 
 
 func (a *App) ProcessSlackText(text string) string {
 	text = expandAnnouncement(text)
-	text = replaceUserIds(a.Srv().Store.User(), text)
+	text = replaceUserIDs(a.Srv().Store.User(), text)
 
 	return text
 }
@@ -97,7 +97,7 @@ func expandAnnouncement(text string) string {
 // Replaces user IDs mentioned like this <@userID> to a normal username (eg. @bob)
 // This is required so that Mattermost maintains Slack compatibility
 // Refer to: https://api.slack.com/changelog/2017-09-the-one-about-usernames
-func replaceUserIds(userStore store.UserStore, text string) string {
+func replaceUserIDs(userStore store.UserStore, text string) string {
 	rgx, err := regexp.Compile("<@([a-zA-Z0-9]+)>")
 	if err == nil {
 		userIDs := make([]string, 0)
@@ -106,9 +106,9 @@ func replaceUserIds(userStore store.UserStore, text string) string {
 			userIDs = append(userIDs, match[1])
 		}
 
-		if users, err := userStore.GetProfileByIds(context.Background(), userIDs, nil, true); err == nil {
+		if users, err := userStore.GetProfileByIDs(context.Background(), userIDs, nil, true); err == nil {
 			for _, user := range users {
-				text = strings.Replace(text, "<@"+user.Id+">", "@"+user.Username, -1)
+				text = strings.Replace(text, "<@"+user.ID+">", "@"+user.Username, -1)
 			}
 		}
 	}

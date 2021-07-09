@@ -662,12 +662,12 @@ func (_m *UserStore) GetNewUsersForTeam(teamID string, offset int, limit int, vi
 }
 
 // GetProfileByGroupChannelIdsForUser provides a mock function with given fields: userID, channelIds
-func (_m *UserStore) GetProfileByGroupChannelIdsForUser(userID string, channelIds []string) (map[string][]*model.User, error) {
-	ret := _m.Called(userID, channelIds)
+func (_m *UserStore) GetProfileByGroupChannelIDsForUser(userID string, channelIDs []string) (map[string][]*model.User, error) {
+	ret := _m.Called(userID, channelIDs)
 
 	var r0 map[string][]*model.User
 	if rf, ok := ret.Get(0).(func(string, []string) map[string][]*model.User); ok {
-		r0 = rf(userID, channelIds)
+		r0 = rf(userID, channelIDs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[string][]*model.User)
@@ -676,7 +676,7 @@ func (_m *UserStore) GetProfileByGroupChannelIdsForUser(userID string, channelId
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, []string) error); ok {
-		r1 = rf(userID, channelIds)
+		r1 = rf(userID, channelIDs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -685,12 +685,12 @@ func (_m *UserStore) GetProfileByGroupChannelIdsForUser(userID string, channelId
 }
 
 // GetProfileByIds provides a mock function with given fields: ctx, userIds, options, allowFromCache
-func (_m *UserStore) GetProfileByIds(ctx context.Context, userIds []string, options *store.UserGetByIdsOpts, allowFromCache bool) ([]*model.User, error) {
-	ret := _m.Called(ctx, userIds, options, allowFromCache)
+func (_m *UserStore) GetProfileByIDs(ctx context.Context, userIDs []string, options *store.UserGetByIDsOpts, allowFromCache bool) ([]*model.User, error) {
+	ret := _m.Called(ctx, userIDs, options, allowFromCache)
 
 	var r0 []*model.User
-	if rf, ok := ret.Get(0).(func(context.Context, []string, *store.UserGetByIdsOpts, bool) []*model.User); ok {
-		r0 = rf(ctx, userIds, options, allowFromCache)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, *store.UserGetByIDsOpts, bool) []*model.User); ok {
+		r0 = rf(ctx, userIDs, options, allowFromCache)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.User)
@@ -698,8 +698,8 @@ func (_m *UserStore) GetProfileByIds(ctx context.Context, userIds []string, opti
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, []string, *store.UserGetByIdsOpts, bool) error); ok {
-		r1 = rf(ctx, userIds, options, allowFromCache)
+	if rf, ok := ret.Get(1).(func(context.Context, []string, *store.UserGetByIDsOpts, bool) error); ok {
+		r1 = rf(ctx, userIDs, options, allowFromCache)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -800,12 +800,12 @@ func (_m *UserStore) GetProfilesInChannelByStatus(options *model.UserGetOptions)
 }
 
 // GetProfilesNotInChannel provides a mock function with given fields: teamID, channelId, groupConstrained, offset, limit, viewRestrictions
-func (_m *UserStore) GetProfilesNotInChannel(teamID string, channelId string, groupConstrained bool, offset int, limit int, viewRestrictions *model.ViewUsersRestrictions) ([]*model.User, error) {
-	ret := _m.Called(teamID, channelId, groupConstrained, offset, limit, viewRestrictions)
+func (_m *UserStore) GetProfilesNotInChannel(teamID string, channelID string, groupConstrained bool, offset int, limit int, viewRestrictions *model.ViewUsersRestrictions) ([]*model.User, error) {
+	ret := _m.Called(teamID, channelID, groupConstrained, offset, limit, viewRestrictions)
 
 	var r0 []*model.User
 	if rf, ok := ret.Get(0).(func(string, string, bool, int, int, *model.ViewUsersRestrictions) []*model.User); ok {
-		r0 = rf(teamID, channelId, groupConstrained, offset, limit, viewRestrictions)
+		r0 = rf(teamID, channelID, groupConstrained, offset, limit, viewRestrictions)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.User)
@@ -814,7 +814,7 @@ func (_m *UserStore) GetProfilesNotInChannel(teamID string, channelId string, gr
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string, bool, int, int, *model.ViewUsersRestrictions) error); ok {
-		r1 = rf(teamID, channelId, groupConstrained, offset, limit, viewRestrictions)
+		r1 = rf(teamID, channelID, groupConstrained, offset, limit, viewRestrictions)
 	} else {
 		r1 = ret.Error(1)
 	}

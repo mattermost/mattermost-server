@@ -56,12 +56,12 @@ func (*EchoProvider) DoCommand(a *app.App, c *request.Context, args *model.Comma
 		}
 		message = message[1:endMsg]
 	} else if strings.Contains(message, " ") {
-		delayIdx := strings.LastIndex(message, " ")
-		delayStr := strings.Trim(message[delayIdx:], " ")
+		delayIDx := strings.LastIndex(message, " ")
+		delayStr := strings.Trim(message[delayIDx:], " ")
 
 		if checkDelay, err := strconv.Atoi(delayStr); err == nil {
 			delay = checkDelay
-			message = message[:delayIdx]
+			message = message[:delayIDx]
 		}
 	}
 
@@ -82,11 +82,11 @@ func (*EchoProvider) DoCommand(a *app.App, c *request.Context, args *model.Comma
 	a.Srv().Go(func() {
 		defer func() { <-echoSem }()
 		post := &model.Post{}
-		post.ChannelId = args.ChannelId
-		post.RootId = args.RootId
-		post.ParentId = args.ParentId
+		post.ChannelID = args.ChannelID
+		post.RootID = args.RootID
+		post.ParentID = args.ParentID
 		post.Message = message
-		post.UserId = args.UserId
+		post.UserID = args.UserID
 
 		time.Sleep(time.Duration(delay) * time.Second)
 

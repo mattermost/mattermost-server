@@ -21,13 +21,13 @@ func TestUserAccessTokenStore(t *testing.T, ss store.Store) {
 
 func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 	uat := &model.UserAccessToken{
-		Token:       model.NewId(),
-		UserId:      model.NewId(),
+		Token:       model.NewID(),
+		UserID:      model.NewID(),
 		Description: "testtoken",
 	}
 
 	s1 := &model.Session{}
-	s1.UserId = uat.UserId
+	s1.UserID = uat.UserID
 	s1.Token = uat.Token
 
 	s1, err := ss.Session().Save(s1)
@@ -36,7 +36,7 @@ func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 	_, nErr := ss.UserAccessToken().Save(uat)
 	require.NoError(t, nErr)
 
-	result, terr := ss.UserAccessToken().Get(uat.Id)
+	result, terr := ss.UserAccessToken().Get(uat.ID)
 	require.NoError(t, terr)
 	require.Equal(t, result.Token, uat.Token, "received incorrect token after save")
 
@@ -47,7 +47,7 @@ func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 	_, nErr = ss.UserAccessToken().GetByToken("notarealtoken")
 	require.Error(t, nErr, "should have failed on bad token")
 
-	received2, err2 := ss.UserAccessToken().GetByUser(uat.UserId, 0, 100)
+	received2, err2 := ss.UserAccessToken().GetByUser(uat.UserID, 0, 100)
 	require.NoError(t, err2)
 	require.Equal(t, 1, len(received2), "received incorrect number of tokens after save")
 
@@ -55,7 +55,7 @@ func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(result2), "received incorrect number of tokens after save")
 
-	nErr = ss.UserAccessToken().Delete(uat.Id)
+	nErr = ss.UserAccessToken().Delete(uat.ID)
 	require.NoError(t, nErr)
 
 	_, err = ss.Session().Get(context.Background(), s1.Token)
@@ -65,7 +65,7 @@ func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 	require.Error(t, nErr, "should error - access token should be deleted")
 
 	s2 := &model.Session{}
-	s2.UserId = uat.UserId
+	s2.UserID = uat.UserID
 	s2.Token = uat.Token
 
 	s2, err = ss.Session().Save(s2)
@@ -74,7 +74,7 @@ func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 	_, nErr = ss.UserAccessToken().Save(uat)
 	require.NoError(t, nErr)
 
-	nErr = ss.UserAccessToken().DeleteAllForUser(uat.UserId)
+	nErr = ss.UserAccessToken().DeleteAllForUser(uat.UserID)
 	require.NoError(t, nErr)
 
 	_, err = ss.Session().Get(context.Background(), s2.Token)
@@ -86,13 +86,13 @@ func testUserAccessTokenSaveGetDelete(t *testing.T, ss store.Store) {
 
 func testUserAccessTokenDisableEnable(t *testing.T, ss store.Store) {
 	uat := &model.UserAccessToken{
-		Token:       model.NewId(),
-		UserId:      model.NewId(),
+		Token:       model.NewID(),
+		UserID:      model.NewID(),
 		Description: "testtoken",
 	}
 
 	s1 := &model.Session{}
-	s1.UserId = uat.UserId
+	s1.UserID = uat.UserID
 	s1.Token = uat.Token
 
 	s1, err := ss.Session().Save(s1)
@@ -101,39 +101,39 @@ func testUserAccessTokenDisableEnable(t *testing.T, ss store.Store) {
 	_, nErr := ss.UserAccessToken().Save(uat)
 	require.NoError(t, nErr)
 
-	nErr = ss.UserAccessToken().UpdateTokenDisable(uat.Id)
+	nErr = ss.UserAccessToken().UpdateTokenDisable(uat.ID)
 	require.NoError(t, nErr)
 
 	_, err = ss.Session().Get(context.Background(), s1.Token)
 	require.Error(t, err, "should error - session should be deleted")
 
 	s2 := &model.Session{}
-	s2.UserId = uat.UserId
+	s2.UserID = uat.UserID
 	s2.Token = uat.Token
 
 	s2, err = ss.Session().Save(s2)
 	require.NoError(t, err)
 
-	nErr = ss.UserAccessToken().UpdateTokenEnable(uat.Id)
+	nErr = ss.UserAccessToken().UpdateTokenEnable(uat.ID)
 	require.NoError(t, nErr)
 }
 
 func testUserAccessTokenSearch(t *testing.T, ss store.Store) {
 	u1 := model.User{}
 	u1.Email = MakeEmail()
-	u1.Username = model.NewId()
+	u1.Username = model.NewID()
 
 	_, err := ss.User().Save(&u1)
 	require.NoError(t, err)
 
 	uat := &model.UserAccessToken{
-		Token:       model.NewId(),
-		UserId:      u1.Id,
+		Token:       model.NewID(),
+		UserID:      u1.ID,
 		Description: "testtoken",
 	}
 
 	s1 := &model.Session{}
-	s1.UserId = uat.UserId
+	s1.UserID = uat.UserID
 	s1.Token = uat.Token
 
 	s1, nErr := ss.Session().Save(s1)
@@ -142,12 +142,12 @@ func testUserAccessTokenSearch(t *testing.T, ss store.Store) {
 	_, nErr = ss.UserAccessToken().Save(uat)
 	require.NoError(t, nErr)
 
-	received, nErr := ss.UserAccessToken().Search(uat.Id)
+	received, nErr := ss.UserAccessToken().Search(uat.ID)
 	require.NoError(t, nErr)
 
 	require.Equal(t, 1, len(received), "received incorrect number of tokens after search")
 
-	received, nErr = ss.UserAccessToken().Search(uat.UserId)
+	received, nErr = ss.UserAccessToken().Search(uat.UserID)
 	require.NoError(t, nErr)
 	require.Equal(t, 1, len(received), "received incorrect number of tokens after search")
 

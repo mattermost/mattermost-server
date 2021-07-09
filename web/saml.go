@@ -29,7 +29,7 @@ func loginWithSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	teamId, err := c.App.GetTeamIdFromQuery(r.URL.Query())
+	teamID, err := c.App.GetTeamIDFromQuery(r.URL.Query())
 	if err != nil {
 		c.Err = err
 		return
@@ -41,7 +41,7 @@ func loginWithSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 	relayState := ""
 
 	if action != "" {
-		relayProps["team_id"] = teamId
+		relayProps["team_id"] = teamID
 		relayProps["action"] = action
 		if action == model.OAuthActionEmailToSSO {
 			relayProps["email"] = r.URL.Query().Get("email")
@@ -60,7 +60,7 @@ func loginWithSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 	relayProps[model.UserAuthServiceIsMobile] = strconv.FormatBool(isMobile)
 
 	if len(relayProps) > 0 {
-		relayState = b64.StdEncoding.EncodeToString([]byte(model.MapToJson(relayProps)))
+		relayState = b64.StdEncoding.EncodeToString([]byte(model.MapToJSON(relayProps)))
 	}
 
 	data, err := samlInterface.BuildRequest(relayState)
@@ -93,7 +93,7 @@ func completeSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		stateStr = string(b)
-		relayProps = model.MapFromJson(strings.NewReader(stateStr))
+		relayProps = model.MapFromJSON(strings.NewReader(stateStr))
 	}
 
 	auditRec := c.MakeAuditRecord("completeSaml", audit.Fail)
@@ -137,22 +137,22 @@ func completeSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 	case model.OAuthActionSignup:
-		if teamId := relayProps["team_id"]; teamId != "" {
-			if err = c.App.AddUserToTeamByTeamId(c.AppContext, teamId, user); err != nil {
+		if teamID := relayProps["team_id"]; teamID != "" {
+			if err = c.App.AddUserToTeamByTeamID(c.AppContext, teamID, user); err != nil {
 				c.LogErrorByCode(err)
 				break
 			}
-			c.App.AddDirectChannels(teamId, user)
+			c.App.AddDirectChannels(teamID, user)
 		}
 	case model.OAuthActionEmailToSSO:
-		if err = c.App.RevokeAllSessions(user.Id); err != nil {
+		if err = c.App.RevokeAllSessions(user.ID); err != nil {
 			c.Err = err
 			return
 		}
-		auditRec.AddMeta("revoked_user_id", user.Id)
+		auditRec.AddMeta("revoked_user_id", user.ID)
 		auditRec.AddMeta("revoked", "Revoked all sessions for user")
 
-		c.LogAuditWithUserId(user.Id, "Revoked all sessions for user")
+		c.LogAuditWithUserID(user.ID, "Revoked all sessions for user")
 		c.App.Srv().Go(func() {
 			if err = c.App.Srv().EmailService.SendSignInChangeEmail(user.Email, strings.Title(model.UserAuthServiceSaml)+" SSO", user.Locale, c.App.GetSiteURL()); err != nil {
 				c.LogErrorByCode(err)
@@ -160,8 +160,8 @@ func completeSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	auditRec.AddMeta("obtained_user_id", user.Id)
-	c.LogAuditWithUserId(user.Id, "obtained user")
+	auditRec.AddMeta("obtained_user_id", user.ID)
+	c.LogAuditWithUserID(user.ID, "obtained user")
 
 	err = c.App.DoLogin(c.AppContext, w, r, user, "", isMobile, false, true)
 	if err != nil {
@@ -171,7 +171,7 @@ func completeSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	c.LogAuditWithUserId(user.Id, "success")
+	c.LogAuditWithUserID(user.ID, "success")
 
 	c.App.AttachSessionCookies(c.AppContext, w, r)
 

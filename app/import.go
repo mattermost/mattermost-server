@@ -26,7 +26,7 @@ const (
 )
 
 func stopOnError(err LineImportWorkerError) bool {
-	switch err.Error.Id {
+	switch err.Error.ID {
 	case "api.file.upload_file.large_image.app_error":
 		mlog.Warn("Large image import error", mlog.Err(err.Error))
 		return false

@@ -33,7 +33,7 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 	}
 
 	// then unknown user
-	data, err = p.API.GetProfileImage(model.NewId())
+	data, err = p.API.GetProfileImage(model.NewID())
 	if err == nil || data != nil {
 		return nil, "GetProfileImage should've returned an error"
 	}

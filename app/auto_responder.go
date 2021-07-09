@@ -12,12 +12,12 @@ import (
 )
 
 // check if there is any auto_response type post in channel by the user in a calender day
-func (a *App) checkIfRespondedToday(createdAt int64, channelId, userId string) (bool, error) {
+func (a *App) checkIfRespondedToday(createdAt int64, channelID, userID string) (bool, error) {
 	y, m, d := time.Unix(int64(model.GetTimeForMillis(createdAt).Second()), 0).Date()
 	since := model.GetMillisForTime(time.Date(y, m, d, 0, 0, 0, 0, time.UTC))
 	return a.Srv().Store.Post().HasAutoResponsePostByUserSince(
-		model.GetPostsSinceOptions{ChannelId: channelId, Time: since},
-		userId,
+		model.GetPostsSinceOptions{ChannelID: channelID, Time: since},
+		userID,
 	)
 }
 
@@ -30,18 +30,18 @@ func (a *App) SendAutoResponseIfNecessary(c *request.Context, channel *model.Cha
 		return false, nil
 	}
 
-	receiverId := channel.GetOtherUserIdForDM(sender.Id)
-	if receiverId == "" {
+	receiverID := channel.GetOtherUserIDForDM(sender.ID)
+	if receiverID == "" {
 		// User direct messaged themself, let them test their auto-responder.
-		receiverId = sender.Id
+		receiverID = sender.ID
 	}
 
-	receiver, aErr := a.GetUser(receiverId)
+	receiver, aErr := a.GetUser(receiverID)
 	if aErr != nil {
 		return false, aErr
 	}
 
-	autoResponded, err := a.checkIfRespondedToday(post.CreateAt, post.ChannelId, receiverId)
+	autoResponded, err := a.checkIfRespondedToday(post.CreateAt, post.ChannelID, receiverID)
 	if err != nil {
 		return false, model.NewAppError("SendAutoResponseIfNecessary", "app.user.send_auto_response.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -64,17 +64,17 @@ func (a *App) SendAutoResponse(c *request.Context, channel *model.Channel, recei
 		return false, nil
 	}
 
-	rootID := post.Id
-	if post.RootId != "" {
-		rootID = post.RootId
+	rootID := post.ID
+	if post.RootID != "" {
+		rootID = post.RootID
 	}
 
 	autoResponderPost := &model.Post{
-		ChannelId: channel.Id,
+		ChannelID: channel.ID,
 		Message:   message,
-		RootId:    rootID,
+		RootID:    rootID,
 		Type:      model.PostTypeAutoResponder,
-		UserId:    receiver.Id,
+		UserID:    receiver.ID,
 	}
 
 	if _, err := a.CreatePost(c, autoResponderPost, channel, false, false); err != nil {
@@ -92,9 +92,9 @@ func (a *App) SetAutoResponderStatus(user *model.User, oldNotifyProps model.Stri
 	autoResponderDisabled := oldActive && !active
 
 	if autoResponderEnabled {
-		a.SetStatusOutOfOffice(user.Id)
+		a.SetStatusOutOfOffice(user.ID)
 	} else if autoResponderDisabled {
-		a.SetStatusOnline(user.Id, true)
+		a.SetStatusOnline(user.ID, true)
 	}
 }
 

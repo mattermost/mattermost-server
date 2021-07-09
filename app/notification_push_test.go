@@ -333,9 +333,9 @@ func TestDoesNotifyPropsAllowPushNotification(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			user := &model.User{Id: model.NewId(), Email: "unit@test.com", NotifyProps: make(map[string]string)}
+			user := &model.User{ID: model.NewID(), Email: "unit@test.com", NotifyProps: make(map[string]string)}
 			user.NotifyProps[model.PushNotifyProp] = tc.userNotifySetting
-			post := &model.Post{UserId: user.Id, ChannelId: model.NewId()}
+			post := &model.Post{UserID: user.ID, ChannelID: model.NewID()}
 			if tc.withSystemPost {
 				post.Type = model.PostTypeJoinChannel
 			}
@@ -353,13 +353,13 @@ func TestDoesNotifyPropsAllowPushNotification(t *testing.T) {
 }
 
 func TestDoesStatusAllowPushNotification(t *testing.T) {
-	userID := model.NewId()
-	channelID := model.NewId()
+	userID := model.NewID()
+	channelID := model.NewID()
 
-	offline := &model.Status{UserId: userID, Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
-	away := &model.Status{UserId: userID, Status: model.StatusAway, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
-	online := &model.Status{UserId: userID, Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
-	dnd := &model.Status{UserId: userID, Status: model.StatusDnd, Manual: true, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	offline := &model.Status{UserID: userID, Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+	away := &model.Status{UserID: userID, Status: model.StatusAway, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+	online := &model.Status{UserID: userID, Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	dnd := &model.Status{UserID: userID, Status: model.StatusDnd, Manual: true, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
 
 	tt := []struct {
 		name              string
@@ -982,18 +982,18 @@ func TestSendPushNotifications(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 	_, err := th.App.CreateSession(&model.Session{
-		UserId:    th.BasicUser.Id,
-		DeviceId:  "test",
+		UserID:    th.BasicUser.ID,
+		DeviceID:  "test",
 		ExpiresAt: model.GetMillis() + 100000,
 	})
 	require.Nil(t, err)
 
 	t.Run("should return error if data is not valid or nil", func(t *testing.T) {
-		err := th.App.sendPushNotificationToAllSessions(nil, th.BasicUser.Id, "")
+		err := th.App.sendPushNotificationToAllSessions(nil, th.BasicUser.ID, "")
 		require.NotNil(t, err)
-		assert.Equal(t, "api.push_notifications.message.parse.app_error", err.Id)
+		assert.Equal(t, "api.push_notifications.message.parse.app_error", err.ID)
 		// Errors derived of using an empty object are handled internally through the notifications log
-		err = th.App.sendPushNotificationToAllSessions(&model.PushNotification{}, th.BasicUser.Id, "")
+		err = th.App.sendPushNotificationToAllSessions(&model.PushNotification{}, th.BasicUser.ID, "")
 		require.Nil(t, err)
 	})
 }
@@ -1024,7 +1024,7 @@ func (h *testPushNotificationHandler) handleReq(w http.ResponseWriter, r *http.R
 		// Don't do any checking if it's a benchmark
 		if _, ok := h.t.(*testing.B); ok {
 			resp := model.NewOkPushResponse()
-			fmt.Fprintln(w, (&resp).ToJson())
+			fmt.Fprintln(w, (&resp).ToJSON())
 			return
 		}
 
@@ -1032,25 +1032,25 @@ func (h *testPushNotificationHandler) handleReq(w http.ResponseWriter, r *http.R
 		var notificationAck *model.PushNotificationAck
 		var err error
 		if r.URL.Path == "/api/v1/send_push" {
-			notification, err = model.PushNotificationFromJson(r.Body)
+			notification, err = model.PushNotificationFromJSON(r.Body)
 			if err != nil {
 				resp := model.NewErrorPushResponse("fail")
-				fmt.Fprintln(w, (&resp).ToJson())
+				fmt.Fprintln(w, (&resp).ToJSON())
 				return
 			}
 			// We verify that messages are being sent in order per-device.
-			if notification.DeviceId != "" {
-				if _, ok := h.serialUserMap.Load(notification.DeviceId); ok {
-					h.t.Fatalf("device id: %s being sent concurrently", notification.DeviceId)
+			if notification.DeviceID != "" {
+				if _, ok := h.serialUserMap.Load(notification.DeviceID); ok {
+					h.t.Fatalf("device id: %s being sent concurrently", notification.DeviceID)
 				}
-				h.serialUserMap.LoadOrStore(notification.DeviceId, true)
-				defer h.serialUserMap.Delete(notification.DeviceId)
+				h.serialUserMap.LoadOrStore(notification.DeviceID, true)
+				defer h.serialUserMap.Delete(notification.DeviceID)
 			}
 		} else {
-			notificationAck, err = model.PushNotificationAckFromJson(r.Body)
+			notificationAck, err = model.PushNotificationAckFromJSON(r.Body)
 			if err != nil {
 				resp := model.NewErrorPushResponse("fail")
-				fmt.Fprintln(w, (&resp).ToJson())
+				fmt.Fprintln(w, (&resp).ToJSON())
 				return
 			}
 		}
@@ -1077,7 +1077,7 @@ func (h *testPushNotificationHandler) handleReq(w http.ResponseWriter, r *http.R
 				resp = model.NewRemovePushResponse()
 			}
 		}
-		fmt.Fprintln(w, (&resp).ToJson())
+		fmt.Fprintln(w, (&resp).ToJSON())
 	}
 }
 
@@ -1110,15 +1110,15 @@ func TestClearPushNotificationSync(t *testing.T) {
 	defer pushServer.Close()
 
 	sess1 := &model.Session{
-		Id:        "id1",
-		UserId:    "user1",
-		DeviceId:  "test1",
+		ID:        "id1",
+		UserID:    "user1",
+		DeviceID:  "test1",
 		ExpiresAt: model.GetMillis() + 100000,
 	}
 	sess2 := &model.Session{
-		Id:        "id2",
-		UserId:    "user1",
-		DeviceId:  "test2",
+		ID:        "id2",
+		UserID:    "user1",
+		DeviceID:  "test2",
 		ExpiresAt: model.GetMillis() + 100000,
 	}
 
@@ -1145,12 +1145,12 @@ func TestClearPushNotificationSync(t *testing.T) {
 		*cfg.EmailSettings.PushNotificationServer = pushServer.URL
 	})
 
-	err := th.App.clearPushNotificationSync(sess1.Id, "user1", "channel1")
+	err := th.App.clearPushNotificationSync(sess1.ID, "user1", "channel1")
 	require.Nil(t, err)
 	// Server side verification.
 	// We verify that 1 request has been sent, and also check the message contents.
 	require.Equal(t, 1, handler.numReqs())
-	assert.Equal(t, "channel1", handler.notifications()[0].ChannelId)
+	assert.Equal(t, "channel1", handler.notifications()[0].ChannelID)
 	assert.Equal(t, model.PushTypeClear, handler.notifications()[0].Type)
 }
 
@@ -1165,15 +1165,15 @@ func TestUpdateMobileAppBadgeSync(t *testing.T) {
 	defer pushServer.Close()
 
 	sess1 := &model.Session{
-		Id:        "id1",
-		UserId:    "user1",
-		DeviceId:  "test1",
+		ID:        "id1",
+		UserID:    "user1",
+		DeviceID:  "test1",
 		ExpiresAt: model.GetMillis() + 100000,
 	}
 	sess2 := &model.Session{
-		Id:        "id2",
-		UserId:    "user1",
-		DeviceId:  "test2",
+		ID:        "id2",
+		UserID:    "user1",
+		DeviceID:  "test2",
 		ExpiresAt: model.GetMillis() + 100000,
 	}
 
@@ -1240,7 +1240,7 @@ func TestSendAckToPushProxy(t *testing.T) {
 	})
 
 	ack := &model.PushNotificationAck{
-		Id:               "testid",
+		ID:               "testid",
 		NotificationType: model.PushTypeMessage,
 	}
 	err := th.App.SendAckToPushProxy(ack)
@@ -1248,7 +1248,7 @@ func TestSendAckToPushProxy(t *testing.T) {
 	// Server side verification.
 	// We verify that 1 request has been sent, and also check the message contents.
 	require.Equal(t, 1, handler.numReqs())
-	assert.Equal(t, ack.Id, handler.notificationAcks()[0].Id)
+	assert.Equal(t, ack.ID, handler.notificationAcks()[0].ID)
 	assert.Equal(t, ack.NotificationType, handler.notificationAcks()[0].NotificationType)
 }
 
@@ -1271,19 +1271,19 @@ func TestAllPushNotifications(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		u := th.CreateUser()
 		sess, err := th.App.CreateSession(&model.Session{
-			UserId:    u.Id,
-			DeviceId:  "deviceID" + u.Id,
+			UserID:    u.ID,
+			DeviceID:  "deviceID" + u.ID,
 			ExpiresAt: model.GetMillis() + 100000,
 		})
 		require.Nil(t, err)
 		// We don't need to track the 2nd session.
 		_, err = th.App.CreateSession(&model.Session{
-			UserId:    u.Id,
-			DeviceId:  "deviceID" + u.Id,
+			UserID:    u.ID,
+			DeviceID:  "deviceID" + u.ID,
 			ExpiresAt: model.GetMillis() + 100000,
 		})
 		require.Nil(t, err)
-		_, err = th.App.AddTeamMember(th.Context, th.BasicTeam.Id, u.Id)
+		_, err = th.App.AddTeamMember(th.Context, th.BasicTeam.ID, u.ID)
 		require.Nil(t, err)
 		th.AddUserToChannel(u, th.BasicChannel)
 		testData = append(testData, userSession{
@@ -1318,7 +1318,7 @@ func TestAllPushNotifications(t *testing.T) {
 					Post:    th.CreatePost(th.BasicChannel),
 					Channel: th.BasicChannel,
 					ProfileMap: map[string]*model.User{
-						user.Id: &user,
+						user.ID: &user,
 					},
 					Sender: &user,
 				}
@@ -1329,12 +1329,12 @@ func TestAllPushNotifications(t *testing.T) {
 			go func(id string) {
 				defer wg.Done()
 				th.App.UpdateMobileAppBadge(id)
-			}(data.user.Id)
+			}(data.user.ID)
 		case 2:
 			go func(sessID, userID string) {
 				defer wg.Done()
-				th.App.clearPushNotification(sessID, userID, th.BasicChannel.Id)
-			}(data.session.Id, data.user.Id)
+				th.App.clearPushNotification(sessID, userID, th.BasicChannel.ID)
+			}(data.session.ID, data.user.ID)
 		}
 	}
 	wg.Wait()
@@ -1348,10 +1348,10 @@ func TestAllPushNotifications(t *testing.T) {
 		switch n.Type {
 		case model.PushTypeClear:
 			numClears++
-			assert.Equal(t, th.BasicChannel.Id, n.ChannelId)
+			assert.Equal(t, th.BasicChannel.ID, n.ChannelID)
 		case model.PushTypeMessage:
 			numMessages++
-			assert.Equal(t, th.BasicChannel.Id, n.ChannelId)
+			assert.Equal(t, th.BasicChannel.ID, n.ChannelID)
 			assert.Contains(t, n.Message, "mentioned you")
 		case model.PushTypeUpdateBadge:
 			numUpdateBadges++
@@ -1473,9 +1473,9 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 	}
 	var testData []userSession
 	for i := 0; i < 50; i++ {
-		id := model.NewId()
+		id := model.NewID()
 		u := &model.User{
-			Id:            id,
+			ID:            id,
 			Email:         "success+" + id + "@simulator.amazonses.com",
 			Username:      "un_" + id,
 			Nickname:      "nn_" + id,
@@ -1483,19 +1483,19 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 			EmailVerified: true,
 		}
 		sess1 := &model.Session{
-			Id:        "id1",
-			UserId:    u.Id,
-			DeviceId:  "deviceID" + u.Id,
+			ID:        "id1",
+			UserID:    u.ID,
+			DeviceID:  "deviceID" + u.ID,
 			ExpiresAt: model.GetMillis() + 100000,
 		}
 		sess2 := &model.Session{
-			Id:        "id2",
-			UserId:    u.Id,
-			DeviceId:  "deviceID" + u.Id,
+			ID:        "id2",
+			UserID:    u.ID,
+			DeviceID:  "deviceID" + u.ID,
 			ExpiresAt: model.GetMillis() + 100000,
 		}
-		mockSessionStore.On("GetSessionsWithActiveDeviceIds", u.Id).Return([]*model.Session{sess1, sess2}, nil)
-		mockSessionStore.On("UpdateDeviceId", sess1.Id, "deviceID"+u.Id, mock.AnythingOfType("int64")).Return("deviceID"+u.Id, nil)
+		mockSessionStore.On("GetSessionsWithActiveDeviceIds", u.ID).Return([]*model.Session{sess1, sess2}, nil)
+		mockSessionStore.On("UpdateDeviceId", sess1.ID, "deviceID"+u.ID, mock.AnythingOfType("int64")).Return("deviceID"+u.ID, nil)
 
 		testData = append(testData, userSession{
 			user:    u,
@@ -1510,7 +1510,7 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 	})
 
 	ch := &model.Channel{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		CreateAt: model.GetMillis(),
 		Type:     model.ChannelTypeOpen,
 		Name:     "testch",
@@ -1532,8 +1532,8 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 				go func(user model.User) {
 					defer wg.Done()
 					post := &model.Post{
-						UserId:    user.Id,
-						ChannelId: ch.Id,
+						UserID:    user.ID,
+						ChannelID: ch.ID,
 						Message:   "test message",
 						CreateAt:  model.GetMillis(),
 					}
@@ -1541,7 +1541,7 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 						Post:    post,
 						Channel: ch,
 						ProfileMap: map[string]*model.User{
-							user.Id: &user,
+							user.ID: &user,
 						},
 						Sender: &user,
 					}
@@ -1551,12 +1551,12 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 				go func(id string) {
 					defer wg.Done()
 					th.App.UpdateMobileAppBadge(id)
-				}(data.user.Id)
+				}(data.user.ID)
 			case 2:
 				go func(sessID, userID string) {
 					defer wg.Done()
-					th.App.clearPushNotification(sessID, userID, ch.Id)
-				}(data.session.Id, data.user.Id)
+					th.App.clearPushNotification(sessID, userID, ch.ID)
+				}(data.session.ID, data.user.ID)
 			}
 		}
 		wg.Wait()

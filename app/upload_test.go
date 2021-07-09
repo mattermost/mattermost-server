@@ -25,8 +25,8 @@ func TestCreateUploadSession(t *testing.T) {
 
 	us := &model.UploadSession{
 		Type:      model.UploadTypeAttachment,
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Filename:  "upload",
 		FileSize:  8 * 1024 * 1024,
 	}
@@ -37,55 +37,55 @@ func TestCreateUploadSession(t *testing.T) {
 		defer th.App.UpdateConfig(func(cfg *model.Config) { *cfg.FileSettings.MaxFileSize = maxFileSize })
 		u, err := th.App.CreateUploadSession(us)
 		require.NotNil(t, err)
-		require.Equal(t, "app.upload.create.upload_too_large.app_error", err.Id)
+		require.Equal(t, "app.upload.create.upload_too_large.app_error", err.ID)
 		require.Nil(t, u)
 	})
 
 	t.Run("invalid Id", func(t *testing.T) {
 		u, err := th.App.CreateUploadSession(us)
 		require.NotNil(t, err)
-		require.Equal(t, "model.upload_session.is_valid.id.app_error", err.Id)
+		require.Equal(t, "model.upload_session.is_valid.id.app_error", err.ID)
 		require.Nil(t, u)
 	})
 
 	t.Run("invalid UserId", func(t *testing.T) {
-		us.Id = model.NewId()
-		us.UserId = ""
+		us.ID = model.NewID()
+		us.UserID = ""
 		u, err := th.App.CreateUploadSession(us)
 		require.NotNil(t, err)
-		require.Equal(t, "model.upload_session.is_valid.user_id.app_error", err.Id)
+		require.Equal(t, "model.upload_session.is_valid.user_id.app_error", err.ID)
 		require.Nil(t, u)
 	})
 
 	t.Run("invalid ChannelId", func(t *testing.T) {
-		us.UserId = th.BasicUser.Id
-		us.ChannelId = ""
+		us.UserID = th.BasicUser.ID
+		us.ChannelID = ""
 		u, err := th.App.CreateUploadSession(us)
 		require.NotNil(t, err)
-		require.Equal(t, "model.upload_session.is_valid.channel_id.app_error", err.Id)
+		require.Equal(t, "model.upload_session.is_valid.channel_id.app_error", err.ID)
 		require.Nil(t, u)
 	})
 
 	t.Run("non-existing channel", func(t *testing.T) {
-		us.ChannelId = model.NewId()
+		us.ChannelID = model.NewID()
 		u, err := th.App.CreateUploadSession(us)
 		require.NotNil(t, err)
-		require.Equal(t, "app.upload.create.incorrect_channel_id.app_error", err.Id)
+		require.Equal(t, "app.upload.create.incorrect_channel_id.app_error", err.ID)
 		require.Nil(t, u)
 	})
 
 	t.Run("deleted channel", func(t *testing.T) {
 		ch := th.CreateChannel(th.BasicTeam)
-		th.App.DeleteChannel(th.Context, ch, th.BasicUser.Id)
-		us.ChannelId = ch.Id
+		th.App.DeleteChannel(th.Context, ch, th.BasicUser.ID)
+		us.ChannelID = ch.ID
 		u, err := th.App.CreateUploadSession(us)
 		require.NotNil(t, err)
-		require.Equal(t, "app.upload.create.cannot_upload_to_deleted_channel.app_error", err.Id)
+		require.Equal(t, "app.upload.create.cannot_upload_to_deleted_channel.app_error", err.ID)
 		require.Nil(t, u)
 	})
 
 	t.Run("success", func(t *testing.T) {
-		us.ChannelId = th.BasicChannel.Id
+		us.ChannelID = th.BasicChannel.ID
 		u, err := th.App.CreateUploadSession(us)
 		require.Nil(t, err)
 		require.NotEmpty(t, u)
@@ -97,10 +97,10 @@ func TestUploadData(t *testing.T) {
 	defer th.TearDown()
 
 	us := &model.UploadSession{
-		Id:        model.NewId(),
+		ID:        model.NewID(),
 		Type:      model.UploadTypeAttachment,
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Filename:  "upload",
 		FileSize:  8 * 1024 * 1024,
 	}
@@ -128,7 +128,7 @@ func TestUploadData(t *testing.T) {
 		info, appErr := th.App.UploadData(th.Context, &u, rd)
 		require.Nil(t, info)
 		require.NotNil(t, appErr)
-		require.NotEqual(t, "app.upload.upload_data.first_part_too_small.app_error", appErr.Id)
+		require.NotEqual(t, "app.upload.upload_data.first_part_too_small.app_error", appErr.ID)
 	})
 
 	t.Run("first part too small", func(t *testing.T) {
@@ -144,7 +144,7 @@ func TestUploadData(t *testing.T) {
 		info, appErr := th.App.UploadData(th.Context, us, rd)
 		require.Nil(t, info)
 		require.NotNil(t, appErr)
-		require.Equal(t, "app.upload.upload_data.first_part_too_small.app_error", appErr.Id)
+		require.Equal(t, "app.upload.upload_data.first_part_too_small.app_error", appErr.ID)
 
 		ok, appErr = th.App.FileExists(us.Path)
 		require.False(t, ok)
@@ -174,7 +174,7 @@ func TestUploadData(t *testing.T) {
 	})
 
 	t.Run("all at once success", func(t *testing.T) {
-		us.Id = model.NewId()
+		us.ID = model.NewID()
 		var appErr *model.AppError
 		us, appErr = th.App.CreateUploadSession(us)
 		require.Nil(t, appErr)
@@ -190,7 +190,7 @@ func TestUploadData(t *testing.T) {
 	})
 
 	t.Run("small file success", func(t *testing.T) {
-		us.Id = model.NewId()
+		us.ID = model.NewID()
 		us.FileSize = 1024 * 1024
 		var appErr *model.AppError
 		us, appErr = th.App.CreateUploadSession(us)
@@ -216,7 +216,7 @@ func TestUploadData(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, data)
 
-		us.Id = model.NewId()
+		us.ID = model.NewID()
 		us.Filename = "test.png"
 		us.FileSize = int64(len(data))
 		var appErr *model.AppError
@@ -239,10 +239,10 @@ func TestUploadDataConcurrent(t *testing.T) {
 	defer th.TearDown()
 
 	us := &model.UploadSession{
-		Id:        model.NewId(),
+		ID:        model.NewID(),
 		Type:      model.UploadTypeAttachment,
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Filename:  "upload",
 		FileSize:  8 * 1024 * 1024,
 	}
@@ -270,7 +270,7 @@ func TestUploadDataConcurrent(t *testing.T) {
 			}
 			u := *us
 			_, err := th.App.UploadData(th.Context, &u, rd)
-			if err != nil && err.Id == "app.upload.upload_data.concurrent.app_error" {
+			if err != nil && err.ID == "app.upload.upload_data.concurrent.app_error" {
 				atomic.AddInt32(&nErrs, 1)
 			}
 		}()
@@ -294,7 +294,7 @@ func TestUploadDataConcurrent(t *testing.T) {
 			u := *us
 			u.FileOffset = 5 * 1024 * 1024
 			_, err := th.App.UploadData(th.Context, &u, rd)
-			if err != nil && err.Id == "app.upload.upload_data.concurrent.app_error" {
+			if err != nil && err.ID == "app.upload.upload_data.concurrent.app_error" {
 				atomic.AddInt32(&nErrs, 1)
 			}
 		}()

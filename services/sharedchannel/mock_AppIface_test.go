@@ -44,12 +44,12 @@ func (_m *MockAppIface) AddUserToChannel(user *model.User, channel *model.Channe
 }
 
 // AddUserToTeamByTeamId provides a mock function with given fields: c, teamId, user
-func (_m *MockAppIface) AddUserToTeamByTeamId(c *request.Context, teamId string, user *model.User) *model.AppError {
-	ret := _m.Called(c, teamId, user)
+func (_m *MockAppIface) AddUserToTeamByTeamID(c *request.Context, teamID string, user *model.User) *model.AppError {
+	ret := _m.Called(c, teamID, user)
 
 	var r0 *model.AppError
 	if rf, ok := ret.Get(0).(func(*request.Context, string, *model.User) *model.AppError); ok {
-		r0 = rf(c, teamId, user)
+		r0 = rf(c, teamID, user)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.AppError)
@@ -60,12 +60,12 @@ func (_m *MockAppIface) AddUserToTeamByTeamId(c *request.Context, teamId string,
 }
 
 // CreateChannelWithUser provides a mock function with given fields: c, channel, userId
-func (_m *MockAppIface) CreateChannelWithUser(c *request.Context, channel *model.Channel, userId string) (*model.Channel, *model.AppError) {
-	ret := _m.Called(c, channel, userId)
+func (_m *MockAppIface) CreateChannelWithUser(c *request.Context, channel *model.Channel, userID string) (*model.Channel, *model.AppError) {
+	ret := _m.Called(c, channel, userID)
 
 	var r0 *model.Channel
 	if rf, ok := ret.Get(0).(func(*request.Context, *model.Channel, string) *model.Channel); ok {
-		r0 = rf(c, channel, userId)
+		r0 = rf(c, channel, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Channel)
@@ -74,7 +74,7 @@ func (_m *MockAppIface) CreateChannelWithUser(c *request.Context, channel *model
 
 	var r1 *model.AppError
 	if rf, ok := ret.Get(1).(func(*request.Context, *model.Channel, string) *model.AppError); ok {
-		r1 = rf(c, channel, userId)
+		r1 = rf(c, channel, userID)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*model.AppError)
@@ -201,19 +201,19 @@ func (_m *MockAppIface) FileReader(path string) (filestore.ReadCloseSeeker, *mod
 }
 
 // GetOrCreateDirectChannel provides a mock function with given fields: c, userId, otherUserId, channelOptions
-func (_m *MockAppIface) GetOrCreateDirectChannel(c *request.Context, userId string, otherUserId string, channelOptions ...model.ChannelOption) (*model.Channel, *model.AppError) {
+func (_m *MockAppIface) GetOrCreateDirectChannel(c *request.Context, userID string, otherUserID string, channelOptions ...model.ChannelOption) (*model.Channel, *model.AppError) {
 	_va := make([]interface{}, len(channelOptions))
 	for _i := range channelOptions {
 		_va[_i] = channelOptions[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, c, userId, otherUserId)
+	_ca = append(_ca, c, userID, otherUserID)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 *model.Channel
 	if rf, ok := ret.Get(0).(func(*request.Context, string, string, ...model.ChannelOption) *model.Channel); ok {
-		r0 = rf(c, userId, otherUserId, channelOptions...)
+		r0 = rf(c, userID, otherUserID, channelOptions...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Channel)
@@ -222,7 +222,7 @@ func (_m *MockAppIface) GetOrCreateDirectChannel(c *request.Context, userId stri
 
 	var r1 *model.AppError
 	if rf, ok := ret.Get(1).(func(*request.Context, string, string, ...model.ChannelOption) *model.AppError); ok {
-		r1 = rf(c, userId, otherUserId, channelOptions...)
+		r1 = rf(c, userID, otherUserID, channelOptions...)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*model.AppError)
@@ -357,12 +357,12 @@ func (_m *MockAppIface) SaveReactionForPost(c *request.Context, reaction *model.
 }
 
 // SendEphemeralPost provides a mock function with given fields: userId, post
-func (_m *MockAppIface) SendEphemeralPost(userId string, post *model.Post) *model.Post {
-	ret := _m.Called(userId, post)
+func (_m *MockAppIface) SendEphemeralPost(userID string, post *model.Post) *model.Post {
+	ret := _m.Called(userID, post)
 
 	var r0 *model.Post
 	if rf, ok := ret.Get(0).(func(string, *model.Post) *model.Post); ok {
-		r0 = rf(userId, post)
+		r0 = rf(userID, post)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Post)

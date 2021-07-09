@@ -17,13 +17,13 @@ func TestHeaderProviderDoCommand(t *testing.T) {
 
 	hp := HeaderProvider{}
 
-	th.addPermissionToRole(model.PermissionManagePublicChannelProperties.Id, model.ChannelUserRoleId)
+	th.addPermissionToRole(model.PermissionManagePublicChannelProperties.ID, model.ChannelUserRoleID)
 
 	// Try a public channel *with* permission.
 	args := &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: th.BasicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: th.BasicChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	for msg, expected := range map[string]string{
@@ -34,39 +34,39 @@ func TestHeaderProviderDoCommand(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	}
 
-	th.removePermissionFromRole(model.PermissionManagePublicChannelProperties.Id, model.ChannelUserRoleId)
+	th.removePermissionFromRole(model.PermissionManagePublicChannelProperties.ID, model.ChannelUserRoleID)
 
 	// Try a public channel *without* permission.
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: th.BasicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: th.BasicChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual := hp.DoCommand(th.App, th.Context, args, "hello").Text
 	assert.Equal(t, "api.command_channel_header.permission.app_error", actual)
 
-	th.addPermissionToRole(model.PermissionManagePrivateChannelProperties.Id, model.ChannelUserRoleId)
+	th.addPermissionToRole(model.PermissionManagePrivateChannelProperties.ID, model.ChannelUserRoleID)
 
 	// Try a private channel *with* permission.
 	privateChannel := th.createPrivateChannel(th.BasicTeam)
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: privateChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: privateChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = hp.DoCommand(th.App, th.Context, args, "hello").Text
 	assert.Equal(t, "", actual)
 
-	th.removePermissionFromRole(model.PermissionManagePrivateChannelProperties.Id, model.ChannelUserRoleId)
+	th.removePermissionFromRole(model.PermissionManagePrivateChannelProperties.ID, model.ChannelUserRoleID)
 
 	// Try a private channel *without* permission.
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: privateChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: privateChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = hp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -81,8 +81,8 @@ func TestHeaderProviderDoCommand(t *testing.T) {
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: groupChannel.Id,
-		UserId:    user1.Id,
+		ChannelID: groupChannel.ID,
+		UserID:    user1.ID,
 	}
 
 	actual = hp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -91,8 +91,8 @@ func TestHeaderProviderDoCommand(t *testing.T) {
 	// Try a group channel *without* being a member.
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: groupChannel.Id,
-		UserId:    user3.Id,
+		ChannelID: groupChannel.ID,
+		UserID:    user3.ID,
 	}
 
 	actual = hp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -103,8 +103,8 @@ func TestHeaderProviderDoCommand(t *testing.T) {
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: directChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: directChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = hp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -113,8 +113,8 @@ func TestHeaderProviderDoCommand(t *testing.T) {
 	// Try a direct channel *without* being a member.
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: directChannel.Id,
-		UserId:    user2.Id,
+		ChannelID: directChannel.ID,
+		UserID:    user2.ID,
 	}
 
 	actual = hp.DoCommand(th.App, th.Context, args, "hello").Text

@@ -11,21 +11,21 @@ import (
 )
 
 var allowedPermissions = []string{
-	model.PermissionCreateTeam.Id,
-	model.PermissionManageIncomingWebhooks.Id,
-	model.PermissionManageOutgoingWebhooks.Id,
-	model.PermissionManageSlashCommands.Id,
-	model.PermissionManageOAuth.Id,
-	model.PermissionManageSystemWideOAuth.Id,
-	model.PermissionCreateEmojis.Id,
-	model.PermissionDeleteEmojis.Id,
-	model.PermissionEditOthersPosts.Id,
+	model.PermissionCreateTeam.ID,
+	model.PermissionManageIncomingWebhooks.ID,
+	model.PermissionManageOutgoingWebhooks.ID,
+	model.PermissionManageSlashCommands.ID,
+	model.PermissionManageOAuth.ID,
+	model.PermissionManageSystemWideOAuth.ID,
+	model.PermissionCreateEmojis.ID,
+	model.PermissionDeleteEmojis.ID,
+	model.PermissionEditOthersPosts.ID,
 }
 
 var notAllowedPermissions = []string{
-	model.PermissionSysconsoleWriteUserManagementSystemRoles.Id,
-	model.PermissionSysconsoleReadUserManagementSystemRoles.Id,
-	model.PermissionManageRoles.Id,
+	model.PermissionSysconsoleWriteUserManagementSystemRoles.ID,
+	model.PermissionSysconsoleReadUserManagementSystemRoles.ID,
+	model.PermissionManageRoles.ID,
 }
 
 func (api *API) InitRole() {
@@ -36,18 +36,18 @@ func (api *API) InitRole() {
 }
 
 func getRole(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireRoleId()
+	c.RequireRoleID()
 	if c.Err != nil {
 		return
 	}
 
-	role, err := c.App.GetRole(c.Params.RoleId)
+	role, err := c.App.GetRole(c.Params.RoleID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(role.ToJson()))
+	w.Write([]byte(role.ToJSON()))
 }
 
 func getRoleByName(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -62,11 +62,11 @@ func getRoleByName(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(role.ToJson()))
+	w.Write([]byte(role.ToJSON()))
 }
 
 func getRolesByNames(c *Context, w http.ResponseWriter, r *http.Request) {
-	rolenames := model.ArrayFromJson(r.Body)
+	rolenames := model.ArrayFromJSON(r.Body)
 
 	if len(rolenames) == 0 {
 		c.SetInvalidParam("rolenames")
@@ -85,16 +85,16 @@ func getRolesByNames(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.RoleListToJson(roles)))
+	w.Write([]byte(model.RoleListToJSON(roles)))
 }
 
 func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireRoleId()
+	c.RequireRoleID()
 	if c.Err != nil {
 		return
 	}
 
-	patch := model.RolePatchFromJson(r.Body)
+	patch := model.RolePatchFromJSON(r.Body)
 	if patch == nil {
 		c.SetInvalidParam("role")
 		return
@@ -103,7 +103,7 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("patchRole", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	oldRole, err := c.App.GetRole(c.Params.RoleId)
+	oldRole, err := c.App.GetRole(c.Params.RoleID)
 	if err != nil {
 		c.Err = err
 		return
@@ -112,7 +112,7 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	// manage_system permission is required to patch system_admin
 	requiredPermission := model.PermissionSysconsoleWriteUserManagementPermissions
-	specialProtectedSystemRoles := append(model.NewSystemRoleIDs, model.SystemAdminRoleId)
+	specialProtectedSystemRoles := append(model.NewSystemRoleIDs, model.SystemAdminRoleID)
 	for _, roleID := range specialProtectedSystemRoles {
 		if oldRole.Name == roleID {
 			requiredPermission = model.PermissionManageSystem
@@ -123,7 +123,7 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isGuest := oldRole.Name == model.SystemGuestRoleId || oldRole.Name == model.TeamGuestRoleId || oldRole.Name == model.ChannelGuestRoleId
+	isGuest := oldRole.Name == model.SystemGuestRoleID || oldRole.Name == model.TeamGuestRoleID || oldRole.Name == model.ChannelGuestRoleID
 	if c.App.Srv().License() == nil && patch.Permissions != nil {
 		if isGuest {
 			c.Err = model.NewAppError("Api4.PatchRoles", "api.roles.patch_roles.license.error", nil, "", http.StatusNotImplemented)
@@ -171,7 +171,7 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if oldRole.Name == model.TeamAdminRoleId || oldRole.Name == model.ChannelAdminRoleId || oldRole.Name == model.SystemUserRoleId || oldRole.Name == model.TeamUserRoleId || oldRole.Name == model.ChannelUserRoleId || oldRole.Name == model.SystemGuestRoleId || oldRole.Name == model.TeamGuestRoleId || oldRole.Name == model.ChannelGuestRoleId {
+	if oldRole.Name == model.TeamAdminRoleID || oldRole.Name == model.ChannelAdminRoleID || oldRole.Name == model.SystemUserRoleID || oldRole.Name == model.TeamUserRoleID || oldRole.Name == model.ChannelUserRoleID || oldRole.Name == model.SystemGuestRoleID || oldRole.Name == model.TeamGuestRoleID || oldRole.Name == model.ChannelGuestRoleID {
 		if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionSysconsoleWriteUserManagementPermissions) {
 			c.SetPermissionError(model.PermissionSysconsoleWriteUserManagementPermissions)
 			return
@@ -193,5 +193,5 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("patch", role)
 	c.LogAudit("")
 
-	w.Write([]byte(role.ToJson()))
+	w.Write([]byte(role.ToJSON()))
 }

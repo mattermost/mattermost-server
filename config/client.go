@@ -337,10 +337,10 @@ func GenerateLimitedClientConfig(c *model.Config, telemetryID string, license *m
 			props["EnableSignUpWithOffice365"] = strconv.FormatBool(*c.Office365Settings.Enable)
 		}
 
-		if *license.Features.OpenId {
-			props["EnableSignUpWithOpenId"] = strconv.FormatBool(*c.OpenIdSettings.Enable)
-			props["OpenIdButtonColor"] = *c.OpenIdSettings.ButtonColor
-			props["OpenIdButtonText"] = *c.OpenIdSettings.ButtonText
+		if *license.Features.OpenID {
+			props["EnableSignUpWithOpenId"] = strconv.FormatBool(*c.OpenIDSettings.Enable)
+			props["OpenIdButtonColor"] = *c.OpenIDSettings.ButtonColor
+			props["OpenIdButtonText"] = *c.OpenIDSettings.ButtonText
 		}
 
 		if *license.Features.CustomTermsOfService {

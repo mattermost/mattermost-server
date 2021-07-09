@@ -64,30 +64,30 @@ func TestGroupMsgProvider(t *testing.T) {
 	th.linkUserToTeam(th.BasicUser, team)
 	cmd := &groupmsgProvider{}
 
-	th.removePermissionFromRole(model.PermissionCreateGroupChannel.Id, model.SystemUserRoleId)
+	th.removePermissionFromRole(model.PermissionCreateGroupChannel.ID, model.SystemUserRoleID)
 
 	t.Run("Check without permission to create a GM channel.", func(t *testing.T) {
 		resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 			T:       i18n.IdentityTfunc(),
 			SiteURL: "http://test.url",
-			TeamId:  team.Id,
-			UserId:  th.BasicUser.Id,
+			TeamID:  team.ID,
+			UserID:  th.BasicUser.ID,
 		}, targetUsers+"hello")
 
 		assert.Equal(t, "api.command_groupmsg.permission.app_error", resp.Text)
 		assert.Equal(t, "", resp.GotoLocation)
 	})
 
-	th.addPermissionToRole(model.PermissionCreateGroupChannel.Id, model.SystemUserRoleId)
+	th.addPermissionToRole(model.PermissionCreateGroupChannel.ID, model.SystemUserRoleID)
 
 	t.Run("Check without permissions to view a user in the list.", func(t *testing.T) {
-		th.removePermissionFromRole(model.PermissionViewMembers.Id, model.SystemUserRoleId)
-		defer th.addPermissionToRole(model.PermissionViewMembers.Id, model.SystemUserRoleId)
+		th.removePermissionFromRole(model.PermissionViewMembers.ID, model.SystemUserRoleID)
+		defer th.addPermissionToRole(model.PermissionViewMembers.ID, model.SystemUserRoleID)
 		resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 			T:       i18n.IdentityTfunc(),
 			SiteURL: "http://test.url",
-			TeamId:  team.Id,
-			UserId:  th.BasicUser.Id,
+			TeamID:  team.ID,
+			UserID:  th.BasicUser.ID,
 		}, targetUsers+"hello")
 
 		assert.Equal(t, "api.command_groupmsg.invalid_user.app_error", resp.Text)
@@ -98,11 +98,11 @@ func TestGroupMsgProvider(t *testing.T) {
 		resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 			T:       i18n.IdentityTfunc(),
 			SiteURL: "http://test.url",
-			TeamId:  team.Id,
-			UserId:  th.BasicUser.Id,
+			TeamID:  team.ID,
+			UserID:  th.BasicUser.ID,
 		}, targetUsers+"hello")
 
-		channelName := model.GetGroupNameFromUserIds([]string{th.BasicUser.Id, th.BasicUser2.Id, user3.Id})
+		channelName := model.GetGroupNameFromUserIDs([]string{th.BasicUser.ID, th.BasicUser2.ID, user3.ID})
 		assert.Equal(t, "", resp.Text)
 		assert.Equal(t, "http://test.url/"+team.Name+"/channels/"+channelName, resp.GotoLocation)
 	})
@@ -111,11 +111,11 @@ func TestGroupMsgProvider(t *testing.T) {
 		resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 			T:       i18n.IdentityTfunc(),
 			SiteURL: "http://test.url",
-			TeamId:  team.Id,
-			UserId:  th.BasicUser.Id,
+			TeamID:  team.ID,
+			UserID:  th.BasicUser.ID,
 		}, targetUsers+"hello")
 
-		channelName := model.GetGroupNameFromUserIds([]string{th.BasicUser.Id, th.BasicUser2.Id, user3.Id})
+		channelName := model.GetGroupNameFromUserIDs([]string{th.BasicUser.ID, th.BasicUser2.ID, user3.ID})
 		assert.Equal(t, "", resp.Text)
 		assert.Equal(t, "http://test.url/"+team.Name+"/channels/"+channelName, resp.GotoLocation)
 	})

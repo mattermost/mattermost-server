@@ -664,7 +664,7 @@ func TestImportValidateUserAuth(t *testing.T) {
 			require.Nil(t, err, fmt.Sprintf("authService: %v, authData: %v", test.authService, test.authData))
 		} else {
 			require.NotNil(t, err, fmt.Sprintf("authService: %v, authData: %v", test.authService, test.authData))
-			require.Equal(t, "app.import.validate_user_import_data.auth_data_and_service_dependency.error", err.Id)
+			require.Equal(t, "app.import.validate_user_import_data.auth_data_and_service_dependency.error", err.ID)
 		}
 	}
 
@@ -916,7 +916,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err := validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to missing required property.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.team_missing.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.team_missing.error")
 
 		data = PostImportData{
 			Team:     ptrStr("teamname"),
@@ -926,7 +926,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err = validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to missing required property.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.channel_missing.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.channel_missing.error")
 
 		data = PostImportData{
 			Team:     ptrStr("teamname"),
@@ -936,7 +936,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err = validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to missing required property.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.user_missing.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.user_missing.error")
 
 		data = PostImportData{
 			Team:     ptrStr("teamname"),
@@ -946,7 +946,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err = validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to missing required property.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.message_missing.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.message_missing.error")
 
 		data = PostImportData{
 			Team:    ptrStr("teamname"),
@@ -956,7 +956,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err = validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to missing required property.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.create_at_missing.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.create_at_missing.error")
 	})
 
 	t.Run("Test with invalid message", func(t *testing.T) {
@@ -969,7 +969,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err := validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to too long message.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.message_length.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.message_length.error")
 	})
 
 	t.Run("Test with invalid CreateAt", func(t *testing.T) {
@@ -982,7 +982,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err := validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to 0 create-at value.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.create_at_zero.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.create_at_zero.error")
 	})
 
 	t.Run("Test with valid all optional parameters", func(t *testing.T) {
@@ -1026,7 +1026,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		}
 		err := validatePostImportData(&data, maxPostSize)
 		require.NotNil(t, err, "Should have failed due to long props.")
-		assert.Equal(t, err.Id, "app.import.validate_post_import_data.props_too_large.error")
+		assert.Equal(t, err.ID, "app.import.validate_post_import_data.props_too_large.error")
 	})
 }
 
@@ -1035,8 +1035,8 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 	// Test with valid number of members for direct message.
 	data := DirectChannelImportData{
 		Members: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 	}
 	err := validateDirectChannelImportData(&data)
@@ -1045,9 +1045,9 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 	// Test with valid number of members for group message.
 	data = DirectChannelImportData{
 		Members: &[]string{
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
 		},
 	}
 	err = validateDirectChannelImportData(&data)
@@ -1056,8 +1056,8 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 	// Test with all the combinations of optional parameters.
 	data = DirectChannelImportData{
 		Members: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		Header: ptrStr("Channel Header Here"),
 	}
@@ -1078,7 +1078,7 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 
 	data = DirectChannelImportData{
 		Members: &[]string{
-			model.NewId(),
+			model.NewID(),
 		},
 	}
 	err = validateDirectChannelImportData(&data)
@@ -1086,23 +1086,23 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 
 	data = DirectChannelImportData{
 		Members: &[]string{
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
 		},
 	}
 	err = validateDirectChannelImportData(&data)
 	require.NotNil(t, err, "Validation should have failed due to invalid number of members.")
 
 	// Test with invalid FavoritedBy
-	member1 := model.NewId()
-	member2 := model.NewId()
+	member1 := model.NewID()
+	member2 := model.NewID()
 	data = DirectChannelImportData{
 		Members: &[]string{
 			member1,
@@ -1110,7 +1110,7 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 		},
 		FavoritedBy: &[]string{
 			member1,
-			model.NewId(),
+			model.NewID(),
 		},
 	}
 	err = validateDirectChannelImportData(&data)
@@ -1137,8 +1137,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 	// Test with minimum required valid properties.
 	data := DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),
@@ -1158,8 +1158,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
@@ -1169,8 +1169,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		CreateAt: ptrInt64(model.GetMillis()),
@@ -1180,8 +1180,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:    ptrStr("username"),
 		Message: ptrStr("message"),
@@ -1201,7 +1201,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),
@@ -1212,16 +1212,16 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),
@@ -1233,9 +1233,9 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 	// Test with group message number of members.
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),
@@ -1247,8 +1247,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 	// Test with invalid message.
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr(strings.Repeat("0", maxPostSize+1)),
@@ -1260,8 +1260,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 	// Test with invalid CreateAt
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
-			model.NewId(),
-			model.NewId(),
+			model.NewID(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),
@@ -1271,8 +1271,8 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 	require.NotNil(t, err, "Should have failed due to 0 create-at value.")
 
 	// Test with invalid FlaggedBy
-	member1 := model.NewId()
-	member2 := model.NewId()
+	member1 := model.NewID()
+	member2 := model.NewID()
 	data = DirectPostImportData{
 		ChannelMembers: &[]string{
 			member1,
@@ -1280,7 +1280,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		},
 		FlaggedBy: &[]string{
 			member1,
-			model.NewId(),
+			model.NewID(),
 		},
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),

@@ -19,7 +19,7 @@ func TestWebhookStore(t *testing.T) {
 }
 
 func TestWebhookStoreCache(t *testing.T) {
-	fakeWebhook := model.IncomingWebhook{Id: "123"}
+	fakeWebhook := model.IncomingWebhook{ID: "123"}
 
 	t.Run("first call not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()

@@ -16,7 +16,7 @@ type SearchTeamStore struct {
 func (s SearchTeamStore) SaveMember(teamMember *model.TeamMember, maxUsersPerTeam int) (*model.TeamMember, error) {
 	member, err := s.TeamStore.SaveMember(teamMember, maxUsersPerTeam)
 	if err == nil {
-		s.rootStore.indexUserFromID(member.UserId)
+		s.rootStore.indexUserFromID(member.UserID)
 	}
 	return member, err
 }
@@ -24,23 +24,23 @@ func (s SearchTeamStore) SaveMember(teamMember *model.TeamMember, maxUsersPerTea
 func (s SearchTeamStore) UpdateMember(teamMember *model.TeamMember) (*model.TeamMember, error) {
 	member, err := s.TeamStore.UpdateMember(teamMember)
 	if err == nil {
-		s.rootStore.indexUserFromID(member.UserId)
+		s.rootStore.indexUserFromID(member.UserID)
 	}
 	return member, err
 }
 
-func (s SearchTeamStore) RemoveMember(teamId string, userId string) error {
-	err := s.TeamStore.RemoveMember(teamId, userId)
+func (s SearchTeamStore) RemoveMember(teamID string, userID string) error {
+	err := s.TeamStore.RemoveMember(teamID, userID)
 	if err == nil {
-		s.rootStore.indexUserFromID(userId)
+		s.rootStore.indexUserFromID(userID)
 	}
 	return err
 }
 
-func (s SearchTeamStore) RemoveAllMembersByUser(userId string) error {
-	err := s.TeamStore.RemoveAllMembersByUser(userId)
+func (s SearchTeamStore) RemoveAllMembersByUser(userID string) error {
+	err := s.TeamStore.RemoveAllMembersByUser(userID)
 	if err == nil {
-		s.rootStore.indexUserFromID(userId)
+		s.rootStore.indexUserFromID(userID)
 	}
 	return err
 }

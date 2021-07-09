@@ -70,7 +70,7 @@ func (rp *RemoteProvider) GetCommand(a *app.App, T i18n.TranslateFunc) *model.Co
 }
 
 func (rp *RemoteProvider) DoCommand(a *app.App, c *request.Context, args *model.CommandArgs, message string) *model.CommandResponse {
-	if !a.HasPermissionTo(args.UserId, model.PermissionManageSecureConnections) {
+	if !a.HasPermissionTo(args.UserID, model.PermissionManageSecureConnections) {
 		return responsef(args.T("api.command_remote.permission_required", map[string]interface{}{"Permission": "manage_secure_connections"}))
 	}
 
@@ -95,7 +95,7 @@ func (rp *RemoteProvider) DoCommand(a *app.App, c *request.Context, args *model.
 }
 
 func (rp *RemoteProvider) GetAutoCompleteListItems(a *app.App, commandArgs *model.CommandArgs, arg *model.AutocompleteArg, parsed, toBeParsed string) ([]model.AutocompleteListItem, error) {
-	if !a.HasPermissionTo(commandArgs.UserId, model.PermissionManageSecureConnections) {
+	if !a.HasPermissionTo(commandArgs.UserID, model.PermissionManageSecureConnections) {
 		return nil, errors.New("You require `manage_secure_connections` permission to manage secure connections.")
 	}
 
@@ -131,8 +131,8 @@ func (rp *RemoteProvider) doCreate(a *app.App, args *model.CommandArgs, margs ma
 	rc := &model.RemoteCluster{
 		Name:        name,
 		DisplayName: displayname,
-		Token:       model.NewId(),
-		CreatorId:   args.UserId,
+		Token:       model.NewID(),
+		CreatorID:   args.UserID,
 	}
 
 	rcSaved, appErr := a.AddRemoteCluster(rc)
@@ -142,8 +142,8 @@ func (rp *RemoteProvider) doCreate(a *app.App, args *model.CommandArgs, margs ma
 
 	// Display the encrypted invitation
 	invite := &model.RemoteClusterInvite{
-		RemoteId:     rcSaved.RemoteId,
-		RemoteTeamId: args.TeamId,
+		RemoteID:     rcSaved.RemoteID,
+		RemoteTeamID: args.TeamID,
 		SiteURL:      url,
 		Token:        rcSaved.Token,
 	}
@@ -200,7 +200,7 @@ func (rp *RemoteProvider) doAccept(a *app.App, args *model.CommandArgs, margs ma
 		return responsef(args.T("api.command_remote.site_url_not_set"))
 	}
 
-	rc, err := rcs.AcceptInvitation(invite, name, displayname, args.UserId, args.TeamId, url)
+	rc, err := rcs.AcceptInvitation(invite, name, displayname, args.UserID, args.TeamID, url)
 	if err != nil {
 		return responsef(args.T("api.command_remote.accept_invitation.error", map[string]interface{}{"Error": err.Error()}))
 	}
@@ -248,7 +248,7 @@ func (rp *RemoteProvider) doStatus(a *app.App, args *model.CommandArgs, _ map[st
 		online := formatBool(args.T, isOnline(rc.LastPingAt))
 		lastPing := formatTimestamp(rc.LastPingAt)
 
-		fmt.Fprintf(&sb, "| %s | %s | %s | %s | %s | %s | %s |\n", rc.Name, rc.DisplayName, rc.RemoteId, rc.SiteURL, accepted, online, lastPing)
+		fmt.Fprintf(&sb, "| %s | %s | %s | %s | %s | %s | %s |\n", rc.Name, rc.DisplayName, rc.RemoteID, rc.SiteURL, accepted, online, lastPing)
 	}
 	return responsef(sb.String())
 }
@@ -270,17 +270,17 @@ func getRemoteClusterAutocompleteListItems(a *app.App, includeOffline bool) ([]m
 
 	for _, rc := range clusters {
 		item := model.AutocompleteListItem{
-			Item:     rc.RemoteId,
+			Item:     rc.RemoteID,
 			HelpText: fmt.Sprintf("%s  (%s)", rc.DisplayName, rc.SiteURL)}
 		list = append(list, item)
 	}
 	return list, nil
 }
 
-func getRemoteClusterAutocompleteListItemsNotInChannel(a *app.App, channelId string, includeOffline bool) ([]model.AutocompleteListItem, error) {
+func getRemoteClusterAutocompleteListItemsNotInChannel(a *app.App, channelID string, includeOffline bool) ([]model.AutocompleteListItem, error) {
 	filter := model.RemoteClusterQueryFilter{
 		ExcludeOffline: !includeOffline,
-		NotInChannel:   channelId,
+		NotInChannel:   channelID,
 	}
 	all, err := a.GetAllRemoteClusters(filter)
 	if err != nil || len(all) == 0 {
@@ -291,7 +291,7 @@ func getRemoteClusterAutocompleteListItemsNotInChannel(a *app.App, channelId str
 
 	for _, rc := range all {
 		item := model.AutocompleteListItem{
-			Item:     rc.RemoteId,
+			Item:     rc.RemoteID,
 			HelpText: fmt.Sprintf("%s  (%s)", rc.DisplayName, rc.SiteURL)}
 		list = append(list, item)
 	}

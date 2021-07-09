@@ -22,19 +22,19 @@ type SearchEngineInterface interface {
 	IsSearchEnabled() bool
 	IsAutocompletionEnabled() bool
 	IsIndexingSync() bool
-	IndexPost(post *model.Post, teamId string) *model.AppError
+	IndexPost(post *model.Post, teamID string) *model.AppError
 	SearchPosts(channels *model.ChannelList, searchParams []*model.SearchParams, page, perPage int) ([]string, model.PostSearchMatches, *model.AppError)
 	DeletePost(post *model.Post) *model.AppError
 	DeleteChannelPosts(channelID string) *model.AppError
 	DeleteUserPosts(userID string) *model.AppError
 	IndexChannel(channel *model.Channel) *model.AppError
-	SearchChannels(teamId, term string) ([]string, *model.AppError)
+	SearchChannels(teamID, term string) ([]string, *model.AppError)
 	DeleteChannel(channel *model.Channel) *model.AppError
-	IndexUser(user *model.User, teamsIds, channelsIds []string) *model.AppError
-	SearchUsersInChannel(teamId, channelId string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, []string, *model.AppError)
-	SearchUsersInTeam(teamId string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, *model.AppError)
+	IndexUser(user *model.User, teamsIDs, channelsIDs []string) *model.AppError
+	SearchUsersInChannel(teamID, channelID string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, []string, *model.AppError)
+	SearchUsersInTeam(teamID string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, *model.AppError)
 	DeleteUser(user *model.User) *model.AppError
-	IndexFile(file *model.FileInfo, channelId string) *model.AppError
+	IndexFile(file *model.FileInfo, channelID string) *model.AppError
 	SearchFiles(channels *model.ChannelList, searchParams []*model.SearchParams, page, perPage int) ([]string, *model.AppError)
 	DeleteFile(fileID string) *model.AppError
 	DeletePostFiles(postID string) *model.AppError

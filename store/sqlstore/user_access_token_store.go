@@ -49,7 +49,7 @@ func (s SqlUserAccessTokenStore) Save(token *model.UserAccessToken) (*model.User
 	return token, nil
 }
 
-func (s SqlUserAccessTokenStore) Delete(tokenId string) error {
+func (s SqlUserAccessTokenStore) Delete(tokenID string) error {
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
 		return errors.Wrap(err, "begin_transaction")
@@ -57,7 +57,7 @@ func (s SqlUserAccessTokenStore) Delete(tokenId string) error {
 
 	defer finalizeTransaction(transaction)
 
-	if err := s.deleteSessionsAndTokensById(transaction, tokenId); err == nil {
+	if err := s.deleteSessionsAndTokensByID(transaction, tokenID); err == nil {
 		if err := transaction.Commit(); err != nil {
 			// don't need to rollback here since the transaction is already closed
 			return errors.Wrap(err, "commit_transaction")
@@ -68,7 +68,7 @@ func (s SqlUserAccessTokenStore) Delete(tokenId string) error {
 
 }
 
-func (s SqlUserAccessTokenStore) deleteSessionsAndTokensById(transaction *gorp.Transaction, tokenId string) error {
+func (s SqlUserAccessTokenStore) deleteSessionsAndTokensByID(transaction *gorp.Transaction, tokenID string) error {
 
 	query := ""
 	if s.DriverName() == model.DatabaseDriverPostgres {
@@ -77,29 +77,29 @@ func (s SqlUserAccessTokenStore) deleteSessionsAndTokensById(transaction *gorp.T
 		query = "DELETE s.* FROM Sessions s INNER JOIN UserAccessTokens o ON o.Token = s.Token WHERE o.Id = :Id"
 	}
 
-	if _, err := transaction.Exec(query, map[string]interface{}{"Id": tokenId}); err != nil {
-		return errors.Wrapf(err, "failed to delete Sessions with UserAccessToken id=%s", tokenId)
+	if _, err := transaction.Exec(query, map[string]interface{}{"Id": tokenID}); err != nil {
+		return errors.Wrapf(err, "failed to delete Sessions with UserAccessToken id=%s", tokenID)
 	}
 
-	return s.deleteTokensById(transaction, tokenId)
+	return s.deleteTokensByID(transaction, tokenID)
 }
 
-func (s SqlUserAccessTokenStore) deleteTokensById(transaction *gorp.Transaction, tokenId string) error {
+func (s SqlUserAccessTokenStore) deleteTokensByID(transaction *gorp.Transaction, tokenID string) error {
 
-	if _, err := transaction.Exec("DELETE FROM UserAccessTokens WHERE Id = :Id", map[string]interface{}{"Id": tokenId}); err != nil {
-		return errors.Wrapf(err, "failed to delete UserAccessToken id=%s", tokenId)
+	if _, err := transaction.Exec("DELETE FROM UserAccessTokens WHERE Id = :Id", map[string]interface{}{"Id": tokenID}); err != nil {
+		return errors.Wrapf(err, "failed to delete UserAccessToken id=%s", tokenID)
 	}
 
 	return nil
 }
 
-func (s SqlUserAccessTokenStore) DeleteAllForUser(userId string) error {
+func (s SqlUserAccessTokenStore) DeleteAllForUser(userID string) error {
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
 		return errors.Wrap(err, "begin_transaction")
 	}
 	defer finalizeTransaction(transaction)
-	if err := s.deleteSessionsandTokensByUser(transaction, userId); err != nil {
+	if err := s.deleteSessionsandTokensByUser(transaction, userID); err != nil {
 		return err
 	}
 
@@ -110,7 +110,7 @@ func (s SqlUserAccessTokenStore) DeleteAllForUser(userId string) error {
 	return nil
 }
 
-func (s SqlUserAccessTokenStore) deleteSessionsandTokensByUser(transaction *gorp.Transaction, userId string) error {
+func (s SqlUserAccessTokenStore) deleteSessionsandTokensByUser(transaction *gorp.Transaction, userID string) error {
 	query := ""
 	if s.DriverName() == model.DatabaseDriverPostgres {
 		query = "DELETE FROM Sessions s USING UserAccessTokens o WHERE o.Token = s.Token AND o.UserId = :UserId"
@@ -118,29 +118,29 @@ func (s SqlUserAccessTokenStore) deleteSessionsandTokensByUser(transaction *gorp
 		query = "DELETE s.* FROM Sessions s INNER JOIN UserAccessTokens o ON o.Token = s.Token WHERE o.UserId = :UserId"
 	}
 
-	if _, err := transaction.Exec(query, map[string]interface{}{"UserId": userId}); err != nil {
-		return errors.Wrapf(err, "failed to delete Sessions with UserAccessToken userId=%s", userId)
+	if _, err := transaction.Exec(query, map[string]interface{}{"UserId": userID}); err != nil {
+		return errors.Wrapf(err, "failed to delete Sessions with UserAccessToken userId=%s", userID)
 	}
 
-	return s.deleteTokensByUser(transaction, userId)
+	return s.deleteTokensByUser(transaction, userID)
 }
 
-func (s SqlUserAccessTokenStore) deleteTokensByUser(transaction *gorp.Transaction, userId string) error {
-	if _, err := transaction.Exec("DELETE FROM UserAccessTokens WHERE UserId = :UserId", map[string]interface{}{"UserId": userId}); err != nil {
-		return errors.Wrapf(err, "failed to delete UserAccessToken userId=%s", userId)
+func (s SqlUserAccessTokenStore) deleteTokensByUser(transaction *gorp.Transaction, userID string) error {
+	if _, err := transaction.Exec("DELETE FROM UserAccessTokens WHERE UserId = :UserId", map[string]interface{}{"UserId": userID}); err != nil {
+		return errors.Wrapf(err, "failed to delete UserAccessToken userId=%s", userID)
 	}
 
 	return nil
 }
 
-func (s SqlUserAccessTokenStore) Get(tokenId string) (*model.UserAccessToken, error) {
+func (s SqlUserAccessTokenStore) Get(tokenID string) (*model.UserAccessToken, error) {
 	token := model.UserAccessToken{}
 
-	if err := s.GetReplica().SelectOne(&token, "SELECT * FROM UserAccessTokens WHERE Id = :Id", map[string]interface{}{"Id": tokenId}); err != nil {
+	if err := s.GetReplica().SelectOne(&token, "SELECT * FROM UserAccessTokens WHERE Id = :Id", map[string]interface{}{"Id": tokenID}); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, store.NewErrNotFound("UserAccessToken", tokenId)
+			return nil, store.NewErrNotFound("UserAccessToken", tokenID)
 		}
-		return nil, errors.Wrapf(err, "failed to get UserAccessToken with id=%s", tokenId)
+		return nil, errors.Wrapf(err, "failed to get UserAccessToken with id=%s", tokenID)
 	}
 
 	return &token, nil
@@ -169,11 +169,11 @@ func (s SqlUserAccessTokenStore) GetByToken(tokenString string) (*model.UserAcce
 	return &token, nil
 }
 
-func (s SqlUserAccessTokenStore) GetByUser(userId string, offset, limit int) ([]*model.UserAccessToken, error) {
+func (s SqlUserAccessTokenStore) GetByUser(userID string, offset, limit int) ([]*model.UserAccessToken, error) {
 	tokens := []*model.UserAccessToken{}
 
-	if _, err := s.GetReplica().Select(&tokens, "SELECT * FROM UserAccessTokens WHERE UserId = :UserId LIMIT :Limit OFFSET :Offset", map[string]interface{}{"UserId": userId, "Offset": offset, "Limit": limit}); err != nil {
-		return nil, errors.Wrapf(err, "failed to find UserAccessTokens with userId=%s", userId)
+	if _, err := s.GetReplica().Select(&tokens, "SELECT * FROM UserAccessTokens WHERE UserId = :UserId LIMIT :Limit OFFSET :Offset", map[string]interface{}{"UserId": userID, "Offset": offset, "Limit": limit}); err != nil {
+		return nil, errors.Wrapf(err, "failed to find UserAccessTokens with userId=%s", userID)
 	}
 
 	return tokens, nil
@@ -198,21 +198,21 @@ func (s SqlUserAccessTokenStore) Search(term string) ([]*model.UserAccessToken, 
 	return tokens, nil
 }
 
-func (s SqlUserAccessTokenStore) UpdateTokenEnable(tokenId string) error {
-	if _, err := s.GetMaster().Exec("UPDATE UserAccessTokens SET IsActive = TRUE WHERE Id = :Id", map[string]interface{}{"Id": tokenId}); err != nil {
-		return errors.Wrapf(err, "failed to update UserAccessTokens with id=%s", tokenId)
+func (s SqlUserAccessTokenStore) UpdateTokenEnable(tokenID string) error {
+	if _, err := s.GetMaster().Exec("UPDATE UserAccessTokens SET IsActive = TRUE WHERE Id = :Id", map[string]interface{}{"Id": tokenID}); err != nil {
+		return errors.Wrapf(err, "failed to update UserAccessTokens with id=%s", tokenID)
 	}
 	return nil
 }
 
-func (s SqlUserAccessTokenStore) UpdateTokenDisable(tokenId string) error {
+func (s SqlUserAccessTokenStore) UpdateTokenDisable(tokenID string) error {
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
 		return errors.Wrap(err, "begin_transaction")
 	}
 	defer finalizeTransaction(transaction)
 
-	if err := s.deleteSessionsAndDisableToken(transaction, tokenId); err != nil {
+	if err := s.deleteSessionsAndDisableToken(transaction, tokenID); err != nil {
 		return err
 	}
 	if err := transaction.Commit(); err != nil {
@@ -222,7 +222,7 @@ func (s SqlUserAccessTokenStore) UpdateTokenDisable(tokenId string) error {
 	return nil
 }
 
-func (s SqlUserAccessTokenStore) deleteSessionsAndDisableToken(transaction *gorp.Transaction, tokenId string) error {
+func (s SqlUserAccessTokenStore) deleteSessionsAndDisableToken(transaction *gorp.Transaction, tokenID string) error {
 	query := ""
 	if s.DriverName() == model.DatabaseDriverPostgres {
 		query = "DELETE FROM Sessions s USING UserAccessTokens o WHERE o.Token = s.Token AND o.Id = :Id"
@@ -230,16 +230,16 @@ func (s SqlUserAccessTokenStore) deleteSessionsAndDisableToken(transaction *gorp
 		query = "DELETE s.* FROM Sessions s INNER JOIN UserAccessTokens o ON o.Token = s.Token WHERE o.Id = :Id"
 	}
 
-	if _, err := transaction.Exec(query, map[string]interface{}{"Id": tokenId}); err != nil {
-		return errors.Wrapf(err, "failed to delete Sessions with UserAccessToken id=%s", tokenId)
+	if _, err := transaction.Exec(query, map[string]interface{}{"Id": tokenID}); err != nil {
+		return errors.Wrapf(err, "failed to delete Sessions with UserAccessToken id=%s", tokenID)
 	}
 
-	return s.updateTokenDisable(transaction, tokenId)
+	return s.updateTokenDisable(transaction, tokenID)
 }
 
-func (s SqlUserAccessTokenStore) updateTokenDisable(transaction *gorp.Transaction, tokenId string) error {
-	if _, err := transaction.Exec("UPDATE UserAccessTokens SET IsActive = FALSE WHERE Id = :Id", map[string]interface{}{"Id": tokenId}); err != nil {
-		return errors.Wrapf(err, "failed to update UserAccessToken with id=%s", tokenId)
+func (s SqlUserAccessTokenStore) updateTokenDisable(transaction *gorp.Transaction, tokenID string) error {
+	if _, err := transaction.Exec("UPDATE UserAccessTokens SET IsActive = FALSE WHERE Id = :Id", map[string]interface{}{"Id": tokenID}); err != nil {
+		return errors.Wrapf(err, "failed to update UserAccessToken with id=%s", tokenID)
 	}
 
 	return nil

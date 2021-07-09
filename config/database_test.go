@@ -41,7 +41,7 @@ func setupConfigDatabase(t *testing.T, cfg *model.Config, files map[string][]byt
 	err = initializeConfigurationsTable(db)
 	require.NoError(t, err)
 
-	id := model.NewId()
+	id := model.NewID()
 	_, err = db.NamedExec("INSERT INTO Configurations (Id, Value, CreateAt, Active) VALUES(:Id, :Value, :CreateAt, TRUE)", map[string]interface{}{
 		"Id":       id,
 		"Value":    cfgData,
@@ -833,7 +833,7 @@ func TestDatabaseStoreLoad(t *testing.T) {
 		sqlSettings := mainHelper.GetSQLSettings()
 		db := sqlx.NewDb(mainHelper.GetSQLStore().GetMaster().Db, *sqlSettings.DriverName)
 		truncateTables(t)
-		id := model.NewId()
+		id := model.NewID()
 		_, err = db.NamedExec("INSERT INTO Configurations (Id, Value, CreateAt, Active) VALUES(:Id, :Value, :CreateAt, TRUE)", map[string]interface{}{
 			"Id":       id,
 			"Value":    cfgData,

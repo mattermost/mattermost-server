@@ -38,16 +38,16 @@ func (a *App) UpdateRemoteCluster(rc *model.RemoteCluster) (*model.RemoteCluster
 	return rc, nil
 }
 
-func (a *App) DeleteRemoteCluster(remoteClusterId string) (bool, *model.AppError) {
-	deleted, err := a.Srv().Store.RemoteCluster().Delete(remoteClusterId)
+func (a *App) DeleteRemoteCluster(remoteClusterID string) (bool, *model.AppError) {
+	deleted, err := a.Srv().Store.RemoteCluster().Delete(remoteClusterID)
 	if err != nil {
 		return false, model.NewAppError("DeleteRemoteCluster", "api.remote_cluster.delete.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 	return deleted, nil
 }
 
-func (a *App) GetRemoteCluster(remoteClusterId string) (*model.RemoteCluster, *model.AppError) {
-	rc, err := a.Srv().Store.RemoteCluster().Get(remoteClusterId)
+func (a *App) GetRemoteCluster(remoteClusterID string) (*model.RemoteCluster, *model.AppError) {
+	rc, err := a.Srv().Store.RemoteCluster().Get(remoteClusterID)
 	if err != nil {
 		return nil, model.NewAppError("GetRemoteCluster", "api.remote_cluster.get.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -62,16 +62,16 @@ func (a *App) GetAllRemoteClusters(filter model.RemoteClusterQueryFilter) ([]*mo
 	return list, nil
 }
 
-func (a *App) UpdateRemoteClusterTopics(remoteClusterId string, topics string) (*model.RemoteCluster, *model.AppError) {
-	rc, err := a.Srv().Store.RemoteCluster().UpdateTopics(remoteClusterId, topics)
+func (a *App) UpdateRemoteClusterTopics(remoteClusterID string, topics string) (*model.RemoteCluster, *model.AppError) {
+	rc, err := a.Srv().Store.RemoteCluster().UpdateTopics(remoteClusterID, topics)
 	if err != nil {
 		return nil, model.NewAppError("UpdateRemoteClusterTopics", "api.remote_cluster.save.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 	return rc, nil
 }
 
-func (a *App) SetRemoteClusterLastPingAt(remoteClusterId string) *model.AppError {
-	err := a.Srv().Store.RemoteCluster().SetLastPingAt(remoteClusterId)
+func (a *App) SetRemoteClusterLastPingAt(remoteClusterID string) *model.AppError {
+	err := a.Srv().Store.RemoteCluster().SetLastPingAt(remoteClusterID)
 	if err != nil {
 		return model.NewAppError("SetRemoteClusterLastPingAt", "api.remote_cluster.save.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}

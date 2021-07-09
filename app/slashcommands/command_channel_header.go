@@ -38,7 +38,7 @@ func (*HeaderProvider) GetCommand(a *app.App, T i18n.TranslateFunc) *model.Comma
 }
 
 func (*HeaderProvider) DoCommand(a *app.App, c *request.Context, args *model.CommandArgs, message string) *model.CommandResponse {
-	channel, err := a.GetChannel(args.ChannelId)
+	channel, err := a.GetChannel(args.ChannelID)
 	if err != nil {
 		return &model.CommandResponse{
 			Text:         args.T("api.command_channel_header.channel.app_error"),
@@ -48,7 +48,7 @@ func (*HeaderProvider) DoCommand(a *app.App, c *request.Context, args *model.Com
 
 	switch channel.Type {
 	case model.ChannelTypeOpen:
-		if !a.HasPermissionToChannel(args.UserId, args.ChannelId, model.PermissionManagePublicChannelProperties) {
+		if !a.HasPermissionToChannel(args.UserID, args.ChannelID, model.PermissionManagePublicChannelProperties) {
 			return &model.CommandResponse{
 				Text:         args.T("api.command_channel_header.permission.app_error"),
 				ResponseType: model.CommandResponseTypeEphemeral,
@@ -56,7 +56,7 @@ func (*HeaderProvider) DoCommand(a *app.App, c *request.Context, args *model.Com
 		}
 
 	case model.ChannelTypePrivate:
-		if !a.HasPermissionToChannel(args.UserId, args.ChannelId, model.PermissionManagePrivateChannelProperties) {
+		if !a.HasPermissionToChannel(args.UserID, args.ChannelID, model.PermissionManagePrivateChannelProperties) {
 			return &model.CommandResponse{
 				Text:         args.T("api.command_channel_header.permission.app_error"),
 				ResponseType: model.CommandResponseTypeEphemeral,
@@ -66,7 +66,7 @@ func (*HeaderProvider) DoCommand(a *app.App, c *request.Context, args *model.Com
 	case model.ChannelTypeGroup, model.ChannelTypeDirect:
 		// Modifying the header is not linked to any specific permission for group/dm channels, so just check for membership.
 		var channelMember *model.ChannelMember
-		channelMember, err = a.GetChannelMember(context.Background(), args.ChannelId, args.UserId)
+		channelMember, err = a.GetChannelMember(context.Background(), args.ChannelID, args.UserID)
 		if err != nil || channelMember == nil {
 			return &model.CommandResponse{
 				Text:         args.T("api.command_channel_header.permission.app_error"),
@@ -93,10 +93,10 @@ func (*HeaderProvider) DoCommand(a *app.App, c *request.Context, args *model.Com
 	}
 	*patch.Header = message
 
-	_, err = a.PatchChannel(c, channel, patch, args.UserId)
+	_, err = a.PatchChannel(c, channel, patch, args.UserID)
 	if err != nil {
 		text := args.T("api.command_channel_header.update_channel.app_error")
-		if err.Id == "model.channel.is_valid.header.app_error" {
+		if err.ID == "model.channel.is_valid.header.app_error" {
 			text = args.T("api.command_channel_header.update_channel.max_length", map[string]interface{}{
 				"MaxLength": model.ChannelHeaderMaxRunes,
 			})

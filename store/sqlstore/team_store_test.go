@@ -24,8 +24,8 @@ func TestTeamStoreInternalDataTypes(t *testing.T) {
 
 func testNewTeamMemberFromModel(t *testing.T) {
 	m := model.TeamMember{
-		TeamId:        model.NewId(),
-		UserId:        model.NewId(),
+		TeamID:        model.NewID(),
+		UserID:        model.NewID(),
 		Roles:         "team_user team_admin custom_role",
 		DeleteAt:      12345,
 		SchemeGuest:   false,
@@ -36,8 +36,8 @@ func testNewTeamMemberFromModel(t *testing.T) {
 
 	db := NewTeamMemberFromModel(&m)
 
-	assert.Equal(t, m.TeamId, db.TeamId)
-	assert.Equal(t, m.UserId, db.UserId)
+	assert.Equal(t, m.TeamID, db.TeamID)
+	assert.Equal(t, m.UserID, db.UserID)
 	assert.Equal(t, m.DeleteAt, db.DeleteAt)
 	assert.Equal(t, true, db.SchemeGuest.Valid)
 	assert.Equal(t, true, db.SchemeUser.Valid)
@@ -52,8 +52,8 @@ func testTeamMemberWithSchemeRolesToModel(t *testing.T) {
 	// Test all the non-role-related properties here.
 	t.Run("BasicProperties", func(t *testing.T) {
 		db := teamMemberWithSchemeRoles{
-			TeamId:                     model.NewId(),
-			UserId:                     model.NewId(),
+			TeamID:                     model.NewID(),
+			UserID:                     model.NewID(),
 			Roles:                      "custom_role",
 			DeleteAt:                   12345,
 			SchemeGuest:                sql.NullBool{Valid: true, Bool: false},
@@ -66,8 +66,8 @@ func testTeamMemberWithSchemeRolesToModel(t *testing.T) {
 
 		m := db.ToModel()
 
-		assert.Equal(t, db.TeamId, m.TeamId)
-		assert.Equal(t, db.UserId, m.UserId)
+		assert.Equal(t, db.TeamID, m.TeamID)
+		assert.Equal(t, db.UserID, m.UserID)
 		assert.Equal(t, "custom_role team_user team_admin", m.Roles)
 		assert.Equal(t, db.DeleteAt, m.DeleteAt)
 		assert.Equal(t, db.SchemeGuest.Bool, m.SchemeGuest)

@@ -237,7 +237,7 @@ func (_m *TeamStore) GetAllTeamListing() ([]*model.Team, error) {
 }
 
 // GetByInviteId provides a mock function with given fields: inviteID
-func (_m *TeamStore) GetByInviteId(inviteID string) (*model.Team, error) {
+func (_m *TeamStore) GetByInviteID(inviteID string) (*model.Team, error) {
 	ret := _m.Called(inviteID)
 
 	var r0 *model.Team
@@ -421,12 +421,12 @@ func (_m *TeamStore) GetMembers(teamID string, offset int, limit int, teamMember
 }
 
 // GetMembersByIds provides a mock function with given fields: teamID, userIds, restrictions
-func (_m *TeamStore) GetMembersByIds(teamID string, userIds []string, restrictions *model.ViewUsersRestrictions) ([]*model.TeamMember, error) {
-	ret := _m.Called(teamID, userIds, restrictions)
+func (_m *TeamStore) GetMembersByIDs(teamID string, userIDs []string, restrictions *model.ViewUsersRestrictions) ([]*model.TeamMember, error) {
+	ret := _m.Called(teamID, userIDs, restrictions)
 
 	var r0 []*model.TeamMember
 	if rf, ok := ret.Get(0).(func(string, []string, *model.ViewUsersRestrictions) []*model.TeamMember); ok {
-		r0 = rf(teamID, userIds, restrictions)
+		r0 = rf(teamID, userIDs, restrictions)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.TeamMember)
@@ -435,7 +435,7 @@ func (_m *TeamStore) GetMembersByIds(teamID string, userIds []string, restrictio
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, []string, *model.ViewUsersRestrictions) error); ok {
-		r1 = rf(teamID, userIds, restrictions)
+		r1 = rf(teamID, userIDs, restrictions)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -490,7 +490,7 @@ func (_m *TeamStore) GetTeamsByScheme(schemeID string, offset int, limit int) ([
 }
 
 // GetTeamsByUserId provides a mock function with given fields: userID
-func (_m *TeamStore) GetTeamsByUserId(userID string) ([]*model.Team, error) {
+func (_m *TeamStore) GetTeamsByUserID(userID string) ([]*model.Team, error) {
 	ret := _m.Called(userID)
 
 	var r0 []*model.Team
@@ -580,7 +580,7 @@ func (_m *TeamStore) GetTotalMemberCount(teamID string, restrictions *model.View
 }
 
 // GetUserTeamIds provides a mock function with given fields: userID, allowFromCache
-func (_m *TeamStore) GetUserTeamIds(userID string, allowFromCache bool) ([]string, error) {
+func (_m *TeamStore) GetUserTeamIDs(userID string, allowFromCache bool) ([]string, error) {
 	ret := _m.Called(userID, allowFromCache)
 
 	var r0 []string
@@ -624,7 +624,7 @@ func (_m *TeamStore) GroupSyncedTeamCount() (int64, error) {
 }
 
 // InvalidateAllTeamIdsForUser provides a mock function with given fields: userID
-func (_m *TeamStore) InvalidateAllTeamIdsForUser(userID string) {
+func (_m *TeamStore) InvalidateAllTeamIDsForUser(userID string) {
 	_m.Called(userID)
 }
 
@@ -708,12 +708,12 @@ func (_m *TeamStore) RemoveMember(teamID string, userID string) error {
 }
 
 // RemoveMembers provides a mock function with given fields: teamID, userIds
-func (_m *TeamStore) RemoveMembers(teamID string, userIds []string) error {
-	ret := _m.Called(teamID, userIds)
+func (_m *TeamStore) RemoveMembers(teamID string, userIDs []string) error {
+	ret := _m.Called(teamID, userIDs)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string, []string) error); ok {
-		r0 = rf(teamID, userIds)
+		r0 = rf(teamID, userIDs)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1001,19 +1001,19 @@ func (_m *TeamStore) UpdateMultipleMembers(members []*model.TeamMember) ([]*mode
 }
 
 // UserBelongsToTeams provides a mock function with given fields: userID, teamIds
-func (_m *TeamStore) UserBelongsToTeams(userID string, teamIds []string) (bool, error) {
-	ret := _m.Called(userID, teamIds)
+func (_m *TeamStore) UserBelongsToTeams(userID string, teamIDs []string) (bool, error) {
+	ret := _m.Called(userID, teamIDs)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string, []string) bool); ok {
-		r0 = rf(userID, teamIds)
+		r0 = rf(userID, teamIDs)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, []string) error); ok {
-		r1 = rf(userID, teamIds)
+		r1 = rf(userID, teamIDs)
 	} else {
 		r1 = ret.Error(1)
 	}

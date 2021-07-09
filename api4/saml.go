@@ -19,15 +19,15 @@ func (api *API) InitSaml() {
 
 	api.BaseRoutes.SAML.Handle("/certificate/public", api.ApiSessionRequired(addSamlPublicCertificate)).Methods("POST")
 	api.BaseRoutes.SAML.Handle("/certificate/private", api.ApiSessionRequired(addSamlPrivateCertificate)).Methods("POST")
-	api.BaseRoutes.SAML.Handle("/certificate/idp", api.ApiSessionRequired(addSamlIdpCertificate)).Methods("POST")
+	api.BaseRoutes.SAML.Handle("/certificate/idp", api.ApiSessionRequired(addSamlIDpCertificate)).Methods("POST")
 
 	api.BaseRoutes.SAML.Handle("/certificate/public", api.ApiSessionRequired(removeSamlPublicCertificate)).Methods("DELETE")
 	api.BaseRoutes.SAML.Handle("/certificate/private", api.ApiSessionRequired(removeSamlPrivateCertificate)).Methods("DELETE")
-	api.BaseRoutes.SAML.Handle("/certificate/idp", api.ApiSessionRequired(removeSamlIdpCertificate)).Methods("DELETE")
+	api.BaseRoutes.SAML.Handle("/certificate/idp", api.ApiSessionRequired(removeSamlIDpCertificate)).Methods("DELETE")
 
 	api.BaseRoutes.SAML.Handle("/certificate/status", api.ApiSessionRequired(getSamlCertificateStatus)).Methods("GET")
 
-	api.BaseRoutes.SAML.Handle("/metadatafromidp", api.ApiHandler(getSamlMetadataFromIdp)).Methods("POST")
+	api.BaseRoutes.SAML.Handle("/metadatafromidp", api.ApiHandler(getSamlMetadataFromIDp)).Methods("POST")
 
 	api.BaseRoutes.SAML.Handle("/reset_auth_data", api.ApiSessionRequired(resetAuthDataToEmail)).Methods("POST")
 }
@@ -116,9 +116,9 @@ func addSamlPrivateCertificate(c *Context, w http.ResponseWriter, r *http.Reques
 	ReturnStatusOK(w)
 }
 
-func addSamlIdpCertificate(c *Context, w http.ResponseWriter, r *http.Request) {
-	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionAddSamlIdpCert) {
-		c.SetPermissionError(model.PermissionAddSamlIdpCert)
+func addSamlIDpCertificate(c *Context, w http.ResponseWriter, r *http.Request) {
+	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionAddSamlIDpCert) {
+		c.SetPermissionError(model.PermissionAddSamlIDpCert)
 		return
 	}
 
@@ -144,7 +144,7 @@ func addSamlIdpCertificate(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := c.App.SetSamlIdpCertificateFromMetadata(body); err != nil {
+		if err := c.App.SetSamlIDpCertificateFromMetadata(body); err != nil {
 			c.Err = err
 			return
 		}
@@ -156,7 +156,7 @@ func addSamlIdpCertificate(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 		auditRec.AddMeta("filename", fileData.Filename)
 
-		if err := c.App.AddSamlIdpCertificate(fileData); err != nil {
+		if err := c.App.AddSamlIDpCertificate(fileData); err != nil {
 			c.Err = err
 			return
 		}
@@ -205,16 +205,16 @@ func removeSamlPrivateCertificate(c *Context, w http.ResponseWriter, r *http.Req
 	ReturnStatusOK(w)
 }
 
-func removeSamlIdpCertificate(c *Context, w http.ResponseWriter, r *http.Request) {
-	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionRemoveSamlIdpCert) {
-		c.SetPermissionError(model.PermissionRemoveSamlIdpCert)
+func removeSamlIDpCertificate(c *Context, w http.ResponseWriter, r *http.Request) {
+	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionRemoveSamlIDpCert) {
+		c.SetPermissionError(model.PermissionRemoveSamlIDpCert)
 		return
 	}
 
 	auditRec := c.MakeAuditRecord("removeSamlIdpCertificate", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	if err := c.App.RemoveSamlIdpCertificate(); err != nil {
+	if err := c.App.RemoveSamlIDpCertificate(); err != nil {
 		c.Err = err
 		return
 	}
@@ -230,29 +230,29 @@ func getSamlCertificateStatus(c *Context, w http.ResponseWriter, r *http.Request
 	}
 
 	status := c.App.GetSamlCertificateStatus()
-	w.Write([]byte(status.ToJson()))
+	w.Write([]byte(status.ToJSON()))
 }
 
-func getSamlMetadataFromIdp(c *Context, w http.ResponseWriter, r *http.Request) {
-	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionGetSamlMetadataFromIdp) {
-		c.SetPermissionError(model.PermissionGetSamlMetadataFromIdp)
+func getSamlMetadataFromIDp(c *Context, w http.ResponseWriter, r *http.Request) {
+	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionGetSamlMetadataFromIDp) {
+		c.SetPermissionError(model.PermissionGetSamlMetadataFromIDp)
 		return
 	}
 
-	props := model.MapFromJson(r.Body)
+	props := model.MapFromJSON(r.Body)
 	url := props["saml_metadata_url"]
 	if url == "" {
 		c.SetInvalidParam("saml_metadata_url")
 		return
 	}
 
-	metadata, err := c.App.GetSamlMetadataFromIdp(url)
+	metadata, err := c.App.GetSamlMetadataFromIDp(url)
 	if err != nil {
 		c.Err = model.NewAppError("getSamlMetadataFromIdp", "api.admin.saml.failure_get_metadata_from_idp.app_error", nil, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Write([]byte(metadata.ToJson()))
+	w.Write([]byte(metadata.ToJSON()))
 }
 
 func resetAuthDataToEmail(c *Context, w http.ResponseWriter, r *http.Request) {

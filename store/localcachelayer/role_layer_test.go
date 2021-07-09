@@ -20,7 +20,7 @@ func TestRoleStore(t *testing.T) {
 }
 
 func TestRoleStoreCache(t *testing.T) {
-	fakeRole := model.Role{Id: "123", Name: "role-name"}
+	fakeRole := model.Role{ID: "123", Name: "role-name"}
 
 	t.Run("first call not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()

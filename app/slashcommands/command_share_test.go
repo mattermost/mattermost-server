@@ -24,7 +24,7 @@ func TestShareProviderDoCommand(t *testing.T) {
 		th := setup(t).initBasic()
 		defer th.tearDown()
 
-		th.addPermissionToRole(model.PermissionManageSharedChannels.Id, th.BasicUser.Roles)
+		th.addPermissionToRole(model.PermissionManageSharedChannels.ID, th.BasicUser.Roles)
 
 		mockSyncService := app.NewMockSharedChannelService(nil)
 		th.Server.SetSharedChannelSyncService(mockSyncService)
@@ -40,9 +40,9 @@ func TestShareProviderDoCommand(t *testing.T) {
 
 		args := &model.CommandArgs{
 			T:         func(s string, args ...interface{}) string { return s },
-			ChannelId: channel.Id,
-			UserId:    th.BasicUser.Id,
-			TeamId:    th.BasicTeam.Id,
+			ChannelID: channel.ID,
+			UserID:    th.BasicUser.ID,
+			TeamID:    th.BasicTeam.ID,
 			Command:   "/share-channel share",
 		}
 
@@ -50,7 +50,7 @@ func TestShareProviderDoCommand(t *testing.T) {
 		require.Equal(t, "##### "+args.T("api.command_share.channel_shared"), response.Text)
 
 		channelConvertedMessages := testCluster.SelectMessages(func(msg *model.ClusterMessage) bool {
-			event := model.WebSocketEventFromJson(strings.NewReader(msg.Data))
+			event := model.WebSocketEventFromJSON(strings.NewReader(msg.Data))
 			return event != nil && event.EventType() == model.WebsocketEventChannelConverted
 		})
 		assert.Len(t, channelConvertedMessages, 1)
@@ -60,7 +60,7 @@ func TestShareProviderDoCommand(t *testing.T) {
 		th := setup(t).initBasic()
 		defer th.tearDown()
 
-		th.addPermissionToRole(model.PermissionManageSharedChannels.Id, th.BasicUser.Roles)
+		th.addPermissionToRole(model.PermissionManageSharedChannels.ID, th.BasicUser.Roles)
 
 		mockSyncService := app.NewMockSharedChannelService(nil)
 		th.Server.SetSharedChannelSyncService(mockSyncService)
@@ -75,9 +75,9 @@ func TestShareProviderDoCommand(t *testing.T) {
 		channel := th.CreateChannel(th.BasicTeam, WithShared(true))
 		args := &model.CommandArgs{
 			T:         func(s string, args ...interface{}) string { return s },
-			ChannelId: channel.Id,
-			UserId:    th.BasicUser.Id,
-			TeamId:    th.BasicTeam.Id,
+			ChannelID: channel.ID,
+			UserID:    th.BasicUser.ID,
+			TeamID:    th.BasicTeam.ID,
 			Command:   "/share-channel unshare",
 		}
 
@@ -85,7 +85,7 @@ func TestShareProviderDoCommand(t *testing.T) {
 		require.Equal(t, "##### "+args.T("api.command_share.shared_channel_unavailable"), response.Text)
 
 		channelConvertedMessages := testCluster.SelectMessages(func(msg *model.ClusterMessage) bool {
-			event := model.WebSocketEventFromJson(strings.NewReader(msg.Data))
+			event := model.WebSocketEventFromJSON(strings.NewReader(msg.Data))
 			return event != nil && event.EventType() == model.WebsocketEventChannelConverted
 		})
 		require.Len(t, channelConvertedMessages, 1)

@@ -104,7 +104,7 @@ const (
 	ServiceSettingsDefaultTlsKeyFile       = ""
 	ServiceSettingsDefaultReadTimeout      = 300
 	ServiceSettingsDefaultWriteTimeout     = 300
-	ServiceSettingsDefaultIDleTimeout      = 60
+	ServiceSettingsDefaultIdleTimeout      = 60
 	ServiceSettingsDefaultMaxLoginAttempts = 10
 	ServiceSettingsDefaultAllowCorsFrom    = ""
 	ServiceSettingsDefaultListenAndAddress = ":8065"
@@ -291,7 +291,7 @@ type ServiceSettings struct {
 	TrustedProxyIPHeader                              []string `access:"write_restrictable,cloud_restrictable"` // telemetry: none
 	ReadTimeout                                       *int     `access:"environment_web_server,write_restrictable,cloud_restrictable"`
 	WriteTimeout                                      *int     `access:"environment_web_server,write_restrictable,cloud_restrictable"`
-	IDleTimeout                                       *int     `access:"write_restrictable,cloud_restrictable"`
+	IdleTimeout                                       *int     `access:"write_restrictable,cloud_restrictable"`
 	MaximumLoginAttempts                              *int     `access:"authentication_password,write_restrictable,cloud_restrictable"`
 	GoroutineHealthThreshold                          *int     `access:"write_restrictable,cloud_restrictable"` // telemetry: none
 	EnableOAuthServiceProvider                        *bool    `access:"integrations_integration_management"`
@@ -323,7 +323,7 @@ type ServiceSettings struct {
 	SessionLengthMobileInDays                         *int     `access:"environment_session_lengths,write_restrictable,cloud_restrictable"`
 	SessionLengthSSOInDays                            *int     `access:"environment_session_lengths,write_restrictable,cloud_restrictable"`
 	SessionCacheInMinutes                             *int     `access:"environment_session_lengths,write_restrictable,cloud_restrictable"`
-	SessionIDleTimeoutInMinutes                       *int     `access:"environment_session_lengths,write_restrictable,cloud_restrictable"`
+	SessionIdleTimeoutInMinutes                       *int     `access:"environment_session_lengths,write_restrictable,cloud_restrictable"`
 	WebsocketSecurePort                               *int     `access:"write_restrictable,cloud_restrictable"` // telemetry: none
 	WebsocketPort                                     *int     `access:"write_restrictable,cloud_restrictable"` // telemetry: none
 	WebserverMode                                     *string  `access:"environment_web_server,write_restrictable,cloud_restrictable"`
@@ -516,8 +516,8 @@ func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 		s.WriteTimeout = NewInt(ServiceSettingsDefaultWriteTimeout)
 	}
 
-	if s.IDleTimeout == nil {
-		s.IDleTimeout = NewInt(ServiceSettingsDefaultIDleTimeout)
+	if s.IdleTimeout == nil {
+		s.IdleTimeout = NewInt(ServiceSettingsDefaultIdleTimeout)
 	}
 
 	if s.MaximumLoginAttempts == nil {
@@ -607,8 +607,8 @@ func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 		s.SessionCacheInMinutes = NewInt(10)
 	}
 
-	if s.SessionIDleTimeoutInMinutes == nil {
-		s.SessionIDleTimeoutInMinutes = NewInt(43200)
+	if s.SessionIdleTimeoutInMinutes == nil {
+		s.SessionIdleTimeoutInMinutes = NewInt(43200)
 	}
 
 	if s.EnableCommands == nil {
@@ -841,9 +841,9 @@ type ClusterSettings struct {
 	ReadOnlyConfig                              *bool   `access:"environment_high_availability,write_restrictable,cloud_restrictable"`
 	GossipPort                                  *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
 	StreamingPort                               *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
-	MaxIDleConns                                *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
-	MaxIDleConnsPerHost                         *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
-	IDleConnTimeoutMilliseconds                 *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
+	MaxIdleConns                                *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
+	MaxIdleConnsPerHost                         *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
+	IdleConnTimeoutMilliseconds                 *int    `access:"environment_high_availability,write_restrictable,cloud_restrictable"` // telemetry: none
 }
 
 func (s *ClusterSettings) SetDefaults() {
@@ -899,16 +899,16 @@ func (s *ClusterSettings) SetDefaults() {
 		s.StreamingPort = NewInt(8075)
 	}
 
-	if s.MaxIDleConns == nil {
-		s.MaxIDleConns = NewInt(100)
+	if s.MaxIdleConns == nil {
+		s.MaxIdleConns = NewInt(100)
 	}
 
-	if s.MaxIDleConnsPerHost == nil {
-		s.MaxIDleConnsPerHost = NewInt(128)
+	if s.MaxIdleConnsPerHost == nil {
+		s.MaxIdleConnsPerHost = NewInt(128)
 	}
 
-	if s.IDleConnTimeoutMilliseconds == nil {
-		s.IDleConnTimeoutMilliseconds = NewInt(90000)
+	if s.IdleConnTimeoutMilliseconds == nil {
+		s.IdleConnTimeoutMilliseconds = NewInt(90000)
 	}
 }
 
@@ -1127,9 +1127,9 @@ type SqlSettings struct {
 	DataSource                  *string               `access:"environment_database,write_restrictable,cloud_restrictable"` // telemetry: none
 	DataSourceReplicas          []string              `access:"environment_database,write_restrictable,cloud_restrictable"`
 	DataSourceSearchReplicas    []string              `access:"environment_database,write_restrictable,cloud_restrictable"`
-	MaxIDleConns                *int                  `access:"environment_database,write_restrictable,cloud_restrictable"`
+	MaxIdleConns                *int                  `access:"environment_database,write_restrictable,cloud_restrictable"`
 	ConnMaxLifetimeMilliseconds *int                  `access:"environment_database,write_restrictable,cloud_restrictable"`
-	ConnMaxIDleTimeMilliseconds *int                  `access:"environment_database,write_restrictable,cloud_restrictable"`
+	ConnMaxIdleTimeMilliseconds *int                  `access:"environment_database,write_restrictable,cloud_restrictable"`
 	MaxOpenConns                *int                  `access:"environment_database,write_restrictable,cloud_restrictable"`
 	Trace                       *bool                 `access:"environment_database,write_restrictable,cloud_restrictable"`
 	AtRestEncryptKey            *string               `access:"environment_database,write_restrictable,cloud_restrictable"` // telemetry: none
@@ -1165,8 +1165,8 @@ func (s *SqlSettings) SetDefaults(isUpdate bool) {
 		s.AtRestEncryptKey = NewString("")
 	}
 
-	if s.MaxIDleConns == nil {
-		s.MaxIDleConns = NewInt(20)
+	if s.MaxIdleConns == nil {
+		s.MaxIdleConns = NewInt(20)
 	}
 
 	if s.MaxOpenConns == nil {
@@ -1177,8 +1177,8 @@ func (s *SqlSettings) SetDefaults(isUpdate bool) {
 		s.ConnMaxLifetimeMilliseconds = NewInt(3600000)
 	}
 
-	if s.ConnMaxIDleTimeMilliseconds == nil {
-		s.ConnMaxIDleTimeMilliseconds = NewInt(300000)
+	if s.ConnMaxIdleTimeMilliseconds == nil {
+		s.ConnMaxIdleTimeMilliseconds = NewInt(300000)
 	}
 
 	if s.Trace == nil {
@@ -2357,7 +2357,7 @@ type SamlSettings struct {
 	IDpUrl                      *string `access:"authentication_saml"` // telemetry: none
 	IDpDescriptorUrl            *string `access:"authentication_saml"` // telemetry: none
 	IDpMetadataUrl              *string `access:"authentication_saml"` // telemetry: none
-	ServiceProviderIDentifier   *string `access:"authentication_saml"` // telemetry: none
+	ServiceProviderIdentifier   *string `access:"authentication_saml"` // telemetry: none
 	AssertionConsumerServiceURL *string `access:"authentication_saml"` // telemetry: none
 
 	SignatureAlgorithm *string `access:"authentication_saml"`
@@ -2439,11 +2439,11 @@ func (s *SamlSettings) SetDefaults() {
 		s.IDpDescriptorUrl = NewString("")
 	}
 
-	if s.ServiceProviderIDentifier == nil {
+	if s.ServiceProviderIdentifier == nil {
 		if s.IDpDescriptorUrl != nil {
-			s.ServiceProviderIDentifier = NewString(*s.IDpDescriptorUrl)
+			s.ServiceProviderIdentifier = NewString(*s.IDpDescriptorUrl)
 		} else {
-			s.ServiceProviderIDentifier = NewString("")
+			s.ServiceProviderIdentifier = NewString("")
 		}
 	}
 
@@ -3382,7 +3382,7 @@ func (s *SqlSettings) isValid() *AppError {
 		return NewAppError("Config.IsValid", "model.config.is_valid.sql_driver.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	if *s.MaxIDleConns <= 0 {
+	if *s.MaxIdleConns <= 0 {
 		return NewAppError("Config.IsValid", "model.config.is_valid.sql_idle.app_error", nil, "", http.StatusBadRequest)
 	}
 
@@ -3390,7 +3390,7 @@ func (s *SqlSettings) isValid() *AppError {
 		return NewAppError("Config.IsValid", "model.config.is_valid.sql_conn_max_lifetime_milliseconds.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	if *s.ConnMaxIDleTimeMilliseconds < 0 {
+	if *s.ConnMaxIdleTimeMilliseconds < 0 {
 		return NewAppError("Config.IsValid", "model.config.is_valid.sql_conn_max_idle_time_milliseconds.app_error", nil, "", http.StatusBadRequest)
 	}
 
@@ -3547,7 +3547,7 @@ func (s *SamlSettings) isValid() *AppError {
 			return NewAppError("Config.IsValid", "model.config.is_valid.saml_username_attribute.app_error", nil, "", http.StatusBadRequest)
 		}
 
-		if *s.ServiceProviderIDentifier == "" {
+		if *s.ServiceProviderIdentifier == "" {
 			return NewAppError("Config.IsValid", "model.config.is_valid.saml_spidentifier_attribute.app_error", nil, "", http.StatusBadRequest)
 		}
 

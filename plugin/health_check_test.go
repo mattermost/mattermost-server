@@ -54,7 +54,7 @@ func testPluginHealthCheckSuccess(t *testing.T) {
 	bundle := model.BundleInfoForPath(dir)
 	log := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		ConsoleLevel:  "error",
 		EnableFile:    false,
 	})
@@ -101,7 +101,7 @@ func testPluginHealthCheckPanic(t *testing.T) {
 	bundle := model.BundleInfoForPath(dir)
 	log := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		ConsoleLevel:  "error",
 		EnableFile:    false,
 	})

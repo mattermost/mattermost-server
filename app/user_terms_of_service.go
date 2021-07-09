@@ -26,11 +26,11 @@ func (a *App) GetUserTermsOfService(userID string) (*model.UserTermsOfService, *
 	return u, nil
 }
 
-func (a *App) SaveUserTermsOfService(userID, termsOfServiceId string, accepted bool) *model.AppError {
+func (a *App) SaveUserTermsOfService(userID, termsOfServiceID string, accepted bool) *model.AppError {
 	if accepted {
 		userTermsOfService := &model.UserTermsOfService{
-			UserId:           userID,
-			TermsOfServiceId: termsOfServiceId,
+			UserID:           userID,
+			TermsOfServiceID: termsOfServiceID,
 		}
 
 		if _, err := a.Srv().Store.UserTermsOfService().Save(userTermsOfService); err != nil {
@@ -43,7 +43,7 @@ func (a *App) SaveUserTermsOfService(userID, termsOfServiceId string, accepted b
 			}
 		}
 	} else {
-		if err := a.Srv().Store.UserTermsOfService().Delete(userID, termsOfServiceId); err != nil {
+		if err := a.Srv().Store.UserTermsOfService().Delete(userID, termsOfServiceID); err != nil {
 			return model.NewAppError("SaveUserTermsOfService", "app.user_terms_of_service.delete.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
 	}

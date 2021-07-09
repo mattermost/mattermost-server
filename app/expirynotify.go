@@ -38,27 +38,27 @@ func (a *App) NotifySessionsExpired() *model.AppError {
 
 	for _, session := range sessions {
 		tmpMessage := msg.DeepCopy()
-		tmpMessage.SetDeviceIdAndPlatform(session.DeviceId)
-		tmpMessage.AckId = model.NewId()
+		tmpMessage.SetDeviceIDAndPlatform(session.DeviceID)
+		tmpMessage.AckID = model.NewID()
 		tmpMessage.Message = a.getSessionExpiredPushMessage(session)
 
 		errPush := a.sendToPushProxy(tmpMessage, session)
 		if errPush != nil {
 			a.NotificationsLog().Error("Notification error",
-				mlog.String("ackId", tmpMessage.AckId),
+				mlog.String("ackId", tmpMessage.AckID),
 				mlog.String("type", tmpMessage.Type),
-				mlog.String("userId", session.UserId),
-				mlog.String("deviceId", tmpMessage.DeviceId),
+				mlog.String("userId", session.UserID),
+				mlog.String("deviceId", tmpMessage.DeviceID),
 				mlog.String("status", errPush.Error()),
 			)
 			continue
 		}
 
 		a.NotificationsLog().Info("Notification sent",
-			mlog.String("ackId", tmpMessage.AckId),
+			mlog.String("ackId", tmpMessage.AckID),
 			mlog.String("type", tmpMessage.Type),
-			mlog.String("userId", session.UserId),
-			mlog.String("deviceId", tmpMessage.DeviceId),
+			mlog.String("userId", session.UserID),
+			mlog.String("deviceId", tmpMessage.DeviceID),
 			mlog.String("status", model.PushSendSuccess),
 		)
 
@@ -66,9 +66,9 @@ func (a *App) NotifySessionsExpired() *model.AppError {
 			a.Metrics().IncrementPostSentPush()
 		}
 
-		err = a.srv.Store.Session().UpdateExpiredNotify(session.Id, true)
+		err = a.srv.Store.Session().UpdateExpiredNotify(session.ID, true)
 		if err != nil {
-			mlog.Error("Failed to update ExpiredNotify flag", mlog.String("sessionid", session.Id), mlog.Err(err))
+			mlog.Error("Failed to update ExpiredNotify flag", mlog.String("sessionid", session.ID), mlog.Err(err))
 		}
 	}
 	return nil
@@ -76,7 +76,7 @@ func (a *App) NotifySessionsExpired() *model.AppError {
 
 func (a *App) getSessionExpiredPushMessage(session *model.Session) string {
 	locale := model.DefaultLocale
-	user, err := a.GetUser(session.UserId)
+	user, err := a.GetUser(session.UserID)
 	if err == nil {
 		locale = user.Locale
 	}

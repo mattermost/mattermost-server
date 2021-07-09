@@ -12,11 +12,11 @@ import (
 )
 
 func (s *Server) clusterInstallPluginHandler(msg *model.ClusterMessage) {
-	s.installPluginFromData(model.PluginEventDataFromJson(strings.NewReader(msg.Data)))
+	s.installPluginFromData(model.PluginEventDataFromJSON(strings.NewReader(msg.Data)))
 }
 
 func (s *Server) clusterRemovePluginHandler(msg *model.ClusterMessage) {
-	s.removePluginFromData(model.PluginEventDataFromJson(strings.NewReader(msg.Data)))
+	s.removePluginFromData(model.PluginEventDataFromJSON(strings.NewReader(msg.Data)))
 }
 
 func (s *Server) clusterPluginEventHandler(msg *model.ClusterMessage) {
@@ -43,7 +43,7 @@ func (s *Server) clusterPluginEventHandler(msg *model.ClusterMessage) {
 	}
 
 	hooks.OnPluginClusterEvent(&plugin.Context{}, model.PluginClusterEvent{
-		Id:   eventID,
+		ID:   eventID,
 		Data: []byte(msg.Data),
 	})
 }
@@ -69,7 +69,7 @@ func (s *Server) registerClusterHandlers() {
 }
 
 func (s *Server) clusterPublishHandler(msg *model.ClusterMessage) {
-	event := model.WebSocketEventFromJson(strings.NewReader(msg.Data))
+	event := model.WebSocketEventFromJSON(strings.NewReader(msg.Data))
 	if event == nil {
 		return
 	}
@@ -77,8 +77,8 @@ func (s *Server) clusterPublishHandler(msg *model.ClusterMessage) {
 }
 
 func (s *Server) clusterUpdateStatusHandler(msg *model.ClusterMessage) {
-	status := model.StatusFromJson(strings.NewReader(msg.Data))
-	s.statusCache.Set(status.UserId, status)
+	status := model.StatusFromJSON(strings.NewReader(msg.Data))
+	s.statusCache.Set(status.UserID, status)
 }
 
 func (s *Server) clusterInvalidateAllCachesHandler(msg *model.ClusterMessage) {
@@ -120,7 +120,7 @@ func (s *Server) clusterClearSessionCacheForAllUsersHandler(msg *model.ClusterMe
 }
 
 func (s *Server) clusterBusyStateChgHandler(msg *model.ClusterMessage) {
-	s.serverBusyStateChanged(model.ServerBusyStateFromJson(strings.NewReader(msg.Data)))
+	s.serverBusyStateChanged(model.ServerBusyStateFromJSON(strings.NewReader(msg.Data)))
 }
 
 func (s *Server) invalidateCacheForChannelMembersNotifyPropsSkipClusterSend(channelID string) {
@@ -141,7 +141,7 @@ func (s *Server) invalidateCacheForUserSkipClusterSend(userID string) {
 }
 
 func (s *Server) invalidateWebConnSessionCacheForUser(userID string) {
-	hub := s.GetHubForUserId(userID)
+	hub := s.GetHubForUserID(userID)
 	if hub != nil {
 		hub.InvalidateUser(userID)
 	}

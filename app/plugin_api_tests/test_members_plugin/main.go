@@ -27,7 +27,7 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 		return nil, err.Error() + "failed to get team members"
 	} else if len(teamMembers) != 1 {
 		return nil, "Invalid number of team members"
-	} else if teamMembers[0].UserId != p.configuration.BasicUserID || teamMembers[0].TeamId != p.configuration.BasicTeamID {
+	} else if teamMembers[0].UserID != p.configuration.BasicUserID || teamMembers[0].TeamID != p.configuration.BasicTeamID {
 		return nil, "Invalid user or team id returned"
 	}
 	return nil, "OK"

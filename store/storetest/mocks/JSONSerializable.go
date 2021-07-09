@@ -12,7 +12,7 @@ type JSONSerializable struct {
 }
 
 // ToJson provides a mock function with given fields:
-func (_m *JSONSerializable) ToJson() string {
+func (_m *JSONSerializable) ToJSON() string {
 	ret := _m.Called()
 
 	var r0 string

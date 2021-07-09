@@ -11,7 +11,7 @@ import (
 // listener which can later be used to remove it. If clustering is not enabled in this build, the callback will never
 // be called.
 func (s *Server) AddClusterLeaderChangedListener(listener func()) string {
-	id := model.NewId()
+	id := model.NewID()
 	s.clusterLeaderListeners.Store(id, listener)
 	return id
 }

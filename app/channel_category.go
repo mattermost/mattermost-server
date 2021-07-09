@@ -60,8 +60,8 @@ func (a *App) GetSidebarCategoryOrder(userID, teamID string) ([]string, *model.A
 	return categories, nil
 }
 
-func (a *App) GetSidebarCategory(categoryId string) (*model.SidebarCategoryWithChannels, *model.AppError) {
-	category, err := a.Srv().Store.Channel().GetSidebarCategory(categoryId)
+func (a *App) GetSidebarCategory(categoryID string) (*model.SidebarCategoryWithChannels, *model.AppError) {
+	category, err := a.Srv().Store.Channel().GetSidebarCategory(categoryID)
 	if err != nil {
 		var nfErr *store.ErrNotFound
 		switch {
@@ -87,7 +87,7 @@ func (a *App) CreateSidebarCategory(userID, teamID string, newCategory *model.Si
 		}
 	}
 	message := model.NewWebSocketEvent(model.WebsocketEventSidebarCategoryCreated, teamID, "", userID, nil)
-	message.Add("category_id", category.Id)
+	message.Add("category_id", category.ID)
 	a.Publish(message)
 	return category, nil
 }
@@ -152,18 +152,18 @@ func (a *App) muteChannelsForUpdatedCategories(userID string, updatedCategories 
 		makeCategoryMap := func(categories []*model.SidebarCategoryWithChannels) map[string]*model.SidebarCategoryWithChannels {
 			result := make(map[string]*model.SidebarCategoryWithChannels)
 			for _, category := range categories {
-				result[category.Id] = category
+				result[category.ID] = category
 			}
 
 			return result
 		}
 
-		updatedCategoriesById := makeCategoryMap(updatedCategories)
-		originalCategoriesById := makeCategoryMap(originalCategories)
+		updatedCategoriesByID := makeCategoryMap(updatedCategories)
+		originalCategoriesByID := makeCategoryMap(originalCategories)
 
 		for channelID, diff := range channelsDiff {
-			fromCategory := originalCategoriesById[diff.fromCategoryId]
-			toCategory := updatedCategoriesById[diff.toCategoryId]
+			fromCategory := originalCategoriesByID[diff.fromCategoryID]
+			toCategory := updatedCategoriesByID[diff.toCategoryID]
 
 			if toCategory.Muted && !fromCategory.Muted {
 				channelsToMute = append(channelsToMute, channelID)
@@ -197,42 +197,42 @@ func (a *App) muteChannelsForUpdatedCategories(userID string, updatedCategories 
 }
 
 type categoryChannelDiff struct {
-	fromCategoryId string
-	toCategoryId   string
+	fromCategoryID string
+	toCategoryID   string
 }
 
 func diffChannelsBetweenCategories(updatedCategories []*model.SidebarCategoryWithChannels, originalCategories []*model.SidebarCategoryWithChannels) map[string]*categoryChannelDiff {
 	// mapChannelIdsToCategories returns a map of channel IDs to the IDs of the categories that they're a member of.
-	mapChannelIdsToCategories := func(categories []*model.SidebarCategoryWithChannels) map[string]string {
+	mapChannelIDsToCategories := func(categories []*model.SidebarCategoryWithChannels) map[string]string {
 		result := make(map[string]string)
 		for _, category := range categories {
 			for _, channelID := range category.Channels {
-				result[channelID] = category.Id
+				result[channelID] = category.ID
 			}
 		}
 
 		return result
 	}
 
-	updatedChannelIdsMap := mapChannelIdsToCategories(updatedCategories)
-	originalChannelIdsMap := mapChannelIdsToCategories(originalCategories)
+	updatedChannelIDsMap := mapChannelIDsToCategories(updatedCategories)
+	originalChannelIDsMap := mapChannelIDsToCategories(originalCategories)
 
 	// Check for any channels that have changed categories. Note that we don't worry about any channels that have moved
 	// outside of these categories since that heavily complicates things and doesn't currently happen in our apps.
 	channelsDiff := make(map[string]*categoryChannelDiff)
-	for channelID, originalCategoryId := range originalChannelIdsMap {
-		updatedCategoryId := updatedChannelIdsMap[channelID]
+	for channelID, originalCategoryID := range originalChannelIDsMap {
+		updatedCategoryID := updatedChannelIDsMap[channelID]
 
-		if originalCategoryId != updatedCategoryId && updatedCategoryId != "" {
-			channelsDiff[channelID] = &categoryChannelDiff{originalCategoryId, updatedCategoryId}
+		if originalCategoryID != updatedCategoryID && updatedCategoryID != "" {
+			channelsDiff[channelID] = &categoryChannelDiff{originalCategoryID, updatedCategoryID}
 		}
 	}
 
 	return channelsDiff
 }
 
-func (a *App) DeleteSidebarCategory(userID, teamID, categoryId string) *model.AppError {
-	err := a.Srv().Store.Channel().DeleteSidebarCategory(categoryId)
+func (a *App) DeleteSidebarCategory(userID, teamID, categoryID string) *model.AppError {
+	err := a.Srv().Store.Channel().DeleteSidebarCategory(categoryID)
 	if err != nil {
 		var invErr *store.ErrInvalidInput
 		switch {
@@ -244,7 +244,7 @@ func (a *App) DeleteSidebarCategory(userID, teamID, categoryId string) *model.Ap
 	}
 
 	message := model.NewWebSocketEvent(model.WebsocketEventSidebarCategoryDeleted, teamID, "", userID, nil)
-	message.Add("category_id", categoryId)
+	message.Add("category_id", categoryID)
 	a.Publish(message)
 
 	return nil

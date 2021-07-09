@@ -81,7 +81,7 @@ func extractContentCmdF(command *cobra.Command, args []string) error {
 				fmt.Println("extracting file", fileInfo.Name, fileInfo.Path)
 				err = a.ExtractContentFromFileInfo(fileInfo)
 				if err != nil {
-					mlog.Error("Failed to extract file content", mlog.Err(err), mlog.String("fileInfoId", fileInfo.Id))
+					mlog.Error("Failed to extract file content", mlog.Err(err), mlog.String("fileInfoId", fileInfo.ID))
 				}
 			}
 		}

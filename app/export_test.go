@@ -27,21 +27,21 @@ func TestReactionsOfPost(t *testing.T) {
 	post.HasReactions = true
 	th.BasicUser2.DeleteAt = 1234
 	reactionObject := model.Reaction{
-		UserId:    th.BasicUser.Id,
-		PostId:    post.Id,
+		UserID:    th.BasicUser.ID,
+		PostID:    post.ID,
 		EmojiName: "emoji",
 		CreateAt:  model.GetMillis(),
 	}
 	reactionObjectDeleted := model.Reaction{
-		UserId:    th.BasicUser2.Id,
-		PostId:    post.Id,
+		UserID:    th.BasicUser2.ID,
+		PostID:    post.ID,
 		EmojiName: "emoji",
 		CreateAt:  model.GetMillis(),
 	}
 
 	th.App.SaveReactionForPost(th.Context, &reactionObject)
 	th.App.SaveReactionForPost(th.Context, &reactionObjectDeleted)
-	reactionsOfPost, err := th.App.BuildPostReactions(post.Id)
+	reactionsOfPost, err := th.App.BuildPostReactions(post.ID)
 	require.Nil(t, err)
 
 	assert.Equal(t, reactionObject.EmojiName, *(*reactionsOfPost)[0].EmojiName)
@@ -86,9 +86,9 @@ func TestExportUserChannels(t *testing.T) {
 		model.PushNotifyProp:    model.UserNotifyNone,
 	}
 	preference := model.Preference{
-		UserId:   user.Id,
+		UserID:   user.ID,
 		Category: model.PreferenceCategoryFavoriteChannel,
-		Name:     channel.Id,
+		Name:     channel.ID,
 		Value:    "true",
 	}
 	var preferences model.Preferences
@@ -96,8 +96,8 @@ func TestExportUserChannels(t *testing.T) {
 	err := th.App.Srv().Store.Preference().Save(&preferences)
 	require.NoError(t, err)
 
-	th.App.UpdateChannelMemberNotifyProps(notifyProps, channel.Id, user.Id)
-	exportData, appErr := th.App.buildUserChannelMemberships(user.Id, team.Id)
+	th.App.UpdateChannelMemberNotifyProps(notifyProps, channel.ID, user.ID)
+	exportData, appErr := th.App.buildUserChannelMemberships(user.ID, team.ID)
 	require.Nil(t, appErr)
 	assert.Equal(t, len(*exportData), 3)
 	for _, data := range *exportData {
@@ -120,7 +120,7 @@ func TestCopyEmojiImages(t *testing.T) {
 	defer th.TearDown()
 
 	emoji := &model.Emoji{
-		Id: model.NewId(),
+		ID: model.NewID(),
 	}
 
 	// Creating a dir named `exported_emoji_test` in the root of the repo
@@ -129,7 +129,7 @@ func TestCopyEmojiImages(t *testing.T) {
 	os.Mkdir(pathToDir, 0777)
 	defer os.RemoveAll(pathToDir)
 
-	filePath := "../data/emoji/" + emoji.Id
+	filePath := "../data/emoji/" + emoji.ID
 	emojiImagePath := filePath + "/image"
 
 	var _, err = os.Stat(filePath)
@@ -141,10 +141,10 @@ func TestCopyEmojiImages(t *testing.T) {
 	os.OpenFile(filePath+"/image", os.O_RDONLY|os.O_CREATE, 0777)
 	defer os.RemoveAll(filePath)
 
-	copyError := th.App.copyEmojiImages(emoji.Id, emojiImagePath, pathToDir)
+	copyError := th.App.copyEmojiImages(emoji.ID, emojiImagePath, pathToDir)
 	require.NoError(t, copyError)
 
-	_, err = os.Stat(pathToDir + "/" + emoji.Id + "/image")
+	_, err = os.Stat(pathToDir + "/" + emoji.ID + "/image")
 	require.False(t, os.IsNotExist(err), "File should exist ")
 }
 
@@ -411,31 +411,31 @@ func TestExportDMandGMPost(t *testing.T) {
 
 	// DM posts
 	p1 := &model.Post{
-		ChannelId: dmChannel.Id,
-		Message:   "aa" + model.NewId() + "a",
-		UserId:    th1.BasicUser.Id,
+		ChannelID: dmChannel.ID,
+		Message:   "aa" + model.NewID() + "a",
+		UserID:    th1.BasicUser.ID,
 	}
 	th1.App.CreatePost(th1.Context, p1, dmChannel, false, true)
 
 	p2 := &model.Post{
-		ChannelId: dmChannel.Id,
-		Message:   "bb" + model.NewId() + "a",
-		UserId:    th1.BasicUser.Id,
+		ChannelID: dmChannel.ID,
+		Message:   "bb" + model.NewID() + "a",
+		UserID:    th1.BasicUser.ID,
 	}
 	th1.App.CreatePost(th1.Context, p2, dmChannel, false, true)
 
 	// GM posts
 	p3 := &model.Post{
-		ChannelId: gmChannel.Id,
-		Message:   "cc" + model.NewId() + "a",
-		UserId:    th1.BasicUser.Id,
+		ChannelID: gmChannel.ID,
+		Message:   "cc" + model.NewID() + "a",
+		UserID:    th1.BasicUser.ID,
 	}
 	th1.App.CreatePost(th1.Context, p3, gmChannel, false, true)
 
 	p4 := &model.Post{
-		ChannelId: gmChannel.Id,
-		Message:   "dd" + model.NewId() + "a",
-		UserId:    th1.BasicUser.Id,
+		ChannelID: gmChannel.ID,
+		Message:   "dd" + model.NewID() + "a",
+		UserID:    th1.BasicUser.ID,
 	}
 	th1.App.CreatePost(th1.Context, p4, gmChannel, false, true)
 
@@ -493,22 +493,22 @@ func TestExportPostWithProps(t *testing.T) {
 
 	// DM posts
 	p1 := &model.Post{
-		ChannelId: dmChannel.Id,
-		Message:   "aa" + model.NewId() + "a",
+		ChannelID: dmChannel.ID,
+		Message:   "aa" + model.NewID() + "a",
 		Props: map[string]interface{}{
 			"attachments": attachments,
 		},
-		UserId: th1.BasicUser.Id,
+		UserID: th1.BasicUser.ID,
 	}
 	th1.App.CreatePost(th1.Context, p1, dmChannel, false, true)
 
 	p2 := &model.Post{
-		ChannelId: gmChannel.Id,
-		Message:   "dd" + model.NewId() + "a",
+		ChannelID: gmChannel.ID,
+		Message:   "dd" + model.NewID() + "a",
 		Props: map[string]interface{}{
 			"attachments": attachments,
 		},
-		UserId: th1.BasicUser.Id,
+		UserID: th1.BasicUser.ID,
 	}
 	th1.App.CreatePost(th1.Context, p2, gmChannel, false, true)
 

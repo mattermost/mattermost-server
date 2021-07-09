@@ -38,7 +38,7 @@ func TestNoticeValidation(t *testing.T) {
 	mockSystemStore.On("GetByName", "FirstServerRunTimestamp").Return(&model.System{Name: "FirstServerRunTimestamp", Value: "10"}, nil)
 	mockSystemStore.On("Get").Return(make(model.StringMap), nil)
 
-	mockUserStore.On("Count", model.UserCountOptions{IncludeBotAccounts: false, IncludeDeleted: true, ExcludeRegularUsers: false, TeamId: "", ChannelId: "", ViewRestrictions: (*model.ViewUsersRestrictions)(nil), Roles: []string(nil), ChannelRoles: []string(nil), TeamRoles: []string(nil)}).Return(int64(1), nil)
+	mockUserStore.On("Count", model.UserCountOptions{IncludeBotAccounts: false, IncludeDeleted: true, ExcludeRegularUsers: false, TeamID: "", ChannelID: "", ViewRestrictions: (*model.ViewUsersRestrictions)(nil), Roles: []string(nil), ChannelRoles: []string(nil), TeamRoles: []string(nil)}).Return(int64(1), nil)
 	mockPreferenceStore.On("Get", "test", "Stuff", "Data").Return(&model.Preference{Value: "test2"}, nil)
 	mockPreferenceStore.On("Get", "test", "Stuff", "Data2").Return(&model.Preference{Value: "test"}, nil)
 	mockPreferenceStore.On("Get", "test", "Stuff", "Data3").Return(nil, errors.New("Error!"))
@@ -719,21 +719,21 @@ func TestNoticeFetch(t *testing.T) {
 	require.Nil(t, appErr)
 
 	// get them for specified user
-	messages, appErr := th.App.GetProductNotices(&request.Context{}, th.BasicUser.Id, th.BasicTeam.Id, model.NoticeClientTypeAll, "1.2.3", "en")
+	messages, appErr := th.App.GetProductNotices(&request.Context{}, th.BasicUser.ID, th.BasicTeam.ID, model.NoticeClientTypeAll, "1.2.3", "en")
 	require.Nil(t, appErr)
 	require.Len(t, messages, 1)
 
 	// mark notices as viewed
-	appErr = th.App.UpdateViewedProductNotices(th.BasicUser.Id, []string{messages[0].ID})
+	appErr = th.App.UpdateViewedProductNotices(th.BasicUser.ID, []string{messages[0].ID})
 	require.Nil(t, appErr)
 
 	// get them again, see that none are returned
-	messages, appErr = th.App.GetProductNotices(&request.Context{}, th.BasicUser.Id, th.BasicTeam.Id, model.NoticeClientTypeAll, "1.2.3", "en")
+	messages, appErr = th.App.GetProductNotices(&request.Context{}, th.BasicUser.ID, th.BasicTeam.ID, model.NoticeClientTypeAll, "1.2.3", "en")
 	require.Nil(t, appErr)
 	require.Len(t, messages, 0)
 
 	// validate views table
-	views, err := th.App.Srv().Store.ProductNotices().GetViews(th.BasicUser.Id)
+	views, err := th.App.Srv().Store.ProductNotices().GetViews(th.BasicUser.ID)
 	require.NoError(t, err)
 	require.Len(t, views, 1)
 
@@ -747,12 +747,12 @@ func TestNoticeFetch(t *testing.T) {
 	require.Nil(t, appErr)
 
 	// get them again, since conditions don't match we should be zero
-	messages, appErr = th.App.GetProductNotices(&request.Context{}, th.BasicUser.Id, th.BasicTeam.Id, model.NoticeClientTypeAll, "1.2.3", "en")
+	messages, appErr = th.App.GetProductNotices(&request.Context{}, th.BasicUser.ID, th.BasicTeam.ID, model.NoticeClientTypeAll, "1.2.3", "en")
 	require.Nil(t, appErr)
 	require.Len(t, messages, 0)
 
 	// even though UpdateViewedProductNotices was called previously, the table should be empty, since there's cleanup done during UpdateProductNotices
-	views, err = th.App.Srv().Store.ProductNotices().GetViews(th.BasicUser.Id)
+	views, err = th.App.Srv().Store.ProductNotices().GetViews(th.BasicUser.ID)
 	require.NoError(t, err)
 	require.Len(t, views, 0)
 }

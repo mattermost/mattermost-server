@@ -116,13 +116,13 @@ func listWebhookCmdF(command *cobra.Command, args []string) error {
 		// Fetch all hooks with a very large limit so we get them all.
 		incomingResult := make(chan store.StoreResult, 1)
 		go func() {
-			incomingHooks, err := app.Srv().Store.Webhook().GetIncomingByTeam(team.Id, 0, 100000000)
+			incomingHooks, err := app.Srv().Store.Webhook().GetIncomingByTeam(team.ID, 0, 100000000)
 			incomingResult <- store.StoreResult{Data: incomingHooks, NErr: err}
 			close(incomingResult)
 		}()
 		outgoingResult := make(chan store.StoreResult, 1)
 		go func() {
-			outgoingHooks, err := app.Srv().Store.Webhook().GetOutgoingByTeam(team.Id, 0, 100000000)
+			outgoingHooks, err := app.Srv().Store.Webhook().GetOutgoingByTeam(team.ID, 0, 100000000)
 			outgoingResult <- store.StoreResult{Data: outgoingHooks, NErr: err}
 			close(outgoingResult)
 		}()
@@ -131,7 +131,7 @@ func listWebhookCmdF(command *cobra.Command, args []string) error {
 			CommandPrettyPrintln(fmt.Sprintf("Incoming webhooks for %s (%s):", team.DisplayName, team.Name))
 			hooks := result.Data.([]*model.IncomingWebhook)
 			for _, hook := range hooks {
-				CommandPrettyPrintln("\t" + hook.DisplayName + " (" + hook.Id + ")")
+				CommandPrettyPrintln("\t" + hook.DisplayName + " (" + hook.ID + ")")
 			}
 		} else {
 			CommandPrintErrorln("Unable to list incoming webhooks for '" + args[i] + "'")
@@ -141,7 +141,7 @@ func listWebhookCmdF(command *cobra.Command, args []string) error {
 			hooks := result.Data.([]*model.OutgoingWebhook)
 			CommandPrettyPrintln(fmt.Sprintf("Outgoing webhooks for %s (%s):", team.DisplayName, team.Name))
 			for _, hook := range hooks {
-				CommandPrettyPrintln("\t" + hook.DisplayName + " (" + hook.Id + ")")
+				CommandPrettyPrintln("\t" + hook.DisplayName + " (" + hook.ID + ")")
 			}
 		} else {
 			CommandPrintErrorln("Unable to list outgoing webhooks for '" + args[i] + "'")
@@ -181,19 +181,19 @@ func createIncomingWebhookCmdF(command *cobra.Command, args []string) error {
 	channelLocked, _ := command.Flags().GetBool("lock-to-channel")
 
 	incomingWebhook := &model.IncomingWebhook{
-		ChannelId:     channel.Id,
+		ChannelID:     channel.ID,
 		DisplayName:   displayName,
 		Description:   description,
 		IconURL:       iconURL,
 		ChannelLocked: channelLocked,
 	}
 
-	createdIncoming, errIncomingWebhook := app.CreateIncomingWebhookForChannel(user.Id, channel, incomingWebhook)
+	createdIncoming, errIncomingWebhook := app.CreateIncomingWebhookForChannel(user.ID, channel, incomingWebhook)
 	if errIncomingWebhook != nil {
 		return errIncomingWebhook
 	}
 
-	CommandPrettyPrintln("Id: " + createdIncoming.Id)
+	CommandPrettyPrintln("Id: " + createdIncoming.ID)
 	CommandPrettyPrintln("Display Name: " + createdIncoming.DisplayName)
 
 	auditRec := app.MakeAuditRecord("createIncomingWebhook", audit.Success)
@@ -234,7 +234,7 @@ func modifyIncomingWebhookCmdF(command *cobra.Command, args []string) (cmdError 
 		if channel == nil {
 			return errors.New("Unable to find channel '" + channelArg + "'")
 		}
-		updatedHook.ChannelId = channel.Id
+		updatedHook.ChannelID = channel.ID
 	}
 
 	displayName, _ := command.Flags().GetString("display-name")
@@ -317,9 +317,9 @@ func createOutgoingWebhookCmdF(command *cobra.Command, args []string) error {
 	iconURL, _ := command.Flags().GetString("icon")
 
 	outgoingWebhook := &model.OutgoingWebhook{
-		CreatorId:    user.Id,
+		CreatorID:    user.ID,
 		Username:     user.Username,
-		TeamId:       team.Id,
+		TeamID:       team.ID,
 		TriggerWords: triggerWords,
 		TriggerWhen:  triggerWhen,
 		CallbackURLs: callbackURLs,
@@ -334,7 +334,7 @@ func createOutgoingWebhookCmdF(command *cobra.Command, args []string) error {
 	if channelArg != "" {
 		channel = getChannelFromChannelArg(app, channelArg)
 		if channel != nil {
-			outgoingWebhook.ChannelId = channel.Id
+			outgoingWebhook.ChannelID = channel.ID
 		}
 	}
 
@@ -343,7 +343,7 @@ func createOutgoingWebhookCmdF(command *cobra.Command, args []string) error {
 		return errOutgoing
 	}
 
-	CommandPrettyPrintln("Id: " + createdOutgoing.Id)
+	CommandPrettyPrintln("Id: " + createdOutgoing.ID)
 	CommandPrettyPrintln("Display Name: " + createdOutgoing.DisplayName)
 
 	auditRec := app.MakeAuditRecord("createOutgoingWebhook", audit.Success)
@@ -374,7 +374,7 @@ func modifyOutgoingWebhookCmdF(command *cobra.Command, args []string) error {
 		return fmt.Errorf("unable to find webhook '%s'", webhookArg)
 	}
 
-	updatedHook := model.OutgoingWebhookFromJson(strings.NewReader(oldHook.ToJson()))
+	updatedHook := model.OutgoingWebhookFromJSON(strings.NewReader(oldHook.ToJSON()))
 
 	channelArg, _ := command.Flags().GetString("channel")
 	if channelArg != "" {
@@ -382,7 +382,7 @@ func modifyOutgoingWebhookCmdF(command *cobra.Command, args []string) error {
 		if channel == nil {
 			return fmt.Errorf("unable to find channel '%s'", channelArg)
 		}
-		updatedHook.ChannelId = channel.Id
+		updatedHook.ChannelID = channel.ID
 	}
 
 	displayName, _ := command.Flags().GetString("display-name")
@@ -458,16 +458,16 @@ func deleteWebhookCmdF(command *cobra.Command, args []string) error {
 		return errors.New("WebhookID is not specified")
 	}
 
-	webhookId := args[0]
-	errIncomingWebhook := app.DeleteIncomingWebhook(webhookId)
-	errOutgoingWebhook := app.DeleteOutgoingWebhook(webhookId)
+	webhookID := args[0]
+	errIncomingWebhook := app.DeleteIncomingWebhook(webhookID)
+	errOutgoingWebhook := app.DeleteOutgoingWebhook(webhookID)
 
 	if errIncomingWebhook != nil && errOutgoingWebhook != nil {
-		return errors.New("Unable to delete webhook '" + webhookId + "'")
+		return errors.New("Unable to delete webhook '" + webhookID + "'")
 	}
 
 	auditRec := app.MakeAuditRecord("deleteWebhook", audit.Success)
-	auditRec.AddMeta("hook_id", webhookId)
+	auditRec.AddMeta("hook_id", webhookID)
 	app.LogAuditRec(auditRec, nil)
 
 	return nil
@@ -480,17 +480,17 @@ func showWebhookCmdF(command *cobra.Command, args []string) error {
 	}
 	defer app.Srv().Shutdown()
 
-	webhookId := args[0]
-	if incomingWebhook, err := app.GetIncomingWebhook(webhookId); err == nil {
+	webhookID := args[0]
+	if incomingWebhook, err := app.GetIncomingWebhook(webhookID); err == nil {
 		fmt.Printf("%s", prettyPrintStruct(*incomingWebhook))
 		return nil
 	}
-	if outgoingWebhook, err := app.GetOutgoingWebhook(webhookId); err == nil {
+	if outgoingWebhook, err := app.GetOutgoingWebhook(webhookID); err == nil {
 		fmt.Printf("%s", prettyPrintStruct(*outgoingWebhook))
 		return nil
 	}
 
-	return errors.New("Webhook with id " + webhookId + " not found")
+	return errors.New("Webhook with id " + webhookID + " not found")
 }
 
 func moveOutgoingWebhookCmd(command *cobra.Command, args []string) (cmdError error) {
@@ -500,8 +500,8 @@ func moveOutgoingWebhookCmd(command *cobra.Command, args []string) (cmdError err
 	}
 	defer app.Srv().Shutdown()
 
-	newTeamId := args[0]
-	_, teamError := app.GetTeam(newTeamId)
+	newTeamID := args[0]
+	_, teamError := app.GetTeam(newTeamID)
 	if teamError != nil {
 		return teamError
 	}
@@ -513,8 +513,8 @@ func moveOutgoingWebhookCmd(command *cobra.Command, args []string) (cmdError err
 		return teamErr
 	}
 
-	webhookId := webhookInformation[1]
-	webhook, appError := app.GetOutgoingWebhook(webhookId)
+	webhookID := webhookInformation[1]
+	webhook, appError := app.GetOutgoingWebhook(webhookID)
 	if appError != nil {
 		return appError
 	}
@@ -527,24 +527,24 @@ func moveOutgoingWebhookCmd(command *cobra.Command, args []string) (cmdError err
 	if channelErr != nil {
 		return channelErr
 	}
-	channel, getChannelErr := app.GetChannelByName(channelName, newTeamId, false)
+	channel, getChannelErr := app.GetChannelByName(channelName, newTeamID, false)
 
-	if webhook.ChannelId != "" {
+	if webhook.ChannelID != "" {
 		if getChannelErr != nil {
 			return getChannelErr
 		}
-		webhook.ChannelId = channel.Id
+		webhook.ChannelID = channel.ID
 	} else if channelName != "" {
-		webhook.ChannelId = channel.Id
+		webhook.ChannelID = channel.ID
 	}
 
-	deleteErr := app.DeleteOutgoingWebhook(webhook.Id)
+	deleteErr := app.DeleteOutgoingWebhook(webhook.ID)
 	if deleteErr != nil {
 		return deleteErr
 	}
 
-	webhook.Id = ""
-	webhook.TeamId = newTeamId
+	webhook.ID = ""
+	webhook.TeamID = newTeamID
 
 	updatedWebHook, createErr := app.CreateOutgoingWebhook(webhook)
 	if createErr != nil {

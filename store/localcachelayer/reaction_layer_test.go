@@ -19,7 +19,7 @@ func TestReactionStore(t *testing.T) {
 }
 
 func TestReactionStoreCache(t *testing.T) {
-	fakeReaction := model.Reaction{PostId: "123"}
+	fakeReaction := model.Reaction{PostID: "123"}
 
 	t.Run("first call not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()

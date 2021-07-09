@@ -373,7 +373,7 @@ func (_m *GroupStore) GetAllBySource(groupSource model.GroupSource) ([]*model.Gr
 }
 
 // GetAllGroupSyncablesByGroupId provides a mock function with given fields: groupID, syncableType
-func (_m *GroupStore) GetAllGroupSyncablesByGroupId(groupID string, syncableType model.GroupSyncableType) ([]*model.GroupSyncable, error) {
+func (_m *GroupStore) GetAllGroupSyncablesByGroupID(groupID string, syncableType model.GroupSyncableType) ([]*model.GroupSyncable, error) {
 	ret := _m.Called(groupID, syncableType)
 
 	var r0 []*model.GroupSyncable

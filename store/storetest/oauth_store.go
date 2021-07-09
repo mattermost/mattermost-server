@@ -34,31 +34,31 @@ func TestOAuthStore(t *testing.T, ss store.Store) {
 
 func testOAuthStoreSaveApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
-	a1.CreatorId = model.NewId()
+	a1.CreatorID = model.NewID()
 	a1.CallbackUrls = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 
 	// Try to save an app that already has an Id
-	a1.Id = model.NewId()
+	a1.ID = model.NewID()
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.Error(t, err, "Should have failed, cannot add an OAuth app cannot be save with an Id, it has to be updated")
 
 	// Try to save an Invalid App
-	a1.Id = ""
+	a1.ID = ""
 	_, err = ss.OAuth().SaveApp(&a1)
 	require.Error(t, err, "Should have failed, app should be invalid cause it doesn' have a name set")
 
 	// Save the app
-	a1.Id = ""
-	a1.Name = "TestApp" + model.NewId()
+	a1.ID = ""
+	a1.Name = "TestApp" + model.NewID()
 	_, err = ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)
 }
 
 func testOAuthStoreGetApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
-	a1.CreatorId = model.NewId()
-	a1.Name = "TestApp" + model.NewId()
+	a1.CreatorID = model.NewID()
+	a1.Name = "TestApp" + model.NewID()
 	a1.CallbackUrls = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
@@ -68,7 +68,7 @@ func testOAuthStoreGetApp(t *testing.T, ss store.Store) {
 	_, err = ss.OAuth().GetApp("fake0123456789abcderfgret1")
 	require.Error(t, err, "Should have failed. App does not exists")
 
-	_, err = ss.OAuth().GetApp(a1.Id)
+	_, err = ss.OAuth().GetApp(a1.ID)
 	require.NoError(t, err)
 
 	// Lets try and get the app from a user that hasn't created any apps
@@ -76,7 +76,7 @@ func testOAuthStoreGetApp(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 	assert.Empty(t, apps, "Should have failed. Fake user hasn't created any apps")
 
-	_, err = ss.OAuth().GetAppByUser(a1.CreatorId, 0, 1000)
+	_, err = ss.OAuth().GetAppByUser(a1.CreatorID, 0, 1000)
 	require.NoError(t, err)
 
 	_, err = ss.OAuth().GetApps(0, 1000)
@@ -85,19 +85,19 @@ func testOAuthStoreGetApp(t *testing.T, ss store.Store) {
 
 func testOAuthStoreUpdateApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
-	a1.CreatorId = model.NewId()
-	a1.Name = "TestApp" + model.NewId()
+	a1.CreatorID = model.NewID()
+	a1.Name = "TestApp" + model.NewID()
 	a1.CallbackUrls = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)
 
 	// temporarily save the created app id
-	id := a1.Id
+	id := a1.ID
 
 	a1.CreateAt = 1
 	a1.ClientSecret = "pwd"
-	a1.CreatorId = "12345678901234567890123456"
+	a1.CreatorID = "12345678901234567890123456"
 
 	// Lets update the app by removing the name
 	a1.Name = ""
@@ -105,31 +105,31 @@ func testOAuthStoreUpdateApp(t *testing.T, ss store.Store) {
 	require.Error(t, err, "Should have failed. App name is not set")
 
 	// Lets not find the app that we are trying to update
-	a1.Id = "fake0123456789abcderfgret1"
+	a1.ID = "fake0123456789abcderfgret1"
 	a1.Name = "NewName"
 	_, err = ss.OAuth().UpdateApp(&a1)
 	require.Error(t, err, "Should have failed. Not able to find the app")
 
-	a1.Id = id
+	a1.ID = id
 	ua, err := ss.OAuth().UpdateApp(&a1)
 	require.NoError(t, err)
 	require.Equal(t, ua.Name, "NewName", "name did not update")
 	require.NotEqual(t, ua.CreateAt, 1, "create at should not have updated")
-	require.NotEqual(t, ua.CreatorId, "12345678901234567890123456", "creator id should not have updated")
+	require.NotEqual(t, ua.CreatorID, "12345678901234567890123456", "creator id should not have updated")
 }
 
 func testOAuthStoreSaveAccessData(t *testing.T, ss store.Store) {
 	a1 := model.AccessData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
 
 	// Lets try and save an incomplete access data
 	_, err := ss.OAuth().SaveAccessData(&a1)
 	require.Error(t, err, "Should have failed. Access data needs the token")
 
-	a1.Token = model.NewId()
-	a1.RefreshToken = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.Token = model.NewID()
+	a1.RefreshToken = model.NewID()
+	a1.RedirectURI = "http://example.com"
 
 	_, err = ss.OAuth().SaveAccessData(&a1)
 	require.NoError(t, err)
@@ -137,29 +137,29 @@ func testOAuthStoreSaveAccessData(t *testing.T, ss store.Store) {
 
 func testOAuthUpdateAccessData(t *testing.T, ss store.Store) {
 	a1 := model.AccessData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Token = model.NewId()
-	a1.RefreshToken = model.NewId()
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Token = model.NewID()
+	a1.RefreshToken = model.NewID()
 	a1.ExpiresAt = model.GetMillis()
-	a1.RedirectUri = "http://example.com"
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAccessData(&a1)
 	require.NoError(t, err)
 
 	//Try to update to invalid Refresh Token
 	refreshToken := a1.RefreshToken
-	a1.RefreshToken = model.NewId() + "123"
+	a1.RefreshToken = model.NewID() + "123"
 	_, err = ss.OAuth().UpdateAccessData(&a1)
 	require.Error(t, err, "Should have failed with invalid token")
 
 	//Try to update to invalid RedirectUri
-	a1.RefreshToken = model.NewId()
-	a1.RedirectUri = ""
+	a1.RefreshToken = model.NewID()
+	a1.RedirectURI = ""
 	_, err = ss.OAuth().UpdateAccessData(&a1)
 	require.Error(t, err, "Should have failed with invalid Redirect URI")
 
 	// Should update fine
-	a1.RedirectUri = "http://example.com"
+	a1.RedirectURI = "http://example.com"
 	ra1, err := ss.OAuth().UpdateAccessData(&a1)
 	require.NoError(t, err)
 	require.NotEqual(t, ra1.RefreshToken, refreshToken, "refresh tokens didn't match")
@@ -167,12 +167,12 @@ func testOAuthUpdateAccessData(t *testing.T, ss store.Store) {
 
 func testOAuthStoreGetAccessData(t *testing.T, ss store.Store) {
 	a1 := model.AccessData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Token = model.NewId()
-	a1.RefreshToken = model.NewId()
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Token = model.NewID()
+	a1.RefreshToken = model.NewID()
 	a1.ExpiresAt = model.GetMillis()
-	a1.RedirectUri = "http://example.com"
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAccessData(&a1)
 	require.NoError(t, err)
 
@@ -183,7 +183,7 @@ func testOAuthStoreGetAccessData(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 	assert.Equal(t, a1.Token, ra1.Token, "tokens didn't match")
 
-	_, err = ss.OAuth().GetPreviousAccessData(a1.UserId, a1.ClientId)
+	_, err = ss.OAuth().GetPreviousAccessData(a1.UserID, a1.ClientID)
 	require.NoError(t, err)
 
 	_, err = ss.OAuth().GetPreviousAccessData("user", "junk")
@@ -201,54 +201,54 @@ func testOAuthStoreGetAccessData(t *testing.T, ss store.Store) {
 
 func testOAuthStoreRemoveAccessData(t *testing.T, ss store.Store) {
 	a1 := model.AccessData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Token = model.NewId()
-	a1.RefreshToken = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Token = model.NewID()
+	a1.RefreshToken = model.NewID()
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAccessData(&a1)
 	require.NoError(t, err)
 
 	err = ss.OAuth().RemoveAccessData(a1.Token)
 	require.NoError(t, err)
 
-	result, _ := ss.OAuth().GetPreviousAccessData(a1.UserId, a1.ClientId)
+	result, _ := ss.OAuth().GetPreviousAccessData(a1.UserID, a1.ClientID)
 	require.Nil(t, result, "did not delete access token")
 }
 
 func testOAuthStoreRemoveAllAccessData(t *testing.T, ss store.Store) {
 	a1 := model.AccessData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Token = model.NewId()
-	a1.RefreshToken = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Token = model.NewID()
+	a1.RefreshToken = model.NewID()
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAccessData(&a1)
 	require.NoError(t, err)
 
 	err = ss.OAuth().RemoveAllAccessData()
 	require.NoError(t, err)
 
-	result, _ := ss.OAuth().GetPreviousAccessData(a1.UserId, a1.ClientId)
+	result, _ := ss.OAuth().GetPreviousAccessData(a1.UserID, a1.ClientID)
 	require.Nil(t, result, "did not delete access token")
 }
 
 func testOAuthStoreSaveAuthData(t *testing.T, ss store.Store) {
 	a1 := model.AuthData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Code = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Code = model.NewID()
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAuthData(&a1)
 	require.NoError(t, err)
 }
 
 func testOAuthStoreGetAuthData(t *testing.T, ss store.Store) {
 	a1 := model.AuthData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Code = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Code = model.NewID()
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAuthData(&a1)
 	require.NoError(t, err)
 
@@ -258,10 +258,10 @@ func testOAuthStoreGetAuthData(t *testing.T, ss store.Store) {
 
 func testOAuthStoreRemoveAuthData(t *testing.T, ss store.Store) {
 	a1 := model.AuthData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Code = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Code = model.NewID()
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAuthData(&a1)
 	require.NoError(t, err)
 
@@ -274,21 +274,21 @@ func testOAuthStoreRemoveAuthData(t *testing.T, ss store.Store) {
 
 func testOAuthStoreRemoveAuthDataByUser(t *testing.T, ss store.Store) {
 	a1 := model.AuthData{}
-	a1.ClientId = model.NewId()
-	a1.UserId = model.NewId()
-	a1.Code = model.NewId()
-	a1.RedirectUri = "http://example.com"
+	a1.ClientID = model.NewID()
+	a1.UserID = model.NewID()
+	a1.Code = model.NewID()
+	a1.RedirectURI = "http://example.com"
 	_, err := ss.OAuth().SaveAuthData(&a1)
 	require.NoError(t, err)
 
-	err = ss.OAuth().PermanentDeleteAuthDataByUser(a1.UserId)
+	err = ss.OAuth().PermanentDeleteAuthDataByUser(a1.UserID)
 	require.NoError(t, err)
 }
 
 func testOAuthGetAuthorizedApps(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
-	a1.CreatorId = model.NewId()
-	a1.Name = "TestApp" + model.NewId()
+	a1.CreatorID = model.NewID()
+	a1.Name = "TestApp" + model.NewID()
 	a1.CallbackUrls = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
@@ -301,22 +301,22 @@ func testOAuthGetAuthorizedApps(t *testing.T, ss store.Store) {
 
 	// allow the app
 	p := model.Preference{}
-	p.UserId = a1.CreatorId
+	p.UserID = a1.CreatorID
 	p.Category = model.PreferenceCategoryAuthorizedOAuthApp
-	p.Name = a1.Id
+	p.Name = a1.ID
 	p.Value = "true"
 	nErr := ss.Preference().Save(&model.Preferences{p})
 	require.NoError(t, nErr)
 
-	apps, err = ss.OAuth().GetAuthorizedApps(a1.CreatorId, 0, 1000)
+	apps, err = ss.OAuth().GetAuthorizedApps(a1.CreatorID, 0, 1000)
 	require.NoError(t, err)
 	assert.NotEqual(t, len(apps), 0, "It should have return apps")
 }
 
 func testOAuthGetAccessDataByUserForApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
-	a1.CreatorId = model.NewId()
-	a1.Name = "TestApp" + model.NewId()
+	a1.CreatorID = model.NewID()
+	a1.Name = "TestApp" + model.NewID()
 	a1.CallbackUrls = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
@@ -324,37 +324,37 @@ func testOAuthGetAccessDataByUserForApp(t *testing.T, ss store.Store) {
 
 	// allow the app
 	p := model.Preference{}
-	p.UserId = a1.CreatorId
+	p.UserID = a1.CreatorID
 	p.Category = model.PreferenceCategoryAuthorizedOAuthApp
-	p.Name = a1.Id
+	p.Name = a1.ID
 	p.Value = "true"
 	nErr := ss.Preference().Save(&model.Preferences{p})
 	require.NoError(t, nErr)
 
-	apps, err := ss.OAuth().GetAuthorizedApps(a1.CreatorId, 0, 1000)
+	apps, err := ss.OAuth().GetAuthorizedApps(a1.CreatorID, 0, 1000)
 	require.NoError(t, err)
 	assert.NotEqual(t, len(apps), 0, "It should have return apps")
 
 	// save the token
 	ad1 := model.AccessData{}
-	ad1.ClientId = a1.Id
-	ad1.UserId = a1.CreatorId
-	ad1.Token = model.NewId()
-	ad1.RefreshToken = model.NewId()
-	ad1.RedirectUri = "http://example.com"
+	ad1.ClientID = a1.ID
+	ad1.UserID = a1.CreatorID
+	ad1.Token = model.NewID()
+	ad1.RefreshToken = model.NewID()
+	ad1.RedirectURI = "http://example.com"
 
 	_, err = ss.OAuth().SaveAccessData(&ad1)
 	require.NoError(t, err)
 
-	accessData, err := ss.OAuth().GetAccessDataByUserForApp(a1.CreatorId, a1.Id)
+	accessData, err := ss.OAuth().GetAccessDataByUserForApp(a1.CreatorID, a1.ID)
 	require.NoError(t, err)
 	assert.NotEqual(t, len(accessData), 0, "It should have return access data")
 }
 
 func testOAuthStoreDeleteApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
-	a1.CreatorId = model.NewId()
-	a1.Name = "TestApp" + model.NewId()
+	a1.CreatorID = model.NewID()
+	a1.Name = "TestApp" + model.NewID()
 	a1.CallbackUrls = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
@@ -365,24 +365,24 @@ func testOAuthStoreDeleteApp(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 
 	s1 := &model.Session{}
-	s1.UserId = model.NewId()
-	s1.Token = model.NewId()
+	s1.UserID = model.NewID()
+	s1.Token = model.NewID()
 	s1.IsOAuth = true
 
 	s1, nErr := ss.Session().Save(s1)
 	require.NoError(t, nErr)
 
 	ad1 := model.AccessData{}
-	ad1.ClientId = a1.Id
-	ad1.UserId = a1.CreatorId
+	ad1.ClientID = a1.ID
+	ad1.UserID = a1.CreatorID
 	ad1.Token = s1.Token
-	ad1.RefreshToken = model.NewId()
-	ad1.RedirectUri = "http://example.com"
+	ad1.RefreshToken = model.NewID()
+	ad1.RedirectURI = "http://example.com"
 
 	_, err = ss.OAuth().SaveAccessData(&ad1)
 	require.NoError(t, err)
 
-	err = ss.OAuth().DeleteApp(a1.Id)
+	err = ss.OAuth().DeleteApp(a1.ID)
 	require.NoError(t, err)
 
 	_, nErr = ss.Session().Get(context.Background(), s1.Token)

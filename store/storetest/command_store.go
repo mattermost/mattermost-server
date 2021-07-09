@@ -27,9 +27,9 @@ func TestCommandStore(t *testing.T, ss store.Store) {
 
 func testCommandStoreSave(t *testing.T, ss store.Store) {
 	o1 := model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
@@ -42,16 +42,16 @@ func testCommandStoreSave(t *testing.T, ss store.Store) {
 
 func testCommandStoreGet(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
 	o1, nErr := ss.Command().Save(o1)
 	require.NoError(t, nErr)
 
-	r1, nErr := ss.Command().Get(o1.Id)
+	r1, nErr := ss.Command().Get(o1.ID)
 	require.NoError(t, nErr)
 	require.Equal(t, r1.CreateAt, o1.CreateAt, "invalid returned command")
 
@@ -63,16 +63,16 @@ func testCommandStoreGet(t *testing.T, ss store.Store) {
 
 func testCommandStoreGetByTeam(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
 	o1, nErr := ss.Command().Save(o1)
 	require.NoError(t, nErr)
 
-	r1, nErr := ss.Command().GetByTeam(o1.TeamId)
+	r1, nErr := ss.Command().GetByTeam(o1.TeamID)
 	require.NoError(t, nErr)
 	require.NotEmpty(t, r1, "no command returned")
 	require.Equal(t, r1[0].CreateAt, o1.CreateAt, "invalid returned command")
@@ -84,16 +84,16 @@ func testCommandStoreGetByTeam(t *testing.T, ss store.Store) {
 
 func testCommandStoreGetByTrigger(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger1"
 
 	o2 := &model.Command{}
-	o2.CreatorId = model.NewId()
+	o2.CreatorID = model.NewID()
 	o2.Method = model.CommandMethodPost
-	o2.TeamId = model.NewId()
+	o2.TeamID = model.NewID()
 	o2.URL = "http://nowhere.com/"
 	o2.Trigger = "trigger1"
 
@@ -104,14 +104,14 @@ func testCommandStoreGetByTrigger(t *testing.T, ss store.Store) {
 	require.NoError(t, nErr)
 
 	var r1 *model.Command
-	r1, nErr = ss.Command().GetByTrigger(o1.TeamId, o1.Trigger)
+	r1, nErr = ss.Command().GetByTrigger(o1.TeamID, o1.Trigger)
 	require.NoError(t, nErr)
-	require.Equal(t, r1.Id, o1.Id, "invalid returned command")
+	require.Equal(t, r1.ID, o1.ID, "invalid returned command")
 
-	nErr = ss.Command().Delete(o1.Id, model.GetMillis())
+	nErr = ss.Command().Delete(o1.ID, model.GetMillis())
 	require.NoError(t, nErr)
 
-	_, err := ss.Command().GetByTrigger(o1.TeamId, o1.Trigger)
+	_, err := ss.Command().GetByTrigger(o1.TeamID, o1.Trigger)
 	require.Error(t, err)
 	var nfErr *store.ErrNotFound
 	require.True(t, errors.As(err, &nfErr))
@@ -119,23 +119,23 @@ func testCommandStoreGetByTrigger(t *testing.T, ss store.Store) {
 
 func testCommandStoreDelete(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
 	o1, nErr := ss.Command().Save(o1)
 	require.NoError(t, nErr)
 
-	r1, nErr := ss.Command().Get(o1.Id)
+	r1, nErr := ss.Command().Get(o1.ID)
 	require.NoError(t, nErr)
 	require.Equal(t, r1.CreateAt, o1.CreateAt, "invalid returned command")
 
-	nErr = ss.Command().Delete(o1.Id, model.GetMillis())
+	nErr = ss.Command().Delete(o1.ID, model.GetMillis())
 	require.NoError(t, nErr)
 
-	_, err := ss.Command().Get(o1.Id)
+	_, err := ss.Command().Get(o1.ID)
 	require.Error(t, err)
 	var nfErr *store.ErrNotFound
 	require.True(t, errors.As(err, &nfErr))
@@ -143,23 +143,23 @@ func testCommandStoreDelete(t *testing.T, ss store.Store) {
 
 func testCommandStoreDeleteByTeam(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
 	o1, nErr := ss.Command().Save(o1)
 	require.NoError(t, nErr)
 
-	r1, nErr := ss.Command().Get(o1.Id)
+	r1, nErr := ss.Command().Get(o1.ID)
 	require.NoError(t, nErr)
 	require.Equal(t, r1.CreateAt, o1.CreateAt, "invalid returned command")
 
-	nErr = ss.Command().PermanentDeleteByTeam(o1.TeamId)
+	nErr = ss.Command().PermanentDeleteByTeam(o1.TeamID)
 	require.NoError(t, nErr)
 
-	_, err := ss.Command().Get(o1.Id)
+	_, err := ss.Command().Get(o1.ID)
 	require.Error(t, err)
 	var nfErr *store.ErrNotFound
 	require.True(t, errors.As(err, &nfErr))
@@ -167,23 +167,23 @@ func testCommandStoreDeleteByTeam(t *testing.T, ss store.Store) {
 
 func testCommandStoreDeleteByUser(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
 	o1, nErr := ss.Command().Save(o1)
 	require.NoError(t, nErr)
 
-	r1, nErr := ss.Command().Get(o1.Id)
+	r1, nErr := ss.Command().Get(o1.ID)
 	require.NoError(t, nErr)
 	require.Equal(t, r1.CreateAt, o1.CreateAt, "invalid returned command")
 
-	nErr = ss.Command().PermanentDeleteByUser(o1.CreatorId)
+	nErr = ss.Command().PermanentDeleteByUser(o1.CreatorID)
 	require.NoError(t, nErr)
 
-	_, err := ss.Command().Get(o1.Id)
+	_, err := ss.Command().Get(o1.ID)
 	require.Error(t, err)
 	var nfErr *store.ErrNotFound
 	require.True(t, errors.As(err, &nfErr))
@@ -191,16 +191,16 @@ func testCommandStoreDeleteByUser(t *testing.T, ss store.Store) {
 
 func testCommandStoreUpdate(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
 	o1, nErr := ss.Command().Save(o1)
 	require.NoError(t, nErr)
 
-	o1.Token = model.NewId()
+	o1.Token = model.NewID()
 
 	_, nErr = ss.Command().Update(o1)
 	require.NoError(t, nErr)
@@ -213,9 +213,9 @@ func testCommandStoreUpdate(t *testing.T, ss store.Store) {
 
 func testCommandCount(t *testing.T, ss store.Store) {
 	o1 := &model.Command{}
-	o1.CreatorId = model.NewId()
+	o1.CreatorID = model.NewID()
 	o1.Method = model.CommandMethodPost
-	o1.TeamId = model.NewId()
+	o1.TeamID = model.NewID()
 	o1.URL = "http://nowhere.com/"
 	o1.Trigger = "trigger"
 
@@ -226,7 +226,7 @@ func testCommandCount(t *testing.T, ss store.Store) {
 	require.NoError(t, nErr)
 	require.NotZero(t, r1, "should be at least 1 command")
 
-	r2, nErr := ss.Command().AnalyticsCommandCount(o1.TeamId)
+	r2, nErr := ss.Command().AnalyticsCommandCount(o1.TeamID)
 	require.NoError(t, nErr)
 	require.Equal(t, r2, int64(1), "should be 1 command")
 }

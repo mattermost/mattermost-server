@@ -149,7 +149,7 @@ func installMarketplacePlugin(c *Context, w http.ResponseWriter, r *http.Request
 		c.Err = model.NewAppError("installMarketplacePlugin", "app.plugin.marketplace_plugin_request.app_error", nil, err.Error(), http.StatusNotImplemented)
 		return
 	}
-	auditRec.AddMeta("plugin_id", pluginRequest.Id)
+	auditRec.AddMeta("plugin_id", pluginRequest.ID)
 
 	manifest, appErr := c.App.InstallMarketplacePlugin(pluginRequest)
 	if appErr != nil {
@@ -162,7 +162,7 @@ func installMarketplacePlugin(c *Context, w http.ResponseWriter, r *http.Request
 	auditRec.AddMeta("plugin_desc", manifest.Description)
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(manifest.ToJson()))
+	w.Write([]byte(manifest.ToJSON()))
 }
 
 func getPlugins(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -182,7 +182,7 @@ func getPlugins(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(response.ToJson()))
+	w.Write([]byte(response.ToJSON()))
 }
 
 func getPluginStatuses(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -202,11 +202,11 @@ func getPluginStatuses(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(response.ToJson()))
+	w.Write([]byte(response.ToJSON()))
 }
 
 func removePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequirePluginId()
+	c.RequirePluginID()
 	if c.Err != nil {
 		return
 	}
@@ -218,14 +218,14 @@ func removePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("removePlugin", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("plugin_id", c.Params.PluginId)
+	auditRec.AddMeta("plugin_id", c.Params.PluginID)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionSysconsoleWritePlugins) {
 		c.SetPermissionError(model.PermissionSysconsoleWritePlugins)
 		return
 	}
 
-	err := c.App.RemovePlugin(c.Params.PluginId)
+	err := c.App.RemovePlugin(c.Params.PluginID)
 	if err != nil {
 		c.Err = err
 		return
@@ -258,7 +258,7 @@ func getWebappPlugins(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Write([]byte(model.ManifestListToJson(clientManifests)))
+	w.Write([]byte(model.ManifestListToJSON(clientManifests)))
 }
 
 func getMarketplacePlugins(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -299,7 +299,7 @@ func getMarketplacePlugins(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func enablePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequirePluginId()
+	c.RequirePluginID()
 	if c.Err != nil {
 		return
 	}
@@ -311,14 +311,14 @@ func enablePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("enablePlugin", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("plugin_id", c.Params.PluginId)
+	auditRec.AddMeta("plugin_id", c.Params.PluginID)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionSysconsoleWritePlugins) {
 		c.SetPermissionError(model.PermissionSysconsoleWritePlugins)
 		return
 	}
 
-	if err := c.App.EnablePlugin(c.Params.PluginId); err != nil {
+	if err := c.App.EnablePlugin(c.Params.PluginID); err != nil {
 		c.Err = err
 		return
 	}
@@ -328,7 +328,7 @@ func enablePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func disablePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequirePluginId()
+	c.RequirePluginID()
 	if c.Err != nil {
 		return
 	}
@@ -340,14 +340,14 @@ func disablePlugin(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("disablePlugin", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("plugin_id", c.Params.PluginId)
+	auditRec.AddMeta("plugin_id", c.Params.PluginID)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionSysconsoleWritePlugins) {
 		c.SetPermissionError(model.PermissionSysconsoleWritePlugins)
 		return
 	}
 
-	if err := c.App.DisablePlugin(c.Params.PluginId); err != nil {
+	if err := c.App.DisablePlugin(c.Params.PluginID); err != nil {
 		c.Err = err
 		return
 	}
@@ -386,7 +386,7 @@ func installPlugin(c *Context, w http.ResponseWriter, plugin io.ReadSeeker, forc
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(manifest.ToJson()))
+	w.Write([]byte(manifest.ToJSON()))
 }
 
 func setFirstAdminVisitMarketplaceStatus(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -444,5 +444,5 @@ func getFirstAdminVisitMarketplaceStatus(c *Context, w http.ResponseWriter, r *h
 	}
 
 	auditRec.Success()
-	w.Write([]byte(firstAdminVisitMarketplaceObj.ToJson()))
+	w.Write([]byte(firstAdminVisitMarketplaceObj.ToJSON()))
 }

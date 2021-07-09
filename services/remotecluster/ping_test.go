@@ -43,7 +43,7 @@ func TestPing(t *testing.T) {
 				return
 			}
 			if len(frame.Msg.Payload) == 0 {
-				merr.Append(fmt.Errorf("Payload should not be empty; remote_id=%s", frame.RemoteId))
+				merr.Append(fmt.Errorf("Payload should not be empty; remote_id=%s", frame.RemoteID))
 				return
 			}
 

@@ -18,9 +18,9 @@ func WithMaster(ctx context.Context) context.Context {
 
 func pluginContext(c *request.Context) *plugin.Context {
 	context := &plugin.Context{
-		RequestId:      c.RequestId(),
-		SessionId:      c.Session().Id,
-		IpAddress:      c.IpAddress(),
+		RequestID:      c.RequestID(),
+		SessionID:      c.Session().ID,
+		IDAddress:      c.IDAddress(),
 		AcceptLanguage: c.AcceptLanguage(),
 		UserAgent:      c.UserAgent(),
 	}

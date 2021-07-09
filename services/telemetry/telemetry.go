@@ -128,10 +128,10 @@ func (ts *TelemetryService) ensureTelemetryID() {
 		return
 	}
 
-	id := props[model.SystemTelemetryId]
+	id := props[model.SystemTelemetryID]
 	if id == "" {
-		id = model.NewId()
-		systemID := &model.System{Name: model.SystemTelemetryId, Value: id}
+		id = model.NewID()
+		systemID := &model.System{Name: model.SystemTelemetryID, Value: id}
 		ts.dbStore.System().Save(systemID)
 	}
 
@@ -173,8 +173,8 @@ func (ts *TelemetryService) sendTelemetry(event string, properties map[string]in
 	if ts.rudderClient != nil {
 		var context *rudder.Context
 		// if we are part of a cloud installation, add it's ID to the tracked event's context
-		if installationId := os.Getenv("MM_CLOUD_INSTALLATION_ID"); installationId != "" {
-			context = &rudder.Context{Traits: map[string]interface{}{"installationId": installationId}}
+		if installationID := os.Getenv("MM_CLOUD_INSTALLATION_ID"); installationID != "" {
+			context = &rudder.Context{Traits: map[string]interface{}{"installationId": installationID}}
 		}
 		ts.rudderClient.Enqueue(rudder.Track{
 			Event:      event,
@@ -212,17 +212,17 @@ func pluginSetting(pluginSettings *model.PluginSettings, plugin, key string, def
 	return defaultValue
 }
 
-func pluginActivated(pluginStates map[string]*model.PluginState, pluginId string) bool {
-	state, ok := pluginStates[pluginId]
+func pluginActivated(pluginStates map[string]*model.PluginState, pluginID string) bool {
+	state, ok := pluginStates[pluginID]
 	if !ok {
 		return false
 	}
 	return state.Enable
 }
 
-func pluginVersion(pluginsAvailable []*model.BundleInfo, pluginId string) string {
+func pluginVersion(pluginsAvailable []*model.BundleInfo, pluginID string) string {
 	for _, plugin := range pluginsAvailable {
-		if plugin.Manifest != nil && plugin.Manifest.Id == pluginId {
+		if plugin.Manifest != nil && plugin.Manifest.ID == pluginID {
 			return plugin.Manifest.Version
 		}
 	}
@@ -303,14 +303,14 @@ func (ts *TelemetryService) trackActivity() {
 
 	postsCount, _ = ts.dbStore.Post().AnalyticsPostCount("", false, false)
 
-	postCountsOptions := &model.AnalyticsPostCountsOptions{TeamId: "", BotsOnly: false, YesterdayOnly: true}
+	postCountsOptions := &model.AnalyticsPostCountsOptions{TeamID: "", BotsOnly: false, YesterdayOnly: true}
 	postCountsYesterday, _ := ts.dbStore.Post().AnalyticsPostCountsByDay(postCountsOptions)
 	postsCountPreviousDay = 0
 	if len(postCountsYesterday) > 0 {
 		postsCountPreviousDay = int64(postCountsYesterday[0].Value)
 	}
 
-	postCountsOptions = &model.AnalyticsPostCountsOptions{TeamId: "", BotsOnly: true, YesterdayOnly: true}
+	postCountsOptions = &model.AnalyticsPostCountsOptions{TeamID: "", BotsOnly: true, YesterdayOnly: true}
 	botPostCountsYesterday, _ := ts.dbStore.Post().AnalyticsPostCountsByDay(postCountsOptions)
 	botPostsCountPreviousDay = 0
 	if len(botPostCountsYesterday) > 0 {
@@ -505,10 +505,10 @@ func (ts *TelemetryService) trackConfig() {
 	ts.sendTelemetry(TrackConfigLog, map[string]interface{}{
 		"enable_console":           cfg.LogSettings.EnableConsole,
 		"console_level":            cfg.LogSettings.ConsoleLevel,
-		"console_json":             *cfg.LogSettings.ConsoleJson,
+		"console_json":             *cfg.LogSettings.ConsoleJSON,
 		"enable_file":              cfg.LogSettings.EnableFile,
 		"file_level":               cfg.LogSettings.FileLevel,
-		"file_json":                cfg.LogSettings.FileJson,
+		"file_json":                cfg.LogSettings.FileJSON,
 		"enable_webhook_debugging": cfg.LogSettings.EnableWebhookDebugging,
 		"isdefault_file_location":  isDefault(cfg.LogSettings.FileLocation, ""),
 		"advanced_logging_config":  *cfg.LogSettings.AdvancedLoggingConfig != "",
@@ -527,10 +527,10 @@ func (ts *TelemetryService) trackConfig() {
 	ts.sendTelemetry(TrackConfigNotificationLog, map[string]interface{}{
 		"enable_console":          *cfg.NotificationLogSettings.EnableConsole,
 		"console_level":           *cfg.NotificationLogSettings.ConsoleLevel,
-		"console_json":            *cfg.NotificationLogSettings.ConsoleJson,
+		"console_json":            *cfg.NotificationLogSettings.ConsoleJSON,
 		"enable_file":             *cfg.NotificationLogSettings.EnableFile,
 		"file_level":              *cfg.NotificationLogSettings.FileLevel,
-		"file_json":               *cfg.NotificationLogSettings.FileJson,
+		"file_json":               *cfg.NotificationLogSettings.FileJSON,
 		"isdefault_file_location": isDefault(*cfg.NotificationLogSettings.FileLocation, ""),
 		"advanced_logging_config": *cfg.NotificationLogSettings.AdvancedLoggingConfig != "",
 	})
@@ -616,7 +616,7 @@ func (ts *TelemetryService) trackConfig() {
 		"openid_google":    *cfg.GoogleSettings.Enable && strings.Contains(*cfg.GoogleSettings.Scope, model.ServiceOpenid),
 		"enable_office365": cfg.Office365Settings.Enable,
 		"openid_office365": *cfg.Office365Settings.Enable && strings.Contains(*cfg.Office365Settings.Scope, model.ServiceOpenid),
-		"enable_openid":    cfg.OpenIdSettings.Enable,
+		"enable_openid":    cfg.OpenIDSettings.Enable,
 	})
 
 	ts.sendTelemetry(TrackConfigSupport, map[string]interface{}{
@@ -645,16 +645,16 @@ func (ts *TelemetryService) trackConfig() {
 		"isdefault_email_attribute":              isDefault(*cfg.LdapSettings.EmailAttribute, model.LdapSettingsDefaultEmailAttribute),
 		"isdefault_username_attribute":           isDefault(*cfg.LdapSettings.UsernameAttribute, model.LdapSettingsDefaultUsernameAttribute),
 		"isdefault_nickname_attribute":           isDefault(*cfg.LdapSettings.NicknameAttribute, model.LdapSettingsDefaultNicknameAttribute),
-		"isdefault_id_attribute":                 isDefault(*cfg.LdapSettings.IdAttribute, model.LdapSettingsDefaultIdAttribute),
+		"isdefault_id_attribute":                 isDefault(*cfg.LdapSettings.IDAttribute, model.LdapSettingsDefaultIDAttribute),
 		"isdefault_position_attribute":           isDefault(*cfg.LdapSettings.PositionAttribute, model.LdapSettingsDefaultPositionAttribute),
-		"isdefault_login_id_attribute":           isDefault(*cfg.LdapSettings.LoginIdAttribute, ""),
+		"isdefault_login_id_attribute":           isDefault(*cfg.LdapSettings.LoginIDAttribute, ""),
 		"isdefault_login_field_name":             isDefault(*cfg.LdapSettings.LoginFieldName, model.LdapSettingsDefaultLoginFieldName),
 		"isdefault_login_button_color":           isDefault(*cfg.LdapSettings.LoginButtonColor, ""),
 		"isdefault_login_button_border_color":    isDefault(*cfg.LdapSettings.LoginButtonBorderColor, ""),
 		"isdefault_login_button_text_color":      isDefault(*cfg.LdapSettings.LoginButtonTextColor, ""),
 		"isempty_group_filter":                   isDefault(*cfg.LdapSettings.GroupFilter, ""),
 		"isdefault_group_display_name_attribute": isDefault(*cfg.LdapSettings.GroupDisplayNameAttribute, model.LdapSettingsDefaultGroupDisplayNameAttribute),
-		"isdefault_group_id_attribute":           isDefault(*cfg.LdapSettings.GroupIdAttribute, model.LdapSettingsDefaultGroupIdAttribute),
+		"isdefault_group_id_attribute":           isDefault(*cfg.LdapSettings.GroupIDAttribute, model.LdapSettingsDefaultGroupIDAttribute),
 		"isempty_guest_filter":                   isDefault(*cfg.LdapSettings.GuestFilter, ""),
 		"isempty_admin_filter":                   isDefault(*cfg.LdapSettings.AdminFilter, ""),
 		"isnotempty_picture_attribute":           !isDefault(*cfg.LdapSettings.PictureAttribute, ""),
@@ -684,9 +684,9 @@ func (ts *TelemetryService) trackConfig() {
 		"sign_request":                        *cfg.SamlSettings.SignRequest,
 		"isdefault_signature_algorithm":       isDefault(*cfg.SamlSettings.SignatureAlgorithm, ""),
 		"isdefault_canonical_algorithm":       isDefault(*cfg.SamlSettings.CanonicalAlgorithm, ""),
-		"isdefault_scoping_idp_provider_id":   isDefault(*cfg.SamlSettings.ScopingIDPProviderId, ""),
+		"isdefault_scoping_idp_provider_id":   isDefault(*cfg.SamlSettings.ScopingIDPProviderID, ""),
 		"isdefault_scoping_idp_name":          isDefault(*cfg.SamlSettings.ScopingIDPName, ""),
-		"isdefault_id_attribute":              isDefault(*cfg.SamlSettings.IdAttribute, model.SamlSettingsDefaultIdAttribute),
+		"isdefault_id_attribute":              isDefault(*cfg.SamlSettings.IDAttribute, model.SamlSettingsDefaultIDAttribute),
 		"isdefault_guest_attribute":           isDefault(*cfg.SamlSettings.GuestAttribute, model.SamlSettingsDefaultGuestAttribute),
 		"isdefault_admin_attribute":           isDefault(*cfg.SamlSettings.AdminAttribute, model.SamlSettingsDefaultAdminAttribute),
 		"isdefault_first_name_attribute":      isDefault(*cfg.SamlSettings.FirstNameAttribute, model.SamlSettingsDefaultFirstNameAttribute),
@@ -707,7 +707,7 @@ func (ts *TelemetryService) trackConfig() {
 		"network_interface":                     isDefault(*cfg.ClusterSettings.NetworkInterface, ""),
 		"bind_address":                          isDefault(*cfg.ClusterSettings.BindAddress, ""),
 		"advertise_address":                     isDefault(*cfg.ClusterSettings.AdvertiseAddress, ""),
-		"use_ip_address":                        *cfg.ClusterSettings.UseIpAddress,
+		"use_ip_address":                        *cfg.ClusterSettings.UseIDAddress,
 		"enable_experimental_gossip_encryption": *cfg.ClusterSettings.EnableExperimentalGossipEncryption,
 		"enable_gossip_compression":             *cfg.ClusterSettings.EnableGossipCompression,
 		"read_only_config":                      *cfg.ClusterSettings.ReadOnlyConfig,
@@ -840,8 +840,8 @@ func (ts *TelemetryService) trackConfig() {
 func (ts *TelemetryService) trackLicense() {
 	if license := ts.srv.License(); license != nil {
 		data := map[string]interface{}{
-			"customer_id": license.Customer.Id,
-			"license_id":  license.Id,
+			"customer_id": license.Customer.ID,
+			"license_id":  license.ID,
 			"issued":      license.IssuedAt,
 			"start":       license.StartsAt,
 			"expire":      license.ExpiresAt,
@@ -883,7 +883,7 @@ func (ts *TelemetryService) trackPlugins() {
 				continue
 			}
 
-			if state, ok := pluginStates[plugin.Manifest.Id]; ok && state.Enable {
+			if state, ok := pluginStates[plugin.Manifest.ID]; ok && state.Enable {
 				totalEnabledCount += 1
 				if plugin.Manifest.HasServer() {
 					backendEnabledCount += 1
@@ -958,74 +958,74 @@ func (ts *TelemetryService) trackPermissions() {
 	})
 
 	systemAdminPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemAdminRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemAdminRoleID); err == nil {
 		systemAdminPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	systemUserPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemUserRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemUserRoleID); err == nil {
 		systemUserPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	teamAdminPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.TeamAdminRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.TeamAdminRoleID); err == nil {
 		teamAdminPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	teamUserPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.TeamUserRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.TeamUserRoleID); err == nil {
 		teamUserPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	teamGuestPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.TeamGuestRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.TeamGuestRoleID); err == nil {
 		teamGuestPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	channelAdminPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.ChannelAdminRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.ChannelAdminRoleID); err == nil {
 		channelAdminPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	channelUserPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.ChannelUserRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.ChannelUserRoleID); err == nil {
 		channelUserPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	channelGuestPermissions := ""
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.ChannelGuestRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.ChannelGuestRoleID); err == nil {
 		channelGuestPermissions = strings.Join(role.Permissions, " ")
 	}
 
 	systemManagerPermissions := ""
 	systemManagerPermissionsModified := false
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemManagerRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemManagerRoleID); err == nil {
 		systemManagerPermissionsModified = len(model.PermissionsChangedByPatch(role, &model.RolePatch{Permissions: &model.SystemManagerDefaultPermissions})) > 0
 		systemManagerPermissions = strings.Join(role.Permissions, " ")
 	}
-	systemManagerCount, countErr := ts.dbStore.User().Count(model.UserCountOptions{Roles: []string{model.SystemManagerRoleId}})
+	systemManagerCount, countErr := ts.dbStore.User().Count(model.UserCountOptions{Roles: []string{model.SystemManagerRoleID}})
 	if countErr != nil {
 		systemManagerCount = 0
 	}
 
 	systemUserManagerPermissions := ""
 	systemUserManagerPermissionsModified := false
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemUserManagerRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemUserManagerRoleID); err == nil {
 		systemUserManagerPermissionsModified = len(model.PermissionsChangedByPatch(role, &model.RolePatch{Permissions: &model.SystemUserManagerDefaultPermissions})) > 0
 		systemUserManagerPermissions = strings.Join(role.Permissions, " ")
 	}
-	systemUserManagerCount, countErr := ts.dbStore.User().Count(model.UserCountOptions{Roles: []string{model.SystemUserManagerRoleId}})
+	systemUserManagerCount, countErr := ts.dbStore.User().Count(model.UserCountOptions{Roles: []string{model.SystemUserManagerRoleID}})
 	if countErr != nil {
 		systemManagerCount = 0
 	}
 
 	systemReadOnlyAdminPermissions := ""
 	systemReadOnlyAdminPermissionsModified := false
-	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemReadOnlyAdminRoleId); err == nil {
+	if role, err := ts.srv.GetRoleByName(context.Background(), model.SystemReadOnlyAdminRoleID); err == nil {
 		systemReadOnlyAdminPermissionsModified = len(model.PermissionsChangedByPatch(role, &model.RolePatch{Permissions: &model.SystemReadOnlyAdminDefaultPermissions})) > 0
 		systemReadOnlyAdminPermissions = strings.Join(role.Permissions, " ")
 	}
-	systemReadOnlyAdminCount, countErr := ts.dbStore.User().Count(model.UserCountOptions{Roles: []string{model.SystemReadOnlyAdminRoleId}})
+	systemReadOnlyAdminCount, countErr := ts.dbStore.User().Count(model.UserCountOptions{Roles: []string{model.SystemReadOnlyAdminRoleID}})
 	if countErr != nil {
 		systemReadOnlyAdminCount = 0
 	}
@@ -1082,10 +1082,10 @@ func (ts *TelemetryService) trackPermissions() {
 				channelGuestPermissions = strings.Join(role.Permissions, " ")
 			}
 
-			count, _ := ts.dbStore.Team().AnalyticsGetTeamCountForScheme(scheme.Id)
+			count, _ := ts.dbStore.Team().AnalyticsGetTeamCountForScheme(scheme.ID)
 
 			ts.sendTelemetry(TrackPermissionsTeamSchemes, map[string]interface{}{
-				"scheme_id":                 scheme.Id,
+				"scheme_id":                 scheme.ID,
 				"team_admin_permissions":    teamAdminPermissions,
 				"team_user_permissions":     teamUserPermissions,
 				"team_guest_permissions":    teamGuestPermissions,
@@ -1169,39 +1169,39 @@ func (ts *TelemetryService) trackChannelModeration() {
 		mlog.Debug("Could not get channel_scheme_count", mlog.Err(err))
 	}
 
-	createPostUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionCreatePost.Id, model.RoleScopeChannel, model.RoleTypeUser)
+	createPostUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionCreatePost.ID, model.RoleScopeChannel, model.RoleTypeUser)
 	if err != nil {
 		mlog.Debug("Could not get create_post_user_disabled_count", mlog.Err(err))
 	}
 
-	createPostGuest, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionCreatePost.Id, model.RoleScopeChannel, model.RoleTypeGuest)
+	createPostGuest, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionCreatePost.ID, model.RoleScopeChannel, model.RoleTypeGuest)
 	if err != nil {
 		mlog.Debug("Could not get create_post_guest_disabled_count", mlog.Err(err))
 	}
 
 	// only need to track one of 'add_reaction' or 'remove_reaction` because they're both toggled together by the channel moderation feature
-	postReactionsUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionAddReaction.Id, model.RoleScopeChannel, model.RoleTypeUser)
+	postReactionsUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionAddReaction.ID, model.RoleScopeChannel, model.RoleTypeUser)
 	if err != nil {
 		mlog.Debug("Could not get post_reactions_user_disabled_count", mlog.Err(err))
 	}
 
-	postReactionsGuest, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionAddReaction.Id, model.RoleScopeChannel, model.RoleTypeGuest)
+	postReactionsGuest, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionAddReaction.ID, model.RoleScopeChannel, model.RoleTypeGuest)
 	if err != nil {
 		mlog.Debug("Could not get post_reactions_guest_disabled_count", mlog.Err(err))
 	}
 
 	// only need to track one of 'manage_public_channel_members' or 'manage_private_channel_members` because they're both toggled together by the channel moderation feature
-	manageMembersUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionManagePublicChannelMembers.Id, model.RoleScopeChannel, model.RoleTypeUser)
+	manageMembersUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionManagePublicChannelMembers.ID, model.RoleScopeChannel, model.RoleTypeUser)
 	if err != nil {
 		mlog.Debug("Could not get manage_members_user_disabled_count", mlog.Err(err))
 	}
 
-	useChannelMentionsUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionUseChannelMentions.Id, model.RoleScopeChannel, model.RoleTypeUser)
+	useChannelMentionsUser, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionUseChannelMentions.ID, model.RoleScopeChannel, model.RoleTypeUser)
 	if err != nil {
 		mlog.Debug("Could not get use_channel_mentions_user_disabled_count", mlog.Err(err))
 	}
 
-	useChannelMentionsGuest, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionUseChannelMentions.Id, model.RoleScopeChannel, model.RoleTypeGuest)
+	useChannelMentionsGuest, err := ts.dbStore.Scheme().CountWithoutPermission(model.SchemeScopeChannel, model.PermissionUseChannelMentions.ID, model.RoleScopeChannel, model.RoleTypeGuest)
 	if err != nil {
 		mlog.Debug("Could not get use_channel_mentions_guest_disabled_count", mlog.Err(err))
 	}
@@ -1348,7 +1348,7 @@ func (ts *TelemetryService) trackPluginConfig(cfg *model.Config, marketplaceURL 
 		}
 	} else {
 		for _, p := range marketplacePlugins {
-			id := p.Manifest.Id
+			id := p.Manifest.ID
 
 			pluginConfigData["enable_"+id] = pluginActivated(cfg.PluginSettings.PluginStates, id)
 		}
@@ -1366,7 +1366,7 @@ func (ts *TelemetryService) trackPluginConfig(cfg *model.Config, marketplaceURL 
 				}
 			} else {
 				for _, p := range marketplacePlugins {
-					id := p.Manifest.Id
+					id := p.Manifest.ID
 
 					pluginConfigData["version_"+id] = pluginVersion(plugins, id)
 				}

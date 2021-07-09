@@ -24,7 +24,7 @@ func (p *HelpersImpl) CheckRequiredServerConfiguration(req *model.Config) (bool,
 	}
 
 	mergedCfg := mc.(model.Config)
-	if mergedCfg.ToJson() != cfg.ToJson() {
+	if mergedCfg.ToJSON() != cfg.ToJSON() {
 		return false, nil
 	}
 

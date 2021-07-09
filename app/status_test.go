@@ -25,13 +25,13 @@ func TestSaveStatus(t *testing.T) {
 	} {
 		t.Run(statusString, func(t *testing.T) {
 			status := &model.Status{
-				UserId: user.Id,
+				UserID: user.ID,
 				Status: statusString,
 			}
 
 			th.App.SaveAndBroadcastStatus(status)
 
-			after, err := th.App.GetStatus(user.Id)
+			after, err := th.App.GetStatus(user.ID)
 			require.Nil(t, err, "failed to get status after save: %v", err)
 			require.Equal(t, statusString, after.Status, "failed to save status, got %v, expected %v", after.Status, statusString)
 		})

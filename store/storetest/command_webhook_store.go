@@ -22,14 +22,14 @@ func testCommandWebhookStore(t *testing.T, ss store.Store) {
 	cws := ss.CommandWebhook()
 
 	h1 := &model.CommandWebhook{}
-	h1.CommandId = model.NewId()
-	h1.UserId = model.NewId()
-	h1.ChannelId = model.NewId()
+	h1.CommandID = model.NewID()
+	h1.UserID = model.NewID()
+	h1.ChannelID = model.NewID()
 	h1, err := cws.Save(h1)
 	require.NoError(t, err)
 
 	var r1 *model.CommandWebhook
-	r1, nErr := cws.Get(h1.Id)
+	r1, nErr := cws.Get(h1.ID)
 	require.NoError(t, nErr)
 	assert.Equal(t, *r1, *h1, "invalid returned webhook")
 
@@ -39,28 +39,28 @@ func testCommandWebhookStore(t *testing.T, ss store.Store) {
 
 	h2 := &model.CommandWebhook{}
 	h2.CreateAt = model.GetMillis() - 2*model.CommandWebhookLifetime
-	h2.CommandId = model.NewId()
-	h2.UserId = model.NewId()
-	h2.ChannelId = model.NewId()
+	h2.CommandID = model.NewID()
+	h2.UserID = model.NewID()
+	h2.ChannelID = model.NewID()
 	h2, err = cws.Save(h2)
 	require.NoError(t, err)
 
-	_, nErr = cws.Get(h2.Id)
+	_, nErr = cws.Get(h2.ID)
 	require.Error(t, nErr, "Should have set the status as not found for expired webhook")
 	require.True(t, errors.As(nErr, &nfErr), "Should have set the status as not found for expired webhook")
 
 	cws.Cleanup()
 
-	_, nErr = cws.Get(h1.Id)
+	_, nErr = cws.Get(h1.ID)
 	require.NoError(t, nErr, "Should have no error getting unexpired webhook")
 
-	_, nErr = cws.Get(h2.Id)
+	_, nErr = cws.Get(h2.ID)
 	require.True(t, errors.As(nErr, &nfErr), "Should have set the status as not found for expired webhook")
 
-	nErr = cws.TryUse(h1.Id, 1)
+	nErr = cws.TryUse(h1.ID, 1)
 	require.NoError(t, nErr, "Should be able to use webhook once")
 
-	nErr = cws.TryUse(h1.Id, 1)
+	nErr = cws.TryUse(h1.ID, 1)
 	require.Error(t, nErr, "Should be able to use webhook once")
 	var invErr *store.ErrInvalidInput
 	require.True(t, errors.As(nErr, &invErr), "Should be able to use webhook once")

@@ -49,7 +49,7 @@ func (s *Server) DoSecurityUpdateCheck() {
 
 		v := url.Values{}
 
-		v.Set(PropSecurityID, s.TelemetryId())
+		v.Set(PropSecurityID, s.TelemetryID())
 		v.Set(PropSecurityBuild, model.CurrentVersion+"."+model.BuildNumber)
 		v.Set(PropSecurityEnterpriseReady, model.BuildEnterpriseReady)
 		v.Set(PropSecurityDatabase, *s.Config().SqlSettings.DriverName)
@@ -88,18 +88,18 @@ func (s *Server) DoSecurityUpdateCheck() {
 
 		defer res.Body.Close()
 
-		bulletins := model.SecurityBulletinsFromJson(res.Body)
+		bulletins := model.SecurityBulletinsFromJSON(res.Body)
 
 		for _, bulletin := range bulletins {
 			if bulletin.AppliesToVersion == model.CurrentVersion {
-				if props["SecurityBulletin_"+bulletin.Id] == "" {
+				if props["SecurityBulletin_"+bulletin.ID] == "" {
 					users, userErr := s.Store.User().GetSystemAdminProfiles()
 					if userErr != nil {
 						mlog.Error("Failed to get system admins for security update information from Mattermost.")
 						return
 					}
 
-					resBody, err := http.Get(PropSecurityURL + "/bulletins/" + bulletin.Id)
+					resBody, err := http.Get(PropSecurityURL + "/bulletins/" + bulletin.ID)
 					if err != nil {
 						mlog.Error("Failed to get security bulletin details")
 						return
@@ -113,13 +113,13 @@ func (s *Server) DoSecurityUpdateCheck() {
 					}
 
 					for _, user := range users {
-						mlog.Info("Sending security bulletin", mlog.String("bulletin_id", bulletin.Id), mlog.String("user_email", user.Email))
+						mlog.Info("Sending security bulletin", mlog.String("bulletin_id", bulletin.ID), mlog.String("user_email", user.Email))
 						license := s.License()
 						mailConfig := s.MailServiceConfig()
 						mail.SendMailUsingConfig(user.Email, i18n.T("mattermost.bulletin.subject"), string(body), mailConfig, license != nil && *license.Features.Compliance, "")
 					}
 
-					bulletinSeen := &model.System{Name: "SecurityBulletin_" + bulletin.Id, Value: bulletin.Id}
+					bulletinSeen := &model.System{Name: "SecurityBulletin_" + bulletin.ID, Value: bulletin.ID}
 					s.Store.System().Save(bulletinSeen)
 				}
 			}

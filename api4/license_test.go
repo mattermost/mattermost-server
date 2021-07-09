@@ -95,7 +95,7 @@ func TestUploadLicenseFile(t *testing.T) {
 		mills := model.GetMillis()
 
 		license := model.License{
-			Id: "AAAAAAAAAAAAAAAAAAAAAAAAAA",
+			ID: "AAAAAAAAAAAAAAAAAAAAAAAAAA",
 			Features: &model.Features{
 				Users: &userCount,
 			},
@@ -120,7 +120,7 @@ func TestUploadLicenseFile(t *testing.T) {
 		ok, resp := th.SystemAdminClient.UploadLicenseFile([]byte("sadasdasdasdasdasdsa"))
 		require.False(t, ok)
 		require.Equal(t, http.StatusBadRequest, resp.StatusCode)
-		require.Equal(t, "api.license.request-trial.can-start-trial.not-allowed", resp.Error.Id)
+		require.Equal(t, "api.license.request-trial.can-start-trial.not-allowed", resp.Error.ID)
 	})
 
 	t.Run("allow uploading sanctioned trials even if server already gone through trial", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestUploadLicenseFile(t *testing.T) {
 		mills := model.GetMillis()
 
 		license := model.License{
-			Id: "PPPPPPPPPPPPPPPPPPPPPPPPPP",
+			ID: "PPPPPPPPPPPPPPPPPPPPPPPPPP",
 			Features: &model.Features{
 				Users: &userCount,
 			},
@@ -219,14 +219,14 @@ func TestRequestTrialLicense(t *testing.T) {
 		defer th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.SiteURL = "http://localhost:8065/" })
 		ok, resp := th.SystemAdminClient.RequestTrialLicense(1000)
 		CheckBadRequestStatus(t, resp)
-		require.Equal(t, "api.license.request_trial_license.no-site-url.app_error", resp.Error.Id)
+		require.Equal(t, "api.license.request_trial_license.no-site-url.app_error", resp.Error.ID)
 		require.False(t, ok)
 	})
 
 	t.Run("trial license user count less than current users", func(t *testing.T) {
 		ok, resp := th.SystemAdminClient.RequestTrialLicense(1)
 		CheckBadRequestStatus(t, resp)
-		require.Equal(t, "api.license.add_license.unique_users.app_error", resp.Error.Id)
+		require.Equal(t, "api.license.add_license.unique_users.app_error", resp.Error.ID)
 		require.False(t, ok)
 	})
 }

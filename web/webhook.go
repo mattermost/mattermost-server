@@ -49,7 +49,7 @@ func incomingWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if *c.App.Config().LogSettings.EnableWebhookDebugging {
 			if c.Err != nil {
-				mlog.Debug("Incoming webhook received", mlog.String("webhook_id", id), mlog.String("request_id", c.AppContext.RequestId()), mlog.String("payload", incomingWebhookPayload.ToJson()))
+				mlog.Debug("Incoming webhook received", mlog.String("webhook_id", id), mlog.String("request_id", c.AppContext.RequestID()), mlog.String("payload", incomingWebhookPayload.ToJSON()))
 			}
 		}
 	}()
@@ -116,7 +116,7 @@ func commandWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func decodePayload(payload io.Reader) (*model.IncomingWebhookRequest, *model.AppError) {
-	incomingWebhookPayload, decodeError := model.IncomingWebhookRequestFromJson(payload)
+	incomingWebhookPayload, decodeError := model.IncomingWebhookRequestFromJSON(payload)
 
 	if decodeError != nil {
 		return nil, decodeError

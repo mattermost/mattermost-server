@@ -65,7 +65,7 @@ func (a *App) GetGroupsBySource(groupSource model.GroupSource) ([]*model.Group, 
 	return groups, nil
 }
 
-func (a *App) GetGroupsByUserId(userID string) ([]*model.Group, *model.AppError) {
+func (a *App) GetGroupsByUserID(userID string) ([]*model.Group, *model.AppError) {
 	groups, err := a.Srv().Store.Group().GetByUser(userID)
 	if err != nil {
 		return nil, model.NewAppError("GetGroupsByUserId", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -97,7 +97,7 @@ func (a *App) UpdateGroup(group *model.Group) (*model.Group, *model.AppError) {
 
 	if err == nil {
 		messageWs := model.NewWebSocketEvent(model.WebsocketEventReceivedGroup, "", "", "", nil)
-		messageWs.Add("group", updatedGroup.ToJson())
+		messageWs.Add("group", updatedGroup.ToJSON())
 		a.Publish(messageWs)
 	}
 
@@ -122,7 +122,7 @@ func (a *App) DeleteGroup(groupID string) (*model.Group, *model.AppError) {
 
 	if err == nil {
 		messageWs := model.NewWebSocketEvent(model.WebsocketEventReceivedGroup, "", "", "", nil)
-		messageWs.Add("group", deletedGroup.ToJson())
+		messageWs.Add("group", deletedGroup.ToJSON())
 		a.Publish(messageWs)
 	}
 
@@ -204,7 +204,7 @@ func (a *App) DeleteGroupMember(groupID string, userID string) (*model.GroupMemb
 }
 
 func (a *App) UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.GroupSyncable, *model.AppError) {
-	gs, err := a.Srv().Store.Group().GetGroupSyncable(groupSyncable.GroupId, groupSyncable.SyncableId, groupSyncable.Type)
+	gs, err := a.Srv().Store.Group().GetGroupSyncable(groupSyncable.GroupID, groupSyncable.SyncableID, groupSyncable.Type)
 	var notFoundErr *store.ErrNotFound
 	if err != nil && !errors.As(err, &notFoundErr) {
 		return nil, model.NewAppError("UpsertGroupSyncable", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -212,7 +212,7 @@ func (a *App) UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.Gr
 
 	// reject the syncable creation if the group isn't already associated to the parent team
 	if groupSyncable.Type == model.GroupSyncableTypeChannel {
-		channel, nErr := a.Srv().Store.Channel().Get(groupSyncable.SyncableId, true)
+		channel, nErr := a.Srv().Store.Channel().Get(groupSyncable.SyncableID, true)
 		if nErr != nil {
 			var nfErr *store.ErrNotFound
 			switch {
@@ -224,7 +224,7 @@ func (a *App) UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.Gr
 		}
 
 		var team *model.Team
-		team, nErr = a.Srv().Store.Team().Get(channel.TeamId)
+		team, nErr = a.Srv().Store.Team().Get(channel.TeamID)
 		if nErr != nil {
 			var nfErr *store.ErrNotFound
 			switch {
@@ -236,13 +236,13 @@ func (a *App) UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.Gr
 		}
 		if team.IsGroupConstrained() {
 			var teamGroups []*model.GroupWithSchemeAdmin
-			teamGroups, err = a.Srv().Store.Group().GetGroupsByTeam(channel.TeamId, model.GroupSearchOpts{})
+			teamGroups, err = a.Srv().Store.Group().GetGroupsByTeam(channel.TeamID, model.GroupSearchOpts{})
 			if err != nil {
 				return nil, model.NewAppError("UpsertGroupSyncable", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
 			}
 			var permittedGroup bool
 			for _, teamGroup := range teamGroups {
-				if teamGroup.Group.Id == groupSyncable.GroupId {
+				if teamGroup.Group.ID == groupSyncable.GroupID {
 					permittedGroup = true
 					break
 				}
@@ -251,7 +251,7 @@ func (a *App) UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.Gr
 				return nil, model.NewAppError("UpsertGroupSyncable", "group_not_associated_to_synced_team", nil, "", http.StatusBadRequest)
 			}
 		} else {
-			_, appErr := a.UpsertGroupSyncable(model.NewGroupTeam(groupSyncable.GroupId, team.Id, groupSyncable.AutoAdd))
+			_, appErr := a.UpsertGroupSyncable(model.NewGroupTeam(groupSyncable.GroupID, team.ID, groupSyncable.AutoAdd))
 			if appErr != nil {
 				return nil, appErr
 			}
@@ -287,11 +287,11 @@ func (a *App) UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.Gr
 
 	var messageWs *model.WebSocketEvent
 	if gs.Type == model.GroupSyncableTypeTeam {
-		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupAssociatedToTeam, gs.SyncableId, "", "", nil)
+		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupAssociatedToTeam, gs.SyncableID, "", "", nil)
 	} else {
-		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupAssociatedToChannel, "", gs.SyncableId, "", nil)
+		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupAssociatedToChannel, "", gs.SyncableID, "", nil)
 	}
-	messageWs.Add("group_id", gs.GroupId)
+	messageWs.Add("group_id", gs.GroupID)
 	a.Publish(messageWs)
 
 	return gs, nil
@@ -313,7 +313,7 @@ func (a *App) GetGroupSyncable(groupID string, syncableID string, syncableType m
 }
 
 func (a *App) GetGroupSyncables(groupID string, syncableType model.GroupSyncableType) ([]*model.GroupSyncable, *model.AppError) {
-	groups, err := a.Srv().Store.Group().GetAllGroupSyncablesByGroupId(groupID, syncableType)
+	groups, err := a.Srv().Store.Group().GetAllGroupSyncablesByGroupID(groupID, syncableType)
 	if err != nil {
 		return nil, model.NewAppError("GetGroupSyncables", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -364,13 +364,13 @@ func (a *App) DeleteGroupSyncable(groupID string, syncableID string, syncableTyp
 
 	// if a GroupTeam is being deleted delete all associated GroupChannels
 	if gs.Type == model.GroupSyncableTypeTeam {
-		allGroupChannels, err := a.Srv().Store.Group().GetAllGroupSyncablesByGroupId(gs.GroupId, model.GroupSyncableTypeChannel)
+		allGroupChannels, err := a.Srv().Store.Group().GetAllGroupSyncablesByGroupID(gs.GroupID, model.GroupSyncableTypeChannel)
 		if err != nil {
 			return nil, model.NewAppError("DeleteGroupSyncable", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
 		}
 
 		for _, groupChannel := range allGroupChannels {
-			_, err = a.Srv().Store.Group().DeleteGroupSyncable(groupChannel.GroupId, groupChannel.SyncableId, groupChannel.Type)
+			_, err = a.Srv().Store.Group().DeleteGroupSyncable(groupChannel.GroupID, groupChannel.SyncableID, groupChannel.Type)
 			if err != nil {
 				var invErr *store.ErrInvalidInput
 				var nfErr *store.ErrNotFound
@@ -388,12 +388,12 @@ func (a *App) DeleteGroupSyncable(groupID string, syncableID string, syncableTyp
 
 	var messageWs *model.WebSocketEvent
 	if gs.Type == model.GroupSyncableTypeTeam {
-		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupNotAssociatedToTeam, gs.SyncableId, "", "", nil)
+		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupNotAssociatedToTeam, gs.SyncableID, "", "", nil)
 	} else {
-		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupNotAssociatedToChannel, "", gs.SyncableId, "", nil)
+		messageWs = model.NewWebSocketEvent(model.WebsocketEventReceivedGroupNotAssociatedToChannel, "", gs.SyncableID, "", nil)
 	}
 
-	messageWs.Add("group_id", gs.GroupId)
+	messageWs.Add("group_id", gs.GroupID)
 	a.Publish(messageWs)
 
 	return gs, nil
@@ -477,12 +477,12 @@ func (a *App) GetGroupsByTeam(teamID string, opts model.GroupSearchOpts) ([]*mod
 }
 
 func (a *App) GetGroupsAssociatedToChannelsByTeam(teamID string, opts model.GroupSearchOpts) (map[string][]*model.GroupWithSchemeAdmin, *model.AppError) {
-	groupsAssociatedByChannelId, err := a.Srv().Store.Group().GetGroupsAssociatedToChannelsByTeam(teamID, opts)
+	groupsAssociatedByChannelID, err := a.Srv().Store.Group().GetGroupsAssociatedToChannelsByTeam(teamID, opts)
 	if err != nil {
 		return nil, model.NewAppError("GetGroupsAssociatedToChannelsByTeam", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 
-	return groupsAssociatedByChannelId, nil
+	return groupsAssociatedByChannelID, nil
 }
 
 func (a *App) GetGroups(page, perPage int, opts model.GroupSearchOpts) ([]*model.Group, *model.AppError) {
@@ -528,7 +528,7 @@ func (a *App) TeamMembersMinusGroupMembers(teamID string, groupIDs []string, pag
 	// map groups by id
 	groupMap := map[string]*model.Group{}
 	for _, group := range groups {
-		groupMap[group.Id] = group
+		groupMap[group.ID] = group
 	}
 
 	// populate each instance's groups field
@@ -592,7 +592,7 @@ func (a *App) ChannelMembersMinusGroupMembers(channelID string, groupIDs []strin
 	// map groups by id
 	groupMap := map[string]*model.Group{}
 	for _, group := range groups {
-		groupMap[group.Id] = group
+		groupMap[group.ID] = group
 	}
 
 	// populate each instance's groups field

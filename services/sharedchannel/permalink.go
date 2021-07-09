@@ -42,10 +42,10 @@ func (scs *Service) processPermalinkToRemote(p *model.Post) string {
 		}
 
 		// If postID is for a different channel
-		if postList.Posts[postList.Order[0]].ChannelId != p.ChannelId {
+		if postList.Posts[postList.Order[0]].ChannelID != p.ChannelID {
 			// Send ephemeral message to OP (only once per message).
 			if !sent {
-				scs.sendEphemeralPost(p.ChannelId, p.UserId, i18n.T("sharedchannel.permalink.not_found"))
+				scs.sendEphemeralPost(p.ChannelID, p.UserID, i18n.T("sharedchannel.permalink.not_found"))
 				sent = true
 			}
 			// But don't modify msg

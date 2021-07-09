@@ -30,20 +30,20 @@ func (a *App) createDefaultChannelMemberships(c *request.Context, since int64, c
 			return err
 		}
 
-		tmem, err := a.GetTeamMember(channel.TeamId, userChannel.UserID)
-		if err != nil && err.Id != "app.team.get_member.missing.app_error" {
+		tmem, err := a.GetTeamMember(channel.TeamID, userChannel.UserID)
+		if err != nil && err.ID != "app.team.get_member.missing.app_error" {
 			return err
 		}
 
 		// First add user to team
 		if tmem == nil {
-			_, err = a.AddTeamMember(c, channel.TeamId, userChannel.UserID)
+			_, err = a.AddTeamMember(c, channel.TeamID, userChannel.UserID)
 			if err != nil {
-				if err.Id == "api.team.join_user_to_team.allowed_domains.app_error" {
+				if err.ID == "api.team.join_user_to_team.allowed_domains.app_error" {
 					a.Log().Info("User not added to channel - the domain associated with the user is not in the list of allowed team domains",
 						mlog.String("user_id", userChannel.UserID),
 						mlog.String("channel_id", userChannel.ChannelID),
-						mlog.String("team_id", channel.TeamId),
+						mlog.String("team_id", channel.TeamID),
 					)
 					continue
 				}
@@ -51,7 +51,7 @@ func (a *App) createDefaultChannelMemberships(c *request.Context, since int64, c
 			}
 			a.Log().Info("added teammember",
 				mlog.String("user_id", userChannel.UserID),
-				mlog.String("team_id", channel.TeamId),
+				mlog.String("team_id", channel.TeamID),
 			)
 		}
 
@@ -59,7 +59,7 @@ func (a *App) createDefaultChannelMemberships(c *request.Context, since int64, c
 			SkipTeamMemberIntegrityCheck: true,
 		})
 		if err != nil {
-			if err.Id == "api.channel.add_user.to.channel.failed.deleted.app_error" {
+			if err.ID == "api.channel.add_user.to.channel.failed.deleted.app_error" {
 				a.Log().Info("Not adding user to channel because they have already left the team",
 					mlog.String("user_id", userChannel.UserID),
 					mlog.String("channel_id", userChannel.ChannelID),
@@ -92,7 +92,7 @@ func (a *App) createDefaultTeamMemberships(c *request.Context, since int64, team
 	for _, userTeam := range teamMembers {
 		_, err := a.AddTeamMember(c, userTeam.TeamID, userTeam.UserID)
 		if err != nil {
-			if err.Id == "api.team.join_user_to_team.allowed_domains.app_error" {
+			if err.ID == "api.team.join_user_to_team.allowed_domains.app_error" {
 				a.Log().Info("User not added to team - the domain associated with the user is not in the list of allowed team domains",
 					mlog.String("user_id", userTeam.UserID),
 					mlog.String("team_id", userTeam.TeamID),
@@ -155,14 +155,14 @@ func (a *App) deleteGroupConstrainedTeamMemberships(c *request.Context, teamID *
 	}
 
 	for _, userTeam := range teamMembers {
-		err := a.RemoveUserFromTeam(c, userTeam.TeamId, userTeam.UserId, "")
+		err := a.RemoveUserFromTeam(c, userTeam.TeamID, userTeam.UserID, "")
 		if err != nil {
 			return err
 		}
 
 		a.Log().Info("removed teammember",
-			mlog.String("user_id", userTeam.UserId),
-			mlog.String("team_id", userTeam.TeamId),
+			mlog.String("user_id", userTeam.UserID),
+			mlog.String("team_id", userTeam.TeamID),
 		)
 	}
 
@@ -179,19 +179,19 @@ func (a *App) deleteGroupConstrainedChannelMemberships(c *request.Context, chann
 	}
 
 	for _, userChannel := range channelMembers {
-		channel, err := a.GetChannel(userChannel.ChannelId)
+		channel, err := a.GetChannel(userChannel.ChannelID)
 		if err != nil {
 			return err
 		}
 
-		err = a.RemoveUserFromChannel(c, userChannel.UserId, "", channel)
+		err = a.RemoveUserFromChannel(c, userChannel.UserID, "", channel)
 		if err != nil {
 			return err
 		}
 
 		a.Log().Info("removed channelmember",
-			mlog.String("user_id", userChannel.UserId),
-			mlog.String("channel_id", channel.Id),
+			mlog.String("user_id", userChannel.UserID),
+			mlog.String("channel_id", channel.ID),
 		)
 	}
 

@@ -25,7 +25,7 @@ func (a *App) sendNotificationEmail(notification *PostNotification, user *model.
 	post := notification.Post
 
 	if channel.IsGroupOrDirect() {
-		teams, err := a.Srv().Store.Team().GetTeamsByUserId(user.Id)
+		teams, err := a.Srv().Store.Team().GetTeamsByUserID(user.ID)
 		if err != nil {
 			return errors.Wrap(err, "unable to get user teams")
 		}
@@ -34,7 +34,7 @@ func (a *App) sendNotificationEmail(notification *PostNotification, user *model.
 		found := false
 
 		for i := range teams {
-			if teams[i].Id == team.Id {
+			if teams[i].ID == team.ID {
 				found = true
 				break
 			}
@@ -50,7 +50,7 @@ func (a *App) sendNotificationEmail(notification *PostNotification, user *model.
 
 	if *a.Config().EmailSettings.EnableEmailBatching {
 		var sendBatched bool
-		if data, err := a.Srv().Store.Preference().Get(user.Id, model.PreferenceCategoryNotifications, model.PreferenceNameEmailInterval); err != nil {
+		if data, err := a.Srv().Store.Preference().Get(user.ID, model.PreferenceCategoryNotifications, model.PreferenceNameEmailInterval); err != nil {
 			// if the call fails, assume that the interval has not been explicitly set and batch the notifications
 			sendBatched = true
 		} else {
@@ -70,7 +70,7 @@ func (a *App) sendNotificationEmail(notification *PostNotification, user *model.
 	translateFunc := i18n.GetUserTranslations(user.Locale)
 
 	var useMilitaryTime bool
-	if data, err := a.Srv().Store.Preference().Get(user.Id, model.PreferenceCategoryDisplaySettings, model.PreferenceNameUseMilitaryTime); err != nil {
+	if data, err := a.Srv().Store.Preference().Get(user.ID, model.PreferenceCategoryDisplaySettings, model.PreferenceNameUseMilitaryTime); err != nil {
 		useMilitaryTime = true
 	} else {
 		useMilitaryTime = data.Value == "true"
@@ -215,7 +215,7 @@ func (a *App) getNotificationEmailBody(recipient *model.User, post *model.Post, 
 	data := a.Srv().EmailService.newEmailTemplateData(recipient.Locale)
 	data.Props["SiteURL"] = a.GetSiteURL()
 	if teamName != "select_team" {
-		data.Props["ButtonURL"] = landingURL + "/pl/" + post.Id
+		data.Props["ButtonURL"] = landingURL + "/pl/" + post.ID
 	} else {
 		data.Props["ButtonURL"] = landingURL
 	}
@@ -304,32 +304,32 @@ func (a *App) generateHyperlinkForChannels(postMessage, teamName, teamURL string
 		return postMessage, nil
 	}
 
-	channels, err := a.GetChannelsByNames(channelNames, team.Id)
+	channels, err := a.GetChannelsByNames(channelNames, team.ID)
 	if err != nil {
 		return "", err
 	}
 
 	visited := make(map[string]bool)
 	for _, ch := range channels {
-		if !visited[ch.Id] && ch.Type == model.ChannelTypeOpen {
+		if !visited[ch.ID] && ch.Type == model.ChannelTypeOpen {
 			channelURL := teamURL + "/channels/" + ch.Name
 			channelHyperLink := fmt.Sprintf("<a href='%s'>%s</a>", channelURL, "~"+ch.Name)
 			postMessage = strings.Replace(postMessage, "~"+ch.Name, channelHyperLink, -1)
-			visited[ch.Id] = true
+			visited[ch.ID] = true
 		}
 	}
 	return postMessage, nil
 }
 
 func (s *Server) GetMessageForNotification(post *model.Post, translateFunc i18n.TranslateFunc) string {
-	if strings.TrimSpace(post.Message) != "" || len(post.FileIds) == 0 {
+	if strings.TrimSpace(post.Message) != "" || len(post.FileIDs) == 0 {
 		return post.Message
 	}
 
 	// extract the filenames from their paths and determine what type of files are attached
-	infos, err := s.Store.FileInfo().GetForPost(post.Id, true, false, true)
+	infos, err := s.Store.FileInfo().GetForPost(post.ID, true, false, true)
 	if err != nil {
-		mlog.Warn("Encountered error when getting files for notification message", mlog.String("post_id", post.Id), mlog.Err(err))
+		mlog.Warn("Encountered error when getting files for notification message", mlog.String("post_id", post.ID), mlog.Err(err))
 	}
 
 	filenames := make([]string, len(infos))

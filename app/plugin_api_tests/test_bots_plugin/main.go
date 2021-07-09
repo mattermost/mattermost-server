@@ -31,31 +31,31 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 		return nil, err.Error() + "failed to create bot"
 	}
 
-	fetchedBot, err := p.API.GetBot(createdBot.UserId, false)
+	fetchedBot, err := p.API.GetBot(createdBot.UserID, false)
 	if err != nil {
 		return nil, err.Error() + "failed to get bot"
 	}
 	if fetchedBot.Description != "a plugin bot" {
 		return nil, "GetBot did not return the expected bot Description"
 	}
-	if fetchedBot.OwnerId != "test_bots_plugin" {
+	if fetchedBot.OwnerID != "test_bots_plugin" {
 		return nil, "GetBot did not return the expected bot OwnerId"
 	}
 
 	updatedDescription := createdBot.Description + ", updated"
-	patchedBot, err := p.API.PatchBot(createdBot.UserId, &model.BotPatch{
+	patchedBot, err := p.API.PatchBot(createdBot.UserID, &model.BotPatch{
 		Description: &updatedDescription,
 	})
 	if err != nil {
 		return nil, err.Error() + "failed to patch bot"
 	}
 
-	fetchedBot, err = p.API.GetBot(patchedBot.UserId, false)
+	fetchedBot, err = p.API.GetBot(patchedBot.UserID, false)
 	if err != nil {
 		return nil, err.Error() + "failed to get bot"
 	}
 
-	if fetchedBot.UserId != patchedBot.UserId {
+	if fetchedBot.UserID != patchedBot.UserID {
 		return nil, "GetBot did not return the expected bot"
 	}
 	if fetchedBot.Description != "a plugin bot, updated" {
@@ -65,7 +65,7 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 	fetchedBots, err := p.API.GetBots(&model.BotGetOptions{
 		Page:           0,
 		PerPage:        1,
-		OwnerId:        "",
+		OwnerID:        "",
 		IncludeDeleted: false,
 	})
 	if err != nil {
@@ -76,10 +76,10 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 		return nil, "GetBots did not return a single bot"
 	}
 
-	if fetchedBot.UserId != fetchedBots[0].UserId {
+	if fetchedBot.UserID != fetchedBots[0].UserID {
 		return nil, "GetBots did not return the expected bot"
 	}
-	if _, err = p.API.UpdateBotActive(fetchedBot.UserId, false); err != nil {
+	if _, err = p.API.UpdateBotActive(fetchedBot.UserID, false); err != nil {
 		return nil, err.Error() + "failed to disable bot"
 	}
 

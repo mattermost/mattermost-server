@@ -99,7 +99,7 @@ func (fs SqlFileInfoStore) Save(info *model.FileInfo) (*model.FileInfo, error) {
 	return info, nil
 }
 
-func (fs SqlFileInfoStore) GetByIds(ids []string) ([]*model.FileInfo, error) {
+func (fs SqlFileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, error) {
 	query := fs.getQueryBuilder().
 		Select(append(fs.queryFields, "COALESCE(P.ChannelId, '') as ChannelId")...).
 		From("FileInfo").
@@ -192,13 +192,13 @@ func (fs SqlFileInfoStore) GetWithOptions(page, perPage int, opt *model.GetFileI
 		Select(fs.queryFields...).
 		From("FileInfo")
 
-	if len(opt.ChannelIds) > 0 {
+	if len(opt.ChannelIDs) > 0 {
 		query = query.Join("Posts ON FileInfo.PostId = Posts.Id").
-			Where(sq.Eq{"Posts.ChannelId": opt.ChannelIds})
+			Where(sq.Eq{"Posts.ChannelId": opt.ChannelIDs})
 	}
 
-	if len(opt.UserIds) > 0 {
-		query = query.Where(sq.Eq{"FileInfo.CreatorId": opt.UserIds})
+	if len(opt.UserIDs) > 0 {
+		query = query.Where(sq.Eq{"FileInfo.CreatorId": opt.UserIDs})
 	}
 
 	if opt.Since > 0 {
@@ -266,10 +266,10 @@ func (fs SqlFileInfoStore) GetByPath(path string) (*model.FileInfo, error) {
 	return info, nil
 }
 
-func (fs SqlFileInfoStore) InvalidateFileInfosForPostCache(postId string, deleted bool) {
+func (fs SqlFileInfoStore) InvalidateFileInfosForPostCache(postID string, deleted bool) {
 }
 
-func (fs SqlFileInfoStore) GetForPost(postId string, readFromMaster, includeDeleted, allowFromCache bool) ([]*model.FileInfo, error) {
+func (fs SqlFileInfoStore) GetForPost(postID string, readFromMaster, includeDeleted, allowFromCache bool) ([]*model.FileInfo, error) {
 	var infos []*model.FileInfo
 
 	dbmap := fs.GetReplica()
@@ -281,7 +281,7 @@ func (fs SqlFileInfoStore) GetForPost(postId string, readFromMaster, includeDele
 	query := fs.getQueryBuilder().
 		Select(fs.queryFields...).
 		From("FileInfo").
-		Where(sq.Eq{"PostId": postId}).
+		Where(sq.Eq{"PostId": postID}).
 		OrderBy("CreateAt")
 
 	if !includeDeleted {
@@ -294,12 +294,12 @@ func (fs SqlFileInfoStore) GetForPost(postId string, readFromMaster, includeDele
 	}
 
 	if _, err := dbmap.Select(&infos, queryString, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to find FileInfos with postId=%s", postId)
+		return nil, errors.Wrapf(err, "failed to find FileInfos with postId=%s", postID)
 	}
 	return infos, nil
 }
 
-func (fs SqlFileInfoStore) GetForUser(userId string) ([]*model.FileInfo, error) {
+func (fs SqlFileInfoStore) GetForUser(userID string) ([]*model.FileInfo, error) {
 	var infos []*model.FileInfo
 
 	dbmap := fs.GetReplica()
@@ -307,7 +307,7 @@ func (fs SqlFileInfoStore) GetForUser(userId string) ([]*model.FileInfo, error) 
 	query := fs.getQueryBuilder().
 		Select(fs.queryFields...).
 		From("FileInfo").
-		Where(sq.Eq{"CreatorId": userId}).
+		Where(sq.Eq{"CreatorId": userID}).
 		Where(sq.Eq{"DeleteAt": 0}).
 		OrderBy("CreateAt")
 
@@ -317,12 +317,12 @@ func (fs SqlFileInfoStore) GetForUser(userId string) ([]*model.FileInfo, error) 
 	}
 
 	if _, err := dbmap.Select(&infos, queryString, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to find FileInfos with creatorId=%s", userId)
+		return nil, errors.Wrapf(err, "failed to find FileInfos with creatorId=%s", userID)
 	}
 	return infos, nil
 }
 
-func (fs SqlFileInfoStore) AttachToPost(fileId, postId, creatorId string) error {
+func (fs SqlFileInfoStore) AttachToPost(fileID, postID, creatorID string) error {
 	sqlResult, err := fs.GetMaster().Exec(`
 		UPDATE
 			FileInfo
@@ -333,12 +333,12 @@ func (fs SqlFileInfoStore) AttachToPost(fileId, postId, creatorId string) error 
 			AND PostId = ''
 			AND (CreatorId = :CreatorId OR CreatorId = 'nouser')
 	`, map[string]interface{}{
-		"PostId":    postId,
-		"Id":        fileId,
-		"CreatorId": creatorId,
+		"PostId":    postID,
+		"Id":        fileID,
+		"CreatorId": creatorID,
 	})
 	if err != nil {
-		return errors.Wrapf(err, "failed to update FileInfo with id=%s and postId=%s", fileId, postId)
+		return errors.Wrapf(err, "failed to update FileInfo with id=%s and postId=%s", fileID, postID)
 	}
 
 	count, err := sqlResult.RowsAffected()
@@ -347,16 +347,16 @@ func (fs SqlFileInfoStore) AttachToPost(fileId, postId, creatorId string) error 
 		return errors.Wrap(err, "unable to retrieve rows affected")
 	} else if count == 0 {
 		// Could not attach the file to the post
-		return store.NewErrInvalidInput("FileInfo", "<id, postId, creatorId>", fmt.Sprintf("<%s, %s, %s>", fileId, postId, creatorId))
+		return store.NewErrInvalidInput("FileInfo", "<id, postId, creatorId>", fmt.Sprintf("<%s, %s, %s>", fileID, postID, creatorID))
 	}
 	return nil
 }
 
-func (fs SqlFileInfoStore) SetContent(fileId, content string) error {
+func (fs SqlFileInfoStore) SetContent(fileID, content string) error {
 	query := fs.getQueryBuilder().
 		Update("FileInfo").
 		Set("Content", content).
-		Where(sq.Eq{"Id": fileId})
+		Where(sq.Eq{"Id": fileID})
 
 	queryString, args, err := query.ToSql()
 	if err != nil {
@@ -365,32 +365,32 @@ func (fs SqlFileInfoStore) SetContent(fileId, content string) error {
 
 	_, err = fs.GetMaster().Exec(queryString, args...)
 	if err != nil {
-		return errors.Wrapf(err, "failed to update FileInfo content with id=%s", fileId)
+		return errors.Wrapf(err, "failed to update FileInfo content with id=%s", fileID)
 	}
 
 	return nil
 }
 
-func (fs SqlFileInfoStore) DeleteForPost(postId string) (string, error) {
+func (fs SqlFileInfoStore) DeleteForPost(postID string) (string, error) {
 	if _, err := fs.GetMaster().Exec(
 		`UPDATE
 				FileInfo
 			SET
 				DeleteAt = :DeleteAt
 			WHERE
-				PostId = :PostId`, map[string]interface{}{"DeleteAt": model.GetMillis(), "PostId": postId}); err != nil {
-		return "", errors.Wrapf(err, "failed to update FileInfo with postId=%s", postId)
+				PostId = :PostId`, map[string]interface{}{"DeleteAt": model.GetMillis(), "PostId": postID}); err != nil {
+		return "", errors.Wrapf(err, "failed to update FileInfo with postId=%s", postID)
 	}
-	return postId, nil
+	return postID, nil
 }
 
-func (fs SqlFileInfoStore) PermanentDelete(fileId string) error {
+func (fs SqlFileInfoStore) PermanentDelete(fileID string) error {
 	if _, err := fs.GetMaster().Exec(
 		`DELETE FROM
 				FileInfo
 			WHERE
-				Id = :FileId`, map[string]interface{}{"FileId": fileId}); err != nil {
-		return errors.Wrapf(err, "failed to delete FileInfo with id=%s", fileId)
+				Id = :FileId`, map[string]interface{}{"FileId": fileID}); err != nil {
+		return errors.Wrapf(err, "failed to delete FileInfo with id=%s", fileID)
 	}
 	return nil
 }
@@ -416,12 +416,12 @@ func (fs SqlFileInfoStore) PermanentDeleteBatch(endTime int64, limit int64) (int
 	return rowsAffected, nil
 }
 
-func (fs SqlFileInfoStore) PermanentDeleteByUser(userId string) (int64, error) {
+func (fs SqlFileInfoStore) PermanentDeleteByUser(userID string) (int64, error) {
 	query := "DELETE from FileInfo WHERE CreatorId = :CreatorId"
 
-	sqlResult, err := fs.GetMaster().Exec(query, map[string]interface{}{"CreatorId": userId})
+	sqlResult, err := fs.GetMaster().Exec(query, map[string]interface{}{"CreatorId": userID})
 	if err != nil {
-		return 0, errors.Wrapf(err, "failed to delete FileInfo with creatorId=%s", userId)
+		return 0, errors.Wrapf(err, "failed to delete FileInfo with creatorId=%s", userID)
 	}
 
 	rowsAffected, err := sqlResult.RowsAffected()
@@ -432,7 +432,7 @@ func (fs SqlFileInfoStore) PermanentDeleteByUser(userId string) (int64, error) {
 	return rowsAffected, nil
 }
 
-func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userId, teamId string, page, perPage int) (*model.FileInfoList, error) {
+func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userID, teamID string, page, perPage int) (*model.FileInfoList, error) {
 	// Since we don't support paging for DB search, we just return nothing for later pages
 	if page > 0 {
 		return model.NewFileInfoList(), nil
@@ -446,7 +446,7 @@ func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userId, team
 		LeftJoin("Posts as P ON FileInfo.PostId=P.Id").
 		LeftJoin("Channels as C ON C.Id=P.ChannelId").
 		LeftJoin("ChannelMembers as CM ON C.Id=CM.ChannelId").
-		Where(sq.Or{sq.Eq{"C.TeamId": teamId}, sq.Eq{"C.TeamId": ""}}).
+		Where(sq.Or{sq.Eq{"C.TeamId": teamID}, sq.Eq{"C.TeamId": ""}}).
 		Where(sq.Eq{"FileInfo.DeleteAt": 0}).
 		OrderBy("FileInfo.CreateAt DESC").
 		Limit(100)
@@ -458,8 +458,8 @@ func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userId, team
 			query = query.Where(sq.Eq{"C.DeleteAt": 0})
 		}
 
-		if !params.SearchWithoutUserId {
-			query = query.Where(sq.Eq{"CM.UserId": userId})
+		if !params.SearchWithoutUserID {
+			query = query.Where(sq.Eq{"CM.UserId": userID})
 		}
 
 		if len(params.InChannels) != 0 {
@@ -599,7 +599,7 @@ func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userId, team
 	} else {
 		for _, f := range fileInfos {
 			list.AddFileInfo(f)
-			list.AddOrder(f.Id)
+			list.AddOrder(f.ID)
 		}
 	}
 	list.MakeNonNil()

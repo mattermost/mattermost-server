@@ -22,7 +22,7 @@ type SqlRoleStore struct {
 }
 
 type Role struct {
-	Id            string
+	ID            string
 	Name          string
 	DisplayName   string
 	Description   string
@@ -55,7 +55,7 @@ func NewRoleFromModel(role *model.Role) *Role {
 	}
 
 	return &Role{
-		Id:            role.Id,
+		ID:            role.ID,
 		Name:          role.Name,
 		DisplayName:   role.DisplayName,
 		Description:   role.Description,
@@ -70,7 +70,7 @@ func NewRoleFromModel(role *model.Role) *Role {
 
 func (role Role) ToModel() *model.Role {
 	return &model.Role{
-		Id:            role.Id,
+		ID:            role.ID,
 		Name:          role.Name,
 		DisplayName:   role.DisplayName,
 		Description:   role.Description,
@@ -99,11 +99,11 @@ func newSqlRoleStore(sqlStore *SqlStore) store.RoleStore {
 
 func (s *SqlRoleStore) Save(role *model.Role) (*model.Role, error) {
 	// Check the role is valid before proceeding.
-	if !role.IsValidWithoutId() {
+	if !role.IsValidWithoutID() {
 		return nil, store.NewErrInvalidInput("Role", "<any>", fmt.Sprintf("%v", role))
 	}
 
-	if role.Id == "" {
+	if role.ID == "" {
 		transaction, err := s.GetMaster().Begin()
 		if err != nil {
 			return nil, errors.Wrap(err, "begin_transaction")
@@ -132,13 +132,13 @@ func (s *SqlRoleStore) Save(role *model.Role) (*model.Role, error) {
 
 func (s *SqlRoleStore) createRole(role *model.Role, transaction *gorp.Transaction) (*model.Role, error) {
 	// Check the role is valid before proceeding.
-	if !role.IsValidWithoutId() {
+	if !role.IsValidWithoutID() {
 		return nil, store.NewErrInvalidInput("Role", "<any>", fmt.Sprintf("%v", role))
 	}
 
 	dbRole := NewRoleFromModel(role)
 
-	dbRole.Id = model.NewId()
+	dbRole.ID = model.NewID()
 	dbRole.CreateAt = model.GetMillis()
 	dbRole.UpdateAt = dbRole.CreateAt
 
@@ -149,12 +149,12 @@ func (s *SqlRoleStore) createRole(role *model.Role, transaction *gorp.Transactio
 	return dbRole.ToModel(), nil
 }
 
-func (s *SqlRoleStore) Get(roleId string) (*model.Role, error) {
+func (s *SqlRoleStore) Get(roleID string) (*model.Role, error) {
 	var dbRole Role
 
-	if err := s.GetReplica().SelectOne(&dbRole, "SELECT * from Roles WHERE Id = :Id", map[string]interface{}{"Id": roleId}); err != nil {
+	if err := s.GetReplica().SelectOne(&dbRole, "SELECT * from Roles WHERE Id = :Id", map[string]interface{}{"Id": roleID}); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, store.NewErrNotFound("Role", roleId)
+			return nil, store.NewErrNotFound("Role", roleID)
 		}
 		return nil, errors.Wrap(err, "failed to get Role")
 	}
@@ -212,7 +212,7 @@ func (s *SqlRoleStore) GetByNames(names []string) ([]*model.Role, error) {
 	for rows.Next() {
 		var role Role
 		err = rows.Scan(
-			&role.Id, &role.Name, &role.DisplayName, &role.Description,
+			&role.ID, &role.Name, &role.DisplayName, &role.Description,
 			&role.CreateAt, &role.UpdateAt, &role.DeleteAt, &role.Permissions,
 			&role.SchemeManaged, &role.BuiltIn)
 		if err != nil {
@@ -227,14 +227,14 @@ func (s *SqlRoleStore) GetByNames(names []string) ([]*model.Role, error) {
 	return roles, nil
 }
 
-func (s *SqlRoleStore) Delete(roleId string) (*model.Role, error) {
+func (s *SqlRoleStore) Delete(roleID string) (*model.Role, error) {
 	// Get the role.
 	var role *Role
-	if err := s.GetReplica().SelectOne(&role, "SELECT * from Roles WHERE Id = :Id", map[string]interface{}{"Id": roleId}); err != nil {
+	if err := s.GetReplica().SelectOne(&role, "SELECT * from Roles WHERE Id = :Id", map[string]interface{}{"Id": roleID}); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, store.NewErrNotFound("Role", roleId)
+			return nil, store.NewErrNotFound("Role", roleID)
 		}
-		return nil, errors.Wrapf(err, "failed to get Role with id=%s", roleId)
+		return nil, errors.Wrapf(err, "failed to get Role with id=%s", roleID)
 	}
 
 	time := model.GetMillis()
@@ -325,9 +325,9 @@ func (s *SqlRoleStore) channelHigherScopedPermissionsQuery(roleNames []string) s
 	return fmt.Sprintf(
 		sqlTmpl,
 		strings.Join(roleNames, "', '"),
-		model.ChannelGuestRoleId,
-		model.ChannelUserRoleId,
-		model.ChannelAdminRoleId,
+		model.ChannelGuestRoleID,
+		model.ChannelUserRoleID,
+		model.ChannelAdminRoleID,
 	)
 }
 
@@ -342,9 +342,9 @@ func (s *SqlRoleStore) ChannelHigherScopedPermissions(roleNames []string) (map[s
 	roleNameHigherScopedPermissions := map[string]*model.RolePermissions{}
 
 	for _, rp := range rolesPermissions {
-		roleNameHigherScopedPermissions[rp.GuestRoleName] = &model.RolePermissions{RoleID: model.ChannelGuestRoleId, Permissions: strings.Split(rp.HigherScopedGuestPermissions, " ")}
-		roleNameHigherScopedPermissions[rp.UserRoleName] = &model.RolePermissions{RoleID: model.ChannelUserRoleId, Permissions: strings.Split(rp.HigherScopedUserPermissions, " ")}
-		roleNameHigherScopedPermissions[rp.AdminRoleName] = &model.RolePermissions{RoleID: model.ChannelAdminRoleId, Permissions: strings.Split(rp.HigherScopedAdminPermissions, " ")}
+		roleNameHigherScopedPermissions[rp.GuestRoleName] = &model.RolePermissions{RoleID: model.ChannelGuestRoleID, Permissions: strings.Split(rp.HigherScopedGuestPermissions, " ")}
+		roleNameHigherScopedPermissions[rp.UserRoleName] = &model.RolePermissions{RoleID: model.ChannelUserRoleID, Permissions: strings.Split(rp.HigherScopedUserPermissions, " ")}
+		roleNameHigherScopedPermissions[rp.AdminRoleName] = &model.RolePermissions{RoleID: model.ChannelAdminRoleID, Permissions: strings.Split(rp.HigherScopedAdminPermissions, " ")}
 	}
 
 	return roleNameHigherScopedPermissions, nil

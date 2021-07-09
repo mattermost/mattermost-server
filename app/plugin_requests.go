@@ -27,7 +27,7 @@ func (s *Server) ServePluginRequest(w http.ResponseWriter, r *http.Request) {
 		s.Log.Error(err.Error())
 		w.WriteHeader(err.StatusCode)
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(err.ToJson()))
+		w.Write([]byte(err.ToJSON()))
 		return
 	}
 
@@ -45,22 +45,22 @@ func (s *Server) ServePluginRequest(w http.ResponseWriter, r *http.Request) {
 	s.servePluginRequest(w, r, hooks.ServeHTTP)
 }
 
-func (a *App) ServeInterPluginRequest(w http.ResponseWriter, r *http.Request, sourcePluginId, destinationPluginId string) {
+func (a *App) ServeInterPluginRequest(w http.ResponseWriter, r *http.Request, sourcePluginID, destinationPluginID string) {
 	pluginsEnvironment := a.GetPluginsEnvironment()
 	if pluginsEnvironment == nil {
 		err := model.NewAppError("ServeInterPluginRequest", "app.plugin.disabled.app_error", nil, "Plugin environment not found.", http.StatusNotImplemented)
 		a.Log().Error(err.Error())
 		w.WriteHeader(err.StatusCode)
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(err.ToJson()))
+		w.Write([]byte(err.ToJSON()))
 		return
 	}
 
-	hooks, err := pluginsEnvironment.HooksForPlugin(destinationPluginId)
+	hooks, err := pluginsEnvironment.HooksForPlugin(destinationPluginID)
 	if err != nil {
 		a.Log().Error("Access to route for non-existent plugin in inter plugin request",
-			mlog.String("source_plugin_id", sourcePluginId),
-			mlog.String("destination_plugin_id", destinationPluginId),
+			mlog.String("source_plugin_id", sourcePluginID),
+			mlog.String("destination_plugin_id", destinationPluginID),
 			mlog.String("url", r.URL.String()),
 			mlog.Err(err),
 		)
@@ -69,12 +69,12 @@ func (a *App) ServeInterPluginRequest(w http.ResponseWriter, r *http.Request, so
 	}
 
 	context := &plugin.Context{
-		RequestId:      model.NewId(),
+		RequestID:      model.NewID(),
 		UserAgent:      r.UserAgent(),
-		SourcePluginId: sourcePluginId,
+		SourcePluginID: sourcePluginID,
 	}
 
-	r.Header.Set("Mattermost-Plugin-ID", sourcePluginId)
+	r.Header.Set("Mattermost-Plugin-ID", sourcePluginID)
 
 	hooks.ServeHTTP(context, w, r)
 }
@@ -118,8 +118,8 @@ func (s *Server) ServePluginPublicRequest(w http.ResponseWriter, r *http.Request
 func (s *Server) servePluginRequest(w http.ResponseWriter, r *http.Request, handler func(*plugin.Context, http.ResponseWriter, *http.Request)) {
 	token := ""
 	context := &plugin.Context{
-		RequestId:      model.NewId(),
-		IpAddress:      utils.GetIPAddress(r, s.Config().ServiceSettings.TrustedProxyIPHeader),
+		RequestID:      model.NewID(),
+		IDAddress:      utils.GetIPAddress(r, s.Config().ServiceSettings.TrustedProxyIPHeader),
 		AcceptLanguage: r.Header.Get("Accept-Language"),
 		UserAgent:      r.UserAgent(),
 	}
@@ -172,9 +172,9 @@ func (s *Server) servePluginRequest(w http.ResponseWriter, r *http.Request, hand
 				sid := ""
 				userID := ""
 
-				if session.Id != "" {
-					sid = session.Id
-					userID = session.UserId
+				if session.ID != "" {
+					sid = session.ID
+					userID = session.UserID
 				}
 
 				fields := []mlog.Field{
@@ -195,9 +195,9 @@ func (s *Server) servePluginRequest(w http.ResponseWriter, r *http.Request, hand
 			csrfCheckPassed = true
 		}
 
-		if (session != nil && session.Id != "") && err == nil && csrfCheckPassed {
-			r.Header.Set("Mattermost-User-Id", session.UserId)
-			context.SessionId = session.Id
+		if (session != nil && session.ID != "") && err == nil && csrfCheckPassed {
+			r.Header.Set("Mattermost-User-Id", session.UserID)
+			context.SessionID = session.ID
 		}
 	}
 

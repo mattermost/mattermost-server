@@ -18,9 +18,9 @@ func TestPluginCommand(t *testing.T) {
 	defer th.TearDown()
 
 	args := &model.CommandArgs{}
-	args.TeamId = th.BasicTeam.Id
-	args.ChannelId = th.BasicChannel.Id
-	args.UserId = th.BasicUser.Id
+	args.TeamID = th.BasicTeam.ID
+	args.ChannelID = th.BasicChannel.ID
+	args.UserID = th.BasicUser.ID
 	args.Command = "/plugin"
 
 	t.Run("error before plugin command registered", func(t *testing.T) {
@@ -31,7 +31,7 @@ func TestPluginCommand(t *testing.T) {
 	t.Run("command handled by plugin", func(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			cfg.PluginSettings.Plugins["testloadpluginconfig"] = map[string]interface{}{
-				"TeamId": args.TeamId,
+				"TeamId": args.TeamID,
 			}
 		})
 
@@ -99,7 +99,7 @@ func TestPluginCommand(t *testing.T) {
 		err2 := th.App.DisablePlugin(pluginIDs[0])
 		require.Nil(t, err2)
 
-		commands, err3 := th.App.ListAutocompleteCommands(args.TeamId, i18n.T)
+		commands, err3 := th.App.ListAutocompleteCommands(args.TeamID, i18n.T)
 		require.Nil(t, err3)
 
 		for _, commands := range commands {
@@ -112,7 +112,7 @@ func TestPluginCommand(t *testing.T) {
 	t.Run("re-entrant command registration on config change", func(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			cfg.PluginSettings.Plugins["testloadpluginconfig"] = map[string]interface{}{
-				"TeamId": args.TeamId,
+				"TeamId": args.TeamID,
 			}
 		})
 
@@ -219,7 +219,7 @@ func TestPluginCommand(t *testing.T) {
 	t.Run("plugins can override built-in commands", func(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			cfg.PluginSettings.Plugins["testloadpluginconfig"] = map[string]interface{}{
-				"TeamId": args.TeamId,
+				"TeamId": args.TeamID,
 			}
 		})
 
@@ -328,7 +328,7 @@ func TestPluginCommand(t *testing.T) {
 		resp, err := th.App.ExecuteCommand(th.Context, args)
 		require.Nil(t, resp)
 		require.NotNil(t, err)
-		require.Equal(t, err.Id, "model.plugin_command_error.error.app_error")
+		require.Equal(t, err.ID, "model.plugin_command_error.error.app_error")
 		th.App.RemovePlugin(pluginIDs[0])
 	})
 
@@ -373,7 +373,7 @@ func TestPluginCommand(t *testing.T) {
 		resp, err := th.App.ExecuteCommand(th.Context, args)
 		require.Nil(t, resp)
 		require.NotNil(t, err)
-		require.Equal(t, err.Id, "model.plugin_command_crash.error.app_error")
+		require.Equal(t, err.ID, "model.plugin_command_crash.error.app_error")
 		th.App.RemovePlugin(pluginIDs[0])
 	})
 

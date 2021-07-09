@@ -15,12 +15,12 @@ type ReactionStore struct {
 }
 
 // BulkGetForPosts provides a mock function with given fields: postIds
-func (_m *ReactionStore) BulkGetForPosts(postIds []string) ([]*model.Reaction, error) {
-	ret := _m.Called(postIds)
+func (_m *ReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction, error) {
+	ret := _m.Called(postIDs)
 
 	var r0 []*model.Reaction
 	if rf, ok := ret.Get(0).(func([]string) []*model.Reaction); ok {
-		r0 = rf(postIds)
+		r0 = rf(postIDs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.Reaction)
@@ -29,7 +29,7 @@ func (_m *ReactionStore) BulkGetForPosts(postIds []string) ([]*model.Reaction, e
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func([]string) error); ok {
-		r1 = rf(postIds)
+		r1 = rf(postIDs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -119,12 +119,12 @@ func (_m *ReactionStore) GetForPost(postID string, allowFromCache bool) ([]*mode
 }
 
 // GetForPostSince provides a mock function with given fields: postId, since, excludeRemoteId, inclDeleted
-func (_m *ReactionStore) GetForPostSince(postId string, since int64, excludeRemoteId string, inclDeleted bool) ([]*model.Reaction, error) {
-	ret := _m.Called(postId, since, excludeRemoteId, inclDeleted)
+func (_m *ReactionStore) GetForPostSince(postID string, since int64, excludeRemoteID string, inclDeleted bool) ([]*model.Reaction, error) {
+	ret := _m.Called(postID, since, excludeRemoteID, inclDeleted)
 
 	var r0 []*model.Reaction
 	if rf, ok := ret.Get(0).(func(string, int64, string, bool) []*model.Reaction); ok {
-		r0 = rf(postId, since, excludeRemoteId, inclDeleted)
+		r0 = rf(postID, since, excludeRemoteID, inclDeleted)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.Reaction)
@@ -133,7 +133,7 @@ func (_m *ReactionStore) GetForPostSince(postId string, since int64, excludeRemo
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, int64, string, bool) error); ok {
-		r1 = rf(postId, since, excludeRemoteId, inclDeleted)
+		r1 = rf(postID, since, excludeRemoteID, inclDeleted)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -38,7 +38,7 @@ func TestLoggingAfterInitialized(t *testing.T) {
 			&mlog.LoggerConfiguration{
 				EnableConsole: false,
 				EnableFile:    true,
-				FileJson:      true,
+				FileJSON:      true,
 				FileLevel:     mlog.LevelDebug,
 			},
 			[]string{
@@ -54,7 +54,7 @@ func TestLoggingAfterInitialized(t *testing.T) {
 			&mlog.LoggerConfiguration{
 				EnableConsole: false,
 				EnableFile:    true,
-				FileJson:      true,
+				FileJSON:      true,
 				FileLevel:     mlog.LevelError,
 			},
 			[]string{
@@ -67,7 +67,7 @@ func TestLoggingAfterInitialized(t *testing.T) {
 			&mlog.LoggerConfiguration{
 				EnableConsole: false,
 				EnableFile:    true,
-				FileJson:      false,
+				FileJSON:      false,
 				FileLevel:     mlog.LevelDebug,
 			},
 			[]string{
@@ -83,7 +83,7 @@ func TestLoggingAfterInitialized(t *testing.T) {
 			&mlog.LoggerConfiguration{
 				EnableConsole: false,
 				EnableFile:    true,
-				FileJson:      false,
+				FileJSON:      false,
 				FileLevel:     mlog.LevelError,
 			},
 			[]string{
@@ -120,7 +120,7 @@ func TestLoggingAfterInitialized(t *testing.T) {
 
 				actual := strings.TrimSpace(string(logs))
 
-				if testCase.LoggerConfiguration.FileJson {
+				if testCase.LoggerConfiguration.FileJSON {
 					reTs := regexp.MustCompile(`"ts":[0-9\.]+`)
 					reCaller := regexp.MustCompile(`"caller":"([^"]+):[0-9\.]+"`)
 					actual = reTs.ReplaceAllString(actual, `"ts":0`)

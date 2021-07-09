@@ -46,7 +46,7 @@ func TestScheduler(t *testing.T) {
 	defer mockStore.AssertExpectations(t)
 
 	job := &model.Job{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		CreateAt: model.GetMillis(),
 		Status:   model.JobStatusPending,
 		Type:     model.JobTypeMessageExport,

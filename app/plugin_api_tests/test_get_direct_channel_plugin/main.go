@@ -22,7 +22,7 @@ func (p *MyPlugin) OnConfigurationChange() error {
 }
 
 func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model.Post, string) {
-	dm1, err := p.API.GetDirectChannel(p.configuration.BasicUserID, p.configuration.BasicUser2Id)
+	dm1, err := p.API.GetDirectChannel(p.configuration.BasicUserID, p.configuration.BasicUser2ID)
 	if err != nil {
 		return nil, err.Error()
 	}
@@ -38,7 +38,7 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 		return nil, "dm2 is empty"
 	}
 
-	dm3, err := p.API.GetDirectChannel(p.configuration.BasicUserID, model.NewId())
+	dm3, err := p.API.GetDirectChannel(p.configuration.BasicUserID, model.NewID())
 	if err == nil {
 		return nil, "Expected to get error while fetching incorrect channel"
 	}

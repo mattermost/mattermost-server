@@ -61,9 +61,9 @@ func (scheduler *Scheduler) ScheduleJob(cfg *model.Config, pendingJobs bool, las
 		if state == MigrationStateInProgress {
 			// Check the migration job isn't wedged.
 			if job != nil && job.LastActivityAt < model.GetMillis()-MigrationJobWedgedTimeoutMilliseconds && job.CreateAt < model.GetMillis()-MigrationJobWedgedTimeoutMilliseconds {
-				mlog.Warn("Job appears to be wedged. Rescheduling another instance.", mlog.String("scheduler", scheduler.Name()), mlog.String("wedged_job_id", job.Id), mlog.String("migration_key", key))
+				mlog.Warn("Job appears to be wedged. Rescheduling another instance.", mlog.String("scheduler", scheduler.Name()), mlog.String("wedged_job_id", job.ID), mlog.String("migration_key", key))
 				if err := scheduler.srv.Jobs.SetJobError(job, nil); err != nil {
-					mlog.Error("Worker: Failed to set job error", mlog.String("scheduler", scheduler.Name()), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+					mlog.Error("Worker: Failed to set job error", mlog.String("scheduler", scheduler.Name()), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 				}
 				return scheduler.createJob(key, job)
 			}

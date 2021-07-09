@@ -23,7 +23,7 @@ func getLatestTermsOfService(c *Context, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Write([]byte(termsOfService.ToJson()))
+	w.Write([]byte(termsOfService.ToJSON()))
 }
 
 func createTermsOfService(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -40,9 +40,9 @@ func createTermsOfService(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("createTermsOfService", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	props := model.MapFromJson(r.Body)
+	props := model.MapFromJSON(r.Body)
 	text := props["text"]
-	userId := c.AppContext.Session().UserId
+	userID := c.AppContext.Session().UserID
 
 	if text == "" {
 		c.Err = model.NewAppError("Config.IsValid", "api.create_terms_of_service.empty_text.app_error", nil, "", http.StatusBadRequest)
@@ -50,21 +50,21 @@ func createTermsOfService(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldTermsOfService, err := c.App.GetLatestTermsOfService()
-	if err != nil && err.Id != app.ErrorTermsOfServiceNoRowsFound {
+	if err != nil && err.ID != app.ErrorTermsOfServiceNoRowsFound {
 		c.Err = err
 		return
 	}
 
 	if oldTermsOfService == nil || oldTermsOfService.Text != text {
-		termsOfService, err := c.App.CreateTermsOfService(text, userId)
+		termsOfService, err := c.App.CreateTermsOfService(text, userID)
 		if err != nil {
 			c.Err = err
 			return
 		}
 
-		w.Write([]byte(termsOfService.ToJson()))
+		w.Write([]byte(termsOfService.ToJSON()))
 	} else {
-		w.Write([]byte(oldTermsOfService.ToJson()))
+		w.Write([]byte(oldTermsOfService.ToJSON()))
 	}
 	auditRec.Success()
 }

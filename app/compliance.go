@@ -51,12 +51,12 @@ func (a *App) SaveComplianceReport(job *model.Compliance) (*model.Compliance, *m
 	return job, nil
 }
 
-func (a *App) GetComplianceReport(reportId string) (*model.Compliance, *model.AppError) {
+func (a *App) GetComplianceReport(reportID string) (*model.Compliance, *model.AppError) {
 	if license := a.Srv().License(); !*a.Config().ComplianceSettings.Enable || license == nil || !*license.Features.Compliance || a.Compliance() == nil {
 		return nil, model.NewAppError("downloadComplianceReport", "ent.compliance.licence_disable.app_error", nil, "", http.StatusNotImplemented)
 	}
 
-	compliance, err := a.Srv().Store.Compliance().Get(reportId)
+	compliance, err := a.Srv().Store.Compliance().Get(reportID)
 	if err != nil {
 		var nfErr *store.ErrNotFound
 		switch {

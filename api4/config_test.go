@@ -71,8 +71,8 @@ func TestGetConfigWithAccessTag(t *testing.T) {
 	})
 
 	// set some values so that we know they're not blank
-	mockVaryByHeader := model.NewId()
-	mockSupportEmail := model.NewId() + "@mattermost.com"
+	mockVaryByHeader := model.NewID()
+	mockSupportEmail := model.NewID() + "@mattermost.com"
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		cfg.RateLimitSettings.VaryByHeader = mockVaryByHeader
 		cfg.SupportSettings.SupportEmail = &mockSupportEmail
@@ -81,8 +81,8 @@ func TestGetConfigWithAccessTag(t *testing.T) {
 	th.Client.Login(th.BasicUser.Username, th.BasicUser.Password)
 
 	// add read sysconsole environment config
-	th.AddPermissionToRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.Id, model.SystemUserRoleId)
-	defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.Id, model.SystemUserRoleId)
+	th.AddPermissionToRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.ID, model.SystemUserRoleID)
+	defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.ID, model.SystemUserRoleID)
 
 	cfg, resp := th.Client.GetConfig()
 	CheckNoError(t, resp)
@@ -112,8 +112,8 @@ func TestGetConfigAnyFlagsAccess(t *testing.T) {
 	})
 
 	// add read sysconsole environment config
-	th.AddPermissionToRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.Id, model.SystemUserRoleId)
-	defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.Id, model.SystemUserRoleId)
+	th.AddPermissionToRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.ID, model.SystemUserRoleID)
+	defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadEnvironmentRateLimiting.ID, model.SystemUserRoleID)
 
 	cfg, resp := th.Client.GetConfig()
 	CheckNoError(t, resp)
@@ -258,7 +258,7 @@ func TestGetConfigWithoutManageSystemPermission(t *testing.T) {
 		CheckForbiddenStatus(t, resp)
 
 		// add any sysconsole read permission
-		th.AddPermissionToRole(model.SysconsoleReadPermissions[0].Id, model.SystemUserRoleId)
+		th.AddPermissionToRole(model.SysconsoleReadPermissions[0].ID, model.SystemUserRoleID)
 		_, resp = th.Client.GetConfig()
 
 		// should be readable now
@@ -272,8 +272,8 @@ func TestUpdateConfigWithoutManageSystemPermission(t *testing.T) {
 	th.Client.Login(th.BasicUser.Username, th.BasicUser.Password)
 
 	// add read sysconsole integrations config
-	th.AddPermissionToRole(model.PermissionSysconsoleReadIntegrationsIntegrationManagement.Id, model.SystemUserRoleId)
-	defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadIntegrationsIntegrationManagement.Id, model.SystemUserRoleId)
+	th.AddPermissionToRole(model.PermissionSysconsoleReadIntegrationsIntegrationManagement.ID, model.SystemUserRoleID)
+	defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadIntegrationsIntegrationManagement.ID, model.SystemUserRoleID)
 
 	t.Run("sysconsole read permission does not provides config write access", func(t *testing.T) {
 		// should be readable because has a sysconsole read permission
@@ -293,11 +293,11 @@ func TestUpdateConfigWithoutManageSystemPermission(t *testing.T) {
 		originalValue := *cfg.ServiceSettings.AllowCorsFrom
 
 		// add the wrong write permission
-		th.AddPermissionToRole(model.PermissionSysconsoleWriteAboutEditionAndLicense.Id, model.SystemUserRoleId)
-		defer th.RemovePermissionFromRole(model.PermissionSysconsoleWriteAboutEditionAndLicense.Id, model.SystemUserRoleId)
+		th.AddPermissionToRole(model.PermissionSysconsoleWriteAboutEditionAndLicense.ID, model.SystemUserRoleID)
+		defer th.RemovePermissionFromRole(model.PermissionSysconsoleWriteAboutEditionAndLicense.ID, model.SystemUserRoleID)
 
 		// try update a config value allowed by sysconsole WRITE integrations
-		mockVal := model.NewId()
+		mockVal := model.NewID()
 		cfg.ServiceSettings.AllowCorsFrom = &mockVal
 		_, resp = th.Client.UpdateConfig(cfg)
 		CheckNoError(t, resp)
@@ -313,13 +313,13 @@ func TestUpdateConfigWithoutManageSystemPermission(t *testing.T) {
 		cfg, resp := th.SystemAdminClient.GetConfig()
 		CheckNoError(t, resp)
 
-		th.AddPermissionToRole(model.PermissionSysconsoleWriteIntegrationsCors.Id, model.SystemUserRoleId)
-		defer th.RemovePermissionFromRole(model.PermissionSysconsoleWriteIntegrationsCors.Id, model.SystemUserRoleId)
-		th.AddPermissionToRole(model.PermissionSysconsoleReadIntegrationsCors.Id, model.SystemUserRoleId)
-		defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadIntegrationsCors.Id, model.SystemUserRoleId)
+		th.AddPermissionToRole(model.PermissionSysconsoleWriteIntegrationsCors.ID, model.SystemUserRoleID)
+		defer th.RemovePermissionFromRole(model.PermissionSysconsoleWriteIntegrationsCors.ID, model.SystemUserRoleID)
+		th.AddPermissionToRole(model.PermissionSysconsoleReadIntegrationsCors.ID, model.SystemUserRoleID)
+		defer th.RemovePermissionFromRole(model.PermissionSysconsoleReadIntegrationsCors.ID, model.SystemUserRoleID)
 
 		// try update a config value allowed by sysconsole WRITE integrations
-		mockVal := model.NewId()
+		mockVal := model.NewID()
 		cfg.ServiceSettings.AllowCorsFrom = &mockVal
 		_, resp = th.Client.UpdateConfig(cfg)
 		CheckNoError(t, resp)
@@ -651,7 +651,7 @@ func TestPatchConfig(t *testing.T) {
 
 			assert.Equal(t, http.StatusBadRequest, response.StatusCode)
 			assert.NotNil(t, response.Error)
-			assert.Equal(t, "model.config.is_valid.password_length.app_error", response.Error.Id)
+			assert.Equal(t, "model.config.is_valid.password_length.app_error", response.Error.ID)
 		})
 
 		t.Run("should patch the config", func(t *testing.T) {

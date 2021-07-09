@@ -507,7 +507,7 @@ func TestGetNotificationEmailBodyPublicChannelMention(t *testing.T) {
 		DisplayName: "ChannelName",
 		Type:        model.ChannelTypeOpen,
 	}
-	id := model.NewId()
+	id := model.NewID()
 	recipient := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
 		Username:      "un_" + id,
@@ -527,7 +527,7 @@ func TestGetNotificationEmailBodyPublicChannelMention(t *testing.T) {
 
 	storeMock := th.App.Srv().Store.(*mocks.Store)
 	teamStoreMock := mocks.TeamStore{}
-	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{Id: "test", Name: "testteam"}, nil)
+	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{ID: "test", Name: "testteam"}, nil)
 	storeMock.On("Team").Return(&teamStoreMock)
 
 	channelStoreMock := mocks.ChannelStore{}
@@ -548,7 +548,7 @@ func TestGetNotificationEmailBodyMultiPublicChannelMention(t *testing.T) {
 	defer th.TearDown()
 
 	ch := &model.Channel{
-		Id:          model.NewId(),
+		ID:          model.NewID(),
 		Name:        "channelnameone",
 		DisplayName: "ChannelName",
 		Type:        model.ChannelTypeOpen,
@@ -556,7 +556,7 @@ func TestGetNotificationEmailBodyMultiPublicChannelMention(t *testing.T) {
 	mention := "~" + ch.Name
 
 	ch2 := &model.Channel{
-		Id:          model.NewId(),
+		ID:          model.NewID(),
 		Name:        "channelnametwo",
 		DisplayName: "ChannelName2",
 		Type:        model.ChannelTypeOpen,
@@ -564,7 +564,7 @@ func TestGetNotificationEmailBodyMultiPublicChannelMention(t *testing.T) {
 	mention2 := "~" + ch2.Name
 
 	ch3 := &model.Channel{
-		Id:          model.NewId(),
+		ID:          model.NewID(),
 		Name:        "channelnamethree",
 		DisplayName: "ChannelName3",
 		Type:        model.ChannelTypeOpen,
@@ -573,7 +573,7 @@ func TestGetNotificationEmailBodyMultiPublicChannelMention(t *testing.T) {
 
 	message := fmt.Sprintf("This is the message Channel1: %s; Channel2: %s;"+
 		" Channel3: %s", mention, mention2, mention3)
-	id := model.NewId()
+	id := model.NewID()
 	recipient := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
 		Username:      "un_" + id,
@@ -593,7 +593,7 @@ func TestGetNotificationEmailBodyMultiPublicChannelMention(t *testing.T) {
 
 	storeMock := th.App.Srv().Store.(*mocks.Store)
 	teamStoreMock := mocks.TeamStore{}
-	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{Id: "test", Name: "testteam"}, nil)
+	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{ID: "test", Name: "testteam"}, nil)
 	storeMock.On("Team").Return(&teamStoreMock)
 
 	channelStoreMock := mocks.ChannelStore{}
@@ -622,7 +622,7 @@ func TestGetNotificationEmailBodyPrivateChannelMention(t *testing.T) {
 		DisplayName: "ChannelName",
 		Type:        model.ChannelTypePrivate,
 	}
-	id := model.NewId()
+	id := model.NewID()
 	recipient := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
 		Username:      "un_" + id,
@@ -642,7 +642,7 @@ func TestGetNotificationEmailBodyPrivateChannelMention(t *testing.T) {
 
 	storeMock := th.App.Srv().Store.(*mocks.Store)
 	teamStoreMock := mocks.TeamStore{}
-	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{Id: "test", Name: "testteam"}, nil)
+	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{ID: "test", Name: "testteam"}, nil)
 	storeMock.On("Team").Return(&teamStoreMock)
 
 	channelStoreMock := mocks.ChannelStore{}
@@ -675,7 +675,7 @@ func TestGenerateHyperlinkForChannelsPublic(t *testing.T) {
 
 	storeMock := th.App.Srv().Store.(*mocks.Store)
 	teamStoreMock := mocks.TeamStore{}
-	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{Id: "test", Name: "testteam"}, nil)
+	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{ID: "test", Name: "testteam"}, nil)
 	storeMock.On("Team").Return(&teamStoreMock)
 
 	channelStoreMock := mocks.ChannelStore{}
@@ -694,7 +694,7 @@ func TestGenerateHyperlinkForChannelsMultiPublic(t *testing.T) {
 
 	// TODO: Fix the case where the first channel name contains the other channel names (for example here channelnameone)"
 	ch := &model.Channel{
-		Id:          model.NewId(),
+		ID:          model.NewID(),
 		Name:        "channelnameone",
 		DisplayName: "ChannelName",
 		Type:        model.ChannelTypeOpen,
@@ -702,7 +702,7 @@ func TestGenerateHyperlinkForChannelsMultiPublic(t *testing.T) {
 	mention := "~" + ch.Name
 
 	ch2 := &model.Channel{
-		Id:          model.NewId(),
+		ID:          model.NewID(),
 		Name:        "channelnametwo",
 		DisplayName: "ChannelName2",
 		Type:        model.ChannelTypeOpen,
@@ -710,7 +710,7 @@ func TestGenerateHyperlinkForChannelsMultiPublic(t *testing.T) {
 	mention2 := "~" + ch2.Name
 
 	ch3 := &model.Channel{
-		Id:          model.NewId(),
+		ID:          model.NewID(),
 		Name:        "channelnamethree",
 		DisplayName: "ChannelName3",
 		Type:        model.ChannelTypeOpen,
@@ -725,7 +725,7 @@ func TestGenerateHyperlinkForChannelsMultiPublic(t *testing.T) {
 
 	storeMock := th.App.Srv().Store.(*mocks.Store)
 	teamStoreMock := mocks.TeamStore{}
-	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{Id: "test", Name: "testteam"}, nil)
+	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{ID: "test", Name: "testteam"}, nil)
 	storeMock.On("Team").Return(&teamStoreMock)
 
 	channelStoreMock := mocks.ChannelStore{}
@@ -759,7 +759,7 @@ func TestGenerateHyperlinkForChannelsPrivate(t *testing.T) {
 
 	storeMock := th.App.Srv().Store.(*mocks.Store)
 	teamStoreMock := mocks.TeamStore{}
-	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{Id: "test", Name: "testteam"}, nil)
+	teamStoreMock.On("GetByName", "testteam").Return(&model.Team{ID: "test", Name: "testteam"}, nil)
 	storeMock.On("Team").Return(&teamStoreMock)
 
 	channelStoreMock := mocks.ChannelStore{}
@@ -806,7 +806,7 @@ func TestLandingLinkPermalink(t *testing.T) {
 
 	recipient := &model.User{}
 	post := &model.Post{
-		Id:      "Test_id",
+		ID:      "Test_id",
 		Message: "This is the message",
 	}
 	channel := &model.Channel{
@@ -827,5 +827,5 @@ func TestLandingLinkPermalink(t *testing.T) {
 
 	body, err := th.App.getNotificationEmailBody(recipient, post, channel, channelName, senderName, teamName, teamURL, emailNotificationContentsType, true, translateFunc, "user-avatar.png")
 	require.NoError(t, err)
-	require.Contains(t, body, teamURL+"/pl/"+post.Id, fmt.Sprintf("Expected email text '%s'. Got %s", teamURL, body))
+	require.Contains(t, body, teamURL+"/pl/"+post.ID, fmt.Sprintf("Expected email text '%s'. Got %s", teamURL, body))
 }

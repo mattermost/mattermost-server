@@ -19,7 +19,7 @@ func TestAuditStore(t *testing.T, ss store.Store) {
 }
 
 func testAuditStore(t *testing.T, ss store.Store) {
-	audit := &model.Audit{UserId: model.NewId(), IpAddress: "ipaddress", Action: "Action"}
+	audit := &model.Audit{UserID: model.NewID(), IDAddress: "ipaddress", Action: "Action"}
 	require.NoError(t, ss.Audit().Save(audit))
 	time.Sleep(100 * time.Millisecond)
 	require.NoError(t, ss.Audit().Save(audit))
@@ -32,7 +32,7 @@ func testAuditStore(t *testing.T, ss store.Store) {
 
 	time.Sleep(100 * time.Millisecond)
 
-	audits, err := ss.Audit().Get(audit.UserId, 0, 100)
+	audits, err := ss.Audit().Get(audit.UserID, 0, 100)
 	require.NoError(t, err)
 
 	assert.Len(t, audits, 4)
@@ -47,5 +47,5 @@ func testAuditStore(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 	require.Len(t, audits, 4, "Failed to save and retrieve 4 audit logs")
 
-	require.NoError(t, ss.Audit().PermanentDeleteByUser(audit.UserId))
+	require.NoError(t, ss.Audit().PermanentDeleteByUser(audit.UserID))
 }

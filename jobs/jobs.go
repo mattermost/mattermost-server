@@ -20,7 +20,7 @@ const (
 
 func (srv *JobServer) CreateJob(jobType string, jobData map[string]string) (*model.Job, *model.AppError) {
 	job := model.Job{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		Type:     jobType,
 		CreateAt: model.GetMillis(),
 		Status:   model.JobStatusPending,
@@ -54,7 +54,7 @@ func (srv *JobServer) GetJob(id string) (*model.Job, *model.AppError) {
 }
 
 func (srv *JobServer) ClaimJob(job *model.Job) (bool, *model.AppError) {
-	updated, err := srv.Store.Job().UpdateStatusOptimistically(job.Id, model.JobStatusPending, model.JobStatusInProgress)
+	updated, err := srv.Store.Job().UpdateStatusOptimistically(job.ID, model.JobStatusPending, model.JobStatusInProgress)
 	if err != nil {
 		return false, model.NewAppError("ClaimJob", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -77,14 +77,14 @@ func (srv *JobServer) SetJobProgress(job *model.Job, progress int64) *model.AppE
 }
 
 func (srv *JobServer) SetJobWarning(job *model.Job) *model.AppError {
-	if _, err := srv.Store.Job().UpdateStatus(job.Id, model.JobStatusWarning); err != nil {
+	if _, err := srv.Store.Job().UpdateStatus(job.ID, model.JobStatusWarning); err != nil {
 		return model.NewAppError("SetJobWarning", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 	return nil
 }
 
 func (srv *JobServer) SetJobSuccess(job *model.Job) *model.AppError {
-	if _, err := srv.Store.Job().UpdateStatus(job.Id, model.JobStatusSuccess); err != nil {
+	if _, err := srv.Store.Job().UpdateStatus(job.ID, model.JobStatusSuccess); err != nil {
 		return model.NewAppError("SetJobSuccess", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 
@@ -97,7 +97,7 @@ func (srv *JobServer) SetJobSuccess(job *model.Job) *model.AppError {
 
 func (srv *JobServer) SetJobError(job *model.Job, jobError *model.AppError) *model.AppError {
 	if jobError == nil {
-		_, err := srv.Store.Job().UpdateStatus(job.Id, model.JobStatusError)
+		_, err := srv.Store.Job().UpdateStatus(job.ID, model.JobStatusError)
 		if err != nil {
 			return model.NewAppError("SetJobError", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
@@ -132,7 +132,7 @@ func (srv *JobServer) SetJobError(job *model.Job, jobError *model.AppError) *mod
 			return model.NewAppError("SetJobError", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
 		if !updated {
-			return model.NewAppError("SetJobError", "jobs.set_job_error.update.error", nil, "id="+job.Id, http.StatusInternalServerError)
+			return model.NewAppError("SetJobError", "jobs.set_job_error.update.error", nil, "id="+job.ID, http.StatusInternalServerError)
 		}
 	}
 
@@ -140,7 +140,7 @@ func (srv *JobServer) SetJobError(job *model.Job, jobError *model.AppError) *mod
 }
 
 func (srv *JobServer) SetJobCanceled(job *model.Job) *model.AppError {
-	if _, err := srv.Store.Job().UpdateStatus(job.Id, model.JobStatusCanceled); err != nil {
+	if _, err := srv.Store.Job().UpdateStatus(job.ID, model.JobStatusCanceled); err != nil {
 		return model.NewAppError("SetJobCanceled", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 
@@ -160,14 +160,14 @@ func (srv *JobServer) UpdateInProgressJobData(job *model.Job) *model.AppError {
 	return nil
 }
 
-func (srv *JobServer) RequestCancellation(jobId string) *model.AppError {
-	updated, err := srv.Store.Job().UpdateStatusOptimistically(jobId, model.JobStatusPending, model.JobStatusCanceled)
+func (srv *JobServer) RequestCancellation(jobID string) *model.AppError {
+	updated, err := srv.Store.Job().UpdateStatusOptimistically(jobID, model.JobStatusPending, model.JobStatusCanceled)
 	if err != nil {
 		return model.NewAppError("RequestCancellation", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 	if updated {
 		if srv.metrics != nil {
-			job, err := srv.GetJob(jobId)
+			job, err := srv.GetJob(jobID)
 			if err != nil {
 				return model.NewAppError("RequestCancellation", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 			}
@@ -178,7 +178,7 @@ func (srv *JobServer) RequestCancellation(jobId string) *model.AppError {
 		return nil
 	}
 
-	updated, err = srv.Store.Job().UpdateStatusOptimistically(jobId, model.JobStatusInProgress, model.JobStatusCancelRequested)
+	updated, err = srv.Store.Job().UpdateStatusOptimistically(jobID, model.JobStatusInProgress, model.JobStatusCancelRequested)
 	if err != nil {
 		return model.NewAppError("RequestCancellation", "app.job.update.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -187,18 +187,18 @@ func (srv *JobServer) RequestCancellation(jobId string) *model.AppError {
 		return nil
 	}
 
-	return model.NewAppError("RequestCancellation", "jobs.request_cancellation.status.error", nil, "id="+jobId, http.StatusInternalServerError)
+	return model.NewAppError("RequestCancellation", "jobs.request_cancellation.status.error", nil, "id="+jobID, http.StatusInternalServerError)
 }
 
-func (srv *JobServer) CancellationWatcher(ctx context.Context, jobId string, cancelChan chan interface{}) {
+func (srv *JobServer) CancellationWatcher(ctx context.Context, jobID string, cancelChan chan interface{}) {
 	for {
 		select {
 		case <-ctx.Done():
-			mlog.Debug("CancellationWatcher for Job Aborting as job has finished.", mlog.String("job_id", jobId))
+			mlog.Debug("CancellationWatcher for Job Aborting as job has finished.", mlog.String("job_id", jobID))
 			return
 		case <-time.After(CancelWatcherPollingInterval * time.Millisecond):
-			mlog.Debug("CancellationWatcher for Job started polling.", mlog.String("job_id", jobId))
-			if jobStatus, err := srv.Store.Job().Get(jobId); err == nil {
+			mlog.Debug("CancellationWatcher for Job started polling.", mlog.String("job_id", jobID))
+			if jobStatus, err := srv.Store.Job().Get(jobID); err == nil {
 				if jobStatus.Status == model.JobStatusCancelRequested {
 					close(cancelChan)
 					return

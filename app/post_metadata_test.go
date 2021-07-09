@@ -48,7 +48,7 @@ func TestPreparePostListForClient(t *testing.T) {
 
 		for id, originalPost := range postList.Posts {
 			assert.NotEqual(t, clientPostList.Posts[id], originalPost, "should've returned new post objects")
-			assert.Equal(t, clientPostList.Posts[id].Id, originalPost.Id, "should've returned the same posts")
+			assert.Equal(t, clientPostList.Posts[id].ID, originalPost.ID, "should've returned the same posts")
 		}
 	})
 
@@ -117,7 +117,7 @@ func TestPreparePostForClient(t *testing.T) {
 		th := setup(t)
 		defer th.TearDown()
 
-		message := model.NewId()
+		message := model.NewID()
 		post := &model.Post{
 			Message: message,
 		}
@@ -176,18 +176,18 @@ func TestPreparePostForClient(t *testing.T) {
 		th := setup(t)
 		defer th.TearDown()
 
-		fileInfo, err := th.App.DoUploadFile(th.Context, time.Now(), th.BasicTeam.Id, th.BasicChannel.Id, th.BasicUser.Id, "test.txt", []byte("test"))
+		fileInfo, err := th.App.DoUploadFile(th.Context, time.Now(), th.BasicTeam.ID, th.BasicChannel.ID, th.BasicUser.ID, "test.txt", []byte("test"))
 		fileInfo.Content = "test"
 		require.Nil(t, err)
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
-			FileIds:   []string{fileInfo.Id},
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
+			FileIDs:   []string{fileInfo.ID},
 		}, th.BasicChannel, false, true)
 		require.Nil(t, err)
 
-		fileInfo.PostId = post.Id
+		fileInfo.PostID = post.ID
 
 		clientPost := th.App.PreparePostForClient(post, false, false)
 
@@ -205,8 +205,8 @@ func TestPreparePostForClient(t *testing.T) {
 		emoji := th.CreateEmoji()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   ":" + emoji.Name + ": :taco:",
 			Props: map[string]interface{}{
 				"attachments": []*model.SlackAttachment{
@@ -249,8 +249,8 @@ func TestPreparePostForClient(t *testing.T) {
 		emoji4 := th.CreateEmoji()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   ":" + emoji3.Name + ": :taco:",
 			Props: map[string]interface{}{
 				"attachments": []*model.SlackAttachment{
@@ -290,8 +290,8 @@ func TestPreparePostForClient(t *testing.T) {
 			})
 
 			post, err := th.App.CreatePost(th.Context, &model.Post{
-				UserId:    th.BasicUser.Id,
-				ChannelId: th.BasicChannel.Id,
+				UserID:    th.BasicUser.ID,
+				ChannelID: th.BasicChannel.ID,
 				Message:   "Test",
 			}, th.BasicChannel, false, true)
 
@@ -348,8 +348,8 @@ func TestPreparePostForClient(t *testing.T) {
 		defer th.TearDown()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   fmt.Sprintf("This is ![our logo](%s/test-image2.png) and ![our icon](%s/test-image1.png)", server.URL, server.URL),
 		}, th.BasicChannel, false, true)
 		require.Nil(t, err)
@@ -377,8 +377,8 @@ func TestPreparePostForClient(t *testing.T) {
 		defer th.TearDown()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "some post",
 		}, th.BasicChannel, false, true)
 		require.Nil(t, err)
@@ -410,8 +410,8 @@ func TestPreparePostForClient(t *testing.T) {
 		defer th.TearDown()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message: `This is our logo: ` + server.URL + `/test-image2.png
 	And this is our icon: ` + server.URL + `/test-image1.png`,
 		}, th.BasicChannel, false, true)
@@ -446,8 +446,8 @@ func TestPreparePostForClient(t *testing.T) {
 		defer th.TearDown()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   `This is our web page: ` + server.URL,
 		}, th.BasicChannel, false, true)
 		require.Nil(t, err)
@@ -483,8 +483,8 @@ func TestPreparePostForClient(t *testing.T) {
 		defer th.TearDown()
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Props: map[string]interface{}{
 				"attachments": []interface{}{
 					map[string]interface{}{
@@ -520,20 +520,20 @@ func TestPreparePostForClient(t *testing.T) {
 		th := setup(t)
 		defer th.TearDown()
 
-		fileInfo, err := th.App.DoUploadFile(th.Context, time.Now(), th.BasicTeam.Id, th.BasicChannel.Id, th.BasicUser.Id, "test.txt", []byte("test"))
+		fileInfo, err := th.App.DoUploadFile(th.Context, time.Now(), th.BasicTeam.ID, th.BasicChannel.ID, th.BasicUser.ID, "test.txt", []byte("test"))
 		require.Nil(t, err)
 
 		post, err := th.App.CreatePost(th.Context, &model.Post{
 			Message:   "test",
-			FileIds:   []string{fileInfo.Id},
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			FileIDs:   []string{fileInfo.ID},
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 		}, th.BasicChannel, false, true)
 		require.Nil(t, err)
 
 		th.AddReactionToPost(post, th.BasicUser, "taco")
 
-		post, err = th.App.DeletePost(post.Id, th.BasicUser.Id)
+		post, err = th.App.DeletePost(post.ID, th.BasicUser.ID)
 		require.Nil(t, err)
 
 		// DeleteAt isn't set on the post returned by App.DeletePost
@@ -588,8 +588,8 @@ func testProxyLinkedImage(t *testing.T, th *TestHelper, shouldProxy bool) {
 	proxiedImageURL := "http://mymattermost.com/api/v4/image?url=http%3A%2F%2Fmydomain.com%2Fmyimage"
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Message:   fmt.Sprintf(postTemplate, imageURL),
 	}
 
@@ -634,8 +634,8 @@ func testProxyOpenGraphImage(t *testing.T, th *TestHelper, shouldProxy bool) {
 	defer server.Close()
 
 	post, err := th.App.CreatePost(th.Context, &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Message:   `This is our web page: ` + server.URL,
 	}, th.BasicChannel, false, true)
 	require.Nil(t, err)
@@ -1189,7 +1189,7 @@ func TestGetCustomEmojisForPost(t *testing.T) {
 	t.Run("from different parts of the post", func(t *testing.T) {
 		reactions := []*model.Reaction{
 			{
-				UserId:    th.BasicUser.Id,
+				UserID:    th.BasicUser.ID,
 				EmojiName: emojis[0].Name,
 			},
 		}

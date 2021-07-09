@@ -90,13 +90,13 @@ func ImportLineFromUser(user *model.User, exportedPrefs map[string]*string) *Lin
 func ImportUserTeamDataFromTeamMember(member *model.TeamMemberForExport) *UserTeamImportData {
 	rolesList := strings.Fields(member.Roles)
 	if member.SchemeAdmin {
-		rolesList = append(rolesList, model.TeamAdminRoleId)
+		rolesList = append(rolesList, model.TeamAdminRoleID)
 	}
 	if member.SchemeUser {
-		rolesList = append(rolesList, model.TeamUserRoleId)
+		rolesList = append(rolesList, model.TeamUserRoleID)
 	}
 	if member.SchemeGuest {
-		rolesList = append(rolesList, model.TeamGuestRoleId)
+		rolesList = append(rolesList, model.TeamGuestRoleID)
 	}
 	roles := strings.Join(rolesList, " ")
 	return &UserTeamImportData{
@@ -108,13 +108,13 @@ func ImportUserTeamDataFromTeamMember(member *model.TeamMemberForExport) *UserTe
 func ImportUserChannelDataFromChannelMemberAndPreferences(member *model.ChannelMemberForExport, preferences *model.Preferences) *UserChannelImportData {
 	rolesList := strings.Fields(member.Roles)
 	if member.SchemeAdmin {
-		rolesList = append(rolesList, model.ChannelAdminRoleId)
+		rolesList = append(rolesList, model.ChannelAdminRoleID)
 	}
 	if member.SchemeUser {
-		rolesList = append(rolesList, model.ChannelUserRoleId)
+		rolesList = append(rolesList, model.ChannelUserRoleID)
 	}
 	if member.SchemeGuest {
-		rolesList = append(rolesList, model.ChannelGuestRoleId)
+		rolesList = append(rolesList, model.ChannelGuestRoleID)
 	}
 	props := member.NotifyProps
 	notifyProps := UserChannelNotifyPropsImportData{}
@@ -134,7 +134,7 @@ func ImportUserChannelDataFromChannelMemberAndPreferences(member *model.ChannelM
 
 	favorite := false
 	for _, preference := range *preferences {
-		if member.ChannelId == preference.Name {
+		if member.ChannelID == preference.Name {
 			favorite = true
 		}
 	}

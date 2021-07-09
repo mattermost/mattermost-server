@@ -110,7 +110,7 @@ type Server struct {
 	goroutineExitSignal chan struct{}
 
 	PluginsEnvironment     *plugin.Environment
-	PluginConfigListenerId string
+	PluginConfigListenerID string
 	PluginsLock            sync.RWMutex
 
 	EmailService *EmailService
@@ -135,15 +135,15 @@ type Server struct {
 	newStore func() (store.Store, error)
 
 	htmlTemplateWatcher     *templates.Container
-	seenPendingPostIdsCache cache.Cache
+	seenPendingPostIDsCache cache.Cache
 	statusCache             cache.Cache
-	configListenerId        string
-	licenseListenerId       string
-	logListenerId           string
-	clusterLeaderListenerId string
-	searchConfigListenerId  string
-	searchLicenseListenerId string
-	loggerLicenseListenerId string
+	configListenerID        string
+	licenseListenerID       string
+	logListenerID           string
+	clusterLeaderListenerID string
+	searchConfigListenerID  string
+	searchLicenseListenerID string
+	loggerLicenseListenerID string
 	configStore             *config.Store
 	postActionCookieSecret  []byte
 
@@ -331,7 +331,7 @@ func NewServer(options ...Option) (*Server, error) {
 	}
 
 	var err error
-	if s.seenPendingPostIdsCache, err = s.CacheProvider.NewCache(&cache.CacheOptions{
+	if s.seenPendingPostIDsCache, err = s.CacheProvider.NewCache(&cache.CacheOptions{
 		Size: PendingPostIDsCacheSize,
 	}); err != nil {
 		return nil, errors.Wrap(err, "Unable to create pending post ids cache")
@@ -421,7 +421,7 @@ func NewServer(options ...Option) (*Server, error) {
 		return nil, errors.Wrapf(err, "unable to create users service")
 	}
 
-	s.configListenerId = s.AddConfigListener(func(_, _ *model.Config) {
+	s.configListenerID = s.AddConfigListener(func(_, _ *model.Config) {
 		s.configOrLicenseListener()
 
 		message := model.NewWebSocketEvent(model.WebsocketEventConfigChanged, "", "", "", nil)
@@ -431,7 +431,7 @@ func NewServer(options ...Option) (*Server, error) {
 			s.Publish(message)
 		})
 	})
-	s.licenseListenerId = s.AddLicenseListener(func(oldLicense, newLicense *model.License) {
+	s.licenseListenerID = s.AddLicenseListener(func(oldLicense, newLicense *model.License) {
 		s.configOrLicenseListener()
 
 		message := model.NewWebSocketEvent(model.WebsocketEventLicenseChanged, "", "", "", nil)
@@ -466,7 +466,7 @@ func NewServer(options ...Option) (*Server, error) {
 
 	s.initJobs()
 
-	s.clusterLeaderListenerId = s.AddClusterLeaderChangedListener(func() {
+	s.clusterLeaderListenerID = s.AddClusterLeaderChangedListener(func() {
 		mlog.Info("Cluster leader changed. Determining if job schedulers should be running:", mlog.Bool("isLeader", s.IsLeader()))
 		if s.Jobs != nil {
 			s.Jobs.HandleClusterLeaderChange(s.IsLeader())
@@ -609,7 +609,7 @@ func NewServer(options ...Option) (*Server, error) {
 	s.removeUnlicensedLogTargets(license)
 	s.enableLoggingMetrics()
 
-	s.loggerLicenseListenerId = s.AddLicenseListener(func(oldLicense, newLicense *model.License) {
+	s.loggerLicenseListenerID = s.AddLicenseListener(func(oldLicense, newLicense *model.License) {
 		s.removeUnlicensedLogTargets(newLicense)
 		s.enableLoggingMetrics()
 	})
@@ -640,9 +640,9 @@ func NewServer(options ...Option) (*Server, error) {
 	})
 
 	s.SearchEngine.UpdateConfig(s.Config())
-	searchConfigListenerId, searchLicenseListenerId := s.StartSearchEngine()
-	s.searchConfigListenerId = searchConfigListenerId
-	s.searchLicenseListenerId = searchLicenseListenerId
+	searchConfigListenerID, searchLicenseListenerID := s.StartSearchEngine()
+	s.searchConfigListenerID = searchConfigListenerID
+	s.searchLicenseListenerID = searchLicenseListenerID
 
 	// if enabled - perform initial product notices fetch
 	if *s.Config().AnnouncementSettings.AdminNoticesEnabled || *s.Config().AnnouncementSettings.UserNoticesEnabled {
@@ -808,10 +808,10 @@ func (s *Server) initLogging() error {
 			WithCallerSkip(1).With(mlog.String("logSource", "notifications"))
 	}
 
-	if s.logListenerId != "" {
-		s.RemoveConfigListener(s.logListenerId)
+	if s.logListenerID != "" {
+		s.RemoveConfigListener(s.logListenerID)
 	}
-	s.logListenerId = s.AddConfigListener(func(_, after *model.Config) {
+	s.logListenerID = s.AddConfigListener(func(_, after *model.Config) {
 		s.Log.ChangeLevels(utils.MloggerConfigFromLoggerConfig(&after.LogSettings, utils.GetLogFileLocation))
 
 		notificationLogSettings := utils.GetLogSettingsFromNotificationsLogSettings(&after.NotificationLogSettings)
@@ -836,7 +836,7 @@ func (s *Server) initLogging() error {
 
 		mlog.Info("Loaded advanced logging config", mlog.String("source", dsn))
 
-		listenerId := cfg.AddListener(func(_, newCfg mlog.LogTargetCfg) {
+		listenerID := cfg.AddListener(func(_, newCfg mlog.LogTargetCfg) {
 			if err := s.Log.ConfigAdvancedLogging(newCfg); err != nil {
 				mlog.Error("Error re-configuring advanced logging", mlog.Err(err))
 			} else {
@@ -850,7 +850,7 @@ func (s *Server) initLogging() error {
 		}
 
 		s.advancedLogListenerCleanup = func() {
-			cfg.RemoveListener(listenerId)
+			cfg.RemoveListener(listenerID)
 		}
 	}
 	return nil
@@ -978,9 +978,9 @@ func (s *Server) Shutdown() {
 
 	s.HubStop()
 	s.ShutDownPlugins()
-	s.RemoveLicenseListener(s.licenseListenerId)
-	s.RemoveLicenseListener(s.loggerLicenseListenerId)
-	s.RemoveClusterLeaderChangedListener(s.clusterLeaderListenerId)
+	s.RemoveLicenseListener(s.licenseListenerID)
+	s.RemoveLicenseListener(s.loggerLicenseListenerID)
+	s.RemoveClusterLeaderChangedListener(s.clusterLeaderListenerID)
 
 	if s.tracer != nil {
 		if err := s.tracer.Close(); err != nil {
@@ -1020,8 +1020,8 @@ func (s *Server) Shutdown() {
 		s.advancedLogListenerCleanup = nil
 	}
 
-	s.RemoveConfigListener(s.configListenerId)
-	s.RemoveConfigListener(s.logListenerId)
+	s.RemoveConfigListener(s.configListenerID)
+	s.RemoveConfigListener(s.logListenerID)
 	s.stopSearchEngine()
 
 	s.Audit.Shutdown()
@@ -1100,7 +1100,7 @@ func (s *Server) Restart() error {
 }
 
 func (s *Server) isUpgradedFromTE() bool {
-	val, err := s.Store.System().GetByName(model.SystemUpgradedFromTeId)
+	val, err := s.Store.System().GetByName(model.SystemUpgradedFromTeID)
 	if err != nil {
 		return false
 	}
@@ -1115,7 +1115,7 @@ func (s *Server) UpgradeToE0() error {
 	if err := upgrader.UpgradeToE0(); err != nil {
 		return err
 	}
-	upgradedFromTE := &model.System{Name: model.SystemUpgradedFromTeId, Value: "true"}
+	upgradedFromTE := &model.System{Name: model.SystemUpgradedFromTeID, Value: "true"}
 	s.Store.System().Save(upgradedFromTE)
 	return nil
 }
@@ -1640,17 +1640,17 @@ func doCheckWarnMetricStatus(a *App, c *request.Context) {
 	isE0Edition := model.BuildEnterpriseReady == "true" // license == nil was already validated upstream
 
 	for _, warnMetric := range warnMetrics {
-		data, nErr := a.Srv().Store.System().GetByName(warnMetric.Id)
+		data, nErr := a.Srv().Store.System().GetByName(warnMetric.ID)
 		if nErr == nil && data != nil && warnMetric.IsBotOnly && data.Value == model.WarnMetricStatusRunonce {
 			mlog.Debug("This metric warning is bot only and ran once")
 			continue
 		}
 
-		warnMetricStatus, _ := a.getWarnMetricStatusAndDisplayTextsForId(warnMetric.Id, nil, isE0Edition)
+		warnMetricStatus, _ := a.getWarnMetricStatusAndDisplayTextsForID(warnMetric.ID, nil, isE0Edition)
 		if !warnMetric.IsBotOnly {
 			// Banner and bot metric types - send websocket event every interval
 			message := model.NewWebSocketEvent(model.WebsocketWarnMetricStatusReceived, "", "", "", nil)
-			message.Add("warnMetricStatus", warnMetricStatus.ToJson())
+			message.Add("warnMetricStatus", warnMetricStatus.ToJSON())
 			a.Publish(message)
 
 			// Banner and bot metric types, send the bot message only once
@@ -1659,14 +1659,14 @@ func doCheckWarnMetricStatus(a *App, c *request.Context) {
 			}
 		}
 
-		if nerr := a.notifyAdminsOfWarnMetricStatus(c, warnMetric.Id, isE0Edition); nerr != nil {
+		if nerr := a.notifyAdminsOfWarnMetricStatus(c, warnMetric.ID, isE0Edition); nerr != nil {
 			mlog.Error("Failed to send notifications to admin users.", mlog.Err(nerr))
 		}
 
 		if warnMetric.IsRunOnce {
-			a.setWarnMetricsStatusForId(warnMetric.Id, model.WarnMetricStatusRunonce)
+			a.setWarnMetricsStatusForID(warnMetric.ID, model.WarnMetricStatusRunonce)
 		} else {
-			a.setWarnMetricsStatusForId(warnMetric.Id, model.WarnMetricStatusLimitReached)
+			a.setWarnMetricsStatusForID(warnMetric.ID, model.WarnMetricStatusLimitReached)
 		}
 	}
 }
@@ -1782,7 +1782,7 @@ func (s *Server) startMetricsServer() {
 }
 
 func (s *Server) sendLicenseUpForRenewalEmail(users map[string]*model.User, license *model.License) *model.AppError {
-	key := model.LicenseUpForRenewalEmailSent + license.Id
+	key := model.LicenseUpForRenewalEmailSent + license.ID
 	if _, err := s.Store.System().GetByName(key); err == nil {
 		// return early because the key already exists and that means we already executed the code below to send email successfully
 		return nil
@@ -1883,7 +1883,7 @@ func (s *Server) StartSearchEngine() (string, string) {
 		})
 	}
 
-	configListenerId := s.AddConfigListener(func(oldConfig *model.Config, newConfig *model.Config) {
+	configListenerID := s.AddConfigListener(func(oldConfig *model.Config, newConfig *model.Config) {
 		if s.SearchEngine == nil {
 			return
 		}
@@ -1915,7 +1915,7 @@ func (s *Server) StartSearchEngine() (string, string) {
 		}
 	})
 
-	licenseListenerId := s.AddLicenseListener(func(oldLicense, newLicense *model.License) {
+	licenseListenerID := s.AddLicenseListener(func(oldLicense, newLicense *model.License) {
 		if s.SearchEngine == nil {
 			return
 		}
@@ -1938,12 +1938,12 @@ func (s *Server) StartSearchEngine() (string, string) {
 		}
 	})
 
-	return configListenerId, licenseListenerId
+	return configListenerID, licenseListenerID
 }
 
 func (s *Server) stopSearchEngine() {
-	s.RemoveConfigListener(s.searchConfigListenerId)
-	s.RemoveLicenseListener(s.searchLicenseListenerId)
+	s.RemoveConfigListener(s.searchConfigListenerID)
+	s.RemoveLicenseListener(s.searchLicenseListenerID)
 	if s.SearchEngine != nil && s.SearchEngine.ElasticsearchEngine != nil && s.SearchEngine.ElasticsearchEngine.IsActive() {
 		s.SearchEngine.ElasticsearchEngine.Stop()
 	}
@@ -2050,7 +2050,7 @@ func (s *Server) initJobs() {
 	s.Jobs.InitSchedulers()
 }
 
-func (s *Server) TelemetryId() string {
+func (s *Server) TelemetryID() string {
 	if s.telemetryService == nil {
 		return ""
 	}
@@ -2297,7 +2297,7 @@ func (s *Server) GetProfileImage(user *model.User) ([]byte, bool, *model.AppErro
 		return img, false, nil
 	}
 
-	path := "users/" + user.Id + "/profile.png"
+	path := "users/" + user.ID + "/profile.png"
 
 	data, err := s.ReadFile(path)
 	if err != nil {

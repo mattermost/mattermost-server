@@ -16,7 +16,7 @@ func TestCreateTeam(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -33,7 +33,7 @@ func TestJoinTeam(t *testing.T) {
 
 	th.CheckCommand(t, "team", "add", th.BasicTeam.Name, th.BasicUser.Email)
 
-	profiles := th.SystemAdminClient.Must(th.SystemAdminClient.GetUsersInTeam(th.BasicTeam.Id, 0, 1000, "")).([]*model.User)
+	profiles := th.SystemAdminClient.Must(th.SystemAdminClient.GetUsersInTeam(th.BasicTeam.ID, 0, 1000, "")).([]*model.User)
 
 	found := false
 
@@ -53,7 +53,7 @@ func TestLeaveTeam(t *testing.T) {
 
 	th.CheckCommand(t, "team", "remove", th.BasicTeam.Name, th.BasicUser.Email)
 
-	profiles := th.Client.Must(th.Client.GetUsersInTeam(th.BasicTeam.Id, 0, 1000, "")).([]*model.User)
+	profiles := th.Client.Must(th.Client.GetUsersInTeam(th.BasicTeam.ID, 0, 1000, "")).([]*model.User)
 
 	found := false
 
@@ -66,7 +66,7 @@ func TestLeaveTeam(t *testing.T) {
 
 	require.False(t, found, "profile should not be on team")
 
-	teams, err := th.App.Srv().Store.Team().GetTeamsByUserId(th.BasicUser.Id)
+	teams, err := th.App.Srv().Store.Team().GetTeamsByUserID(th.BasicUser.ID)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(teams), "Shouldn't be in team")
 }
@@ -75,7 +75,7 @@ func TestListTeams(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -90,7 +90,7 @@ func TestListArchivedTeams(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -107,7 +107,7 @@ func TestSearchTeamsByName(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -122,7 +122,7 @@ func TestSearchTeamsByDisplayName(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -137,7 +137,7 @@ func TestSearchArchivedTeamsByName(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -154,7 +154,7 @@ func TestArchiveTeams(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -171,7 +171,7 @@ func TestRestoreTeams(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	name := "name" + id
 	displayName := "Name " + id
 
@@ -198,7 +198,7 @@ func TestRenameTeam(t *testing.T) {
 	th.CheckCommand(t, "team", "rename", team.Name, newTeamName, "--display_name", newDisplayName)
 
 	// Get the team from the DB
-	updatedTeam, _ := th.App.GetTeam(team.Id)
+	updatedTeam, _ := th.App.GetTeam(team.ID)
 
 	require.Equal(t, updatedTeam.Name, newTeamName, "failed renaming team")
 	require.Equal(t, updatedTeam.DisplayName, newDisplayName, "failed updating team display name")
@@ -221,7 +221,7 @@ func TestRenameTeam(t *testing.T) {
 	th.CheckCommand(t, "team", "rename", team3.Name, "-", "--display_name", newDisplayName)
 
 	// Get the team from the DB
-	updatedTeam, _ = th.App.GetTeam(team3.Id)
+	updatedTeam, _ = th.App.GetTeam(team3.ID)
 
 	require.NotEqual(t, updatedTeam.Name, "-", "team was renamed to `-` but only display name should have been changed")
 	require.Equal(t, updatedTeam.DisplayName, newDisplayName, "team Display Name was not properly updated")
@@ -230,7 +230,7 @@ func TestRenameTeam(t *testing.T) {
 	th.CheckCommand(t, "team", "rename", team3.Name, team3.Name, "--display_name", "Brand New DName")
 
 	// Get the team from the DB
-	updatedTeam, _ = th.App.GetTeam(team3.Id)
+	updatedTeam, _ = th.App.GetTeam(team3.ID)
 
 	require.Equal(t, updatedTeam.DisplayName, "Brand New DName", "team Display Name was not properly updated")
 }
@@ -243,7 +243,7 @@ func TestModifyTeam(t *testing.T) {
 
 	th.CheckCommand(t, "team", "modify", team.Name, "--private")
 
-	updatedTeam, _ := th.App.GetTeam(team.Id)
+	updatedTeam, _ := th.App.GetTeam(team.ID)
 
 	require.False(t, !updatedTeam.AllowOpenInvite && team.Type == model.TeamInvite, "Failed modifying team's privacy to private")
 

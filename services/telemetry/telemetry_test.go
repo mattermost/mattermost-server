@@ -80,19 +80,19 @@ func initializeMocks(cfg *model.Config) (*mocks.ServerIface, *storeMocks.Store, 
 
 	systemStore := storeMocks.SystemStore{}
 	props := model.StringMap{}
-	props[model.SystemTelemetryId] = "test"
+	props[model.SystemTelemetryID] = "test"
 	systemStore.On("Get").Return(props, nil)
 	systemStore.On("GetByName", model.AdvancedPermissionsMigrationKey).Return(nil, nil)
 	systemStore.On("GetByName", model.MigrationKeyAdvancedPermissionsPhase2).Return(nil, nil)
 
 	userStore := storeMocks.UserStore{}
-	userStore.On("Count", model.UserCountOptions{IncludeBotAccounts: false, IncludeDeleted: true, ExcludeRegularUsers: false, TeamId: "", ViewRestrictions: nil}).Return(int64(10), nil)
-	userStore.On("Count", model.UserCountOptions{IncludeBotAccounts: true, IncludeDeleted: false, ExcludeRegularUsers: true, TeamId: "", ViewRestrictions: nil}).Return(int64(100), nil)
-	userStore.On("Count", model.UserCountOptions{Roles: []string{model.SystemManagerRoleId}}).Return(int64(5), nil)
-	userStore.On("Count", model.UserCountOptions{Roles: []string{model.SystemUserManagerRoleId}}).Return(int64(10), nil)
-	userStore.On("Count", model.UserCountOptions{Roles: []string{model.SystemReadOnlyAdminRoleId}}).Return(int64(15), nil)
+	userStore.On("Count", model.UserCountOptions{IncludeBotAccounts: false, IncludeDeleted: true, ExcludeRegularUsers: false, TeamID: "", ViewRestrictions: nil}).Return(int64(10), nil)
+	userStore.On("Count", model.UserCountOptions{IncludeBotAccounts: true, IncludeDeleted: false, ExcludeRegularUsers: true, TeamID: "", ViewRestrictions: nil}).Return(int64(100), nil)
+	userStore.On("Count", model.UserCountOptions{Roles: []string{model.SystemManagerRoleID}}).Return(int64(5), nil)
+	userStore.On("Count", model.UserCountOptions{Roles: []string{model.SystemUserManagerRoleID}}).Return(int64(10), nil)
+	userStore.On("Count", model.UserCountOptions{Roles: []string{model.SystemReadOnlyAdminRoleID}}).Return(int64(15), nil)
 	userStore.On("AnalyticsGetGuestCount").Return(int64(11), nil)
-	userStore.On("AnalyticsActiveCount", mock.Anything, model.UserCountOptions{IncludeBotAccounts: false, IncludeDeleted: false, ExcludeRegularUsers: false, TeamId: "", ViewRestrictions: nil}).Return(int64(5), nil)
+	userStore.On("AnalyticsActiveCount", mock.Anything, model.UserCountOptions{IncludeBotAccounts: false, IncludeDeleted: false, ExcludeRegularUsers: false, TeamID: "", ViewRestrictions: nil}).Return(int64(5), nil)
 	userStore.On("AnalyticsGetInactiveUsersCount").Return(int64(8), nil)
 	userStore.On("AnalyticsGetSystemAdminCount").Return(int64(9), nil)
 
@@ -110,8 +110,8 @@ func initializeMocks(cfg *model.Config) (*mocks.ServerIface, *storeMocks.Store, 
 
 	postStore := storeMocks.PostStore{}
 	postStore.On("AnalyticsPostCount", "", false, false).Return(int64(1000), nil)
-	postStore.On("AnalyticsPostCountsByDay", &model.AnalyticsPostCountsOptions{TeamId: "", BotsOnly: false, YesterdayOnly: true}).Return(model.AnalyticsRows{}, nil)
-	postStore.On("AnalyticsPostCountsByDay", &model.AnalyticsPostCountsOptions{TeamId: "", BotsOnly: true, YesterdayOnly: true}).Return(model.AnalyticsRows{}, nil)
+	postStore.On("AnalyticsPostCountsByDay", &model.AnalyticsPostCountsOptions{TeamID: "", BotsOnly: false, YesterdayOnly: true}).Return(model.AnalyticsRows{}, nil)
+	postStore.On("AnalyticsPostCountsByDay", &model.AnalyticsPostCountsOptions{TeamID: "", BotsOnly: true, YesterdayOnly: true}).Return(model.AnalyticsRows{}, nil)
 
 	commandStore := storeMocks.CommandStore{}
 	commandStore.On("AnalyticsCommandCount", "").Return(int64(15), nil)
@@ -187,13 +187,13 @@ func TestPluginVersion(t *testing.T) {
 	plugins := []*model.BundleInfo{
 		{
 			Manifest: &model.Manifest{
-				Id:      "test.plugin",
+				ID:      "test.plugin",
 				Version: "1.2.3",
 			},
 		},
 		{
 			Manifest: &model.Manifest{
-				Id:      "test.plugin2",
+				ID:      "test.plugin2",
 				Version: "4.5.6",
 			},
 		},
@@ -209,19 +209,19 @@ func TestRudderTelemetry(t *testing.T) {
 	}
 
 	type batch struct {
-		MessageId  string
-		UserId     string
+		MessageID  string
+		UserID     string
 		Event      string
 		Timestamp  time.Time
 		Properties map[string]interface{}
 	}
 
 	type payload struct {
-		MessageId string
+		MessageID string
 		SentAt    time.Time
 		Batch     []struct {
-			MessageId  string
-			UserId     string
+			MessageID  string
+			UserID     string
 			Event      string
 			Timestamp  time.Time
 			Properties map[string]interface{}
@@ -252,7 +252,7 @@ func TestRudderTelemetry(t *testing.T) {
 		json, err := json.Marshal([]*model.MarketplacePlugin{{
 			BaseMarketplacePlugin: &model.BaseMarketplacePlugin{
 				Manifest: &model.Manifest{
-					Id: "testplugin",
+					ID: "testplugin",
 				},
 			},
 		}})
@@ -277,11 +277,11 @@ func TestRudderTelemetry(t *testing.T) {
 
 	assertPayload := func(t *testing.T, actual payload, event string, properties map[string]interface{}) {
 		t.Helper()
-		assert.NotEmpty(t, actual.MessageId)
+		assert.NotEmpty(t, actual.MessageID)
 		assert.False(t, actual.SentAt.IsZero())
 		if assert.Len(t, actual.Batch, 1) {
-			assert.NotEmpty(t, actual.Batch[0].MessageId, "message id should not be empty")
-			assert.Equal(t, telemetryID, actual.Batch[0].UserId)
+			assert.NotEmpty(t, actual.Batch[0].MessageID, "message id should not be empty")
+			assert.Equal(t, telemetryID, actual.Batch[0].UserID)
 			if event != "" {
 				assert.Equal(t, event, actual.Batch[0].Event)
 			}

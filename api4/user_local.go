@@ -17,7 +17,7 @@ func (api *API) InitUserLocal() {
 	api.BaseRoutes.Users.Handle("", api.ApiLocal(localPermanentDeleteAllUsers)).Methods("DELETE")
 	api.BaseRoutes.Users.Handle("", api.ApiLocal(createUser)).Methods("POST")
 	api.BaseRoutes.Users.Handle("/password/reset/send", api.ApiLocal(sendPasswordReset)).Methods("POST")
-	api.BaseRoutes.Users.Handle("/ids", api.ApiLocal(localGetUsersByIds)).Methods("POST")
+	api.BaseRoutes.Users.Handle("/ids", api.ApiLocal(localGetUsersByIDs)).Methods("POST")
 
 	api.BaseRoutes.User.Handle("", api.ApiLocal(localGetUser)).Methods("GET")
 	api.BaseRoutes.User.Handle("", api.ApiLocal(updateUser)).Methods("PUT")
@@ -45,10 +45,10 @@ func (api *API) InitUserLocal() {
 }
 
 func localGetUsers(c *Context, w http.ResponseWriter, r *http.Request) {
-	inTeamId := r.URL.Query().Get("in_team")
-	notInTeamId := r.URL.Query().Get("not_in_team")
-	inChannelId := r.URL.Query().Get("in_channel")
-	notInChannelId := r.URL.Query().Get("not_in_channel")
+	inTeamID := r.URL.Query().Get("in_team")
+	notInTeamID := r.URL.Query().Get("not_in_team")
+	inChannelID := r.URL.Query().Get("in_channel")
+	notInChannelID := r.URL.Query().Get("not_in_channel")
 	groupConstrained := r.URL.Query().Get("group_constrained")
 	withoutTeam := r.URL.Query().Get("without_team")
 	active := r.URL.Query().Get("active")
@@ -56,7 +56,7 @@ func localGetUsers(c *Context, w http.ResponseWriter, r *http.Request) {
 	role := r.URL.Query().Get("role")
 	sort := r.URL.Query().Get("sort")
 
-	if notInChannelId != "" && inTeamId == "" {
+	if notInChannelID != "" && inTeamID == "" {
 		c.SetInvalidUrlParam("team_id")
 		return
 	}
@@ -68,11 +68,11 @@ func localGetUsers(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	// Currently only supports sorting on a team
 	// or sort="status" on inChannelId
-	if (sort == "last_activity_at" || sort == "create_at") && (inTeamId == "" || notInTeamId != "" || inChannelId != "" || notInChannelId != "" || withoutTeam != "") {
+	if (sort == "last_activity_at" || sort == "create_at") && (inTeamID == "" || notInTeamID != "" || inChannelID != "" || notInChannelID != "" || withoutTeam != "") {
 		c.SetInvalidUrlParam("sort")
 		return
 	}
-	if sort == "status" && inChannelId == "" {
+	if sort == "status" && inChannelID == "" {
 		c.SetInvalidUrlParam("sort")
 		return
 	}
@@ -83,10 +83,10 @@ func localGetUsers(c *Context, w http.ResponseWriter, r *http.Request) {
 	inactiveBool, _ := strconv.ParseBool(inactive)
 
 	userGetOptions := &model.UserGetOptions{
-		InTeamId:         inTeamId,
-		InChannelId:      inChannelId,
-		NotInTeamId:      notInTeamId,
-		NotInChannelId:   notInChannelId,
+		InTeamID:         inTeamID,
+		InChannelID:      inChannelID,
+		NotInTeamID:      notInTeamID,
+		NotInChannelID:   notInChannelID,
 		GroupConstrained: groupConstrainedBool,
 		WithoutTeam:      withoutTeamBool,
 		Active:           activeBool,
@@ -104,28 +104,28 @@ func localGetUsers(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	if withoutTeamBool, _ := strconv.ParseBool(withoutTeam); withoutTeamBool {
 		profiles, err = c.App.GetUsersWithoutTeamPage(userGetOptions, c.IsSystemAdmin())
-	} else if notInChannelId != "" {
-		profiles, err = c.App.GetUsersNotInChannelPage(inTeamId, notInChannelId, groupConstrainedBool, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
-	} else if notInTeamId != "" {
-		etag = c.App.GetUsersNotInTeamEtag(inTeamId, "")
+	} else if notInChannelID != "" {
+		profiles, err = c.App.GetUsersNotInChannelPage(inTeamID, notInChannelID, groupConstrainedBool, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
+	} else if notInTeamID != "" {
+		etag = c.App.GetUsersNotInTeamEtag(inTeamID, "")
 		if c.HandleEtag(etag, "Get Users Not in Team", w, r) {
 			return
 		}
 
-		profiles, err = c.App.GetUsersNotInTeamPage(notInTeamId, groupConstrainedBool, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
-	} else if inTeamId != "" {
+		profiles, err = c.App.GetUsersNotInTeamPage(notInTeamID, groupConstrainedBool, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
+	} else if inTeamID != "" {
 		if sort == "last_activity_at" {
-			profiles, err = c.App.GetRecentlyActiveUsersForTeamPage(inTeamId, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
+			profiles, err = c.App.GetRecentlyActiveUsersForTeamPage(inTeamID, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
 		} else if sort == "create_at" {
-			profiles, err = c.App.GetNewUsersForTeamPage(inTeamId, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
+			profiles, err = c.App.GetNewUsersForTeamPage(inTeamID, c.Params.Page, c.Params.PerPage, c.IsSystemAdmin(), nil)
 		} else {
-			etag = c.App.GetUsersInTeamEtag(inTeamId, "")
+			etag = c.App.GetUsersInTeamEtag(inTeamID, "")
 			if c.HandleEtag(etag, "Get Users in Team", w, r) {
 				return
 			}
 			profiles, err = c.App.GetUsersInTeamPage(userGetOptions, c.IsSystemAdmin())
 		}
-	} else if inChannelId != "" {
+	} else if inChannelID != "" {
 		if sort == "status" {
 			profiles, err = c.App.GetUsersInChannelPageByStatus(userGetOptions, c.IsSystemAdmin())
 		} else {
@@ -143,20 +143,20 @@ func localGetUsers(c *Context, w http.ResponseWriter, r *http.Request) {
 	if etag != "" {
 		w.Header().Set(model.HeaderEtagServer, etag)
 	}
-	w.Write([]byte(model.UserListToJson(profiles)))
+	w.Write([]byte(model.UserListToJSON(profiles)))
 }
 
-func localGetUsersByIds(c *Context, w http.ResponseWriter, r *http.Request) {
-	userIds := model.ArrayFromJson(r.Body)
+func localGetUsersByIDs(c *Context, w http.ResponseWriter, r *http.Request) {
+	userIDs := model.ArrayFromJSON(r.Body)
 
-	if len(userIds) == 0 {
+	if len(userIDs) == 0 {
 		c.SetInvalidParam("user_ids")
 		return
 	}
 
 	sinceString := r.URL.Query().Get("since")
 
-	options := &store.UserGetByIdsOpts{
+	options := &store.UserGetByIDsOpts{
 		IsAdmin: c.IsSystemAdmin(),
 	}
 
@@ -169,35 +169,35 @@ func localGetUsersByIds(c *Context, w http.ResponseWriter, r *http.Request) {
 		options.Since = since
 	}
 
-	users, err := c.App.GetUsersByIds(userIds, options)
+	users, err := c.App.GetUsersByIDs(userIDs, options)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(model.UserListToJson(users)))
+	w.Write([]byte(model.UserListToJSON(users)))
 }
 
 func localGetUser(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	user, err := c.App.GetUser(c.Params.UserId)
+	user, err := c.App.GetUser(c.Params.UserID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	userTermsOfService, err := c.App.GetUserTermsOfService(user.Id)
+	userTermsOfService, err := c.App.GetUserTermsOfService(user.ID)
 	if err != nil && err.StatusCode != http.StatusNotFound {
 		c.Err = err
 		return
 	}
 
 	if userTermsOfService != nil {
-		user.TermsOfServiceId = userTermsOfService.TermsOfServiceId
+		user.TermsOfServiceID = userTermsOfService.TermsOfServiceID
 		user.TermsOfServiceCreateAt = userTermsOfService.CreateAt
 	}
 
@@ -209,21 +209,21 @@ func localGetUser(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	c.App.SanitizeProfile(user, c.IsSystemAdmin())
 	w.Header().Set(model.HeaderEtagServer, etag)
-	w.Write([]byte(user.ToJson()))
+	w.Write([]byte(user.ToJSON()))
 }
 
 func localDeleteUser(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	userId := c.Params.UserId
+	userID := c.Params.UserID
 
 	auditRec := c.MakeAuditRecord("localDeleteUser", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	user, err := c.App.GetUser(userId)
+	user, err := c.App.GetUser(userID)
 	if err != nil {
 		c.Err = err
 		return
@@ -269,14 +269,14 @@ func localGetUserByUsername(c *Context, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	userTermsOfService, err := c.App.GetUserTermsOfService(user.Id)
+	userTermsOfService, err := c.App.GetUserTermsOfService(user.ID)
 	if err != nil && err.StatusCode != http.StatusNotFound {
 		c.Err = err
 		return
 	}
 
 	if userTermsOfService != nil {
-		user.TermsOfServiceId = userTermsOfService.TermsOfServiceId
+		user.TermsOfServiceID = userTermsOfService.TermsOfServiceID
 		user.TermsOfServiceCreateAt = userTermsOfService.CreateAt
 	}
 
@@ -288,7 +288,7 @@ func localGetUserByUsername(c *Context, w http.ResponseWriter, r *http.Request) 
 
 	c.App.SanitizeProfile(user, c.IsSystemAdmin())
 	w.Header().Set(model.HeaderEtagServer, etag)
-	w.Write([]byte(user.ToJson()))
+	w.Write([]byte(user.ToJSON()))
 }
 
 func localGetUserByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -299,7 +299,7 @@ func localGetUserByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	sanitizeOptions := c.App.GetSanitizeOptions(c.IsSystemAdmin())
 	if !sanitizeOptions["email"] {
-		c.Err = model.NewAppError("getUserByEmail", "api.user.get_user_by_email.permissions.app_error", nil, "userId="+c.AppContext.Session().UserId, http.StatusForbidden)
+		c.Err = model.NewAppError("getUserByEmail", "api.user.get_user_by_email.permissions.app_error", nil, "userId="+c.AppContext.Session().UserID, http.StatusForbidden)
 		return
 	}
 
@@ -317,15 +317,15 @@ func localGetUserByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	c.App.SanitizeProfile(user, c.IsSystemAdmin())
 	w.Header().Set(model.HeaderEtagServer, etag)
-	w.Write([]byte(user.ToJson()))
+	w.Write([]byte(user.ToJSON()))
 }
 
 func localGetUploadsForUser(c *Context, w http.ResponseWriter, r *http.Request) {
-	uss, err := c.App.GetUploadSessionsForUser(c.Params.UserId)
+	uss, err := c.App.GetUploadSessionsForUser(c.Params.UserID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(model.UploadSessionsToJson(uss)))
+	w.Write([]byte(model.UploadSessionsToJSON(uss)))
 }

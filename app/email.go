@@ -492,20 +492,20 @@ func (es *EmailService) sendMfaChangeEmail(email string, activated bool, locale,
 	return nil
 }
 
-func (es *EmailService) SendInviteEmails(team *model.Team, senderName string, senderUserId string, invites []string, siteURL string) *model.AppError {
+func (es *EmailService) SendInviteEmails(team *model.Team, senderName string, senderUserID string, invites []string, siteURL string) *model.AppError {
 	if es.PerHourEmailRateLimiter == nil {
-		return model.NewAppError("SendInviteEmails", "app.email.no_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s", senderUserId, team.Id), http.StatusInternalServerError)
+		return model.NewAppError("SendInviteEmails", "app.email.no_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s", senderUserID, team.ID), http.StatusInternalServerError)
 	}
-	rateLimited, result, err := es.PerHourEmailRateLimiter.RateLimit(senderUserId, len(invites))
+	rateLimited, result, err := es.PerHourEmailRateLimiter.RateLimit(senderUserID, len(invites))
 	if err != nil {
-		return model.NewAppError("SendInviteEmails", "app.email.setup_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s, error=%v", senderUserId, team.Id, err), http.StatusInternalServerError)
+		return model.NewAppError("SendInviteEmails", "app.email.setup_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s, error=%v", senderUserID, team.ID, err), http.StatusInternalServerError)
 	}
 
 	if rateLimited {
 		return model.NewAppError("SendInviteEmails",
 			"app.email.rate_limit_exceeded.app_error", map[string]interface{}{"RetryAfter": result.RetryAfter.String(), "ResetAfter": result.ResetAfter.String()},
 			fmt.Sprintf("user_id=%s, team_id=%s, retry_after_secs=%f, reset_after_secs=%f",
-				senderUserId, team.Id, result.RetryAfter.Seconds(), result.ResetAfter.Seconds()),
+				senderUserID, team.ID, result.RetryAfter.Seconds(), result.ResetAfter.Seconds()),
 			http.StatusRequestEntityTooLarge)
 	}
 
@@ -528,14 +528,14 @@ func (es *EmailService) SendInviteEmails(team *model.Team, senderName string, se
 
 			token := model.NewToken(
 				TokenTypeTeamInvitation,
-				model.MapToJson(map[string]string{"teamId": team.Id, "email": invite}),
+				model.MapToJSON(map[string]string{"teamId": team.ID, "email": invite}),
 			)
 
 			tokenProps := make(map[string]string)
 			tokenProps["email"] = invite
 			tokenProps["display_name"] = team.DisplayName
 			tokenProps["name"] = team.Name
-			tokenData := model.MapToJson(tokenProps)
+			tokenData := model.MapToJSON(tokenProps)
 
 			if err := es.srv.Store.Token().Save(token); err != nil {
 				mlog.Error("Failed to send invite email successfully ", mlog.Err(err))
@@ -556,20 +556,20 @@ func (es *EmailService) SendInviteEmails(team *model.Team, senderName string, se
 	return nil
 }
 
-func (es *EmailService) sendGuestInviteEmails(team *model.Team, channels []*model.Channel, senderName string, senderUserId string, senderProfileImage []byte, invites []string, siteURL string, message string) *model.AppError {
+func (es *EmailService) sendGuestInviteEmails(team *model.Team, channels []*model.Channel, senderName string, senderUserID string, senderProfileImage []byte, invites []string, siteURL string, message string) *model.AppError {
 	if es.PerHourEmailRateLimiter == nil {
-		return model.NewAppError("SendInviteEmails", "app.email.no_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s", senderUserId, team.Id), http.StatusInternalServerError)
+		return model.NewAppError("SendInviteEmails", "app.email.no_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s", senderUserID, team.ID), http.StatusInternalServerError)
 	}
-	rateLimited, result, err := es.PerHourEmailRateLimiter.RateLimit(senderUserId, len(invites))
+	rateLimited, result, err := es.PerHourEmailRateLimiter.RateLimit(senderUserID, len(invites))
 	if err != nil {
-		return model.NewAppError("SendInviteEmails", "app.email.setup_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s, error=%v", senderUserId, team.Id, err), http.StatusInternalServerError)
+		return model.NewAppError("SendInviteEmails", "app.email.setup_rate_limiter.app_error", nil, fmt.Sprintf("user_id=%s, team_id=%s, error=%v", senderUserID, team.ID, err), http.StatusInternalServerError)
 	}
 
 	if rateLimited {
 		return model.NewAppError("SendInviteEmails",
 			"app.email.rate_limit_exceeded.app_error", map[string]interface{}{"RetryAfter": result.RetryAfter.String(), "ResetAfter": result.ResetAfter.String()},
 			fmt.Sprintf("user_id=%s, team_id=%s, retry_after_secs=%f, reset_after_secs=%f",
-				senderUserId, team.Id, result.RetryAfter.Seconds(), result.ResetAfter.Seconds()),
+				senderUserID, team.ID, result.RetryAfter.Seconds(), result.ResetAfter.Seconds()),
 			http.StatusRequestEntityTooLarge)
 	}
 
@@ -596,13 +596,13 @@ func (es *EmailService) sendGuestInviteEmails(team *model.Team, channels []*mode
 
 			channelIDs := []string{}
 			for _, channel := range channels {
-				channelIDs = append(channelIDs, channel.Id)
+				channelIDs = append(channelIDs, channel.ID)
 			}
 
 			token := model.NewToken(
 				TokenTypeGuestInvitation,
-				model.MapToJson(map[string]string{
-					"teamId":   team.Id,
+				model.MapToJSON(map[string]string{
+					"teamId":   team.ID,
 					"channels": strings.Join(channelIDs, " "),
 					"email":    invite,
 					"guest":    "true",
@@ -613,7 +613,7 @@ func (es *EmailService) sendGuestInviteEmails(team *model.Team, channels []*mode
 			tokenProps["email"] = invite
 			tokenProps["display_name"] = team.DisplayName
 			tokenProps["name"] = team.Name
-			tokenData := model.MapToJson(tokenProps)
+			tokenData := model.MapToJSON(tokenProps)
 
 			if err := es.srv.Store.Token().Save(token); err != nil {
 				mlog.Error("Failed to send invite email successfully ", mlog.Err(err))
@@ -761,7 +761,7 @@ func (es *EmailService) sendMailWithEmbeddedFiles(to, subject, htmlBody string, 
 
 func (es *EmailService) CreateVerifyEmailToken(userID string, newEmail string) (*model.Token, *model.AppError) {
 	tokenExtra := struct {
-		UserId string
+		UserID string
 		Email  string
 	}{
 		userID,

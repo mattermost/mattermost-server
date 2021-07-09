@@ -14,7 +14,7 @@ type BasicConfig struct {
 	BasicTeamID          string
 	BasicTeamName        string
 	BasicUser2Email      string
-	BasicUser2Id         string
+	BasicUser2ID         string
 	BasicUserEmail       string
 	BasicUserID          string
 }

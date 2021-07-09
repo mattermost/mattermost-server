@@ -357,7 +357,7 @@ func (_m *PostStore) GetPostAfterTime(channelID string, time int64, collapsedThr
 }
 
 // GetPostIdAfterTime provides a mock function with given fields: channelID, time, collapsedThreads
-func (_m *PostStore) GetPostIdAfterTime(channelID string, time int64, collapsedThreads bool) (string, error) {
+func (_m *PostStore) GetPostIDAfterTime(channelID string, time int64, collapsedThreads bool) (string, error) {
 	ret := _m.Called(channelID, time, collapsedThreads)
 
 	var r0 string
@@ -378,7 +378,7 @@ func (_m *PostStore) GetPostIdAfterTime(channelID string, time int64, collapsedT
 }
 
 // GetPostIdBeforeTime provides a mock function with given fields: channelID, time, collapsedThreads
-func (_m *PostStore) GetPostIdBeforeTime(channelID string, time int64, collapsedThreads bool) (string, error) {
+func (_m *PostStore) GetPostIDBeforeTime(channelID string, time int64, collapsedThreads bool) (string, error) {
 	ret := _m.Called(channelID, time, collapsedThreads)
 
 	var r0 string
@@ -491,12 +491,12 @@ func (_m *PostStore) GetPostsBefore(options model.GetPostsOptions) (*model.PostL
 }
 
 // GetPostsByIds provides a mock function with given fields: postIds
-func (_m *PostStore) GetPostsByIds(postIds []string) ([]*model.Post, error) {
-	ret := _m.Called(postIds)
+func (_m *PostStore) GetPostsByIDs(postIDs []string) ([]*model.Post, error) {
+	ret := _m.Called(postIDs)
 
 	var r0 []*model.Post
 	if rf, ok := ret.Get(0).(func([]string) []*model.Post); ok {
-		r0 = rf(postIds)
+		r0 = rf(postIDs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.Post)
@@ -505,7 +505,7 @@ func (_m *PostStore) GetPostsByIds(postIds []string) ([]*model.Post, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func([]string) error); ok {
-		r1 = rf(postIds)
+		r1 = rf(postIDs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -636,19 +636,19 @@ func (_m *PostStore) GetSingle(id string, inclDeleted bool) (*model.Post, error)
 }
 
 // HasAutoResponsePostByUserSince provides a mock function with given fields: options, userId
-func (_m *PostStore) HasAutoResponsePostByUserSince(options model.GetPostsSinceOptions, userId string) (bool, error) {
-	ret := _m.Called(options, userId)
+func (_m *PostStore) HasAutoResponsePostByUserSince(options model.GetPostsSinceOptions, userID string) (bool, error) {
+	ret := _m.Called(options, userID)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(model.GetPostsSinceOptions, string) bool); ok {
-		r0 = rf(options, userId)
+		r0 = rf(options, userID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(model.GetPostsSinceOptions, string) error); ok {
-		r1 = rf(options, userId)
+		r1 = rf(options, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

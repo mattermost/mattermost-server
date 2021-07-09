@@ -19,20 +19,20 @@ func (s SearchFileInfoStore) indexFile(file *model.FileInfo) {
 	for _, engine := range s.rootStore.searchEngine.GetActiveEngines() {
 		if engine.IsIndexingEnabled() {
 			runIndexFn(engine, func(engineCopy searchengine.SearchEngineInterface) {
-				if file.PostId == "" {
+				if file.PostID == "" {
 					return
 				}
-				post, postErr := s.rootStore.Post().GetSingle(file.PostId, false)
+				post, postErr := s.rootStore.Post().GetSingle(file.PostID, false)
 				if postErr != nil {
-					mlog.Error("Couldn't get post for file for SearchEngine indexing.", mlog.String("post_id", file.PostId), mlog.String("search_engine", engineCopy.GetName()), mlog.String("file_info_id", file.Id), mlog.Err(postErr))
+					mlog.Error("Couldn't get post for file for SearchEngine indexing.", mlog.String("post_id", file.PostID), mlog.String("search_engine", engineCopy.GetName()), mlog.String("file_info_id", file.ID), mlog.Err(postErr))
 					return
 				}
 
-				if err := engineCopy.IndexFile(file, post.ChannelId); err != nil {
-					mlog.Error("Encountered error indexing file", mlog.String("file_info_id", file.Id), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
+				if err := engineCopy.IndexFile(file, post.ChannelID); err != nil {
+					mlog.Error("Encountered error indexing file", mlog.String("file_info_id", file.ID), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
 					return
 				}
-				mlog.Debug("Indexed file in search engine", mlog.String("search_engine", engineCopy.GetName()), mlog.String("file_info_id", file.Id))
+				mlog.Debug("Indexed file in search engine", mlog.String("search_engine", engineCopy.GetName()), mlog.String("file_info_id", file.ID))
 			})
 		}
 	}
@@ -114,10 +114,10 @@ func (s SearchFileInfoStore) SetContent(fileID, content string) error {
 	return err
 }
 
-func (s SearchFileInfoStore) AttachToPost(fileId, postId, creatorId string) error {
-	err := s.FileInfoStore.AttachToPost(fileId, postId, creatorId)
+func (s SearchFileInfoStore) AttachToPost(fileID, postID, creatorID string) error {
+	err := s.FileInfoStore.AttachToPost(fileID, postID, creatorID)
 	if err == nil {
-		nFileInfo, err2 := s.FileInfoStore.GetFromMaster(fileId)
+		nFileInfo, err2 := s.FileInfoStore.GetFromMaster(fileID)
 		if err2 == nil {
 			s.indexFile(nFileInfo)
 		}
@@ -125,18 +125,18 @@ func (s SearchFileInfoStore) AttachToPost(fileId, postId, creatorId string) erro
 	return err
 }
 
-func (s SearchFileInfoStore) DeleteForPost(postId string) (string, error) {
-	result, err := s.FileInfoStore.DeleteForPost(postId)
+func (s SearchFileInfoStore) DeleteForPost(postID string) (string, error) {
+	result, err := s.FileInfoStore.DeleteForPost(postID)
 	if err == nil {
-		s.deleteFileIndexForPost(postId)
+		s.deleteFileIndexForPost(postID)
 	}
 	return result, err
 }
 
-func (s SearchFileInfoStore) PermanentDelete(fileId string) error {
-	err := s.FileInfoStore.PermanentDelete(fileId)
+func (s SearchFileInfoStore) PermanentDelete(fileID string) error {
+	err := s.FileInfoStore.PermanentDelete(fileID)
 	if err == nil {
-		s.deleteFileIndex(fileId)
+		s.deleteFileIndex(fileID)
 	}
 	return err
 }
@@ -149,22 +149,22 @@ func (s SearchFileInfoStore) PermanentDeleteBatch(endTime int64, limit int64) (i
 	return result, err
 }
 
-func (s SearchFileInfoStore) PermanentDeleteByUser(userId string) (int64, error) {
-	result, err := s.FileInfoStore.PermanentDeleteByUser(userId)
+func (s SearchFileInfoStore) PermanentDeleteByUser(userID string) (int64, error) {
+	result, err := s.FileInfoStore.PermanentDeleteByUser(userID)
 	if err == nil {
-		s.deleteFileIndexForUser(userId)
+		s.deleteFileIndexForUser(userID)
 	}
 	return result, err
 }
 
-func (s SearchFileInfoStore) Search(paramsList []*model.SearchParams, userId, teamId string, page, perPage int) (*model.FileInfoList, error) {
+func (s SearchFileInfoStore) Search(paramsList []*model.SearchParams, userID, teamID string, page, perPage int) (*model.FileInfoList, error) {
 	for _, engine := range s.rootStore.searchEngine.GetActiveEngines() {
 		if engine.IsSearchEnabled() {
-			userChannels, nErr := s.rootStore.Channel().GetChannels(teamId, userId, paramsList[0].IncludeDeletedChannels, 0)
+			userChannels, nErr := s.rootStore.Channel().GetChannels(teamID, userID, paramsList[0].IncludeDeletedChannels, 0)
 			if nErr != nil {
 				return nil, nErr
 			}
-			fileIds, appErr := engine.SearchFiles(userChannels, paramsList, page, perPage)
+			fileIDs, appErr := engine.SearchFiles(userChannels, paramsList, page, perPage)
 			if appErr != nil {
 				mlog.Error("Encountered error on Search.", mlog.String("search_engine", engine.GetName()), mlog.Err(appErr))
 				continue
@@ -173,14 +173,14 @@ func (s SearchFileInfoStore) Search(paramsList []*model.SearchParams, userId, te
 
 			// Get the files
 			filesList := model.NewFileInfoList()
-			if len(fileIds) > 0 {
-				files, nErr := s.FileInfoStore.GetByIds(fileIds)
+			if len(fileIDs) > 0 {
+				files, nErr := s.FileInfoStore.GetByIDs(fileIDs)
 				if nErr != nil {
 					return nil, nErr
 				}
 				for _, f := range files {
 					filesList.AddFileInfo(f)
-					filesList.AddOrder(f.Id)
+					filesList.AddOrder(f.ID)
 				}
 			}
 			return filesList, nil
@@ -193,5 +193,5 @@ func (s SearchFileInfoStore) Search(paramsList []*model.SearchParams, userId, te
 	}
 
 	mlog.Debug("Using database search because no other search engine is available")
-	return s.FileInfoStore.Search(paramsList, userId, teamId, page, perPage)
+	return s.FileInfoStore.Search(paramsList, userID, teamID, page, perPage)
 }

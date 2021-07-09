@@ -195,7 +195,7 @@ func (a *App) ImportPermissions(jsonl io.Reader) error {
 			rollback(a, createdSchemeIDs)
 			return errors.New(appErr.Message)
 		}
-		createdSchemeIDs = append(createdSchemeIDs, schemeCreated.Id)
+		createdSchemeIDs = append(createdSchemeIDs, schemeCreated.ID)
 
 		schemeIn := schemeConveyor.Scheme()
 		roleNameTuples := [][]string{

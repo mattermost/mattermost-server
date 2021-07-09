@@ -24,24 +24,24 @@ const (
 )
 
 type Params struct {
-	UserId                    string
-	TeamId                    string
-	InviteId                  string
-	TokenId                   string
-	ThreadId                  string
+	UserID                    string
+	TeamID                    string
+	InviteID                  string
+	TokenID                   string
+	ThreadID                  string
 	Timestamp                 int64
-	ChannelId                 string
-	PostId                    string
-	PolicyId                  string
-	FileId                    string
+	ChannelID                 string
+	PostID                    string
+	PolicyID                  string
+	FileID                    string
 	Filename                  string
-	UploadId                  string
-	PluginId                  string
-	CommandId                 string
-	HookId                    string
-	ReportId                  string
-	EmojiId                   string
-	AppId                     string
+	UploadID                  string
+	PluginID                  string
+	CommandID                 string
+	HookID                    string
+	ReportID                  string
+	EmojiID                   string
+	AppID                     string
 	Email                     string
 	Username                  string
 	TeamName                  string
@@ -50,22 +50,22 @@ type Params struct {
 	EmojiName                 string
 	Category                  string
 	Service                   string
-	JobId                     string
+	JobID                     string
 	JobType                   string
-	ActionId                  string
-	RoleId                    string
+	ActionID                  string
+	RoleID                    string
 	RoleName                  string
-	SchemeId                  string
+	SchemeID                  string
 	Scope                     string
-	GroupId                   string
+	GroupID                   string
 	Page                      int
 	PerPage                   int
 	LogsPerPage               int
 	Permanent                 bool
-	RemoteId                  string
-	SyncableId                string
+	RemoteID                  string
+	SyncableID                string
 	SyncableType              model.GroupSyncableType
-	BotUserId                 string
+	BotUserID                 string
 	Q                         string
 	IsLinked                  *bool
 	IsConfigured              *bool
@@ -82,13 +82,13 @@ type Params struct {
 	IncludeDeleted            bool
 	FilterAllowReference      bool
 	FilterParentTeamPermitted bool
-	CategoryId                string
-	WarnMetricId              string
+	CategoryID                string
+	WarnMetricID              string
 	ExportName                string
 	ExcludePolicyConstrained  bool
 
 	// Cloud
-	InvoiceId string
+	InvoiceID string
 }
 
 func ParamsFromRequest(r *http.Request) *Params {
@@ -98,75 +98,75 @@ func ParamsFromRequest(r *http.Request) *Params {
 	query := r.URL.Query()
 
 	if val, ok := props["user_id"]; ok {
-		params.UserId = val
+		params.UserID = val
 	}
 
 	if val, ok := props["team_id"]; ok {
-		params.TeamId = val
+		params.TeamID = val
 	}
 
 	if val, ok := props["category_id"]; ok {
-		params.CategoryId = val
+		params.CategoryID = val
 	}
 
 	if val, ok := props["invite_id"]; ok {
-		params.InviteId = val
+		params.InviteID = val
 	}
 
 	if val, ok := props["token_id"]; ok {
-		params.TokenId = val
+		params.TokenID = val
 	}
 
 	if val, ok := props["thread_id"]; ok {
-		params.ThreadId = val
+		params.ThreadID = val
 	}
 
 	if val, ok := props["channel_id"]; ok {
-		params.ChannelId = val
+		params.ChannelID = val
 	} else {
-		params.ChannelId = query.Get("channel_id")
+		params.ChannelID = query.Get("channel_id")
 	}
 
 	if val, ok := props["post_id"]; ok {
-		params.PostId = val
+		params.PostID = val
 	}
 
 	if val, ok := props["policy_id"]; ok {
-		params.PolicyId = val
+		params.PolicyID = val
 	}
 
 	if val, ok := props["file_id"]; ok {
-		params.FileId = val
+		params.FileID = val
 	}
 
 	params.Filename = query.Get("filename")
 
 	if val, ok := props["upload_id"]; ok {
-		params.UploadId = val
+		params.UploadID = val
 	}
 
 	if val, ok := props["plugin_id"]; ok {
-		params.PluginId = val
+		params.PluginID = val
 	}
 
 	if val, ok := props["command_id"]; ok {
-		params.CommandId = val
+		params.CommandID = val
 	}
 
 	if val, ok := props["hook_id"]; ok {
-		params.HookId = val
+		params.HookID = val
 	}
 
 	if val, ok := props["report_id"]; ok {
-		params.ReportId = val
+		params.ReportID = val
 	}
 
 	if val, ok := props["emoji_id"]; ok {
-		params.EmojiId = val
+		params.EmojiID = val
 	}
 
 	if val, ok := props["app_id"]; ok {
-		params.AppId = val
+		params.AppID = val
 	}
 
 	if val, ok := props["email"]; ok {
@@ -202,7 +202,7 @@ func ParamsFromRequest(r *http.Request) *Params {
 	}
 
 	if val, ok := props["job_id"]; ok {
-		params.JobId = val
+		params.JobID = val
 	}
 
 	if val, ok := props["job_type"]; ok {
@@ -210,11 +210,11 @@ func ParamsFromRequest(r *http.Request) *Params {
 	}
 
 	if val, ok := props["action_id"]; ok {
-		params.ActionId = val
+		params.ActionID = val
 	}
 
 	if val, ok := props["role_id"]; ok {
-		params.RoleId = val
+		params.RoleID = val
 	}
 
 	if val, ok := props["role_name"]; ok {
@@ -222,19 +222,19 @@ func ParamsFromRequest(r *http.Request) *Params {
 	}
 
 	if val, ok := props["scheme_id"]; ok {
-		params.SchemeId = val
+		params.SchemeID = val
 	}
 
 	if val, ok := props["group_id"]; ok {
-		params.GroupId = val
+		params.GroupID = val
 	}
 
 	if val, ok := props["remote_id"]; ok {
-		params.RemoteId = val
+		params.RemoteID = val
 	}
 
 	if val, ok := props["invoice_id"]; ok {
-		params.InvoiceId = val
+		params.InvoiceID = val
 	}
 
 	params.Scope = query.Get("scope")
@@ -288,7 +288,7 @@ func ParamsFromRequest(r *http.Request) *Params {
 	}
 
 	if val, ok := props["syncable_id"]; ok {
-		params.SyncableId = val
+		params.SyncableID = val
 	}
 
 	if val, ok := props["syncable_type"]; ok {
@@ -301,7 +301,7 @@ func ParamsFromRequest(r *http.Request) *Params {
 	}
 
 	if val, ok := props["bot_user_id"]; ok {
-		params.BotUserId = val
+		params.BotUserID = val
 	}
 
 	params.Q = query.Get("q")
@@ -350,7 +350,7 @@ func ParamsFromRequest(r *http.Request) *Params {
 	}
 
 	if val, ok := props["warn_metric_id"]; ok {
-		params.WarnMetricId = val
+		params.WarnMetricID = val
 	}
 
 	if val, ok := props["export_name"]; ok {

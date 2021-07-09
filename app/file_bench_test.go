@@ -61,9 +61,9 @@ func BenchmarkUploadFile(b *testing.B) {
 	defer th.TearDown()
 	// disable logging in the benchmark, as best we can
 	th.App.Log().SetConsoleLevel(mlog.LevelError)
-	teamID := model.NewId()
-	channelID := model.NewId()
-	userID := model.NewId()
+	teamID := model.NewID()
+	channelID := model.NewID()
+	userID := model.NewID()
 
 	mb := func(i int) int {
 		return (i + 512*1024) / (1024 * 1024)
@@ -91,7 +91,7 @@ func BenchmarkUploadFile(b *testing.B) {
 				if err != nil {
 					b.Fatal(err)
 				}
-				th.App.Srv().Store.FileInfo().PermanentDelete(info1.Id)
+				th.App.Srv().Store.FileInfo().PermanentDelete(info1.ID)
 				th.App.RemoveFile(info1.Path)
 
 			},
@@ -102,15 +102,15 @@ func BenchmarkUploadFile(b *testing.B) {
 				info, aerr := th.App.UploadFileX(th.Context, channelID,
 					fmt.Sprintf("BenchmarkUploadFileTask-%d%s", n, ext),
 					bytes.NewReader(data),
-					UploadFileSetTeamId(teamID),
-					UploadFileSetUserId(userID),
+					UploadFileSetTeamID(teamID),
+					UploadFileSetUserID(userID),
 					UploadFileSetTimestamp(time.Now()),
 					UploadFileSetContentLength(int64(len(data))),
 					UploadFileSetRaw())
 				if aerr != nil {
 					b.Fatal(aerr)
 				}
-				th.App.Srv().Store.FileInfo().PermanentDelete(info.Id)
+				th.App.Srv().Store.FileInfo().PermanentDelete(info.ID)
 				th.App.RemoveFile(info.Path)
 			},
 		},
@@ -120,15 +120,15 @@ func BenchmarkUploadFile(b *testing.B) {
 				info, aerr := th.App.UploadFileX(th.Context, channelID,
 					fmt.Sprintf("BenchmarkUploadFileTask-%d%s", n, ext),
 					bytes.NewReader(data),
-					UploadFileSetTeamId(teamID),
-					UploadFileSetUserId(userID),
+					UploadFileSetTeamID(teamID),
+					UploadFileSetUserID(userID),
 					UploadFileSetTimestamp(time.Now()),
 					UploadFileSetContentLength(-1),
 					UploadFileSetRaw())
 				if aerr != nil {
 					b.Fatal(aerr)
 				}
-				th.App.Srv().Store.FileInfo().PermanentDelete(info.Id)
+				th.App.Srv().Store.FileInfo().PermanentDelete(info.ID)
 				th.App.RemoveFile(info.Path)
 			},
 		},
@@ -143,7 +143,7 @@ func BenchmarkUploadFile(b *testing.B) {
 				if err != nil {
 					b.Fatal(err)
 				}
-				th.App.Srv().Store.FileInfo().PermanentDelete(resp.FileInfos[0].Id)
+				th.App.Srv().Store.FileInfo().PermanentDelete(resp.FileInfos[0].ID)
 				th.App.RemoveFile(resp.FileInfos[0].Path)
 			},
 		},
@@ -153,14 +153,14 @@ func BenchmarkUploadFile(b *testing.B) {
 				info, aerr := th.App.UploadFileX(th.Context, channelID,
 					fmt.Sprintf("BenchmarkUploadFileTask-%d%s", n, ext),
 					bytes.NewReader(data),
-					UploadFileSetTeamId(teamID),
-					UploadFileSetUserId(userID),
+					UploadFileSetTeamID(teamID),
+					UploadFileSetUserID(userID),
 					UploadFileSetTimestamp(time.Now()),
 					UploadFileSetContentLength(int64(len(data))))
 				if aerr != nil {
 					b.Fatal(aerr)
 				}
-				th.App.Srv().Store.FileInfo().PermanentDelete(info.Id)
+				th.App.Srv().Store.FileInfo().PermanentDelete(info.ID)
 				th.App.RemoveFile(info.Path)
 			},
 		},
@@ -170,14 +170,14 @@ func BenchmarkUploadFile(b *testing.B) {
 				info, aerr := th.App.UploadFileX(th.Context, channelID,
 					fmt.Sprintf("BenchmarkUploadFileTask-%d%s", n, ext),
 					bytes.NewReader(data),
-					UploadFileSetTeamId(teamID),
-					UploadFileSetUserId(userID),
+					UploadFileSetTeamID(teamID),
+					UploadFileSetUserID(userID),
 					UploadFileSetTimestamp(time.Now()),
 					UploadFileSetContentLength(int64(len(data))))
 				if aerr != nil {
 					b.Fatal(aerr)
 				}
-				th.App.Srv().Store.FileInfo().PermanentDelete(info.Id)
+				th.App.Srv().Store.FileInfo().PermanentDelete(info.ID)
 				th.App.RemoveFile(info.Path)
 			},
 		},

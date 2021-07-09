@@ -18,12 +18,12 @@ func TestPurposeProviderDoCommand(t *testing.T) {
 	pp := PurposeProvider{}
 
 	// Try a public channel *with* permission.
-	th.addPermissionToRole(model.PermissionManagePublicChannelProperties.Id, model.ChannelUserRoleId)
+	th.addPermissionToRole(model.PermissionManagePublicChannelProperties.ID, model.ChannelUserRoleID)
 
 	args := &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: th.BasicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: th.BasicChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	for msg, expected := range map[string]string{
@@ -35,11 +35,11 @@ func TestPurposeProviderDoCommand(t *testing.T) {
 	}
 
 	// Try a public channel *without* permission.
-	th.removePermissionFromRole(model.PermissionManagePublicChannelProperties.Id, model.ChannelUserRoleId)
+	th.removePermissionFromRole(model.PermissionManagePublicChannelProperties.ID, model.ChannelUserRoleID)
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: th.BasicChannel.Id,
+		ChannelID: th.BasicChannel.ID,
 	}
 
 	actual := pp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -48,23 +48,23 @@ func TestPurposeProviderDoCommand(t *testing.T) {
 	// Try a private channel *with* permission.
 	privateChannel := th.createPrivateChannel(th.BasicTeam)
 
-	th.addPermissionToRole(model.PermissionManagePrivateChannelProperties.Id, model.ChannelUserRoleId)
+	th.addPermissionToRole(model.PermissionManagePrivateChannelProperties.ID, model.ChannelUserRoleID)
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: privateChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: privateChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = pp.DoCommand(th.App, th.Context, args, "hello").Text
 	assert.Equal(t, "", actual)
 
 	// Try a private channel *without* permission.
-	th.removePermissionFromRole(model.PermissionManagePrivateChannelProperties.Id, model.ChannelUserRoleId)
+	th.removePermissionFromRole(model.PermissionManagePrivateChannelProperties.ID, model.ChannelUserRoleID)
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: privateChannel.Id,
+		ChannelID: privateChannel.ID,
 	}
 
 	actual = pp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -78,7 +78,7 @@ func TestPurposeProviderDoCommand(t *testing.T) {
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: groupChannel.Id,
+		ChannelID: groupChannel.ID,
 	}
 
 	actual = pp.DoCommand(th.App, th.Context, args, "hello").Text
@@ -89,7 +89,7 @@ func TestPurposeProviderDoCommand(t *testing.T) {
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: directChannel.Id,
+		ChannelID: directChannel.ID,
 	}
 
 	actual = pp.DoCommand(th.App, th.Context, args, "hello").Text

@@ -39,8 +39,8 @@ func testUploadSessionStoreSaveGet(t *testing.T, ss store.Store) {
 	t.Run("saving valid session should succeed", func(t *testing.T) {
 		session = &model.UploadSession{
 			Type:      model.UploadTypeAttachment,
-			UserId:    model.NewId(),
-			ChannelId: model.NewId(),
+			UserID:    model.NewID(),
+			ChannelID: model.NewID(),
 			Filename:  "test",
 			FileSize:  1024,
 			Path:      "/tmp/test",
@@ -58,7 +58,7 @@ func testUploadSessionStoreSaveGet(t *testing.T, ss store.Store) {
 	})
 
 	t.Run("getting existing session should succeed", func(t *testing.T) {
-		us, err := ss.UploadSession().Get(session.Id)
+		us, err := ss.UploadSession().Get(session.ID)
 		require.NoError(t, err)
 		require.NotNil(t, us)
 		require.Equal(t, session, us)
@@ -68,8 +68,8 @@ func testUploadSessionStoreSaveGet(t *testing.T, ss store.Store) {
 func testUploadSessionStoreUpdate(t *testing.T, ss store.Store) {
 	session := &model.UploadSession{
 		Type:      model.UploadTypeAttachment,
-		UserId:    model.NewId(),
-		ChannelId: model.NewId(),
+		UserID:    model.NewID(),
+		ChannelID: model.NewID(),
 		Filename:  "test",
 		FileSize:  1024,
 		Path:      "/tmp/test",
@@ -100,7 +100,7 @@ func testUploadSessionStoreUpdate(t *testing.T, ss store.Store) {
 		err = ss.UploadSession().Update(us)
 		require.NoError(t, err)
 
-		updated, err := ss.UploadSession().Get(us.Id)
+		updated, err := ss.UploadSession().Get(us.ID)
 		require.NoError(t, err)
 		require.NotNil(t, us)
 		require.Equal(t, us, updated)
@@ -108,37 +108,37 @@ func testUploadSessionStoreUpdate(t *testing.T, ss store.Store) {
 }
 
 func testUploadSessionStoreGetForUser(t *testing.T, ss store.Store) {
-	userId := model.NewId()
+	userID := model.NewID()
 
 	sessions := []*model.UploadSession{
 		{
 			Type:      model.UploadTypeAttachment,
-			UserId:    userId,
-			ChannelId: model.NewId(),
+			UserID:    userID,
+			ChannelID: model.NewID(),
 			Filename:  "test0",
 			FileSize:  1024,
 			Path:      "/tmp/test0",
 		},
 		{
 			Type:      model.UploadTypeAttachment,
-			UserId:    model.NewId(),
-			ChannelId: model.NewId(),
+			UserID:    model.NewID(),
+			ChannelID: model.NewID(),
 			Filename:  "test1",
 			FileSize:  1024,
 			Path:      "/tmp/test1",
 		},
 		{
 			Type:      model.UploadTypeAttachment,
-			UserId:    userId,
-			ChannelId: model.NewId(),
+			UserID:    userID,
+			ChannelID: model.NewID(),
 			Filename:  "test2",
 			FileSize:  1024,
 			Path:      "/tmp/test2",
 		},
 		{
 			Type:      model.UploadTypeAttachment,
-			UserId:    userId,
-			ChannelId: model.NewId(),
+			UserID:    userID,
+			ChannelID: model.NewID(),
 			Filename:  "test3",
 			FileSize:  1024,
 			Path:      "/tmp/test3",
@@ -146,7 +146,7 @@ func testUploadSessionStoreGetForUser(t *testing.T, ss store.Store) {
 	}
 
 	t.Run("should return no sessions", func(t *testing.T) {
-		us, err := ss.UploadSession().GetForUser(userId)
+		us, err := ss.UploadSession().GetForUser(userID)
 		require.NoError(t, err)
 		require.NotNil(t, us)
 		require.Empty(t, us)
@@ -162,7 +162,7 @@ func testUploadSessionStoreGetForUser(t *testing.T, ss store.Store) {
 	}
 
 	t.Run("should return existing sessions", func(t *testing.T) {
-		us, err := ss.UploadSession().GetForUser(userId)
+		us, err := ss.UploadSession().GetForUser(userID)
 		require.NoError(t, err)
 		require.NotNil(t, us)
 		require.NotEmpty(t, us)
@@ -176,10 +176,10 @@ func testUploadSessionStoreGetForUser(t *testing.T, ss store.Store) {
 
 func testUploadSessionStoreDelete(t *testing.T, ss store.Store) {
 	session := &model.UploadSession{
-		Id:        model.NewId(),
+		ID:        model.NewID(),
 		Type:      model.UploadTypeAttachment,
-		UserId:    model.NewId(),
-		ChannelId: model.NewId(),
+		UserID:    model.NewID(),
+		ChannelID: model.NewID(),
 		Filename:  "test",
 		FileSize:  1024,
 		Path:      "/tmp/test",
@@ -196,10 +196,10 @@ func testUploadSessionStoreDelete(t *testing.T, ss store.Store) {
 		require.NotNil(t, us)
 		require.NotEmpty(t, us)
 
-		err = ss.UploadSession().Delete(session.Id)
+		err = ss.UploadSession().Delete(session.ID)
 		require.NoError(t, err)
 
-		us, err = ss.UploadSession().Get(us.Id)
+		us, err = ss.UploadSession().Get(us.ID)
 		require.Error(t, err)
 		require.Nil(t, us)
 		require.IsType(t, &store.ErrNotFound{}, err)

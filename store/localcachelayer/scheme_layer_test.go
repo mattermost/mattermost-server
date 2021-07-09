@@ -19,7 +19,7 @@ func TestSchemeStore(t *testing.T) {
 }
 
 func TestSchemeStoreCache(t *testing.T) {
-	fakeScheme := model.Scheme{Id: "123", Name: "scheme-name"}
+	fakeScheme := model.Scheme{ID: "123", Name: "scheme-name"}
 
 	t.Run("first call not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()

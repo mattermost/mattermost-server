@@ -71,7 +71,7 @@ func TestInstallPluginFromURL(t *testing.T) {
 		path, _ := fileutils.FindDir("tests")
 		tarData, err := ioutil.ReadFile(filepath.Join(path, "testplugin.tar.gz"))
 		require.NoError(t, err)
-		expectedManifest := &model.Manifest{Id: "testplugin"}
+		expectedManifest := &model.Manifest{ID: "testplugin"}
 		api.On("InstallPlugin", mock.Anything, false).Return(expectedManifest, nil)
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -84,7 +84,7 @@ func TestInstallPluginFromURL(t *testing.T) {
 		manifest, err := h.InstallPluginFromURL(url, false)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "testplugin", manifest.Id)
+		assert.Equal(t, "testplugin", manifest.ID)
 	})
 
 	t.Run("the url pointing to server is incorrect", func(t *testing.T) {

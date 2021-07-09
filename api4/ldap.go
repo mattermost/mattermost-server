@@ -13,16 +13,16 @@ import (
 )
 
 type mixedUnlinkedGroup struct {
-	Id           *string `json:"mattermost_group_id"`
+	ID           *string `json:"mattermost_group_id"`
 	DisplayName  string  `json:"name"`
-	RemoteId     string  `json:"primary_key"`
+	RemoteID     string  `json:"primary_key"`
 	HasSyncables *bool   `json:"has_syncables"`
 }
 
 func (api *API) InitLdap() {
 	api.BaseRoutes.LDAP.Handle("/sync", api.ApiSessionRequired(syncLdap)).Methods("POST")
 	api.BaseRoutes.LDAP.Handle("/test", api.ApiSessionRequired(testLdap)).Methods("POST")
-	api.BaseRoutes.LDAP.Handle("/migrateid", api.ApiSessionRequired(migrateIdLdap)).Methods("POST")
+	api.BaseRoutes.LDAP.Handle("/migrateid", api.ApiSessionRequired(migrateIDLdap)).Methods("POST")
 
 	// GET /api/v4/ldap/groups?page=0&per_page=1000
 	api.BaseRoutes.LDAP.Handle("/groups", api.ApiSessionRequired(getLdapGroups)).Methods("GET")
@@ -117,10 +117,10 @@ func getLdapGroups(c *Context, w http.ResponseWriter, r *http.Request) {
 	for _, group := range groups {
 		mug := &mixedUnlinkedGroup{
 			DisplayName: group.DisplayName,
-			RemoteId:    group.RemoteId,
+			RemoteID:    group.RemoteID,
 		}
-		if len(group.Id) == 26 {
-			mug.Id = &group.Id
+		if len(group.ID) == 26 {
+			mug.ID = &group.ID
 			mug.HasSyncables = &group.HasSyncables
 		}
 		mugs = append(mugs, mug)
@@ -139,7 +139,7 @@ func getLdapGroups(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireRemoteId()
+	c.RequireRemoteID()
 	if c.Err != nil {
 		return
 	}
@@ -151,14 +151,14 @@ func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("linkLdapGroup", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("remote_id", c.Params.RemoteId)
+	auditRec.AddMeta("remote_id", c.Params.RemoteID)
 
 	if c.App.Srv().License() == nil || !*c.App.Srv().License().Features.LDAPGroups {
 		c.Err = model.NewAppError("Api4.linkLdapGroup", "api.ldap_groups.license_error", nil, "", http.StatusNotImplemented)
 		return
 	}
 
-	ldapGroup, err := c.App.GetLdapGroup(c.Params.RemoteId)
+	ldapGroup, err := c.App.GetLdapGroup(c.Params.RemoteID)
 	if err != nil {
 		c.Err = err
 		return
@@ -170,8 +170,8 @@ func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := c.App.GetGroupByRemoteID(ldapGroup.RemoteId, model.GroupSourceLdap)
-	if err != nil && err.Id != "app.group.no_rows" {
+	group, err := c.App.GetGroupByRemoteID(ldapGroup.RemoteID, model.GroupSourceLdap)
+	if err != nil && err.ID != "app.group.no_rows" {
 		c.Err = err
 		return
 	}
@@ -197,7 +197,7 @@ func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		} else {
 			group.DeleteAt = 0
 			group.DisplayName = displayName
-			group.RemoteId = ldapGroup.RemoteId
+			group.RemoteID = ldapGroup.RemoteID
 			newOrUpdatedGroup, err = c.App.UpdateGroup(group)
 			if err != nil {
 				c.Err = err
@@ -212,7 +212,7 @@ func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		// Instead it will be set and saved in the web app when Group Mentions is enabled.
 		newGroup := &model.Group{
 			DisplayName: displayName,
-			RemoteId:    ldapGroup.RemoteId,
+			RemoteID:    ldapGroup.RemoteID,
 			Source:      model.GroupSourceLdap,
 		}
 		newOrUpdatedGroup, err = c.App.CreateGroup(newGroup)
@@ -236,14 +236,14 @@ func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func unlinkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireRemoteId()
+	c.RequireRemoteID()
 	if c.Err != nil {
 		return
 	}
 
 	auditRec := c.MakeAuditRecord("unlinkLdapGroup", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("remote_id", c.Params.RemoteId)
+	auditRec.AddMeta("remote_id", c.Params.RemoteID)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionSysconsoleWriteUserManagementGroups) {
 		c.SetPermissionError(model.PermissionSysconsoleWriteUserManagementGroups)
@@ -255,7 +255,7 @@ func unlinkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := c.App.GetGroupByRemoteID(c.Params.RemoteId, model.GroupSourceLdap)
+	group, err := c.App.GetGroupByRemoteID(c.Params.RemoteID, model.GroupSourceLdap)
 	if err != nil {
 		c.Err = err
 		return
@@ -263,7 +263,7 @@ func unlinkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("group", group)
 
 	if group.DeleteAt == 0 {
-		_, err = c.App.DeleteGroup(group.Id)
+		_, err = c.App.DeleteGroup(group.ID)
 		if err != nil {
 			c.Err = err
 			return
@@ -274,8 +274,8 @@ func unlinkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 	ReturnStatusOK(w)
 }
 
-func migrateIdLdap(c *Context, w http.ResponseWriter, r *http.Request) {
-	props := model.StringInterfaceFromJson(r.Body)
+func migrateIDLdap(c *Context, w http.ResponseWriter, r *http.Request) {
+	props := model.StringInterfaceFromJSON(r.Body)
 	toAttribute, ok := props["toAttribute"].(string)
 	if !ok || toAttribute == "" {
 		c.SetInvalidParam("toAttribute")
@@ -295,7 +295,7 @@ func migrateIdLdap(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.App.MigrateIdLDAP(toAttribute); err != nil {
+	if err := c.App.MigrateIDLDAP(toAttribute); err != nil {
 		c.Err = err
 		return
 	}

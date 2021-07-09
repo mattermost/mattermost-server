@@ -35,24 +35,24 @@ func TestListImports(t *testing.T) {
 		}
 
 		if c == th.LocalClient {
-			us.UserId = model.UploadNoUserID
+			us.UserID = model.UploadNoUserID
 		}
 
 		u, resp := c.CreateUpload(us)
 		require.Nil(t, resp.Error)
 		require.NotNil(t, u)
 
-		finfo, resp := c.UploadData(u.Id, file)
+		finfo, resp := c.UploadData(u.ID, file)
 		require.Nil(t, resp.Error)
 		require.NotNil(t, finfo)
 
-		return u.Id
+		return u.ID
 	}
 
 	t.Run("no permissions", func(t *testing.T) {
 		imports, resp := th.Client.ListImports()
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.context.permissions.app_error", resp.Error.Id)
+		require.Equal(t, "api.context.permissions.app_error", resp.Error.ID)
 		require.Nil(t, imports)
 	})
 

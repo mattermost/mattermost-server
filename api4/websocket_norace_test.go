@@ -42,23 +42,23 @@ func TestWebSocket(t *testing.T) {
 
 	WebSocketClient.SendMessage("", nil)
 	resp = <-WebSocketClient.ResponseChannel
-	require.Equal(t, resp.Error.Id, "api.web_socket_router.no_action.app_error", "should have been no action response")
+	require.Equal(t, resp.Error.ID, "api.web_socket_router.no_action.app_error", "should have been no action response")
 
 	WebSocketClient.SendMessage("junk", nil)
 	resp = <-WebSocketClient.ResponseChannel
-	require.Equal(t, resp.Error.Id, "api.web_socket_router.bad_action.app_error", "should have been bad action response")
+	require.Equal(t, resp.Error.ID, "api.web_socket_router.bad_action.app_error", "should have been bad action response")
 
 	WebSocketClient.UserTyping("", "")
 	resp = <-WebSocketClient.ResponseChannel
-	require.Equal(t, resp.Error.Id, "api.websocket_handler.invalid_param.app_error", "should have been invalid param response")
+	require.Equal(t, resp.Error.ID, "api.websocket_handler.invalid_param.app_error", "should have been invalid param response")
 	require.Equal(t, resp.Error.DetailedError, "", "detailed error not cleared")
 
-	WebSocketClient.UserTyping(th.BasicChannel.Id, "")
+	WebSocketClient.UserTyping(th.BasicChannel.ID, "")
 	resp = <-WebSocketClient.ResponseChannel
 	require.Nil(t, resp.Error)
 
-	WebSocketClient.UserTyping(th.BasicPrivateChannel2.Id, "")
+	WebSocketClient.UserTyping(th.BasicPrivateChannel2.ID, "")
 	resp = <-WebSocketClient.ResponseChannel
-	require.Equal(t, resp.Error.Id, "api.websocket_handler.invalid_param.app_error", "should have been invalid param response")
+	require.Equal(t, resp.Error.ID, "api.websocket_handler.invalid_param.app_error", "should have been invalid param response")
 	require.Equal(t, resp.Error.DetailedError, "", "detailed error not cleared")
 }

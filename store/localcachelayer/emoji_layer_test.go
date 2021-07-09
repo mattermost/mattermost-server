@@ -20,8 +20,8 @@ func TestEmojiStore(t *testing.T) {
 }
 
 func TestEmojiStoreCache(t *testing.T) {
-	fakeEmoji := model.Emoji{Id: "123", Name: "name123"}
-	ctxEmoji := model.Emoji{Id: "master", Name: "name123"}
+	fakeEmoji := model.Emoji{ID: "123", Name: "name123"}
+	ctxEmoji := model.Emoji{ID: "master", Name: "name123"}
 
 	t.Run("first call by id not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()

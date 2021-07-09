@@ -41,7 +41,7 @@ type FileBackend interface {
 type FileBackendSettings struct {
 	DriverName              string
 	Directory               string
-	AmazonS3AccessKeyId     string
+	AmazonS3AccessKeyID     string
 	AmazonS3SecretAccessKey string
 	AmazonS3Bucket          string
 	AmazonS3PathPrefix      string

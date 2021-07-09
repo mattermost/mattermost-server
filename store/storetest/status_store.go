@@ -20,37 +20,37 @@ func TestStatusStore(t *testing.T, ss store.Store) {
 }
 
 func testStatusStore(t *testing.T, ss store.Store) {
-	status := &model.Status{UserId: model.NewId(), Status: model.StatusOnline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+	status := &model.Status{UserID: model.NewID(), Status: model.StatusOnline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
 	require.NoError(t, ss.Status().SaveOrUpdate(status))
 
 	status.LastActivityAt = 10
 
-	_, err := ss.Status().Get(status.UserId)
+	_, err := ss.Status().Get(status.UserID)
 	require.NoError(t, err)
 
-	status2 := &model.Status{UserId: model.NewId(), Status: model.StatusAway, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+	status2 := &model.Status{UserID: model.NewID(), Status: model.StatusAway, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
 	require.NoError(t, ss.Status().SaveOrUpdate(status2))
 
-	status3 := &model.Status{UserId: model.NewId(), Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+	status3 := &model.Status{UserID: model.NewID(), Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
 	require.NoError(t, ss.Status().SaveOrUpdate(status3))
 
-	statuses, err := ss.Status().GetByIds([]string{status.UserId, "junk"})
+	statuses, err := ss.Status().GetByIDs([]string{status.UserID, "junk"})
 	require.NoError(t, err)
 	require.Len(t, statuses, 1, "should only have 1 status")
 
 	err = ss.Status().ResetAll()
 	require.NoError(t, err)
 
-	statusParameter, err := ss.Status().Get(status.UserId)
+	statusParameter, err := ss.Status().Get(status.UserID)
 	require.NoError(t, err)
 	require.Equal(t, statusParameter.Status, model.StatusOffline, "should be offline")
 
-	err = ss.Status().UpdateLastActivityAt(status.UserId, 10)
+	err = ss.Status().UpdateLastActivityAt(status.UserID, 10)
 	require.NoError(t, err)
 }
 
 func testActiveUserCount(t *testing.T, ss store.Store) {
-	status := &model.Status{UserId: model.NewId(), Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	status := &model.Status{UserID: model.NewID(), Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
 	require.NoError(t, ss.Status().SaveOrUpdate(status))
 
 	count, err := ss.Status().GetTotalActiveUsersCount()
@@ -58,16 +58,16 @@ func testActiveUserCount(t *testing.T, ss store.Store) {
 	require.True(t, count > 0, "expected count > 0, got %d", count)
 }
 
-type ByUserId []*model.Status
+type ByUserID []*model.Status
 
-func (s ByUserId) Len() int           { return len(s) }
-func (s ByUserId) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
-func (s ByUserId) Less(i, j int) bool { return s[i].UserId < s[j].UserId }
+func (s ByUserID) Len() int           { return len(s) }
+func (s ByUserID) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s ByUserID) Less(i, j int) bool { return s[i].UserID < s[j].UserID }
 
 func testUpdateExpiredDNDStatuses(t *testing.T, ss store.Store) {
-	userID := NewTestId()
+	userID := NewTestID()
 
-	status := &model.Status{UserId: userID, Status: model.StatusDnd, Manual: true,
+	status := &model.Status{UserID: userID, Status: model.StatusDnd, Manual: true,
 		DNDEndTime: time.Now().Add(5 * time.Second).Unix(), PrevStatus: model.StatusOnline}
 	require.NoError(t, ss.Status().SaveOrUpdate(status))
 
@@ -86,7 +86,7 @@ func testUpdateExpiredDNDStatuses(t *testing.T, ss store.Store) {
 	require.Len(t, statuses, 1)
 
 	updatedStatus := *statuses[0]
-	require.Equal(t, updatedStatus.UserId, userID)
+	require.Equal(t, updatedStatus.UserID, userID)
 	require.Equal(t, updatedStatus.Status, model.StatusOnline)
 	require.Equal(t, updatedStatus.DNDEndTime, int64(0))
 	require.Equal(t, updatedStatus.PrevStatus, model.StatusDnd)

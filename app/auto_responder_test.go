@@ -19,19 +19,19 @@ func TestSetAutoResponderStatus(t *testing.T) {
 	user := th.CreateUser()
 	defer th.App.PermanentDeleteUser(th.Context, user)
 
-	th.App.SetStatusOnline(user.Id, true)
+	th.App.SetStatusOnline(user.ID, true)
 
 	patch := &model.UserPatch{}
 	patch.NotifyProps = make(map[string]string)
 	patch.NotifyProps["auto_responder_active"] = "true"
 	patch.NotifyProps["auto_responder_message"] = "Hello, I'm unavailable today."
 
-	userUpdated1, _ := th.App.PatchUser(user.Id, patch, true)
+	userUpdated1, _ := th.App.PatchUser(user.ID, patch, true)
 
 	// autoResponder is enabled, status should be OOO
 	th.App.SetAutoResponderStatus(userUpdated1, user.NotifyProps)
 
-	status, err := th.App.GetStatus(userUpdated1.Id)
+	status, err := th.App.GetStatus(userUpdated1.ID)
 	require.Nil(t, err)
 	assert.Equal(t, model.StatusOutOfOffice, status.Status)
 
@@ -40,12 +40,12 @@ func TestSetAutoResponderStatus(t *testing.T) {
 	patch2.NotifyProps["auto_responder_active"] = "false"
 	patch2.NotifyProps["auto_responder_message"] = "Hello, I'm unavailable today."
 
-	userUpdated2, _ := th.App.PatchUser(user.Id, patch2, true)
+	userUpdated2, _ := th.App.PatchUser(user.ID, patch2, true)
 
 	// autoResponder is disabled, status should be ONLINE
 	th.App.SetAutoResponderStatus(userUpdated2, userUpdated1.NotifyProps)
 
-	status, err = th.App.GetStatus(userUpdated2.Id)
+	status, err = th.App.GetStatus(userUpdated2.ID)
 	require.Nil(t, err)
 	assert.Equal(t, model.StatusOnline, status.Status)
 
@@ -58,24 +58,24 @@ func TestDisableAutoResponder(t *testing.T) {
 	user := th.CreateUser()
 	defer th.App.PermanentDeleteUser(th.Context, user)
 
-	th.App.SetStatusOnline(user.Id, true)
+	th.App.SetStatusOnline(user.ID, true)
 
 	patch := &model.UserPatch{}
 	patch.NotifyProps = make(map[string]string)
 	patch.NotifyProps["auto_responder_active"] = "true"
 	patch.NotifyProps["auto_responder_message"] = "Hello, I'm unavailable today."
 
-	th.App.PatchUser(user.Id, patch, true)
+	th.App.PatchUser(user.ID, patch, true)
 
-	th.App.DisableAutoResponder(user.Id, true)
+	th.App.DisableAutoResponder(user.ID, true)
 
-	userUpdated1, err := th.App.GetUser(user.Id)
+	userUpdated1, err := th.App.GetUser(user.ID)
 	require.Nil(t, err)
 	assert.Equal(t, userUpdated1.NotifyProps["auto_responder_active"], "false")
 
-	th.App.DisableAutoResponder(user.Id, true)
+	th.App.DisableAutoResponder(user.ID, true)
 
-	userUpdated2, err := th.App.GetUser(user.Id)
+	userUpdated2, err := th.App.GetUser(user.ID)
 	require.Nil(t, err)
 	assert.Equal(t, userUpdated2.NotifyProps["auto_responder_active"], "false")
 }
@@ -93,15 +93,15 @@ func TestSendAutoResponseIfNecessary(t *testing.T) {
 				"auto_responder_message": "Hello, I'm unavailable today.",
 			},
 		}
-		receiver, err := th.App.PatchUser(receiver.Id, patch, true)
+		receiver, err := th.App.PatchUser(receiver.ID, patch, true)
 		require.Nil(t, err)
 
 		channel := th.CreateDmChannel(receiver)
 
 		savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-			ChannelId: channel.Id,
-			Message:   "zz" + model.NewId() + "a",
-			UserId:    th.BasicUser.Id},
+			ChannelID: channel.ID,
+			Message:   "zz" + model.NewID() + "a",
+			UserID:    th.BasicUser.ID},
 			th.BasicChannel,
 			false, true)
 
@@ -123,15 +123,15 @@ func TestSendAutoResponseIfNecessary(t *testing.T) {
 				"auto_responder_message": "Hello, I'm unavailable today.",
 			},
 		}
-		receiver, err := th.App.PatchUser(receiver.Id, patch, true)
+		receiver, err := th.App.PatchUser(receiver.ID, patch, true)
 		require.Nil(t, err)
 
 		channel := th.CreateDmChannel(receiver)
 
 		savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-			ChannelId: channel.Id,
-			Message:   "zz" + model.NewId() + "a",
-			UserId:    th.BasicUser.Id},
+			ChannelID: channel.ID,
+			Message:   "zz" + model.NewID() + "a",
+			UserID:    th.BasicUser.ID},
 			th.BasicChannel,
 			false, true)
 
@@ -146,9 +146,9 @@ func TestSendAutoResponseIfNecessary(t *testing.T) {
 		defer th.TearDown()
 
 		savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-			ChannelId: th.BasicChannel.Id,
-			Message:   "zz" + model.NewId() + "a",
-			UserId:    th.BasicUser.Id},
+			ChannelID: th.BasicChannel.ID,
+			Message:   "zz" + model.NewID() + "a",
+			UserID:    th.BasicUser.ID},
 			th.BasicChannel,
 			false, true)
 
@@ -170,7 +170,7 @@ func TestSendAutoResponseIfNecessary(t *testing.T) {
 				"auto_responder_message": "Hello, I'm unavailable today.",
 			},
 		}
-		receiver, err := th.App.PatchUser(receiver.Id, patch, true)
+		receiver, err := th.App.PatchUser(receiver.ID, patch, true)
 		require.Nil(t, err)
 
 		channel := th.CreateDmChannel(receiver)
@@ -178,17 +178,17 @@ func TestSendAutoResponseIfNecessary(t *testing.T) {
 		bot, err := th.App.CreateBot(th.Context, &model.Bot{
 			Username:    "botusername",
 			Description: "bot",
-			OwnerId:     th.BasicUser.Id,
+			OwnerID:     th.BasicUser.ID,
 		})
 		assert.Nil(t, err)
 
-		botUser, err := th.App.GetUser(bot.UserId)
+		botUser, err := th.App.GetUser(bot.UserID)
 		assert.Nil(t, err)
 
 		savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-			ChannelId: channel.Id,
-			Message:   "zz" + model.NewId() + "a",
-			UserId:    botUser.Id},
+			ChannelID: channel.ID,
+			Message:   "zz" + model.NewID() + "a",
+			UserID:    botUser.ID},
 			th.BasicChannel,
 			false, true)
 
@@ -210,15 +210,15 @@ func TestSendAutoResponseIfNecessary(t *testing.T) {
 				"auto_responder_message": "Hello, I'm unavailable today.",
 			},
 		}
-		receiver, err := th.App.PatchUser(receiver.Id, patch, true)
+		receiver, err := th.App.PatchUser(receiver.ID, patch, true)
 		require.Nil(t, err)
 
 		channel := th.CreateDmChannel(receiver)
 
 		savedPost, err := th.App.CreatePost(th.Context, &model.Post{
-			ChannelId: channel.Id,
-			Message:   NewTestId(),
-			UserId:    th.BasicUser.Id},
+			ChannelID: channel.ID,
+			Message:   NewTestID(),
+			UserID:    th.BasicUser.ID},
 			th.BasicChannel,
 			false, true)
 
@@ -248,13 +248,13 @@ func TestSendAutoResponseSuccess(t *testing.T) {
 	patch.NotifyProps["auto_responder_active"] = "true"
 	patch.NotifyProps["auto_responder_message"] = "Hello, I'm unavailable today."
 
-	userUpdated1, err := th.App.PatchUser(user.Id, patch, true)
+	userUpdated1, err := th.App.PatchUser(user.ID, patch, true)
 	require.Nil(t, err)
 
 	savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-		ChannelId: th.BasicChannel.Id,
-		Message:   "zz" + model.NewId() + "a",
-		UserId:    th.BasicUser.Id},
+		ChannelID: th.BasicChannel.ID,
+		Message:   "zz" + model.NewID() + "a",
+		UserID:    th.BasicUser.ID},
 		th.BasicChannel,
 		false, true)
 
@@ -263,15 +263,15 @@ func TestSendAutoResponseSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, sent)
 
-	list, err := th.App.GetPosts(th.BasicChannel.Id, 0, 1)
+	list, err := th.App.GetPosts(th.BasicChannel.ID, 0, 1)
 	require.Nil(t, err)
 
 	autoResponderPostFound := false
 	for _, post := range list.Posts {
 		if post.Type == model.PostTypeAutoResponder {
 			autoResponderPostFound = true
-			assert.Equal(t, savedPost.Id, post.RootId)
-			assert.Equal(t, savedPost.Id, post.ParentId)
+			assert.Equal(t, savedPost.ID, post.RootID)
+			assert.Equal(t, savedPost.ID, post.ParentID)
 		}
 	}
 	assert.True(t, autoResponderPostFound)
@@ -289,22 +289,22 @@ func TestSendAutoResponseSuccessOnThread(t *testing.T) {
 	patch.NotifyProps["auto_responder_active"] = "true"
 	patch.NotifyProps["auto_responder_message"] = "Hello, I'm unavailable today."
 
-	userUpdated1, err := th.App.PatchUser(user.Id, patch, true)
+	userUpdated1, err := th.App.PatchUser(user.ID, patch, true)
 	require.Nil(t, err)
 
 	parentPost, _ := th.App.CreatePost(th.Context, &model.Post{
-		ChannelId: th.BasicChannel.Id,
-		Message:   "zz" + model.NewId() + "a",
-		UserId:    th.BasicUser.Id},
+		ChannelID: th.BasicChannel.ID,
+		Message:   "zz" + model.NewID() + "a",
+		UserID:    th.BasicUser.ID},
 		th.BasicChannel,
 		false, true)
 
 	savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-		ChannelId: th.BasicChannel.Id,
-		Message:   "zz" + model.NewId() + "a",
-		UserId:    th.BasicUser.Id,
-		RootId:    parentPost.Id,
-		ParentId:  parentPost.Id},
+		ChannelID: th.BasicChannel.ID,
+		Message:   "zz" + model.NewID() + "a",
+		UserID:    th.BasicUser.ID,
+		RootID:    parentPost.ID,
+		ParentID:  parentPost.ID},
 		th.BasicChannel,
 		false, true)
 
@@ -313,15 +313,15 @@ func TestSendAutoResponseSuccessOnThread(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, sent)
 
-	list, err := th.App.GetPosts(th.BasicChannel.Id, 0, 1)
+	list, err := th.App.GetPosts(th.BasicChannel.ID, 0, 1)
 	require.Nil(t, err)
 
 	autoResponderPostFound := false
 	for _, post := range list.Posts {
 		if post.Type == model.PostTypeAutoResponder {
 			autoResponderPostFound = true
-			assert.Equal(t, savedPost.RootId, post.RootId)
-			assert.Equal(t, savedPost.ParentId, post.ParentId)
+			assert.Equal(t, savedPost.RootID, post.RootID)
+			assert.Equal(t, savedPost.ParentID, post.ParentID)
 		}
 	}
 	assert.True(t, autoResponderPostFound)
@@ -339,13 +339,13 @@ func TestSendAutoResponseFailure(t *testing.T) {
 	patch.NotifyProps["auto_responder_active"] = "false"
 	patch.NotifyProps["auto_responder_message"] = "Hello, I'm unavailable today."
 
-	userUpdated1, err := th.App.PatchUser(user.Id, patch, true)
+	userUpdated1, err := th.App.PatchUser(user.ID, patch, true)
 	require.Nil(t, err)
 
 	savedPost, _ := th.App.CreatePost(th.Context, &model.Post{
-		ChannelId: th.BasicChannel.Id,
-		Message:   "zz" + model.NewId() + "a",
-		UserId:    th.BasicUser.Id},
+		ChannelID: th.BasicChannel.ID,
+		Message:   "zz" + model.NewID() + "a",
+		UserID:    th.BasicUser.ID},
 		th.BasicChannel,
 		false, true)
 
@@ -354,7 +354,7 @@ func TestSendAutoResponseFailure(t *testing.T) {
 	assert.Nil(t, err)
 	assert.False(t, sent)
 
-	if list, err := th.App.GetPosts(th.BasicChannel.Id, 0, 1); err != nil {
+	if list, err := th.App.GetPosts(th.BasicChannel.ID, 0, 1); err != nil {
 		require.Nil(t, err)
 	} else {
 		autoResponderPostFound := false

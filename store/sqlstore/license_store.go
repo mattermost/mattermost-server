@@ -46,7 +46,7 @@ func (ls SqlLicenseStore) Save(license *model.LicenseRecord) (*model.LicenseReco
 	query := ls.getQueryBuilder().
 		Select("*").
 		From("Licenses").
-		Where(sq.Eq{"Id": license.Id})
+		Where(sq.Eq{"Id": license.ID})
 	queryString, args, err := query.ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "license_tosql")
@@ -55,7 +55,7 @@ func (ls SqlLicenseStore) Save(license *model.LicenseRecord) (*model.LicenseReco
 	if err := ls.GetReplica().SelectOne(&storedLicense, queryString, args...); err != nil {
 		// Only insert if not exists
 		if err := ls.GetMaster().Insert(license); err != nil {
-			return nil, errors.Wrapf(err, "failed to get License with licenseId=%s", license.Id)
+			return nil, errors.Wrapf(err, "failed to get License with licenseId=%s", license.ID)
 		}
 		return license, nil
 	}

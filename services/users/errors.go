@@ -37,6 +37,6 @@ func (e *ErrInvalidPassword) Error() string {
 	return "invalid password"
 }
 
-func (e *ErrInvalidPassword) Id() string {
+func (e *ErrInvalidPassword) ID() string {
 	return e.id
 }

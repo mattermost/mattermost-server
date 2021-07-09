@@ -56,8 +56,8 @@ func TestNotifySessionsExpired(t *testing.T) {
 
 		for _, d := range data {
 			_, err := th.App.CreateSession(&model.Session{
-				UserId:        th.BasicUser.Id,
-				DeviceId:      d.deviceID,
+				UserID:        th.BasicUser.ID,
+				DeviceID:      d.deviceID,
 				ExpiresAt:     d.expiresAt,
 				ExpiredNotify: d.notified,
 			})
@@ -71,11 +71,11 @@ func TestNotifySessionsExpired(t *testing.T) {
 
 		expected := []string{"22222", "33333"}
 		require.Equal(t, model.PushTypeSession, handler.notifications()[0].Type)
-		require.Contains(t, expected, handler.notifications()[0].DeviceId)
+		require.Contains(t, expected, handler.notifications()[0].DeviceID)
 		require.Contains(t, handler.notifications()[0].Message, "Session Expired")
 
 		require.Equal(t, model.PushTypeSession, handler.notifications()[1].Type)
-		require.Contains(t, expected, handler.notifications()[1].DeviceId)
+		require.Contains(t, expected, handler.notifications()[1].DeviceID)
 		require.Contains(t, handler.notifications()[1].Message, "Session Expired")
 	})
 }

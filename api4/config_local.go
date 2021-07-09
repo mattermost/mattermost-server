@@ -26,11 +26,11 @@ func localGetConfig(c *Context, w http.ResponseWriter, r *http.Request) {
 	cfg := c.App.GetSanitizedConfig()
 	auditRec.Success()
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Write([]byte(cfg.ToJson()))
+	w.Write([]byte(cfg.ToJSON()))
 }
 
 func localUpdateConfig(c *Context, w http.ResponseWriter, r *http.Request) {
-	cfg := model.ConfigFromJson(r.Body)
+	cfg := model.ConfigFromJSON(r.Body)
 	if cfg == nil {
 		c.SetInvalidParam("config")
 		return
@@ -76,11 +76,11 @@ func localUpdateConfig(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.LogAudit("updateConfig")
 
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Write([]byte(newCfg.ToJson()))
+	w.Write([]byte(newCfg.ToJSON()))
 }
 
 func localPatchConfig(c *Context, w http.ResponseWriter, r *http.Request) {
-	cfg := model.ConfigFromJson(r.Body)
+	cfg := model.ConfigFromJSON(r.Body)
 	if cfg == nil {
 		c.SetInvalidParam("config")
 		return
@@ -129,5 +129,5 @@ func localPatchConfig(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Write([]byte(c.App.GetSanitizedConfig().ToJson()))
+	w.Write([]byte(c.App.GetSanitizedConfig().ToJSON()))
 }

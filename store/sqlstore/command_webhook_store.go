@@ -39,8 +39,8 @@ func (s SqlCommandWebhookStore) createIndexesIfNotExists() {
 }
 
 func (s SqlCommandWebhookStore) Save(webhook *model.CommandWebhook) (*model.CommandWebhook, error) {
-	if webhook.Id != "" {
-		return nil, store.NewErrInvalidInput("CommandWebhook", "id", webhook.Id)
+	if webhook.ID != "" {
+		return nil, store.NewErrInvalidInput("CommandWebhook", "id", webhook.ID)
 	}
 
 	webhook.PreSave()
@@ -49,7 +49,7 @@ func (s SqlCommandWebhookStore) Save(webhook *model.CommandWebhook) (*model.Comm
 	}
 
 	if err := s.GetMaster().Insert(webhook); err != nil {
-		return nil, errors.Wrapf(err, "save: id=%s", webhook.Id)
+		return nil, errors.Wrapf(err, "save: id=%s", webhook.ID)
 	}
 
 	return webhook, nil

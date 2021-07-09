@@ -20,70 +20,70 @@ func TestApp_CheckCanInviteToSharedChannel(t *testing.T) {
 	channel3 := th.CreateChannel(th.BasicTeam)
 
 	data := []struct {
-		channelId string
+		channelID string
 		home      bool
 		name      string
-		remoteId  string
+		remoteID  string
 	}{
-		{channelId: channel1.Id, home: true, name: "test_home", remoteId: ""},
-		{channelId: channel2.Id, home: false, name: "test_remote", remoteId: model.NewId()},
+		{channelID: channel1.ID, home: true, name: "test_home", remoteID: ""},
+		{channelID: channel2.ID, home: false, name: "test_remote", remoteID: model.NewID()},
 	}
 
 	for _, d := range data {
 		sc := &model.SharedChannel{
-			ChannelId: d.channelId,
-			TeamId:    th.BasicTeam.Id,
+			ChannelID: d.channelID,
+			TeamID:    th.BasicTeam.ID,
 			Home:      d.home,
 			ShareName: d.name,
-			CreatorId: th.BasicUser.Id,
-			RemoteId:  d.remoteId,
+			CreatorID: th.BasicUser.ID,
+			RemoteID:  d.remoteID,
 		}
 		_, err := th.App.SaveSharedChannel(sc)
 		require.NoError(t, err)
 	}
 
 	t.Run("Test checkChannelNotShared: not yet shared channel", func(t *testing.T) {
-		err := th.App.checkChannelNotShared(channel3.Id)
+		err := th.App.checkChannelNotShared(channel3.ID)
 		assert.NoError(t, err, "unshared channel should not error")
 	})
 
 	t.Run("Test checkChannelNotShared: already shared channel", func(t *testing.T) {
-		err := th.App.checkChannelNotShared(channel1.Id)
+		err := th.App.checkChannelNotShared(channel1.ID)
 		assert.Error(t, err, "already shared channel should error")
 	})
 
 	t.Run("Test checkChannelNotShared: invalid channel", func(t *testing.T) {
-		err := th.App.checkChannelNotShared(model.NewId())
+		err := th.App.checkChannelNotShared(model.NewID())
 		assert.Error(t, err, "invalid channel should error")
 	})
 
 	t.Run("Test checkChannelIsShared: not yet shared channel", func(t *testing.T) {
-		err := th.App.checkChannelIsShared(channel3.Id)
+		err := th.App.checkChannelIsShared(channel3.ID)
 		assert.Error(t, err, "unshared channel should error")
 	})
 
 	t.Run("Test checkChannelIsShared: already shared channel", func(t *testing.T) {
-		err := th.App.checkChannelIsShared(channel1.Id)
+		err := th.App.checkChannelIsShared(channel1.ID)
 		assert.NoError(t, err, "already channel should not error")
 	})
 
 	t.Run("Test checkChannelIsShared: invalid channel", func(t *testing.T) {
-		err := th.App.checkChannelIsShared(model.NewId())
+		err := th.App.checkChannelIsShared(model.NewID())
 		assert.Error(t, err, "invalid channel should error")
 	})
 
 	t.Run("Test CheckCanInviteToSharedChannel: Home shared channel", func(t *testing.T) {
-		err := th.App.CheckCanInviteToSharedChannel(data[0].channelId)
+		err := th.App.CheckCanInviteToSharedChannel(data[0].channelID)
 		assert.NoError(t, err, "home channel should allow invites")
 	})
 
 	t.Run("Test CheckCanInviteToSharedChannel: Remote shared channel", func(t *testing.T) {
-		err := th.App.CheckCanInviteToSharedChannel(data[1].channelId)
+		err := th.App.CheckCanInviteToSharedChannel(data[1].channelID)
 		assert.Error(t, err, "home channel should not allow invites")
 	})
 
 	t.Run("Test CheckCanInviteToSharedChannel: Invalid shared channel", func(t *testing.T) {
-		err := th.App.CheckCanInviteToSharedChannel(model.NewId())
+		err := th.App.CheckCanInviteToSharedChannel(model.NewID())
 		assert.Error(t, err, "invalid channel should not allow invites")
 	})
 }

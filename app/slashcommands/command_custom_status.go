@@ -48,7 +48,7 @@ func (*CustomStatusProvider) DoCommand(a *app.App, c *request.Context, args *mod
 
 	message = strings.TrimSpace(message)
 	if message == CmdCustomStatusClear {
-		if err := a.RemoveCustomStatus(args.UserId); err != nil {
+		if err := a.RemoveCustomStatus(args.UserID); err != nil {
 			mlog.Debug(err.Error())
 			return &model.CommandResponse{Text: args.T("api.command_custom_status.clear.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 		}
@@ -61,7 +61,7 @@ func (*CustomStatusProvider) DoCommand(a *app.App, c *request.Context, args *mod
 
 	customStatus := GetCustomStatus(message)
 	customStatus.PreSave()
-	if err := a.SetCustomStatus(args.UserId, customStatus); err != nil {
+	if err := a.SetCustomStatus(args.UserID, customStatus); err != nil {
 		mlog.Debug(err.Error())
 		return &model.CommandResponse{Text: args.T("api.command_custom_status.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 	}

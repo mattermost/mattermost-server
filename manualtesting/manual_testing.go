@@ -74,7 +74,7 @@ func manualTest(c *web.Context, w http.ResponseWriter, r *http.Request) {
 		team := &model.Team{
 			DisplayName: teamDisplayName[0],
 			Name:        "zz" + utils.RandomName(utils.Range{Begin: 20, End: 20}, utils.LOWERCASE),
-			Email:       "success+" + model.NewId() + "simulator.amazonses.com",
+			Email:       "success+" + model.NewID() + "simulator.amazonses.com",
 			Type:        model.TeamOpen,
 		}
 
@@ -93,17 +93,17 @@ func manualTest(c *web.Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		channel := &model.Channel{DisplayName: "Town Square", Name: "town-square", Type: model.ChannelTypeOpen, TeamId: createdTeam.Id}
+		channel := &model.Channel{DisplayName: "Town Square", Name: "town-square", Type: model.ChannelTypeOpen, TeamID: createdTeam.ID}
 		if _, err := c.App.CreateChannel(c.AppContext, channel, false); err != nil {
 			c.Err = err
 			return
 		}
 
-		teamID = createdTeam.Id
+		teamID = createdTeam.ID
 
 		// Create user for testing
 		user := &model.User{
-			Email:    "success+" + model.NewId() + "simulator.amazonses.com",
+			Email:    "success+" + model.NewID() + "simulator.amazonses.com",
 			Nickname: username[0],
 			Password: slashcommands.UserPassword}
 
@@ -113,13 +113,13 @@ func manualTest(c *web.Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		c.App.Srv().Store.User().VerifyEmail(user.Id, user.Email)
-		c.App.Srv().Store.Team().SaveMember(&model.TeamMember{TeamId: teamID, UserId: user.Id}, *c.App.Config().TeamSettings.MaxUsersPerTeam)
+		c.App.Srv().Store.User().VerifyEmail(user.ID, user.Email)
+		c.App.Srv().Store.Team().SaveMember(&model.TeamMember{TeamID: teamID, UserID: user.ID}, *c.App.Config().TeamSettings.MaxUsersPerTeam)
 
-		userID = user.Id
+		userID = user.ID
 
 		// Login as user to generate auth token
-		_, resp = client.LoginById(user.Id, slashcommands.UserPassword)
+		_, resp = client.LoginByID(user.ID, slashcommands.UserPassword)
 		if resp.Error != nil {
 			c.Err = resp.Error
 			return
@@ -173,7 +173,7 @@ func getChannelID(a app.AppIface, channelname string, teamid string, userid stri
 
 	for _, channel := range *channels {
 		if channel.Name == channelname {
-			return channel.Id, true
+			return channel.ID, true
 		}
 	}
 	mlog.Debug("Could not find channel", mlog.String("Channel name", channelname), mlog.Int("Possibilities searched", len(*channels)))

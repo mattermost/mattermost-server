@@ -68,8 +68,8 @@ func (a *App) CreateJob(job *model.Job) (*model.Job, *model.AppError) {
 	return a.Srv().Jobs.CreateJob(job.Type, job.Data)
 }
 
-func (a *App) CancelJob(jobId string) *model.AppError {
-	return a.Srv().Jobs.RequestCancellation(jobId)
+func (a *App) CancelJob(jobID string) *model.AppError {
+	return a.Srv().Jobs.RequestCancellation(jobID)
 }
 
 func (a *App) SessionHasPermissionToCreateJob(session model.Session, job *model.Job) (bool, *model.Permission) {

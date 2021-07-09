@@ -251,12 +251,12 @@ func (_m *SearchEngineInterface) IndexChannel(channel *model.Channel) *model.App
 }
 
 // IndexFile provides a mock function with given fields: file, channelId
-func (_m *SearchEngineInterface) IndexFile(file *model.FileInfo, channelId string) *model.AppError {
-	ret := _m.Called(file, channelId)
+func (_m *SearchEngineInterface) IndexFile(file *model.FileInfo, channelID string) *model.AppError {
+	ret := _m.Called(file, channelID)
 
 	var r0 *model.AppError
 	if rf, ok := ret.Get(0).(func(*model.FileInfo, string) *model.AppError); ok {
-		r0 = rf(file, channelId)
+		r0 = rf(file, channelID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.AppError)
@@ -267,12 +267,12 @@ func (_m *SearchEngineInterface) IndexFile(file *model.FileInfo, channelId strin
 }
 
 // IndexPost provides a mock function with given fields: post, teamId
-func (_m *SearchEngineInterface) IndexPost(post *model.Post, teamId string) *model.AppError {
-	ret := _m.Called(post, teamId)
+func (_m *SearchEngineInterface) IndexPost(post *model.Post, teamID string) *model.AppError {
+	ret := _m.Called(post, teamID)
 
 	var r0 *model.AppError
 	if rf, ok := ret.Get(0).(func(*model.Post, string) *model.AppError); ok {
-		r0 = rf(post, teamId)
+		r0 = rf(post, teamID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.AppError)
@@ -283,12 +283,12 @@ func (_m *SearchEngineInterface) IndexPost(post *model.Post, teamId string) *mod
 }
 
 // IndexUser provides a mock function with given fields: user, teamsIds, channelsIds
-func (_m *SearchEngineInterface) IndexUser(user *model.User, teamsIds []string, channelsIds []string) *model.AppError {
-	ret := _m.Called(user, teamsIds, channelsIds)
+func (_m *SearchEngineInterface) IndexUser(user *model.User, teamsIDs []string, channelsIDs []string) *model.AppError {
+	ret := _m.Called(user, teamsIDs, channelsIDs)
 
 	var r0 *model.AppError
 	if rf, ok := ret.Get(0).(func(*model.User, []string, []string) *model.AppError); ok {
-		r0 = rf(user, teamsIds, channelsIds)
+		r0 = rf(user, teamsIDs, channelsIDs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.AppError)
@@ -401,12 +401,12 @@ func (_m *SearchEngineInterface) RefreshIndexes() *model.AppError {
 }
 
 // SearchChannels provides a mock function with given fields: teamId, term
-func (_m *SearchEngineInterface) SearchChannels(teamId string, term string) ([]string, *model.AppError) {
-	ret := _m.Called(teamId, term)
+func (_m *SearchEngineInterface) SearchChannels(teamID string, term string) ([]string, *model.AppError) {
+	ret := _m.Called(teamID, term)
 
 	var r0 []string
 	if rf, ok := ret.Get(0).(func(string, string) []string); ok {
-		r0 = rf(teamId, term)
+		r0 = rf(teamID, term)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
@@ -415,7 +415,7 @@ func (_m *SearchEngineInterface) SearchChannels(teamId string, term string) ([]s
 
 	var r1 *model.AppError
 	if rf, ok := ret.Get(1).(func(string, string) *model.AppError); ok {
-		r1 = rf(teamId, term)
+		r1 = rf(teamID, term)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*model.AppError)
@@ -485,12 +485,12 @@ func (_m *SearchEngineInterface) SearchPosts(channels *model.ChannelList, search
 }
 
 // SearchUsersInChannel provides a mock function with given fields: teamId, channelId, restrictedToChannels, term, options
-func (_m *SearchEngineInterface) SearchUsersInChannel(teamId string, channelId string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, []string, *model.AppError) {
-	ret := _m.Called(teamId, channelId, restrictedToChannels, term, options)
+func (_m *SearchEngineInterface) SearchUsersInChannel(teamID string, channelID string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, []string, *model.AppError) {
+	ret := _m.Called(teamID, channelID, restrictedToChannels, term, options)
 
 	var r0 []string
 	if rf, ok := ret.Get(0).(func(string, string, []string, string, *model.UserSearchOptions) []string); ok {
-		r0 = rf(teamId, channelId, restrictedToChannels, term, options)
+		r0 = rf(teamID, channelID, restrictedToChannels, term, options)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
@@ -499,7 +499,7 @@ func (_m *SearchEngineInterface) SearchUsersInChannel(teamId string, channelId s
 
 	var r1 []string
 	if rf, ok := ret.Get(1).(func(string, string, []string, string, *model.UserSearchOptions) []string); ok {
-		r1 = rf(teamId, channelId, restrictedToChannels, term, options)
+		r1 = rf(teamID, channelID, restrictedToChannels, term, options)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]string)
@@ -508,7 +508,7 @@ func (_m *SearchEngineInterface) SearchUsersInChannel(teamId string, channelId s
 
 	var r2 *model.AppError
 	if rf, ok := ret.Get(2).(func(string, string, []string, string, *model.UserSearchOptions) *model.AppError); ok {
-		r2 = rf(teamId, channelId, restrictedToChannels, term, options)
+		r2 = rf(teamID, channelID, restrictedToChannels, term, options)
 	} else {
 		if ret.Get(2) != nil {
 			r2 = ret.Get(2).(*model.AppError)
@@ -519,12 +519,12 @@ func (_m *SearchEngineInterface) SearchUsersInChannel(teamId string, channelId s
 }
 
 // SearchUsersInTeam provides a mock function with given fields: teamId, restrictedToChannels, term, options
-func (_m *SearchEngineInterface) SearchUsersInTeam(teamId string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, *model.AppError) {
-	ret := _m.Called(teamId, restrictedToChannels, term, options)
+func (_m *SearchEngineInterface) SearchUsersInTeam(teamID string, restrictedToChannels []string, term string, options *model.UserSearchOptions) ([]string, *model.AppError) {
+	ret := _m.Called(teamID, restrictedToChannels, term, options)
 
 	var r0 []string
 	if rf, ok := ret.Get(0).(func(string, []string, string, *model.UserSearchOptions) []string); ok {
-		r0 = rf(teamId, restrictedToChannels, term, options)
+		r0 = rf(teamID, restrictedToChannels, term, options)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
@@ -533,7 +533,7 @@ func (_m *SearchEngineInterface) SearchUsersInTeam(teamId string, restrictedToCh
 
 	var r1 *model.AppError
 	if rf, ok := ret.Get(1).(func(string, []string, string, *model.UserSearchOptions) *model.AppError); ok {
-		r1 = rf(teamId, restrictedToChannels, term, options)
+		r1 = rf(teamID, restrictedToChannels, term, options)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*model.AppError)

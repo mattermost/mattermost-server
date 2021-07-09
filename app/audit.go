@@ -98,7 +98,7 @@ func (a *App) MakeAuditRecord(event string, initialStatus string) *audit.Record 
 		SessionID: "",
 		Client:    fmt.Sprintf("server %s-%s", model.BuildNumber, model.BuildHash),
 		IPAddress: "",
-		Meta:      audit.Meta{audit.KeyClusterID: a.GetClusterId()},
+		Meta:      audit.Meta{audit.KeyClusterID: a.GetClusterID()},
 	}
 	rec.AddMetaTypeConverter(model.AuditModelTypeConv)
 

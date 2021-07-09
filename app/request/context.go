@@ -13,7 +13,7 @@ import (
 type Context struct {
 	t              i18n.TranslateFunc
 	session        model.Session
-	requestId      string
+	requestID      string
 	ipAddress      string
 	path           string
 	userAgent      string
@@ -22,11 +22,11 @@ type Context struct {
 	context context.Context
 }
 
-func NewContext(ctx context.Context, requestId, ipAddress, path, userAgent, acceptLanguage string, session model.Session, t i18n.TranslateFunc) *Context {
+func NewContext(ctx context.Context, requestID, ipAddress, path, userAgent, acceptLanguage string, session model.Session, t i18n.TranslateFunc) *Context {
 	return &Context{
 		t:              t,
 		session:        session,
-		requestId:      requestId,
+		requestID:      requestID,
 		ipAddress:      ipAddress,
 		path:           path,
 		userAgent:      userAgent,
@@ -48,10 +48,10 @@ func (c *Context) T(translationID string, args ...interface{}) string {
 func (c *Context) Session() *model.Session {
 	return &c.session
 }
-func (c *Context) RequestId() string {
-	return c.requestId
+func (c *Context) RequestID() string {
+	return c.requestID
 }
-func (c *Context) IpAddress() string {
+func (c *Context) IDAddress() string {
 	return c.ipAddress
 }
 func (c *Context) Path() string {
@@ -75,10 +75,10 @@ func (c *Context) SetSession(s *model.Session) {
 func (c *Context) SetT(t i18n.TranslateFunc) {
 	c.t = t
 }
-func (c *Context) SetRequestId(s string) {
-	c.requestId = s
+func (c *Context) SetRequestID(s string) {
+	c.requestID = s
 }
-func (c *Context) SetIpAddress(s string) {
+func (c *Context) SetIDAddress(s string) {
 	c.ipAddress = s
 }
 func (c *Context) SetUserAgent(s string) {

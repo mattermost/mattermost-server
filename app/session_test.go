@@ -20,7 +20,7 @@ func TestGetSessionIdleTimeoutInMinutes(t *testing.T) {
 	defer th.TearDown()
 
 	session := &model.Session{
-		UserId: model.NewId(),
+		UserID: model.NewID(),
 	}
 
 	session, _ = th.App.CreateSession(session)
@@ -31,46 +31,46 @@ func TestGetSessionIdleTimeoutInMinutes(t *testing.T) {
 
 	rsession, err := th.App.GetSession(session.Token)
 	require.Nil(t, err)
-	assert.Equal(t, rsession.Id, session.Id)
+	assert.Equal(t, rsession.ID, session.ID)
 
 	// Test regular session, should timeout
 	time := session.LastActivityAt - (1000 * 60 * 6)
-	nErr := th.App.Srv().Store.Session().UpdateLastActivityAt(session.Id, time)
+	nErr := th.App.Srv().Store.Session().UpdateLastActivityAt(session.ID, time)
 	require.NoError(t, nErr)
-	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserId)
+	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserID)
 
 	rsession, err = th.App.GetSession(session.Token)
 	require.NotNil(t, err)
-	assert.Equal(t, "api.context.invalid_token.error", err.Id)
+	assert.Equal(t, "api.context.invalid_token.error", err.ID)
 	assert.Equal(t, "idle timeout", err.DetailedError)
 	assert.Nil(t, rsession)
 
 	// Test oauth session, should not timeout
 	session = &model.Session{
-		UserId:  model.NewId(),
+		UserID:  model.NewID(),
 		IsOAuth: true,
 	}
 
 	session, _ = th.App.CreateSession(session)
 	time = session.LastActivityAt - (1000 * 60 * 6)
-	nErr = th.App.Srv().Store.Session().UpdateLastActivityAt(session.Id, time)
+	nErr = th.App.Srv().Store.Session().UpdateLastActivityAt(session.ID, time)
 	require.NoError(t, nErr)
-	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserId)
+	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserID)
 
 	_, err = th.App.GetSession(session.Token)
 	assert.Nil(t, err)
 
 	// Test personal access token session, should not timeout
 	session = &model.Session{
-		UserId: model.NewId(),
+		UserID: model.NewID(),
 	}
 	session.AddProp(model.SessionPropType, model.SessionTypeUserAccessToken)
 
 	session, _ = th.App.CreateSession(session)
 	time = session.LastActivityAt - (1000 * 60 * 6)
-	nErr = th.App.Srv().Store.Session().UpdateLastActivityAt(session.Id, time)
+	nErr = th.App.Srv().Store.Session().UpdateLastActivityAt(session.ID, time)
 	require.NoError(t, nErr)
-	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserId)
+	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserID)
 
 	_, err = th.App.GetSession(session.Token)
 	assert.Nil(t, err)
@@ -81,14 +81,14 @@ func TestGetSessionIdleTimeoutInMinutes(t *testing.T) {
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.SessionIdleTimeoutInMinutes = 0 })
 
 	session = &model.Session{
-		UserId: model.NewId(),
+		UserID: model.NewID(),
 	}
 
 	session, _ = th.App.CreateSession(session)
 	time = session.LastActivityAt - (1000 * 60 * 6)
-	nErr = th.App.Srv().Store.Session().UpdateLastActivityAt(session.Id, time)
+	nErr = th.App.Srv().Store.Session().UpdateLastActivityAt(session.ID, time)
 	require.NoError(t, nErr)
-	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserId)
+	th.App.ClearSessionCacheForUserSkipClusterSend(session.UserID)
 
 	_, err = th.App.GetSession(session.Token)
 	assert.Nil(t, err)
@@ -103,21 +103,21 @@ func TestUpdateSessionOnPromoteDemote(t *testing.T) {
 	t.Run("Promote Guest to User updates the session", func(t *testing.T) {
 		guest := th.CreateGuest()
 
-		session, err := th.App.CreateSession(&model.Session{UserId: guest.Id, Props: model.StringMap{model.SessionPropIsGuest: "true"}})
+		session, err := th.App.CreateSession(&model.Session{UserID: guest.ID, Props: model.StringMap{model.SessionPropIsGuest: "true"}})
 		require.Nil(t, err)
 
 		rsession, err := th.App.GetSession(session.Token)
 		require.Nil(t, err)
 		assert.Equal(t, "true", rsession.Props[model.SessionPropIsGuest])
 
-		err = th.App.PromoteGuestToUser(th.Context, guest, th.BasicUser.Id)
+		err = th.App.PromoteGuestToUser(th.Context, guest, th.BasicUser.ID)
 		require.Nil(t, err)
 
 		rsession, err = th.App.GetSession(session.Token)
 		require.Nil(t, err)
 		assert.Equal(t, "false", rsession.Props[model.SessionPropIsGuest])
 
-		th.App.ClearSessionCacheForUser(session.UserId)
+		th.App.ClearSessionCacheForUser(session.UserID)
 
 		rsession, err = th.App.GetSession(session.Token)
 		require.Nil(t, err)
@@ -127,7 +127,7 @@ func TestUpdateSessionOnPromoteDemote(t *testing.T) {
 	t.Run("Demote User to Guest updates the session", func(t *testing.T) {
 		user := th.CreateUser()
 
-		session, err := th.App.CreateSession(&model.Session{UserId: user.Id, Props: model.StringMap{model.SessionPropIsGuest: "false"}})
+		session, err := th.App.CreateSession(&model.Session{UserID: user.ID, Props: model.StringMap{model.SessionPropIsGuest: "false"}})
 		require.Nil(t, err)
 
 		rsession, err := th.App.GetSession(session.Token)
@@ -141,7 +141,7 @@ func TestUpdateSessionOnPromoteDemote(t *testing.T) {
 		require.Nil(t, err)
 		assert.Equal(t, "true", rsession.Props[model.SessionPropIsGuest])
 
-		th.App.ClearSessionCacheForUser(session.UserId)
+		th.App.ClearSessionCacheForUser(session.UserID)
 		rsession, err = th.App.GetSession(session.Token)
 		require.Nil(t, err)
 		assert.Equal(t, "true", rsession.Props[model.SessionPropIsGuest])
@@ -161,8 +161,8 @@ func TestApp_GetSessionLengthInMillis(t *testing.T) {
 
 	t.Run("get session length mobile", func(t *testing.T) {
 		session := &model.Session{
-			UserId:   model.NewId(),
-			DeviceId: model.NewId(),
+			UserID:   model.NewID(),
+			DeviceID: model.NewID(),
 		}
 		session, err := th.App.CreateSession(session)
 		require.Nil(t, err)
@@ -173,7 +173,7 @@ func TestApp_GetSessionLengthInMillis(t *testing.T) {
 
 	t.Run("get session length mobile when isMobile in props is set", func(t *testing.T) {
 		session := &model.Session{
-			UserId: model.NewId(),
+			UserID: model.NewID(),
 			Props: map[string]string{
 				model.UserAuthServiceIsMobile: "true",
 			},
@@ -187,7 +187,7 @@ func TestApp_GetSessionLengthInMillis(t *testing.T) {
 
 	t.Run("get session length mobile when isMobile in props is set and takes priority over saml", func(t *testing.T) {
 		session := &model.Session{
-			UserId: model.NewId(),
+			UserID: model.NewID(),
 			Props: map[string]string{
 				model.UserAuthServiceIsMobile: "true",
 				model.UserAuthServiceIsSaml:   "true",
@@ -202,7 +202,7 @@ func TestApp_GetSessionLengthInMillis(t *testing.T) {
 
 	t.Run("get session length SSO", func(t *testing.T) {
 		session := &model.Session{
-			UserId: model.NewId(),
+			UserID: model.NewID(),
 			Props: map[string]string{
 				model.UserAuthServiceIsOAuth: "true",
 			},
@@ -216,7 +216,7 @@ func TestApp_GetSessionLengthInMillis(t *testing.T) {
 
 	t.Run("get session length SSO using props", func(t *testing.T) {
 		session := &model.Session{
-			UserId: model.NewId(),
+			UserID: model.NewID(),
 			Props: map[string]string{
 				model.UserAuthServiceIsSaml: "true",
 			}}
@@ -229,7 +229,7 @@ func TestApp_GetSessionLengthInMillis(t *testing.T) {
 
 	t.Run("get session length web/LDAP", func(t *testing.T) {
 		session := &model.Session{
-			UserId: model.NewId(),
+			UserID: model.NewID(),
 		}
 		session, err := th.App.CreateSession(session)
 		require.Nil(t, err)
@@ -251,7 +251,7 @@ func TestApp_ExtendExpiryIfNeeded(t *testing.T) {
 	t.Run("expired session should not be extended", func(t *testing.T) {
 		expires := model.GetMillis() - hourMillis
 		session := &model.Session{
-			UserId:    model.NewId(),
+			UserID:    model.NewID(),
 			ExpiresAt: expires,
 		}
 		session, err := th.App.CreateSession(session)
@@ -266,7 +266,7 @@ func TestApp_ExtendExpiryIfNeeded(t *testing.T) {
 
 	t.Run("session within threshold should not be extended", func(t *testing.T) {
 		session := &model.Session{
-			UserId: model.NewId(),
+			UserID: model.NewID(),
 		}
 		session, err := th.App.CreateSession(session)
 		require.Nil(t, err)
@@ -286,12 +286,12 @@ func TestApp_ExtendExpiryIfNeeded(t *testing.T) {
 		name    string
 		session *model.Session
 	}{
-		{enabled: true, name: "mobile", session: &model.Session{UserId: model.NewId(), DeviceId: model.NewId(), Token: model.NewId()}},
-		{enabled: true, name: "SSO", session: &model.Session{UserId: model.NewId(), IsOAuth: true, Token: model.NewId()}},
-		{enabled: true, name: "web/LDAP", session: &model.Session{UserId: model.NewId(), Token: model.NewId()}},
-		{enabled: false, name: "mobile", session: &model.Session{UserId: model.NewId(), DeviceId: model.NewId(), Token: model.NewId()}},
-		{enabled: false, name: "SSO", session: &model.Session{UserId: model.NewId(), IsOAuth: true, Token: model.NewId()}},
-		{enabled: false, name: "web/LDAP", session: &model.Session{UserId: model.NewId(), Token: model.NewId()}},
+		{enabled: true, name: "mobile", session: &model.Session{UserID: model.NewID(), DeviceID: model.NewID(), Token: model.NewID()}},
+		{enabled: true, name: "SSO", session: &model.Session{UserID: model.NewID(), IsOAuth: true, Token: model.NewID()}},
+		{enabled: true, name: "web/LDAP", session: &model.Session{UserID: model.NewID(), Token: model.NewID()}},
+		{enabled: false, name: "mobile", session: &model.Session{UserID: model.NewID(), DeviceID: model.NewID(), Token: model.NewID()}},
+		{enabled: false, name: "SSO", session: &model.Session{UserID: model.NewID(), IsOAuth: true, Token: model.NewID()}},
+		{enabled: false, name: "web/LDAP", session: &model.Session{UserID: model.NewID(), Token: model.NewID()}},
 	}
 
 	for _, test := range tests {
@@ -349,7 +349,7 @@ func TestGetCloudSession(t *testing.T) {
 		session, err := th.App.GetCloudSession("mytoken")
 		require.Nil(t, session)
 		require.NotNil(t, err)
-		require.Equal(t, "api.context.invalid_token.error", err.Id)
+		require.Equal(t, "api.context.invalid_token.error", err.ID)
 	})
 
 	t.Run("Mismatched env variable and token should return error", func(t *testing.T) {
@@ -357,41 +357,41 @@ func TestGetCloudSession(t *testing.T) {
 		session, err := th.App.GetCloudSession("myincorrecttoken")
 		require.Nil(t, session)
 		require.NotNil(t, err)
-		require.Equal(t, "api.context.invalid_token.error", err.Id)
+		require.Equal(t, "api.context.invalid_token.error", err.ID)
 	})
 }
 
 func TestGetRemoteClusterSession(t *testing.T) {
 	th := Setup(t)
-	token := model.NewId()
-	remoteId := model.NewId()
+	token := model.NewID()
+	remoteID := model.NewID()
 
 	rc := model.RemoteCluster{
-		RemoteId:     remoteId,
-		RemoteTeamId: model.NewId(),
+		RemoteID:     remoteID,
+		RemoteTeamID: model.NewID(),
 		Name:         "test",
 		Token:        token,
-		CreatorId:    model.NewId(),
+		CreatorID:    model.NewID(),
 	}
 
 	_, err := th.GetSqlStore().RemoteCluster().Save(&rc)
 	require.NoError(t, err)
 
 	t.Run("Valid remote token should return session", func(t *testing.T) {
-		session, err := th.App.GetRemoteClusterSession(token, remoteId)
+		session, err := th.App.GetRemoteClusterSession(token, remoteID)
 		require.Nil(t, err)
 		require.NotNil(t, session)
 		require.Equal(t, token, session.Token)
 	})
 
 	t.Run("Invalid remote token should return error", func(t *testing.T) {
-		session, err := th.App.GetRemoteClusterSession(model.NewId(), remoteId)
+		session, err := th.App.GetRemoteClusterSession(model.NewID(), remoteID)
 		require.NotNil(t, err)
 		require.Nil(t, session)
 	})
 
 	t.Run("Invalid remote id should return error", func(t *testing.T) {
-		session, err := th.App.GetRemoteClusterSession(token, model.NewId())
+		session, err := th.App.GetRemoteClusterSession(token, model.NewID())
 		require.NotNil(t, err)
 		require.Nil(t, session)
 	})

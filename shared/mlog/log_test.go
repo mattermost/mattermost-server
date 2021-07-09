@@ -18,7 +18,7 @@ import (
 func TestLogger_ShutdownAdvancedLoggingRace(t *testing.T) {
 	logger := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		EnableFile:    false,
 		FileLevel:     mlog.LevelInfo,
 	})

@@ -8,5 +8,5 @@ import (
 )
 
 func MakeEmail() string {
-	return "success_" + model.NewId() + "@simulator.amazonses.com"
+	return "success_" + model.NewID() + "@simulator.amazonses.com"
 }

@@ -33,7 +33,7 @@ var allPermissionIDs []string
 
 func init() {
 	for _, perm := range model.AllPermissions {
-		allPermissionIDs = append(allPermissionIDs, perm.Id)
+		allPermissionIDs = append(allPermissionIDs, perm.ID)
 	}
 }
 
@@ -98,87 +98,87 @@ func TestDoAdvancedPermissionsMigration(t *testing.T) {
 
 	expected1 := map[string][]string{
 		"channel_user": {
-			model.PermissionReadChannel.Id,
-			model.PermissionAddReaction.Id,
-			model.PermissionRemoveReaction.Id,
-			model.PermissionManagePublicChannelMembers.Id,
-			model.PermissionUploadFile.Id,
-			model.PermissionGetPublicLink.Id,
-			model.PermissionCreatePost.Id,
-			model.PermissionUseChannelMentions.Id,
-			model.PermissionUseSlashCommands.Id,
-			model.PermissionManagePublicChannelProperties.Id,
-			model.PermissionDeletePublicChannel.Id,
-			model.PermissionManagePrivateChannelProperties.Id,
-			model.PermissionDeletePrivateChannel.Id,
-			model.PermissionManagePrivateChannelMembers.Id,
-			model.PermissionDeletePost.Id,
-			model.PermissionEditPost.Id,
+			model.PermissionReadChannel.ID,
+			model.PermissionAddReaction.ID,
+			model.PermissionRemoveReaction.ID,
+			model.PermissionManagePublicChannelMembers.ID,
+			model.PermissionUploadFile.ID,
+			model.PermissionGetPublicLink.ID,
+			model.PermissionCreatePost.ID,
+			model.PermissionUseChannelMentions.ID,
+			model.PermissionUseSlashCommands.ID,
+			model.PermissionManagePublicChannelProperties.ID,
+			model.PermissionDeletePublicChannel.ID,
+			model.PermissionManagePrivateChannelProperties.ID,
+			model.PermissionDeletePrivateChannel.ID,
+			model.PermissionManagePrivateChannelMembers.ID,
+			model.PermissionDeletePost.ID,
+			model.PermissionEditPost.ID,
 		},
 		"channel_admin": {
-			model.PermissionManageChannelRoles.Id,
-			model.PermissionUseGroupMentions.Id,
+			model.PermissionManageChannelRoles.ID,
+			model.PermissionUseGroupMentions.ID,
 		},
 		"team_user": {
-			model.PermissionListTeamChannels.Id,
-			model.PermissionJoinPublicChannels.Id,
-			model.PermissionReadPublicChannel.Id,
-			model.PermissionViewTeam.Id,
-			model.PermissionCreatePublicChannel.Id,
-			model.PermissionCreatePrivateChannel.Id,
-			model.PermissionInviteUser.Id,
-			model.PermissionAddUserToTeam.Id,
+			model.PermissionListTeamChannels.ID,
+			model.PermissionJoinPublicChannels.ID,
+			model.PermissionReadPublicChannel.ID,
+			model.PermissionViewTeam.ID,
+			model.PermissionCreatePublicChannel.ID,
+			model.PermissionCreatePrivateChannel.ID,
+			model.PermissionInviteUser.ID,
+			model.PermissionAddUserToTeam.ID,
 		},
 		"team_post_all": {
-			model.PermissionCreatePost.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePost.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"team_post_all_public": {
-			model.PermissionCreatePostPublic.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePostPublic.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"team_admin": {
-			model.PermissionRemoveUserFromTeam.Id,
-			model.PermissionManageTeam.Id,
-			model.PermissionImportTeam.Id,
-			model.PermissionManageTeamRoles.Id,
-			model.PermissionManageChannelRoles.Id,
-			model.PermissionManageOthersIncomingWebhooks.Id,
-			model.PermissionManageOthersOutgoingWebhooks.Id,
-			model.PermissionManageSlashCommands.Id,
-			model.PermissionManageOthersSlashCommands.Id,
-			model.PermissionManageIncomingWebhooks.Id,
-			model.PermissionManageOutgoingWebhooks.Id,
-			model.PermissionConvertPublicChannelToPrivate.Id,
-			model.PermissionConvertPrivateChannelToPublic.Id,
-			model.PermissionDeletePost.Id,
-			model.PermissionDeleteOthersPosts.Id,
+			model.PermissionRemoveUserFromTeam.ID,
+			model.PermissionManageTeam.ID,
+			model.PermissionImportTeam.ID,
+			model.PermissionManageTeamRoles.ID,
+			model.PermissionManageChannelRoles.ID,
+			model.PermissionManageOthersIncomingWebhooks.ID,
+			model.PermissionManageOthersOutgoingWebhooks.ID,
+			model.PermissionManageSlashCommands.ID,
+			model.PermissionManageOthersSlashCommands.ID,
+			model.PermissionManageIncomingWebhooks.ID,
+			model.PermissionManageOutgoingWebhooks.ID,
+			model.PermissionConvertPublicChannelToPrivate.ID,
+			model.PermissionConvertPrivateChannelToPublic.ID,
+			model.PermissionDeletePost.ID,
+			model.PermissionDeleteOthersPosts.ID,
 		},
 		"system_user": {
-			model.PermissionListPublicTeams.Id,
-			model.PermissionJoinPublicTeams.Id,
-			model.PermissionCreateDirectChannel.Id,
-			model.PermissionCreateGroupChannel.Id,
-			model.PermissionViewMembers.Id,
-			model.PermissionCreateTeam.Id,
+			model.PermissionListPublicTeams.ID,
+			model.PermissionJoinPublicTeams.ID,
+			model.PermissionCreateDirectChannel.ID,
+			model.PermissionCreateGroupChannel.ID,
+			model.PermissionViewMembers.ID,
+			model.PermissionCreateTeam.ID,
 		},
 		"system_post_all": {
-			model.PermissionCreatePost.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePost.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"system_post_all_public": {
-			model.PermissionCreatePostPublic.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePostPublic.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"system_user_access_token": {
-			model.PermissionCreateUserAccessToken.Id,
-			model.PermissionReadUserAccessToken.Id,
-			model.PermissionRevokeUserAccessToken.Id,
+			model.PermissionCreateUserAccessToken.ID,
+			model.PermissionReadUserAccessToken.ID,
+			model.PermissionRevokeUserAccessToken.ID,
 		},
 		"system_admin": allPermissionIDs,
 	}
-	assert.Contains(t, allPermissionIDs, model.PermissionManageSharedChannels.Id, "manage_shared_channels permission not found")
-	assert.Contains(t, allPermissionIDs, model.PermissionManageSecureConnections.Id, "manage_secure_connections permission not found")
+	assert.Contains(t, allPermissionIDs, model.PermissionManageSharedChannels.ID, "manage_shared_channels permission not found")
+	assert.Contains(t, allPermissionIDs, model.PermissionManageSecureConnections.ID, "manage_secure_connections permission not found")
 
 	// Check the migration matches what's expected.
 	for name, permissions := range expected1 {
@@ -229,82 +229,82 @@ func TestDoAdvancedPermissionsMigration(t *testing.T) {
 	// Check the role permissions.
 	expected2 := map[string][]string{
 		"channel_user": {
-			model.PermissionReadChannel.Id,
-			model.PermissionAddReaction.Id,
-			model.PermissionRemoveReaction.Id,
-			model.PermissionManagePublicChannelMembers.Id,
-			model.PermissionUploadFile.Id,
-			model.PermissionGetPublicLink.Id,
-			model.PermissionCreatePost.Id,
-			model.PermissionUseChannelMentions.Id,
-			model.PermissionUseSlashCommands.Id,
-			model.PermissionDeletePublicChannel.Id,
-			model.PermissionDeletePrivateChannel.Id,
-			model.PermissionManagePrivateChannelMembers.Id,
-			model.PermissionDeletePost.Id,
-			model.PermissionEditPost.Id,
+			model.PermissionReadChannel.ID,
+			model.PermissionAddReaction.ID,
+			model.PermissionRemoveReaction.ID,
+			model.PermissionManagePublicChannelMembers.ID,
+			model.PermissionUploadFile.ID,
+			model.PermissionGetPublicLink.ID,
+			model.PermissionCreatePost.ID,
+			model.PermissionUseChannelMentions.ID,
+			model.PermissionUseSlashCommands.ID,
+			model.PermissionDeletePublicChannel.ID,
+			model.PermissionDeletePrivateChannel.ID,
+			model.PermissionManagePrivateChannelMembers.ID,
+			model.PermissionDeletePost.ID,
+			model.PermissionEditPost.ID,
 		},
 		"channel_admin": {
-			model.PermissionManageChannelRoles.Id,
-			model.PermissionUseGroupMentions.Id,
+			model.PermissionManageChannelRoles.ID,
+			model.PermissionUseGroupMentions.ID,
 		},
 		"team_user": {
-			model.PermissionListTeamChannels.Id,
-			model.PermissionJoinPublicChannels.Id,
-			model.PermissionReadPublicChannel.Id,
-			model.PermissionViewTeam.Id,
-			model.PermissionCreatePublicChannel.Id,
-			model.PermissionCreatePrivateChannel.Id,
-			model.PermissionInviteUser.Id,
-			model.PermissionAddUserToTeam.Id,
+			model.PermissionListTeamChannels.ID,
+			model.PermissionJoinPublicChannels.ID,
+			model.PermissionReadPublicChannel.ID,
+			model.PermissionViewTeam.ID,
+			model.PermissionCreatePublicChannel.ID,
+			model.PermissionCreatePrivateChannel.ID,
+			model.PermissionInviteUser.ID,
+			model.PermissionAddUserToTeam.ID,
 		},
 		"team_post_all": {
-			model.PermissionCreatePost.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePost.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"team_post_all_public": {
-			model.PermissionCreatePostPublic.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePostPublic.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"team_admin": {
-			model.PermissionRemoveUserFromTeam.Id,
-			model.PermissionManageTeam.Id,
-			model.PermissionImportTeam.Id,
-			model.PermissionManageTeamRoles.Id,
-			model.PermissionManageChannelRoles.Id,
-			model.PermissionManageOthersIncomingWebhooks.Id,
-			model.PermissionManageOthersOutgoingWebhooks.Id,
-			model.PermissionManageSlashCommands.Id,
-			model.PermissionManageOthersSlashCommands.Id,
-			model.PermissionManageIncomingWebhooks.Id,
-			model.PermissionManageOutgoingWebhooks.Id,
-			model.PermissionConvertPublicChannelToPrivate.Id,
-			model.PermissionConvertPrivateChannelToPublic.Id,
-			model.PermissionManagePublicChannelProperties.Id,
-			model.PermissionManagePrivateChannelProperties.Id,
-			model.PermissionDeletePost.Id,
-			model.PermissionDeleteOthersPosts.Id,
+			model.PermissionRemoveUserFromTeam.ID,
+			model.PermissionManageTeam.ID,
+			model.PermissionImportTeam.ID,
+			model.PermissionManageTeamRoles.ID,
+			model.PermissionManageChannelRoles.ID,
+			model.PermissionManageOthersIncomingWebhooks.ID,
+			model.PermissionManageOthersOutgoingWebhooks.ID,
+			model.PermissionManageSlashCommands.ID,
+			model.PermissionManageOthersSlashCommands.ID,
+			model.PermissionManageIncomingWebhooks.ID,
+			model.PermissionManageOutgoingWebhooks.ID,
+			model.PermissionConvertPublicChannelToPrivate.ID,
+			model.PermissionConvertPrivateChannelToPublic.ID,
+			model.PermissionManagePublicChannelProperties.ID,
+			model.PermissionManagePrivateChannelProperties.ID,
+			model.PermissionDeletePost.ID,
+			model.PermissionDeleteOthersPosts.ID,
 		},
 		"system_user": {
-			model.PermissionListPublicTeams.Id,
-			model.PermissionJoinPublicTeams.Id,
-			model.PermissionCreateDirectChannel.Id,
-			model.PermissionCreateGroupChannel.Id,
-			model.PermissionViewMembers.Id,
-			model.PermissionCreateTeam.Id,
+			model.PermissionListPublicTeams.ID,
+			model.PermissionJoinPublicTeams.ID,
+			model.PermissionCreateDirectChannel.ID,
+			model.PermissionCreateGroupChannel.ID,
+			model.PermissionViewMembers.ID,
+			model.PermissionCreateTeam.ID,
 		},
 		"system_post_all": {
-			model.PermissionCreatePost.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePost.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"system_post_all_public": {
-			model.PermissionCreatePostPublic.Id,
-			model.PermissionUseChannelMentions.Id,
+			model.PermissionCreatePostPublic.ID,
+			model.PermissionUseChannelMentions.ID,
 		},
 		"system_user_access_token": {
-			model.PermissionCreateUserAccessToken.Id,
-			model.PermissionReadUserAccessToken.Id,
-			model.PermissionRevokeUserAccessToken.Id,
+			model.PermissionCreateUserAccessToken.ID,
+			model.PermissionReadUserAccessToken.ID,
+			model.PermissionRevokeUserAccessToken.ID,
 		},
 		"system_admin": allPermissionIDs,
 	}
@@ -393,10 +393,10 @@ func TestDoEmojisPermissionsMigration(t *testing.T) {
 	expectedSystemAdmin := allPermissionIDs
 	sort.Strings(expectedSystemAdmin)
 
-	role1, err1 := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleId)
+	role1, err1 := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleID)
 	assert.Nil(t, err1)
 	sort.Strings(role1.Permissions)
-	assert.Equal(t, expectedSystemAdmin, role1.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemAdminRoleId))
+	assert.Equal(t, expectedSystemAdmin, role1.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemAdminRoleID))
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.ServiceSettings.DEPRECATED_DO_NOT_USE_RestrictCustomEmojiCreation = model.RestrictEmojiCreationAdmin
@@ -405,44 +405,44 @@ func TestDoEmojisPermissionsMigration(t *testing.T) {
 	th.ResetEmojisMigration()
 	th.App.DoEmojisPermissionsMigration()
 
-	role2, err2 := th.App.GetRoleByName(context.Background(), model.TeamAdminRoleId)
+	role2, err2 := th.App.GetRoleByName(context.Background(), model.TeamAdminRoleID)
 	assert.Nil(t, err2)
 	expected2 := []string{
-		model.PermissionRemoveUserFromTeam.Id,
-		model.PermissionManageTeam.Id,
-		model.PermissionImportTeam.Id,
-		model.PermissionManageTeamRoles.Id,
-		model.PermissionReadPublicChannelGroups.Id,
-		model.PermissionReadPrivateChannelGroups.Id,
-		model.PermissionManageChannelRoles.Id,
-		model.PermissionManageOthersIncomingWebhooks.Id,
-		model.PermissionManageOthersOutgoingWebhooks.Id,
-		model.PermissionManageSlashCommands.Id,
-		model.PermissionManageOthersSlashCommands.Id,
-		model.PermissionManageIncomingWebhooks.Id,
-		model.PermissionManageOutgoingWebhooks.Id,
-		model.PermissionDeletePost.Id,
-		model.PermissionDeleteOthersPosts.Id,
-		model.PermissionCreateEmojis.Id,
-		model.PermissionDeleteEmojis.Id,
-		model.PermissionAddReaction.Id,
-		model.PermissionCreatePost.Id,
-		model.PermissionManagePublicChannelMembers.Id,
-		model.PermissionManagePrivateChannelMembers.Id,
-		model.PermissionRemoveReaction.Id,
-		model.PermissionUseChannelMentions.Id,
-		model.PermissionUseGroupMentions.Id,
-		model.PermissionConvertPublicChannelToPrivate.Id,
-		model.PermissionConvertPrivateChannelToPublic.Id,
+		model.PermissionRemoveUserFromTeam.ID,
+		model.PermissionManageTeam.ID,
+		model.PermissionImportTeam.ID,
+		model.PermissionManageTeamRoles.ID,
+		model.PermissionReadPublicChannelGroups.ID,
+		model.PermissionReadPrivateChannelGroups.ID,
+		model.PermissionManageChannelRoles.ID,
+		model.PermissionManageOthersIncomingWebhooks.ID,
+		model.PermissionManageOthersOutgoingWebhooks.ID,
+		model.PermissionManageSlashCommands.ID,
+		model.PermissionManageOthersSlashCommands.ID,
+		model.PermissionManageIncomingWebhooks.ID,
+		model.PermissionManageOutgoingWebhooks.ID,
+		model.PermissionDeletePost.ID,
+		model.PermissionDeleteOthersPosts.ID,
+		model.PermissionCreateEmojis.ID,
+		model.PermissionDeleteEmojis.ID,
+		model.PermissionAddReaction.ID,
+		model.PermissionCreatePost.ID,
+		model.PermissionManagePublicChannelMembers.ID,
+		model.PermissionManagePrivateChannelMembers.ID,
+		model.PermissionRemoveReaction.ID,
+		model.PermissionUseChannelMentions.ID,
+		model.PermissionUseGroupMentions.ID,
+		model.PermissionConvertPublicChannelToPrivate.ID,
+		model.PermissionConvertPrivateChannelToPublic.ID,
 	}
 	sort.Strings(expected2)
 	sort.Strings(role2.Permissions)
-	assert.Equal(t, expected2, role2.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.TeamAdminRoleId))
+	assert.Equal(t, expected2, role2.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.TeamAdminRoleID))
 
-	systemAdmin1, systemAdminErr1 := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleId)
+	systemAdmin1, systemAdminErr1 := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleID)
 	assert.Nil(t, systemAdminErr1)
 	sort.Strings(systemAdmin1.Permissions)
-	assert.Equal(t, expectedSystemAdmin, systemAdmin1.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemAdminRoleId))
+	assert.Equal(t, expectedSystemAdmin, systemAdmin1.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemAdminRoleID))
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.ServiceSettings.DEPRECATED_DO_NOT_USE_RestrictCustomEmojiCreation = model.RestrictEmojiCreationAll
@@ -451,33 +451,33 @@ func TestDoEmojisPermissionsMigration(t *testing.T) {
 	th.ResetEmojisMigration()
 	th.App.DoEmojisPermissionsMigration()
 
-	role3, err3 := th.App.GetRoleByName(context.Background(), model.SystemUserRoleId)
+	role3, err3 := th.App.GetRoleByName(context.Background(), model.SystemUserRoleID)
 	assert.Nil(t, err3)
 	expected3 := []string{
-		model.PermissionListPublicTeams.Id,
-		model.PermissionJoinPublicTeams.Id,
-		model.PermissionCreateDirectChannel.Id,
-		model.PermissionCreateGroupChannel.Id,
-		model.PermissionCreateTeam.Id,
-		model.PermissionCreateEmojis.Id,
-		model.PermissionDeleteEmojis.Id,
-		model.PermissionViewMembers.Id,
+		model.PermissionListPublicTeams.ID,
+		model.PermissionJoinPublicTeams.ID,
+		model.PermissionCreateDirectChannel.ID,
+		model.PermissionCreateGroupChannel.ID,
+		model.PermissionCreateTeam.ID,
+		model.PermissionCreateEmojis.ID,
+		model.PermissionDeleteEmojis.ID,
+		model.PermissionViewMembers.ID,
 	}
 	sort.Strings(expected3)
 	sort.Strings(role3.Permissions)
-	assert.Equal(t, expected3, role3.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemUserRoleId))
+	assert.Equal(t, expected3, role3.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemUserRoleID))
 
-	systemAdmin2, systemAdminErr2 := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleId)
+	systemAdmin2, systemAdminErr2 := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleID)
 	assert.Nil(t, systemAdminErr2)
 	sort.Strings(systemAdmin2.Permissions)
-	assert.Equal(t, expectedSystemAdmin, systemAdmin2.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemAdminRoleId))
+	assert.Equal(t, expectedSystemAdmin, systemAdmin2.Permissions, fmt.Sprintf("'%v' did not have expected permissions", model.SystemAdminRoleID))
 }
 
 func TestDBHealthCheckWriteAndDelete(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	expectedKey := "health_check_" + th.App.GetClusterId()
+	expectedKey := "health_check_" + th.App.GetClusterID()
 	assert.Equal(t, expectedKey, th.App.dbHealthCheckKey())
 
 	_, err := th.App.Srv().Store.System().GetByName(expectedKey)

@@ -19,7 +19,7 @@ func TestFileInfoStore(t *testing.T) {
 }
 
 func TestFileInfoStoreCache(t *testing.T) {
-	fakeFileInfo := model.FileInfo{PostId: "123"}
+	fakeFileInfo := model.FileInfo{PostID: "123"}
 
 	t.Run("first call not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()

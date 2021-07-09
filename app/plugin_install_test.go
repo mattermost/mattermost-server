@@ -61,11 +61,11 @@ func makeInMemoryGzipTarFile(t *testing.T, files []testFile) *bytes.Reader {
 	return bytes.NewReader(buf.Bytes())
 }
 
-type byBundleInfoId []*model.BundleInfo
+type byBundleInfoID []*model.BundleInfo
 
-func (b byBundleInfoId) Len() int           { return len(b) }
-func (b byBundleInfoId) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-func (b byBundleInfoId) Less(i, j int) bool { return b[i].Manifest.Id < b[j].Manifest.Id }
+func (b byBundleInfoID) Len() int           { return len(b) }
+func (b byBundleInfoID) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b byBundleInfoID) Less(i, j int) bool { return b[i].Manifest.ID < b[j].Manifest.ID }
 
 func TestInstallPluginLocally(t *testing.T) {
 	t.Run("invalid tar", func(t *testing.T) {
@@ -74,7 +74,7 @@ func TestInstallPluginLocally(t *testing.T) {
 
 		actualManifest, appErr := th.App.installPluginLocally(&nilReadSeeker{}, nil, installPluginLocallyOnlyIfNew)
 		require.NotNil(t, appErr)
-		assert.Equal(t, "app.plugin.extract.app_error", appErr.Id, appErr.Error())
+		assert.Equal(t, "app.plugin.extract.app_error", appErr.ID, appErr.Error())
 		require.Nil(t, actualManifest)
 	})
 
@@ -88,7 +88,7 @@ func TestInstallPluginLocally(t *testing.T) {
 
 		actualManifest, appErr := th.App.installPluginLocally(reader, nil, installPluginLocallyOnlyIfNew)
 		require.NotNil(t, appErr)
-		assert.Equal(t, "app.plugin.manifest.app_error", appErr.Id, appErr.Error())
+		assert.Equal(t, "app.plugin.manifest.app_error", appErr.ID, appErr.Error())
 		require.Nil(t, actualManifest)
 	})
 
@@ -96,11 +96,11 @@ func TestInstallPluginLocally(t *testing.T) {
 		t.Helper()
 
 		manifest := &model.Manifest{
-			Id:      id,
+			ID:      id,
 			Version: version,
 		}
 		reader := makeInMemoryGzipTarFile(t, []testFile{
-			{"plugin.json", manifest.ToJson()},
+			{"plugin.json", manifest.ToJSON()},
 		})
 
 		actualManifest, appError := th.App.installPluginLocally(reader, nil, installationStrategy)
@@ -117,7 +117,7 @@ func TestInstallPluginLocally(t *testing.T) {
 
 		actualManifest, appErr := installPlugin(t, th, "invalid#plugin#id", "version", installPluginLocallyOnlyIfNew)
 		require.NotNil(t, appErr)
-		assert.Equal(t, "app.plugin.invalid_id.app_error", appErr.Id, appErr.Error())
+		assert.Equal(t, "app.plugin.invalid_id.app_error", appErr.ID, appErr.Error())
 		require.Nil(t, actualManifest)
 	})
 
@@ -131,8 +131,8 @@ func TestInstallPluginLocally(t *testing.T) {
 		require.NoError(t, err)
 
 		for _, bundleInfo := range bundleInfos {
-			err := th.App.removePluginLocally(bundleInfo.Manifest.Id)
-			require.Nilf(t, err, "failed to remove existing plugin %s", bundleInfo.Manifest.Id)
+			err := th.App.removePluginLocally(bundleInfo.Manifest.ID)
+			require.Nilf(t, err, "failed to remove existing plugin %s", bundleInfo.Manifest.ID)
 		}
 	}
 
@@ -142,7 +142,7 @@ func TestInstallPluginLocally(t *testing.T) {
 		bundleInfos, err := pluginsEnvironment.Available()
 		require.NoError(t, err)
 
-		sort.Sort(byBundleInfoId(bundleInfos))
+		sort.Sort(byBundleInfoID(bundleInfos))
 
 		actualManifests := make([]*model.Manifest, 0, len(bundleInfos))
 		for _, bundleInfo := range bundleInfos {
@@ -192,7 +192,7 @@ func TestInstallPluginLocally(t *testing.T) {
 
 			manifest, appErr := installPlugin(t, th, "valid", "0.0.1", installPluginLocallyOnlyIfNew)
 			require.NotNil(t, appErr)
-			require.Equal(t, "app.plugin.install_id.app_error", appErr.Id, appErr.Error())
+			require.Equal(t, "app.plugin.install_id.app_error", appErr.ID, appErr.Error())
 			require.Nil(t, manifest)
 
 			assertBundleInfoManifests(t, th, []*model.Manifest{existingManifest})
@@ -275,7 +275,7 @@ func TestInstallPluginAlreadyActive(t *testing.T) {
 	actualManifest, appError := th.App.InstallPlugin(reader, true)
 	require.NotNil(t, actualManifest)
 	require.Nil(t, appError)
-	appError = th.App.EnablePlugin(actualManifest.Id)
+	appError = th.App.EnablePlugin(actualManifest.ID)
 	require.Nil(t, appError)
 
 	pluginsEnvironment := th.App.GetPluginsEnvironment()
@@ -284,7 +284,7 @@ func TestInstallPluginAlreadyActive(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, bundleInfos)
 	for _, bundleInfo := range bundleInfos {
-		if bundleInfo.Manifest.Id == actualManifest.Id {
+		if bundleInfo.Manifest.ID == actualManifest.ID {
 			err := os.RemoveAll(bundleInfo.Path)
 			require.NoError(t, err)
 		}
@@ -293,5 +293,5 @@ func TestInstallPluginAlreadyActive(t *testing.T) {
 	actualManifest, appError = th.App.InstallPlugin(reader, true)
 	require.NotNil(t, appError)
 	require.Nil(t, actualManifest)
-	require.Equal(t, "app.plugin.restart.app_error", appError.Id)
+	require.Equal(t, "app.plugin.restart.app_error", appError.ID)
 }

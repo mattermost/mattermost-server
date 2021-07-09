@@ -16,7 +16,7 @@ import (
 
 func (us *UserService) ReturnSessionToPool(session *model.Session) {
 	if session != nil {
-		session.Id = ""
+		session.ID = ""
 		us.sessionPool.Put(session)
 	}
 }
@@ -46,7 +46,7 @@ func (us *UserService) GetSession(token string) (*model.Session, error) {
 		}
 	}
 
-	if session.Id != "" {
+	if session.ID != "" {
 		return session, nil
 	}
 
@@ -77,7 +77,7 @@ func (us *UserService) ClearUserSessionCacheLocal(userID string) {
 		var session *model.Session
 		for _, key := range keys {
 			if err := us.sessionCache.Get(key, &session); err == nil {
-				if session.UserId == userID {
+				if session.UserID == userID {
 					us.sessionCache.Remove(key)
 					if us.metrics != nil {
 						us.metrics.IncrementMemCacheInvalidationCounterSession()
@@ -136,14 +136,14 @@ func (us *UserService) RevokeSessionsFromAllUsers() error {
 	return nil
 }
 
-func (us *UserService) RevokeSessionsForDeviceId(userID string, deviceID string, currentSessionId string) error {
+func (us *UserService) RevokeSessionsForDeviceID(userID string, deviceID string, currentSessionID string) error {
 	sessions, err := us.sessionStore.GetSessions(userID)
 	if err != nil {
 		return err
 	}
 	for _, session := range sessions {
-		if session.DeviceId == deviceID && session.Id != currentSessionId {
-			mlog.Debug("Revoking sessionId for userId. Re-login with the same device Id", mlog.String("session_id", session.Id), mlog.String("user_id", userID))
+		if session.DeviceID == deviceID && session.ID != currentSessionID {
+			mlog.Debug("Revoking sessionId for userId. Re-login with the same device Id", mlog.String("session_id", session.ID), mlog.String("user_id", userID))
 			if err := us.RevokeSession(session); err != nil {
 				mlog.Warn("Could not revoke session for device", mlog.String("device_id", deviceID), mlog.Err(err))
 			}
@@ -159,12 +159,12 @@ func (us *UserService) RevokeSession(session *model.Session) error {
 			return err
 		}
 	} else {
-		if err := us.sessionStore.Remove(session.Id); err != nil {
+		if err := us.sessionStore.Remove(session.ID); err != nil {
 			return errors.Wrap(DeleteSessionError, err.Error())
 		}
 	}
 
-	us.ClearUserSessionCache(session.UserId)
+	us.ClearUserSessionCache(session.UserID)
 
 	return nil
 }
@@ -193,7 +193,7 @@ func (us *UserService) RevokeAccessToken(token string) error {
 	}
 
 	if session != nil {
-		us.ClearUserSessionCache(session.UserId)
+		us.ClearUserSessionCache(session.UserID)
 	}
 
 	return nil
@@ -237,7 +237,7 @@ func (us *UserService) RevokeAllSessions(userID string) error {
 		if session.IsOAuth {
 			us.RevokeAccessToken(session.Token)
 		} else {
-			if err := us.sessionStore.Remove(session.Id); err != nil {
+			if err := us.sessionStore.Remove(session.ID); err != nil {
 				return errors.Wrap(DeleteSessionError, err.Error())
 			}
 		}

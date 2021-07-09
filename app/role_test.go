@@ -37,7 +37,7 @@ func TestGetRolesByNames(t *testing.T) {
 		require.NotNil(t, actualRole)
 		require.Equal(t, testData.channelRole.Name, actualRole.Name)
 
-		require.Equal(t, testData.shouldHavePermission, utils.StringInSlice(testData.permission.Id, actualRole.Permissions))
+		require.Equal(t, testData.shouldHavePermission, utils.StringInSlice(testData.permission.ID, actualRole.Permissions))
 	})
 }
 
@@ -47,17 +47,17 @@ func TestGetRoleByName(t *testing.T) {
 		require.Nil(t, err)
 		require.NotNil(t, actualRole)
 		require.Equal(t, testData.channelRole.Name, actualRole.Name)
-		require.Equal(t, testData.shouldHavePermission, utils.StringInSlice(testData.permission.Id, actualRole.Permissions), "row: %+v", testData.truthTableRow)
+		require.Equal(t, testData.shouldHavePermission, utils.StringInSlice(testData.permission.ID, actualRole.Permissions), "row: %+v", testData.truthTableRow)
 	})
 }
 
 func TestGetRoleByID(t *testing.T) {
 	testPermissionInheritance(t, func(t *testing.T, th *TestHelper, testData permissionInheritanceTestData) {
-		actualRole, err := th.App.GetRole(testData.channelRole.Id)
+		actualRole, err := th.App.GetRole(testData.channelRole.ID)
 		require.Nil(t, err)
 		require.NotNil(t, actualRole)
-		require.Equal(t, testData.channelRole.Id, actualRole.Id)
-		require.Equal(t, testData.shouldHavePermission, utils.StringInSlice(testData.permission.Id, actualRole.Permissions), "row: %+v", testData.truthTableRow)
+		require.Equal(t, testData.channelRole.ID, actualRole.ID)
+		require.Equal(t, testData.shouldHavePermission, utils.StringInSlice(testData.permission.ID, actualRole.Permissions), "row: %+v", testData.truthTableRow)
 	})
 }
 
@@ -70,15 +70,15 @@ func testPermissionInheritance(t *testing.T, testCallback func(t *testing.T, th 
 	th.App.SetPhase2PermissionsMigrationStatus(true)
 
 	permissionsDefault := []string{
-		model.PermissionManageChannelRoles.Id,
-		model.PermissionManagePublicChannelMembers.Id,
+		model.PermissionManageChannelRoles.ID,
+		model.PermissionManagePublicChannelMembers.ID,
 	}
 
 	// Defer resetting the system scheme permissions
 	systemSchemeRoles, err := th.App.GetRolesByNames([]string{
-		model.ChannelGuestRoleId,
-		model.ChannelUserRoleId,
-		model.ChannelAdminRoleId,
+		model.ChannelGuestRoleID,
+		model.ChannelUserRoleID,
+		model.ChannelAdminRoleID,
 	})
 	require.Nil(t, err)
 	require.Len(t, systemSchemeRoles, 3)
@@ -92,22 +92,22 @@ func testPermissionInheritance(t *testing.T, testCallback func(t *testing.T, th 
 
 	// Make a channel scheme, clear its permissions
 	channelScheme, err := th.App.CreateScheme(&model.Scheme{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
 		Scope:       model.SchemeScopeChannel,
 	})
 	require.Nil(t, err)
-	defer th.App.DeleteScheme(channelScheme.Id)
+	defer th.App.DeleteScheme(channelScheme.ID)
 
 	team := th.CreateTeam()
-	defer th.App.PermanentDeleteTeamId(team.Id)
+	defer th.App.PermanentDeleteTeamID(team.ID)
 
 	// Make a channel
 	channel := th.CreateChannel(team)
 	defer th.App.PermanentDeleteChannel(channel)
 
 	// Set the channel scheme
-	channel.SchemeId = &channelScheme.Id
+	channel.SchemeID = &channelScheme.ID
 	channel, err = th.App.UpdateChannelScheme(channel)
 	require.Nil(t, err)
 
@@ -165,7 +165,7 @@ func testPermissionInheritance(t *testing.T, testCallback func(t *testing.T, th 
 
 				var higherScopedPermissions []string
 				if higherSchemeHasPermission {
-					higherScopedPermissions = []string{permission.Id}
+					higherScopedPermissions = []string{permission.ID}
 				} else {
 					higherScopedPermissions = permissionsDefault
 				}
@@ -188,7 +188,7 @@ func testPermissionInheritance(t *testing.T, testCallback func(t *testing.T, th 
 				// add or remove the permission from the channel scheme
 				var channelSchemePermissions []string
 				if channelSchemeHasPermission {
-					channelSchemePermissions = []string{permission.Id}
+					channelSchemePermissions = []string{permission.ID}
 				} else {
 					channelSchemePermissions = permissionsDefault
 				}
@@ -208,19 +208,19 @@ func testPermissionInheritance(t *testing.T, testCallback func(t *testing.T, th 
 	}
 
 	// test 24 combinations where the higher-scoped scheme is the SYSTEM scheme
-	test(model.ChannelGuestRoleId, model.ChannelUserRoleId, model.ChannelAdminRoleId)
+	test(model.ChannelGuestRoleID, model.ChannelUserRoleID, model.ChannelAdminRoleID)
 
 	// create a team scheme
 	teamScheme, err := th.App.CreateScheme(&model.Scheme{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
 		Scope:       model.SchemeScopeTeam,
 	})
 	require.Nil(t, err)
-	defer th.App.DeleteScheme(teamScheme.Id)
+	defer th.App.DeleteScheme(teamScheme.ID)
 
 	// assign the scheme to the team
-	team.SchemeId = &teamScheme.Id
+	team.SchemeID = &teamScheme.ID
 	team, err = th.App.UpdateTeamScheme(team)
 	require.Nil(t, err)
 

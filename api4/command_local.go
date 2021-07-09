@@ -21,7 +21,7 @@ func (api *API) InitCommandLocal() {
 }
 
 func localCreateCommand(c *Context, w http.ResponseWriter, r *http.Request) {
-	cmd := model.CommandFromJson(r.Body)
+	cmd := model.CommandFromJSON(r.Body)
 	if cmd == nil {
 		c.SetInvalidParam("command")
 		return
@@ -42,5 +42,5 @@ func localCreateCommand(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("command", rcmd)
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(rcmd.ToJson()))
+	w.Write([]byte(rcmd.ToJSON()))
 }

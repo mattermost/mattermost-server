@@ -32,7 +32,7 @@ func TestMigrate(t *testing.T) {
 	for i := range files {
 		// Generate random data for each file, ensuring that stale data from a past test
 		// won't generate a false positive.
-		filesData[i] = model.NewId()
+		filesData[i] = model.NewID()
 	}
 
 	setup := func(t *testing.T) {
@@ -57,7 +57,7 @@ func TestMigrate(t *testing.T) {
 		cfg := source.Get()
 		originalCfg := cfg.Clone()
 		cfg.ServiceSettings.SiteURL = model.NewString("http://example.com")
-		cfg.SamlSettings.IdpCertificateFile = &files[0]
+		cfg.SamlSettings.IDpCertificateFile = &files[0]
 		cfg.SamlSettings.PublicCertificateFile = &files[1]
 		cfg.SamlSettings.PrivateKeyFile = &files[2]
 		cfg.PluginSettings.SignaturePublicKeyFiles = []string{

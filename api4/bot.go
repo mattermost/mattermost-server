@@ -30,14 +30,14 @@ func (api *API) InitBot() {
 }
 
 func createBot(c *Context, w http.ResponseWriter, r *http.Request) {
-	botPatch := model.BotPatchFromJson(r.Body)
+	botPatch := model.BotPatchFromJSON(r.Body)
 	if botPatch == nil {
 		c.SetInvalidParam("bot")
 		return
 	}
 
 	bot := &model.Bot{
-		OwnerId: c.AppContext.Session().UserId,
+		OwnerID: c.AppContext.Session().UserID,
 	}
 	bot.Patch(botPatch)
 
@@ -50,7 +50,7 @@ func createBot(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user, err := c.App.GetUser(c.AppContext.Session().UserId); err == nil {
+	if user, err := c.App.GetUser(c.AppContext.Session().UserID); err == nil {
 		if user.IsBot {
 			c.SetPermissionError(model.PermissionCreateBot)
 			return
@@ -72,17 +72,17 @@ func createBot(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("bot", createdBot) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write(createdBot.ToJson())
+	w.Write(createdBot.ToJSON())
 }
 
 func patchBot(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
+	botUserID := c.Params.BotUserID
 
-	botPatch := model.BotPatchFromJson(r.Body)
+	botPatch := model.BotPatchFromJSON(r.Body)
 	if botPatch == nil {
 		c.SetInvalidParam("bot")
 		return
@@ -90,14 +90,14 @@ func patchBot(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("patchBot", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot_id", botUserId)
+	auditRec.AddMeta("bot_id", botUserID)
 
-	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserId); err != nil {
+	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserID); err != nil {
 		c.Err = err
 		return
 	}
 
-	updatedBot, err := c.App.PatchBot(botUserId, botPatch)
+	updatedBot, err := c.App.PatchBot(botUserID, botPatch)
 	if err != nil {
 		c.Err = err
 		return
@@ -106,19 +106,19 @@ func patchBot(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	auditRec.AddMeta("bot", updatedBot)
 
-	w.Write(updatedBot.ToJson())
+	w.Write(updatedBot.ToJSON())
 }
 
 func getBot(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
+	botUserID := c.Params.BotUserID
 
 	includeDeleted, _ := strconv.ParseBool(r.URL.Query().Get("include_deleted"))
 
-	bot, appErr := c.App.GetBot(botUserId, includeDeleted)
+	bot, appErr := c.App.GetBot(botUserID, includeDeleted)
 	if appErr != nil {
 		c.Err = appErr
 		return
@@ -126,18 +126,18 @@ func getBot(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	if c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionReadOthersBots) {
 		// Allow access to any bot.
-	} else if bot.OwnerId == c.AppContext.Session().UserId {
+	} else if bot.OwnerID == c.AppContext.Session().UserID {
 		if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionReadBots) {
 			// Pretend like the bot doesn't exist at all to avoid revealing that the
 			// user is a bot. It's kind of silly in this case, sine we created the bot,
 			// but we don't have read bot permissions.
-			c.Err = model.MakeBotNotFoundError(botUserId)
+			c.Err = model.MakeBotNotFoundError(botUserID)
 			return
 		}
 	} else {
 		// Pretend like the bot doesn't exist at all, to avoid revealing that the
 		// user is a bot.
-		c.Err = model.MakeBotNotFoundError(botUserId)
+		c.Err = model.MakeBotNotFoundError(botUserID)
 		return
 	}
 
@@ -145,20 +145,20 @@ func getBot(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(bot.ToJson())
+	w.Write(bot.ToJSON())
 }
 
 func getBots(c *Context, w http.ResponseWriter, r *http.Request) {
 	includeDeleted, _ := strconv.ParseBool(r.URL.Query().Get("include_deleted"))
 	onlyOrphaned, _ := strconv.ParseBool(r.URL.Query().Get("only_orphaned"))
 
-	var OwnerId string
+	var OwnerID string
 	if c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionReadOthersBots) {
 		// Get bots created by any user.
-		OwnerId = ""
+		OwnerID = ""
 	} else if c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionReadBots) {
 		// Only get bots created by this user.
-		OwnerId = c.AppContext.Session().UserId
+		OwnerID = c.AppContext.Session().UserID
 	} else {
 		c.SetPermissionError(model.PermissionReadBots)
 		return
@@ -167,7 +167,7 @@ func getBots(c *Context, w http.ResponseWriter, r *http.Request) {
 	bots, appErr := c.App.GetBots(&model.BotGetOptions{
 		Page:           c.Params.Page,
 		PerPage:        c.Params.PerPage,
-		OwnerId:        OwnerId,
+		OwnerID:        OwnerID,
 		IncludeDeleted: includeDeleted,
 		OnlyOrphaned:   onlyOrphaned,
 	})
@@ -180,7 +180,7 @@ func getBots(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(bots.ToJson())
+	w.Write(bots.ToJSON())
 }
 
 func disableBot(c *Context, w http.ResponseWriter, _ *http.Request) {
@@ -192,23 +192,23 @@ func enableBot(c *Context, w http.ResponseWriter, _ *http.Request) {
 }
 
 func updateBotActive(c *Context, w http.ResponseWriter, active bool) {
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
+	botUserID := c.Params.BotUserID
 
 	auditRec := c.MakeAuditRecord("updateBotActive", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot_id", botUserId)
+	auditRec.AddMeta("bot_id", botUserID)
 	auditRec.AddMeta("enable", active)
 
-	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserId); err != nil {
+	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserID); err != nil {
 		c.Err = err
 		return
 	}
 
-	bot, err := c.App.UpdateBotActive(c.AppContext, botUserId, active)
+	bot, err := c.App.UpdateBotActive(c.AppContext, botUserID, active)
 	if err != nil {
 		c.Err = err
 		return
@@ -217,36 +217,36 @@ func updateBotActive(c *Context, w http.ResponseWriter, active bool) {
 	auditRec.Success()
 	auditRec.AddMeta("bot", bot)
 
-	w.Write(bot.ToJson())
+	w.Write(bot.ToJSON())
 }
 
 func assignBot(c *Context, w http.ResponseWriter, _ *http.Request) {
-	c.RequireUserId()
-	c.RequireBotUserId()
+	c.RequireUserID()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
-	userId := c.Params.UserId
+	botUserID := c.Params.BotUserID
+	userID := c.Params.UserID
 
 	auditRec := c.MakeAuditRecord("assignBot", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot_id", botUserId)
-	auditRec.AddMeta("assign_user_id", userId)
+	auditRec.AddMeta("bot_id", botUserID)
+	auditRec.AddMeta("assign_user_id", userID)
 
-	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserId); err != nil {
+	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserID); err != nil {
 		c.Err = err
 		return
 	}
 
-	if user, err := c.App.GetUser(userId); err == nil {
+	if user, err := c.App.GetUser(userID); err == nil {
 		if user.IsBot {
 			c.SetPermissionError(model.PermissionAssignBot)
 			return
 		}
 	}
 
-	bot, err := c.App.UpdateBotOwner(botUserId, userId)
+	bot, err := c.App.UpdateBotOwner(botUserID, userID)
 	if err != nil {
 		c.Err = err
 		return
@@ -255,17 +255,17 @@ func assignBot(c *Context, w http.ResponseWriter, _ *http.Request) {
 	auditRec.Success()
 	auditRec.AddMeta("bot", bot)
 
-	w.Write(bot.ToJson())
+	w.Write(bot.ToJSON())
 }
 
 func getBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
+	botUserID := c.Params.BotUserID
 
-	canSee, err := c.App.UserCanSeeOtherUser(c.AppContext.Session().UserId, botUserId)
+	canSee, err := c.App.UserCanSeeOtherUser(c.AppContext.Session().UserID, botUserID)
 	if err != nil {
 		c.Err = err
 		return
@@ -276,13 +276,13 @@ func getBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	img, err := c.App.GetBotIconImage(botUserId)
+	img, err := c.App.GetBotIconImage(botUserID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	user, err := c.App.GetUser(botUserId)
+	user, err := c.App.GetUser(botUserID)
 	if err != nil {
 		c.Err = err
 		return
@@ -302,17 +302,17 @@ func getBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 func setBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer io.Copy(ioutil.Discard, r.Body)
 
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
+	botUserID := c.Params.BotUserID
 
 	auditRec := c.MakeAuditRecord("setBotIconImage", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot_id", botUserId)
+	auditRec.AddMeta("bot_id", botUserID)
 
-	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserId); err != nil {
+	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserID); err != nil {
 		c.Err = err
 		return
 	}
@@ -340,7 +340,7 @@ func setBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	imageData := imageArray[0]
-	if err := c.App.SetBotIconImageFromMultiPartFile(botUserId, imageData); err != nil {
+	if err := c.App.SetBotIconImageFromMultiPartFile(botUserID, imageData); err != nil {
 		c.Err = err
 		return
 	}
@@ -354,22 +354,22 @@ func setBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 func deleteBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer io.Copy(ioutil.Discard, r.Body)
 
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
-	botUserId := c.Params.BotUserId
+	botUserID := c.Params.BotUserID
 
 	auditRec := c.MakeAuditRecord("deleteBotIconImage", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot_id", botUserId)
+	auditRec.AddMeta("bot_id", botUserID)
 
-	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserId); err != nil {
+	if err := c.App.SessionHasPermissionToManageBot(*c.AppContext.Session(), botUserID); err != nil {
 		c.Err = err
 		return
 	}
 
-	if err := c.App.DeleteBotIconImage(botUserId); err != nil {
+	if err := c.App.DeleteBotIconImage(botUserID); err != nil {
 		c.Err = err
 		return
 	}
@@ -381,18 +381,18 @@ func deleteBotIconImage(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func convertBotToUser(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireBotUserId()
+	c.RequireBotUserID()
 	if c.Err != nil {
 		return
 	}
 
-	bot, err := c.App.GetBot(c.Params.BotUserId, false)
+	bot, err := c.App.GetBot(c.Params.BotUserID, false)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	userPatch := model.UserPatchFromJson(r.Body)
+	userPatch := model.UserPatchFromJSON(r.Body)
 	if userPatch == nil || userPatch.Password == nil || *userPatch.Password == "" {
 		c.SetInvalidParam("userPatch")
 		return
@@ -420,5 +420,5 @@ func convertBotToUser(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	auditRec.AddMeta("convertedTo", user)
 
-	w.Write([]byte(user.ToJson()))
+	w.Write([]byte(user.ToJSON()))
 }

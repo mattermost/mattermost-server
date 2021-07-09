@@ -68,7 +68,7 @@ func (a *App) SetPluginKeyWithOptions(pluginID string, key string, value []byte,
 
 func (a *App) CompareAndDeletePluginKey(pluginID string, key string, oldValue []byte) (bool, *model.AppError) {
 	kv := &model.PluginKeyValue{
-		PluginId: pluginID,
+		PluginID: pluginID,
 		Key:      key,
 	}
 

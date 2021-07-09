@@ -27,27 +27,27 @@ func TestChannelGroupEnable(t *testing.T) {
 	require.Error(t, th.RunCommand(t, "group", "channel", "enable", th.BasicTeam.Name+":"+channel.Name))
 
 	// add group
-	id := model.NewId()
+	id := model.NewID()
 	group, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: channel.Id,
+		SyncableID: channel.ID,
 		Type:       model.GroupSyncableTypeChannel,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
 	// enabling should succeed now
 	th.CheckCommand(t, "group", "channel", "enable", th.BasicTeam.Name+":"+channel.Name)
-	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.Id, false)
+	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.ID, false)
 	require.Nil(t, appErr)
 	require.NotNil(t, channel.GroupConstrained)
 	require.True(t, *channel.GroupConstrained)
@@ -65,39 +65,39 @@ func TestChannelGroupDisable(t *testing.T) {
 
 	// try to disable, should work
 	th.CheckCommand(t, "group", "channel", "disable", th.BasicTeam.Name+":"+channel.Name)
-	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.Id, false)
+	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.ID, false)
 	require.Nil(t, appErr)
 	require.NotNil(t, channel.GroupConstrained)
 	require.False(t, *channel.GroupConstrained)
 
 	// add group and enable
-	id := model.NewId()
+	id := model.NewID()
 	group, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: channel.Id,
+		SyncableID: channel.ID,
 		Type:       model.GroupSyncableTypeChannel,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
 	th.CheckCommand(t, "group", "channel", "enable", th.BasicTeam.Name+":"+channel.Name)
-	channel, appErr = th.App.GetChannelByName(channel.Name, th.BasicTeam.Id, false)
+	channel, appErr = th.App.GetChannelByName(channel.Name, th.BasicTeam.ID, false)
 	require.Nil(t, appErr)
 	require.NotNil(t, channel.GroupConstrained)
 	require.True(t, *channel.GroupConstrained)
 
 	// try to disable, should work
 	th.CheckCommand(t, "group", "channel", "disable", th.BasicTeam.Name+":"+channel.Name)
-	channel, appErr = th.App.GetChannelByName(channel.Name, th.BasicTeam.Id, false)
+	channel, appErr = th.App.GetChannelByName(channel.Name, th.BasicTeam.ID, false)
 	require.Nil(t, appErr)
 	require.NotNil(t, channel.GroupConstrained)
 	require.False(t, *channel.GroupConstrained)
@@ -118,26 +118,26 @@ func TestChannelGroupStatus(t *testing.T) {
 	require.Contains(t, output, "Disabled")
 
 	// add group and enable
-	id := model.NewId()
+	id := model.NewID()
 	group, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: channel.Id,
+		SyncableID: channel.ID,
 		Type:       model.GroupSyncableTypeChannel,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
 	th.CheckCommand(t, "group", "channel", "enable", th.BasicTeam.Name+":"+channel.Name)
-	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.Id, false)
+	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.ID, false)
 	require.Nil(t, appErr)
 	require.NotNil(t, channel.GroupConstrained)
 	require.True(t, *channel.GroupConstrained)
@@ -161,44 +161,44 @@ func TestChannelGroupList(t *testing.T) {
 	th.CheckCommand(t, "group", "channel", "list", th.BasicTeam.Name+":"+channel.Name)
 
 	// add groups and enable
-	id1 := model.NewId()
+	id1 := model.NewID()
 	g1, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id1,
 		Name:        model.NewString("name" + id1),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id1,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: channel.Id,
+		SyncableID: channel.ID,
 		Type:       model.GroupSyncableTypeChannel,
-		GroupId:    g1.Id,
+		GroupID:    g1.ID,
 	})
 	require.Nil(t, err)
 
-	id2 := model.NewId()
+	id2 := model.NewID()
 	g2, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id2,
 		Name:        model.NewString("name" + id2),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id2,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: channel.Id,
+		SyncableID: channel.ID,
 		Type:       model.GroupSyncableTypeChannel,
-		GroupId:    g2.Id,
+		GroupID:    g2.ID,
 	})
 	require.Nil(t, err)
 
 	th.CheckCommand(t, "group", "channel", "enable", th.BasicTeam.Name+":"+channel.Name)
-	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.Id, false)
+	channel, appErr := th.App.GetChannelByName(channel.Name, th.BasicTeam.ID, false)
 	require.Nil(t, appErr)
 	require.NotNil(t, channel.GroupConstrained)
 	require.True(t, *channel.GroupConstrained)
@@ -220,21 +220,21 @@ func TestTeamGroupEnable(t *testing.T) {
 	require.Error(t, th.RunCommand(t, "group", "team", "enable", th.BasicTeam.Name))
 
 	// add group
-	id := model.NewId()
+	id := model.NewID()
 	group, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: th.BasicTeam.Id,
+		SyncableID: th.BasicTeam.ID,
 		Type:       model.GroupSyncableTypeTeam,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
@@ -261,21 +261,21 @@ func TestTeamGroupDisable(t *testing.T) {
 	require.False(t, *team.GroupConstrained)
 
 	// add group and enable
-	id := model.NewId()
+	id := model.NewID()
 	group, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: team.Id,
+		SyncableID: team.ID,
 		Type:       model.GroupSyncableTypeTeam,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
@@ -305,21 +305,21 @@ func TestTeamGroupStatus(t *testing.T) {
 	require.Contains(t, output, "Disabled")
 
 	// add group and enable
-	id := model.NewId()
+	id := model.NewID()
 	group, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: th.BasicTeam.Id,
+		SyncableID: th.BasicTeam.ID,
 		Type:       model.GroupSyncableTypeTeam,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
@@ -345,39 +345,39 @@ func TestTeamGroupList(t *testing.T) {
 	th.CheckCommand(t, "group", "team", "list", th.BasicTeam.Name)
 
 	// add groups and enable
-	id1 := model.NewId()
+	id1 := model.NewID()
 	g1, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id1,
 		Name:        model.NewString("name" + id1),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id1,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: th.BasicTeam.Id,
+		SyncableID: th.BasicTeam.ID,
 		Type:       model.GroupSyncableTypeTeam,
-		GroupId:    g1.Id,
+		GroupID:    g1.ID,
 	})
 	require.Nil(t, err)
 
-	id2 := model.NewId()
+	id2 := model.NewID()
 	g2, err := th.App.CreateGroup(&model.Group{
 		DisplayName: "dn_" + id2,
 		Name:        model.NewString("name" + id2),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id2,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	})
 	require.Nil(t, err)
 
 	_, err = th.App.UpsertGroupSyncable(&model.GroupSyncable{
 		AutoAdd:    true,
-		SyncableId: th.BasicTeam.Id,
+		SyncableID: th.BasicTeam.ID,
 		Type:       model.GroupSyncableTypeTeam,
-		GroupId:    g2.Id,
+		GroupID:    g2.ID,
 	})
 	require.Nil(t, err)
 

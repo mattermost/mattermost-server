@@ -19,30 +19,30 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 
 	publicChannel, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "AA",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	privateChannel, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "BB",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	targetUser := th.createUser()
-	th.App.AddUserToTeam(th.Context, th.BasicTeam.Id, targetUser.Id, targetUser.Id)
+	th.App.AddUserToTeam(th.Context, th.BasicTeam.ID, targetUser.ID, targetUser.ID)
 	th.App.AddUserToChannel(targetUser, publicChannel, false)
 	th.App.AddUserToChannel(targetUser, privateChannel, false)
 
 	// Try a public channel *without* permission.
 	args := &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: publicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: publicChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual := rp.DoCommand(th.App, th.Context, args, targetUser.Username).Text
@@ -52,8 +52,8 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 	th.App.AddUserToChannel(th.BasicUser, publicChannel, false)
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: publicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: publicChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = rp.DoCommand(th.App, th.Context, args, targetUser.Username).Text
@@ -62,8 +62,8 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 	// Try a private channel *without* permission.
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: privateChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: privateChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = rp.DoCommand(th.App, th.Context, args, targetUser.Username).Text
@@ -73,8 +73,8 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 	th.App.AddUserToChannel(th.BasicUser, privateChannel, false)
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: privateChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: privateChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = rp.DoCommand(th.App, th.Context, args, targetUser.Username).Text
@@ -88,8 +88,8 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: groupChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: groupChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = rp.DoCommand(th.App, th.Context, args, user1.Username).Text
@@ -100,8 +100,8 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: directChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: directChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = rp.DoCommand(th.App, th.Context, args, user1.Username).Text
@@ -109,14 +109,14 @@ func TestRemoveProviderDoCommand(t *testing.T) {
 
 	// Try a public channel with a deactivated user.
 	deactivatedUser := th.createUser()
-	th.App.AddUserToTeam(th.Context, th.BasicTeam.Id, deactivatedUser.Id, deactivatedUser.Id)
+	th.App.AddUserToTeam(th.Context, th.BasicTeam.ID, deactivatedUser.ID, deactivatedUser.ID)
 	th.App.AddUserToChannel(deactivatedUser, publicChannel, false)
 	th.App.UpdateActive(th.Context, deactivatedUser, false)
 
 	args = &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: publicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: publicChannel.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	actual = rp.DoCommand(th.App, th.Context, args, deactivatedUser.Username).Text

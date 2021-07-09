@@ -345,9 +345,9 @@ func searchTeamCmdF(command *cobra.Command, args []string) error {
 
 	for _, team := range sortedTeams {
 		if team.DeleteAt > 0 {
-			CommandPrettyPrintln(team.Name + ": " + team.DisplayName + " (" + team.Id + ")" + " (archived)")
+			CommandPrettyPrintln(team.Name + ": " + team.DisplayName + " (" + team.ID + ")" + " (archived)")
 		} else {
-			CommandPrettyPrintln(team.Name + ": " + team.DisplayName + " (" + team.Id + ")")
+			CommandPrettyPrintln(team.Name + ": " + team.DisplayName + " (" + team.ID + ")")
 		}
 	}
 
@@ -368,7 +368,7 @@ func restoreTeamsCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find team '" + args[i] + "'")
 			continue
 		}
-		err := a.RestoreTeam(team.Id)
+		err := a.RestoreTeam(team.ID)
 		if err != nil {
 			CommandPrintErrorln("Unable to restore team '" + team.Name + "' error: " + err.Error())
 		} else {
@@ -409,7 +409,7 @@ func archiveTeamCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find team '" + args[i] + "'")
 			continue
 		}
-		if err := a.SoftDeleteTeam(team.Id); err != nil {
+		if err := a.SoftDeleteTeam(team.ID); err != nil {
 			CommandPrintErrorln("Unable to archive team '"+team.Name+"' error: ", err)
 		} else {
 			auditRec := a.MakeAuditRecord("archiveTeam", audit.Success)
@@ -487,7 +487,7 @@ func modifyTeamCmdF(command *cobra.Command, args []string) error {
 		team.AllowOpenInvite = false
 	}
 
-	if err := a.UpdateTeamPrivacy(team.Id, team.Type, team.AllowOpenInvite); err != nil {
+	if err := a.UpdateTeamPrivacy(team.ID, team.Type, team.AllowOpenInvite); err != nil {
 		return errors.New("Failed to update privacy for team" + args[0])
 	}
 

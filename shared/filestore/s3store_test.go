@@ -62,7 +62,7 @@ func TestMakeBucket(t *testing.T) {
 
 	cfg := FileBackendSettings{
 		DriverName:              ImageDriverS3,
-		AmazonS3AccessKeyId:     MinioAccessKey,
+		AmazonS3AccessKeyID:     MinioAccessKey,
 		AmazonS3SecretAccessKey: MinioSecretKey,
 		AmazonS3Bucket:          bucketName,
 		AmazonS3Endpoint:        s3Endpoint,

@@ -15,19 +15,19 @@ type SharedChannelStore struct {
 }
 
 // Delete provides a mock function with given fields: channelId
-func (_m *SharedChannelStore) Delete(channelId string) (bool, error) {
-	ret := _m.Called(channelId)
+func (_m *SharedChannelStore) Delete(channelID string) (bool, error) {
+	ret := _m.Called(channelID)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(channelId)
+		r0 = rf(channelID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(channelId)
+		r1 = rf(channelID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -36,19 +36,19 @@ func (_m *SharedChannelStore) Delete(channelId string) (bool, error) {
 }
 
 // DeleteRemote provides a mock function with given fields: remoteId
-func (_m *SharedChannelStore) DeleteRemote(remoteId string) (bool, error) {
-	ret := _m.Called(remoteId)
+func (_m *SharedChannelStore) DeleteRemote(remoteID string) (bool, error) {
+	ret := _m.Called(remoteID)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(remoteId)
+		r0 = rf(remoteID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(remoteId)
+		r1 = rf(remoteID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -57,12 +57,12 @@ func (_m *SharedChannelStore) DeleteRemote(remoteId string) (bool, error) {
 }
 
 // Get provides a mock function with given fields: channelId
-func (_m *SharedChannelStore) Get(channelId string) (*model.SharedChannel, error) {
-	ret := _m.Called(channelId)
+func (_m *SharedChannelStore) Get(channelID string) (*model.SharedChannel, error) {
+	ret := _m.Called(channelID)
 
 	var r0 *model.SharedChannel
 	if rf, ok := ret.Get(0).(func(string) *model.SharedChannel); ok {
-		r0 = rf(channelId)
+		r0 = rf(channelID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.SharedChannel)
@@ -71,7 +71,7 @@ func (_m *SharedChannelStore) Get(channelId string) (*model.SharedChannel, error
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(channelId)
+		r1 = rf(channelID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -124,12 +124,12 @@ func (_m *SharedChannelStore) GetAllCount(opts model.SharedChannelFilterOpts) (i
 }
 
 // GetAttachment provides a mock function with given fields: fileId, remoteId
-func (_m *SharedChannelStore) GetAttachment(fileId string, remoteId string) (*model.SharedChannelAttachment, error) {
-	ret := _m.Called(fileId, remoteId)
+func (_m *SharedChannelStore) GetAttachment(fileID string, remoteID string) (*model.SharedChannelAttachment, error) {
+	ret := _m.Called(fileID, remoteID)
 
 	var r0 *model.SharedChannelAttachment
 	if rf, ok := ret.Get(0).(func(string, string) *model.SharedChannelAttachment); ok {
-		r0 = rf(fileId, remoteId)
+		r0 = rf(fileID, remoteID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.SharedChannelAttachment)
@@ -138,7 +138,7 @@ func (_m *SharedChannelStore) GetAttachment(fileId string, remoteId string) (*mo
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(fileId, remoteId)
+		r1 = rf(fileID, remoteID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -170,12 +170,12 @@ func (_m *SharedChannelStore) GetRemote(id string) (*model.SharedChannelRemote, 
 }
 
 // GetRemoteByIds provides a mock function with given fields: channelId, remoteId
-func (_m *SharedChannelStore) GetRemoteByIds(channelId string, remoteId string) (*model.SharedChannelRemote, error) {
-	ret := _m.Called(channelId, remoteId)
+func (_m *SharedChannelStore) GetRemoteByIDs(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
+	ret := _m.Called(channelID, remoteID)
 
 	var r0 *model.SharedChannelRemote
 	if rf, ok := ret.Get(0).(func(string, string) *model.SharedChannelRemote); ok {
-		r0 = rf(channelId, remoteId)
+		r0 = rf(channelID, remoteID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.SharedChannelRemote)
@@ -184,7 +184,7 @@ func (_m *SharedChannelStore) GetRemoteByIds(channelId string, remoteId string) 
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(channelId, remoteId)
+		r1 = rf(channelID, remoteID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -193,12 +193,12 @@ func (_m *SharedChannelStore) GetRemoteByIds(channelId string, remoteId string) 
 }
 
 // GetRemoteForUser provides a mock function with given fields: remoteId, userId
-func (_m *SharedChannelStore) GetRemoteForUser(remoteId string, userId string) (*model.RemoteCluster, error) {
-	ret := _m.Called(remoteId, userId)
+func (_m *SharedChannelStore) GetRemoteForUser(remoteID string, userID string) (*model.RemoteCluster, error) {
+	ret := _m.Called(remoteID, userID)
 
 	var r0 *model.RemoteCluster
 	if rf, ok := ret.Get(0).(func(string, string) *model.RemoteCluster); ok {
-		r0 = rf(remoteId, userId)
+		r0 = rf(remoteID, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.RemoteCluster)
@@ -207,7 +207,7 @@ func (_m *SharedChannelStore) GetRemoteForUser(remoteId string, userId string) (
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(remoteId, userId)
+		r1 = rf(remoteID, userID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -239,12 +239,12 @@ func (_m *SharedChannelStore) GetRemotes(opts model.SharedChannelRemoteFilterOpt
 }
 
 // GetRemotesStatus provides a mock function with given fields: channelId
-func (_m *SharedChannelStore) GetRemotesStatus(channelId string) ([]*model.SharedChannelRemoteStatus, error) {
-	ret := _m.Called(channelId)
+func (_m *SharedChannelStore) GetRemotesStatus(channelID string) ([]*model.SharedChannelRemoteStatus, error) {
+	ret := _m.Called(channelID)
 
 	var r0 []*model.SharedChannelRemoteStatus
 	if rf, ok := ret.Get(0).(func(string) []*model.SharedChannelRemoteStatus); ok {
-		r0 = rf(channelId)
+		r0 = rf(channelID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.SharedChannelRemoteStatus)
@@ -253,7 +253,7 @@ func (_m *SharedChannelStore) GetRemotesStatus(channelId string) ([]*model.Share
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(channelId)
+		r1 = rf(channelID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -352,19 +352,19 @@ func (_m *SharedChannelStore) HasChannel(channelID string) (bool, error) {
 }
 
 // HasRemote provides a mock function with given fields: channelID, remoteId
-func (_m *SharedChannelStore) HasRemote(channelID string, remoteId string) (bool, error) {
-	ret := _m.Called(channelID, remoteId)
+func (_m *SharedChannelStore) HasRemote(channelID string, remoteID string) (bool, error) {
+	ret := _m.Called(channelID, remoteID)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
-		r0 = rf(channelID, remoteId)
+		r0 = rf(channelID, remoteID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(channelID, remoteId)
+		r1 = rf(channelID, remoteID)
 	} else {
 		r1 = ret.Error(1)
 	}

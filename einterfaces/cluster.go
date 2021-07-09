@@ -13,7 +13,7 @@ type ClusterInterface interface {
 	StartInterNodeCommunication()
 	StopInterNodeCommunication()
 	RegisterClusterMessageHandler(event string, crm ClusterMessageHandler)
-	GetClusterId() string
+	GetClusterID() string
 	IsLeader() bool
 	// HealthScore returns a number which is indicative of how well an instance is meeting
 	// the soft real-time requirements of the protocol. Lower numbers are better,

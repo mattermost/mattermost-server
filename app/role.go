@@ -128,7 +128,7 @@ func (a *App) PatchRole(role *model.Role, patch *model.RolePatch) (*model.Role, 
 }
 
 func (a *App) CreateRole(role *model.Role) (*model.Role, *model.AppError) {
-	role.Id = ""
+	role.ID = ""
 	role.CreateAt = 0
 	role.UpdateAt = 0
 	role.DeleteAt = 0
@@ -163,9 +163,9 @@ func (a *App) UpdateRole(role *model.Role) (*model.Role, *model.AppError) {
 	}
 
 	builtInChannelRoles := []string{
-		model.ChannelGuestRoleId,
-		model.ChannelUserRoleId,
-		model.ChannelAdminRoleId,
+		model.ChannelGuestRoleID,
+		model.ChannelUserRoleID,
+		model.ChannelAdminRoleID,
 	}
 
 	builtInRolesMinusChannelRoles := append(utils.RemoveStringsFromSlice(model.BuiltInSchemeManagedRoleIDs, builtInChannelRoles...), model.NewSystemRoleIDs...)
@@ -240,7 +240,7 @@ func (a *App) CheckRolesExist(roleNames []string) *model.AppError {
 
 func (a *App) sendUpdatedRoleEvent(role *model.Role) {
 	message := model.NewWebSocketEvent(model.WebsocketEventRoleUpdated, "", "", "", nil)
-	message.Add("role", role.ToJson())
+	message.Add("role", role.ToJSON())
 
 	a.Srv().Go(func() {
 		a.Publish(message)

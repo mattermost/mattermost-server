@@ -20,7 +20,7 @@ func TestInviteProvider(t *testing.T) {
 	channel := th.createChannel(th.BasicTeam, model.ChannelTypeOpen)
 	privateChannel := th.createChannel(th.BasicTeam, model.ChannelTypePrivate)
 	dmChannel := th.createDmChannel(th.BasicUser2)
-	privateChannel2 := th.createChannelWithAnotherUser(th.BasicTeam, model.ChannelTypePrivate, th.BasicUser2.Id)
+	privateChannel2 := th.createChannelWithAnotherUser(th.BasicTeam, model.ChannelTypePrivate, th.BasicUser2.ID)
 
 	basicUser3 := th.createUser()
 	th.linkUserToTeam(basicUser3, th.BasicTeam)
@@ -31,37 +31,37 @@ func TestInviteProvider(t *testing.T) {
 	var err *model.AppError
 	_, err = th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "bot1",
-		OwnerId:     basicUser3.Id,
+		OwnerID:     basicUser3.ID,
 		Description: "a test bot",
 	})
 	require.Nil(t, err)
 
 	bot2, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "bot2",
-		OwnerId:     basicUser3.Id,
+		OwnerID:     basicUser3.ID,
 		Description: "a test bot",
 	})
 	require.Nil(t, err)
-	_, _, err = th.App.AddUserToTeam(th.Context, th.BasicTeam.Id, bot2.UserId, basicUser3.Id)
+	_, _, err = th.App.AddUserToTeam(th.Context, th.BasicTeam.ID, bot2.UserID, basicUser3.ID)
 	require.Nil(t, err)
 
 	bot3, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "bot3",
-		OwnerId:     basicUser3.Id,
+		OwnerID:     basicUser3.ID,
 		Description: "a test bot",
 	})
 	require.Nil(t, err)
-	_, _, err = th.App.AddUserToTeam(th.Context, th.BasicTeam.Id, bot3.UserId, basicUser3.Id)
+	_, _, err = th.App.AddUserToTeam(th.Context, th.BasicTeam.ID, bot3.UserID, basicUser3.ID)
 	require.Nil(t, err)
-	err = th.App.RemoveUserFromTeam(th.Context, th.BasicTeam.Id, bot3.UserId, basicUser3.Id)
+	err = th.App.RemoveUserFromTeam(th.Context, th.BasicTeam.ID, bot3.UserID, basicUser3.ID)
 	require.Nil(t, err)
 
 	InviteP := InviteProvider{}
 	args := &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: th.BasicChannel.Id,
-		TeamId:    th.BasicTeam.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: th.BasicChannel.ID,
+		TeamID:    th.BasicTeam.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	userAndWrongChannel := "@" + th.BasicUser2.Username + " wrongchannel1"
@@ -73,7 +73,7 @@ func TestInviteProvider(t *testing.T) {
 	deactivatedUserPublicChannel := "@" + deactivatedUser.Username + " ~" + channel.Name
 
 	groupChannel := th.createChannel(th.BasicTeam, model.ChannelTypePrivate)
-	_, err = th.App.AddChannelMember(th.Context, th.BasicUser.Id, groupChannel, app.ChannelMemberOpts{})
+	_, err = th.App.AddChannelMember(th.Context, th.BasicUser.ID, groupChannel, app.ChannelMemberOpts{})
 	require.Nil(t, err)
 	groupChannel.GroupConstrained = model.NewBool(true)
 	groupChannel, _ = th.App.UpdateChannel(groupChannel)
@@ -181,8 +181,8 @@ func TestInviteGroup(t *testing.T) {
 
 	th.BasicTeam.GroupConstrained = model.NewBool(true)
 	var err *model.AppError
-	_, _ = th.App.AddTeamMember(th.Context, th.BasicTeam.Id, th.BasicUser.Id)
-	_, err = th.App.AddTeamMember(th.Context, th.BasicTeam.Id, th.BasicUser2.Id)
+	_, _ = th.App.AddTeamMember(th.Context, th.BasicTeam.ID, th.BasicUser.ID)
+	_, err = th.App.AddTeamMember(th.Context, th.BasicTeam.ID, th.BasicUser2.ID)
 	require.Nil(t, err)
 	th.BasicTeam, _ = th.App.UpdateTeam(th.BasicTeam)
 
@@ -196,9 +196,9 @@ func TestInviteGroup(t *testing.T) {
 	InviteP := InviteProvider{}
 	args := &model.CommandArgs{
 		T:         func(s string, args ...interface{}) string { return s },
-		ChannelId: th.BasicChannel.Id,
-		TeamId:    th.BasicTeam.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: th.BasicChannel.ID,
+		TeamID:    th.BasicTeam.ID,
+		UserID:    th.BasicUser.ID,
 	}
 
 	tests := []struct {

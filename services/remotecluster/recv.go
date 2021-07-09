@@ -18,7 +18,7 @@ func (rcs *Service) ReceiveIncomingMsg(rc *model.RemoteCluster, msg model.Remote
 	defer rcs.mux.RUnlock()
 
 	if metrics := rcs.server.GetMetrics(); metrics != nil {
-		metrics.IncrementRemoteClusterMsgReceivedCounter(rc.RemoteId)
+		metrics.IncrementRemoteClusterMsgReceivedCounter(rc.RemoteID)
 	}
 
 	rcSanitized := *rc
@@ -33,7 +33,7 @@ func (rcs *Service) ReceiveIncomingMsg(rc *model.RemoteCluster, msg model.Remote
 	for _, l := range listeners {
 		if err := callback(l, msg, &rcSanitized, &response); err != nil {
 			rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceError, "Error from remote cluster message listener",
-				mlog.String("msgId", msg.Id), mlog.String("topic", msg.Topic), mlog.String("remote", rc.DisplayName), mlog.Err(err))
+				mlog.String("msgId", msg.ID), mlog.String("topic", msg.Topic), mlog.String("remote", rc.DisplayName), mlog.Err(err))
 
 			response.Status = ResponseStatusFail
 			response.Err = err.Error()

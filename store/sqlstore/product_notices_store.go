@@ -54,7 +54,7 @@ func (s SqlProductNoticesStore) ClearOldNotices(currentNotices *model.ProductNot
 	return nil
 }
 
-func (s SqlProductNoticesStore) View(userId string, notices []string) error {
+func (s SqlProductNoticesStore) View(userID string, notices []string) error {
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
 		return errors.Wrap(err, "begin_transaction")
@@ -65,10 +65,10 @@ func (s SqlProductNoticesStore) View(userId string, notices []string) error {
 	sql, args, _ := s.getQueryBuilder().
 		Select("*").
 		From("ProductNoticeViewState").
-		Where(sq.And{sq.Eq{"UserId": userId}, sq.Eq{"NoticeId": notices}}).
+		Where(sq.And{sq.Eq{"UserId": userID}, sq.Eq{"NoticeId": notices}}).
 		ToSql()
 	if _, err := transaction.Select(&noticeStates, sql, args...); err != nil {
-		return errors.Wrapf(err, "failed to get ProductNoticeViewState with userId=%s", userId)
+		return errors.Wrapf(err, "failed to get ProductNoticeViewState with userId=%s", userID)
 	}
 
 	now := time.Now().UTC().Unix()
@@ -85,18 +85,18 @@ func (s SqlProductNoticesStore) View(userId string, notices []string) error {
 	// add new ones
 	haveNoticeState := func(n string) bool {
 		for _, ns := range noticeStates {
-			if ns.NoticeId == n {
+			if ns.NoticeID == n {
 				return true
 			}
 		}
 		return false
 	}
 
-	for _, noticeId := range notices {
-		if !haveNoticeState(noticeId) {
+	for _, noticeID := range notices {
+		if !haveNoticeState(noticeID) {
 			if err := transaction.Insert(&model.ProductNoticeViewState{
-				UserId:    userId,
-				NoticeId:  noticeId,
+				UserID:    userID,
+				NoticeID:  noticeID,
 				Viewed:    1,
 				Timestamp: now,
 			}); err != nil {
@@ -112,11 +112,11 @@ func (s SqlProductNoticesStore) View(userId string, notices []string) error {
 	return nil
 }
 
-func (s SqlProductNoticesStore) GetViews(userId string) ([]model.ProductNoticeViewState, error) {
+func (s SqlProductNoticesStore) GetViews(userID string) ([]model.ProductNoticeViewState, error) {
 	var noticeStates []model.ProductNoticeViewState
-	sql, args, _ := s.getQueryBuilder().Select("*").From("ProductNoticeViewState").Where(sq.Eq{"UserId": userId}).ToSql()
+	sql, args, _ := s.getQueryBuilder().Select("*").From("ProductNoticeViewState").Where(sq.Eq{"UserId": userID}).ToSql()
 	if _, err := s.GetReplica().Select(&noticeStates, sql, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to get ProductNoticeViewState with userId=%s", userId)
+		return nil, errors.Wrapf(err, "failed to get ProductNoticeViewState with userId=%s", userID)
 	}
 	return noticeStates, nil
 }

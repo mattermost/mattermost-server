@@ -40,7 +40,7 @@ func (s SqlStatusStore) createIndexesIfNotExists() {
 }
 
 func (s SqlStatusStore) SaveOrUpdate(status *model.Status) error {
-	if err := s.GetReplica().SelectOne(&model.Status{}, "SELECT * FROM Status WHERE UserId = :UserId", map[string]interface{}{"UserId": status.UserId}); err == nil {
+	if err := s.GetReplica().SelectOne(&model.Status{}, "SELECT * FROM Status WHERE UserId = :UserId", map[string]interface{}{"UserId": status.UserID}); err == nil {
 		if _, err := s.GetMaster().Update(status); err != nil {
 			return errors.Wrap(err, "failed to update Status")
 		}
@@ -54,7 +54,7 @@ func (s SqlStatusStore) SaveOrUpdate(status *model.Status) error {
 	return nil
 }
 
-func (s SqlStatusStore) Get(userId string) (*model.Status, error) {
+func (s SqlStatusStore) Get(userID string) (*model.Status, error) {
 	var status model.Status
 
 	if err := s.GetReplica().SelectOne(&status,
@@ -63,20 +63,20 @@ func (s SqlStatusStore) Get(userId string) (*model.Status, error) {
 		FROM
 			Status
 		WHERE
-			UserId = :UserId`, map[string]interface{}{"UserId": userId}); err != nil {
+			UserId = :UserId`, map[string]interface{}{"UserId": userID}); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, store.NewErrNotFound("Status", fmt.Sprintf("userId=%s", userId))
+			return nil, store.NewErrNotFound("Status", fmt.Sprintf("userId=%s", userID))
 		}
-		return nil, errors.Wrapf(err, "failed to get Status with userId=%s", userId)
+		return nil, errors.Wrapf(err, "failed to get Status with userId=%s", userID)
 	}
 	return &status, nil
 }
 
-func (s SqlStatusStore) GetByIds(userIds []string) ([]*model.Status, error) {
+func (s SqlStatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
 	query := s.getQueryBuilder().
 		Select("UserId, Status, Manual, LastActivityAt").
 		From("Status").
-		Where(sq.Eq{"UserId": userIds})
+		Where(sq.Eq{"UserId": userIDs})
 	queryString, args, err := query.ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "status_tosql")
@@ -89,7 +89,7 @@ func (s SqlStatusStore) GetByIds(userIds []string) ([]*model.Status, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var status model.Status
-		if err = rows.Scan(&status.UserId, &status.Status, &status.Manual, &status.LastActivityAt); err != nil {
+		if err = rows.Scan(&status.UserID, &status.Status, &status.Manual, &status.LastActivityAt); err != nil {
 			return nil, errors.Wrap(err, "unable to scan from rows")
 		}
 		statuses = append(statuses, &status)
@@ -201,7 +201,7 @@ func (s SqlStatusStore) UpdateExpiredDNDStatuses() ([]*model.Status, error) {
 	var statuses []*model.Status
 	for rows.Next() {
 		var status model.Status
-		if err = rows.Scan(&status.UserId, &status.Status, &status.Manual, &status.LastActivityAt,
+		if err = rows.Scan(&status.UserID, &status.Status, &status.Manual, &status.LastActivityAt,
 			&status.DNDEndTime, &status.PrevStatus); err != nil {
 			return nil, errors.Wrap(err, "unable to scan from rows")
 		}
@@ -230,9 +230,9 @@ func (s SqlStatusStore) GetTotalActiveUsersCount() (int64, error) {
 	return count, nil
 }
 
-func (s SqlStatusStore) UpdateLastActivityAt(userId string, lastActivityAt int64) error {
-	if _, err := s.GetMaster().Exec("UPDATE Status SET LastActivityAt = :Time WHERE UserId = :UserId", map[string]interface{}{"UserId": userId, "Time": lastActivityAt}); err != nil {
-		return errors.Wrapf(err, "failed to update last activity for userId=%s", userId)
+func (s SqlStatusStore) UpdateLastActivityAt(userID string, lastActivityAt int64) error {
+	if _, err := s.GetMaster().Exec("UPDATE Status SET LastActivityAt = :Time WHERE UserId = :UserId", map[string]interface{}{"UserId": userID, "Time": lastActivityAt}); err != nil {
+		return errors.Wrapf(err, "failed to update last activity for userId=%s", userID)
 	}
 
 	return nil

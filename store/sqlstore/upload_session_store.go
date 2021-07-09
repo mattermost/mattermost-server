@@ -64,15 +64,15 @@ func (us SqlUploadSessionStore) Update(session *model.UploadSession) error {
 	}
 	if _, err := us.GetMaster().Update(session); err != nil {
 		if err == sql.ErrNoRows {
-			return store.NewErrNotFound("UploadSession", session.Id)
+			return store.NewErrNotFound("UploadSession", session.ID)
 		}
-		return errors.Wrapf(err, "SqlUploadSessionStore.Update: failed to update session with id=%s", session.Id)
+		return errors.Wrapf(err, "SqlUploadSessionStore.Update: failed to update session with id=%s", session.ID)
 	}
 	return nil
 }
 
 func (us SqlUploadSessionStore) Get(id string) (*model.UploadSession, error) {
-	if !model.IsValidId(id) {
+	if !model.IsValidID(id) {
 		return nil, errors.New("SqlUploadSessionStore.Get: id is not valid")
 	}
 	query := us.getQueryBuilder().
@@ -93,11 +93,11 @@ func (us SqlUploadSessionStore) Get(id string) (*model.UploadSession, error) {
 	return &session, nil
 }
 
-func (us SqlUploadSessionStore) GetForUser(userId string) ([]*model.UploadSession, error) {
+func (us SqlUploadSessionStore) GetForUser(userID string) ([]*model.UploadSession, error) {
 	query := us.getQueryBuilder().
 		Select("*").
 		From("UploadSessions").
-		Where(sq.Eq{"UserId": userId}).
+		Where(sq.Eq{"UserId": userID}).
 		OrderBy("CreateAt ASC")
 	queryString, args, err := query.ToSql()
 	if err != nil {
@@ -111,7 +111,7 @@ func (us SqlUploadSessionStore) GetForUser(userId string) ([]*model.UploadSessio
 }
 
 func (us SqlUploadSessionStore) Delete(id string) error {
-	if !model.IsValidId(id) {
+	if !model.IsValidID(id) {
 		return errors.New("SqlUploadSessionStore.Delete: id is not valid")
 	}
 

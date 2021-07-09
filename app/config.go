@@ -303,16 +303,16 @@ func (a *App) PostActionCookieSecret() []byte {
 }
 
 func (s *Server) regenerateClientConfig() {
-	clientConfig := config.GenerateClientConfig(s.Config(), s.TelemetryId(), s.License())
-	limitedClientConfig := config.GenerateLimitedClientConfig(s.Config(), s.TelemetryId(), s.License())
+	clientConfig := config.GenerateClientConfig(s.Config(), s.TelemetryID(), s.License())
+	limitedClientConfig := config.GenerateLimitedClientConfig(s.Config(), s.TelemetryID(), s.License())
 
 	if clientConfig["EnableCustomTermsOfService"] == "true" {
 		termsOfService, err := s.Store.TermsOfService().GetLatest(true)
 		if err != nil {
 			mlog.Err(err)
 		} else {
-			clientConfig["CustomTermsOfServiceId"] = termsOfService.Id
-			limitedClientConfig["CustomTermsOfServiceId"] = termsOfService.Id
+			clientConfig["CustomTermsOfServiceId"] = termsOfService.ID
+			limitedClientConfig["CustomTermsOfServiceId"] = termsOfService.ID
 		}
 	}
 

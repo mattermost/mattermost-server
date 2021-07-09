@@ -107,20 +107,20 @@ func TestTestLdap(t *testing.T) {
 		_, resp := client.TestLdap()
 		CheckNotImplementedStatus(t, resp)
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.ldap_groups.license_error", resp.Error.Id)
+		require.Equal(t, "api.ldap_groups.license_error", resp.Error.ID)
 	})
 	th.App.Srv().SetLicense(model.NewTestLicense("ldap_groups"))
 
 	_, resp := th.Client.TestLdap()
 	CheckForbiddenStatus(t, resp)
 	require.NotNil(t, resp.Error)
-	require.Equal(t, "api.context.permissions.app_error", resp.Error.Id)
+	require.Equal(t, "api.context.permissions.app_error", resp.Error.ID)
 
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 		_, resp = client.TestLdap()
 		CheckNotImplementedStatus(t, resp)
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "ent.ldap.disabled.app_error", resp.Error.Id)
+		require.Equal(t, "ent.ldap.disabled.app_error", resp.Error.ID)
 	})
 }
 
@@ -132,7 +132,7 @@ func TestSyncLdap(t *testing.T) {
 		_, resp := client.TestLdap()
 		CheckNotImplementedStatus(t, resp)
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.ldap_groups.license_error", resp.Error.Id)
+		require.Equal(t, "api.ldap_groups.license_error", resp.Error.ID)
 	})
 
 	th.App.Srv().SetLicense(model.NewTestLicense("ldap_groups"))
@@ -209,18 +209,18 @@ func TestUnlinkLdapGroup(t *testing.T) {
 	CheckNotImplementedStatus(t, resp)
 }
 
-func TestMigrateIdLdap(t *testing.T) {
+func TestMigrateIDLdap(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	_, resp := th.Client.MigrateIdLdap("objectGUID")
+	_, resp := th.Client.MigrateIDLdap("objectGUID")
 	CheckForbiddenStatus(t, resp)
 
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
-		_, resp = client.MigrateIdLdap("")
+		_, resp = client.MigrateIDLdap("")
 		CheckBadRequestStatus(t, resp)
 
-		_, resp = client.MigrateIdLdap("objectGUID")
+		_, resp = client.MigrateIDLdap("objectGUID")
 		CheckNotImplementedStatus(t, resp)
 	})
 }

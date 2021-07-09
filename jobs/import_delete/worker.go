@@ -81,7 +81,7 @@ func (w *ImportDeleteWorker) doJob(job *model.Job) {
 	if claimed, err := w.jobServer.ClaimJob(job); err != nil {
 		mlog.Warn("Worker experienced an error while trying to claim job",
 			mlog.String("worker", w.name),
-			mlog.String("job_id", job.Id),
+			mlog.String("job_id", job.ID),
 			mlog.String("error", err.Error()))
 		return
 	} else if !claimed {
@@ -132,9 +132,9 @@ func (w *ImportDeleteWorker) doJob(job *model.Job) {
 					hasErrs = true
 					continue
 				} else if storeErr == nil {
-					if storeErr = w.app.Srv().Store.FileInfo().PermanentDelete(info.Id); storeErr != nil {
+					if storeErr = w.app.Srv().Store.FileInfo().PermanentDelete(info.ID); storeErr != nil {
 						mlog.Debug("Worker: Failed to delete FileInfo",
-							mlog.Err(storeErr), mlog.String("file_id", info.Id))
+							mlog.Err(storeErr), mlog.String("file_id", info.ID))
 						hasErrs = true
 						continue
 					}
@@ -155,19 +155,19 @@ func (w *ImportDeleteWorker) doJob(job *model.Job) {
 		mlog.Warn("Worker: errors occurred")
 	}
 
-	mlog.Info("Worker: Job is complete", mlog.String("worker", w.name), mlog.String("job_id", job.Id))
+	mlog.Info("Worker: Job is complete", mlog.String("worker", w.name), mlog.String("job_id", job.ID))
 	w.setJobSuccess(job)
 }
 
 func (w *ImportDeleteWorker) setJobSuccess(job *model.Job) {
 	if err := w.app.Srv().Jobs.SetJobSuccess(job); err != nil {
-		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", w.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", w.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 		w.setJobError(job, err)
 	}
 }
 
 func (w *ImportDeleteWorker) setJobError(job *model.Job, appError *model.AppError) {
 	if err := w.app.Srv().Jobs.SetJobError(job, appError); err != nil {
-		mlog.Error("Worker: Failed to set job error", mlog.String("worker", w.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set job error", mlog.String("worker", w.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 	}
 }

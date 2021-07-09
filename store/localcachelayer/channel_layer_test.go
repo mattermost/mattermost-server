@@ -249,19 +249,19 @@ func TestChannelStoreGuestCountCache(t *testing.T) {
 }
 
 func TestChannelStoreChannel(t *testing.T) {
-	channelId := "channel1"
-	fakeChannel := model.Channel{Id: channelId}
+	channelID := "channel1"
+	fakeChannel := model.Channel{ID: channelID}
 	t.Run("first call by id not cached, second cached and returning same data", func(t *testing.T) {
 		mockStore := getMockStore()
 		mockCacheProvider := getMockCacheProvider()
 		cachedStore, err := NewLocalCacheLayer(mockStore, nil, nil, mockCacheProvider)
 		require.NoError(t, err)
 
-		channel, err := cachedStore.Channel().Get(channelId, true)
+		channel, err := cachedStore.Channel().Get(channelID, true)
 		require.NoError(t, err)
 		assert.Equal(t, channel, &fakeChannel)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 1)
-		channel, err = cachedStore.Channel().Get(channelId, true)
+		channel, err = cachedStore.Channel().Get(channelID, true)
 		require.NoError(t, err)
 		assert.Equal(t, channel, &fakeChannel)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 1)
@@ -273,9 +273,9 @@ func TestChannelStoreChannel(t *testing.T) {
 		cachedStore, err := NewLocalCacheLayer(mockStore, nil, nil, mockCacheProvider)
 		require.NoError(t, err)
 
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 1)
-		cachedStore.Channel().Get(channelId, false)
+		cachedStore.Channel().Get(channelID, false)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 2)
 	})
 
@@ -284,11 +284,11 @@ func TestChannelStoreChannel(t *testing.T) {
 		mockCacheProvider := getMockCacheProvider()
 		cachedStore, err := NewLocalCacheLayer(mockStore, nil, nil, mockCacheProvider)
 		require.NoError(t, err)
-		cachedStore.Channel().Get(channelId, false)
+		cachedStore.Channel().Get(channelID, false)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 1)
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 2)
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 2)
 	})
 
@@ -298,10 +298,10 @@ func TestChannelStoreChannel(t *testing.T) {
 		cachedStore, err := NewLocalCacheLayer(mockStore, nil, nil, mockCacheProvider)
 		require.NoError(t, err)
 
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 1)
 		cachedStore.Channel().ClearCaches()
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 2)
 	})
 
@@ -310,10 +310,10 @@ func TestChannelStoreChannel(t *testing.T) {
 		mockCacheProvider := getMockCacheProvider()
 		cachedStore, err := NewLocalCacheLayer(mockStore, nil, nil, mockCacheProvider)
 		require.NoError(t, err)
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 1)
-		cachedStore.Channel().InvalidateChannel(channelId)
-		cachedStore.Channel().Get(channelId, true)
+		cachedStore.Channel().InvalidateChannel(channelID)
+		cachedStore.Channel().Get(channelID, true)
 		mockStore.Channel().(*mocks.ChannelStore).AssertNumberOfCalls(t, "Get", 2)
 	})
 }

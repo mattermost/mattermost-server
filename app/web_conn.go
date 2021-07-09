@@ -65,7 +65,7 @@ type WebConn struct {
 	T                i18n.TranslateFunc
 	Locale           string
 	Sequence         int64
-	UserId           string
+	UserID           string
 
 	allChannelMembers         map[string]string
 	lastAllChannelMembersTime int64
@@ -105,17 +105,17 @@ type CheckConnResult struct {
 // PopulateWebConnConfig checks if the connection id already exists in the hub,
 // and if so, accordingly populates the other fields of the webconn.
 func (a *App) PopulateWebConnConfig(s *model.Session, cfg *WebConnConfig, seqVal string) (*WebConnConfig, error) {
-	if !model.IsValidId(cfg.ConnectionID) {
+	if !model.IsValidID(cfg.ConnectionID) {
 		return nil, fmt.Errorf("invalid connection id: %s", cfg.ConnectionID)
 	}
 
 	// TODO: the method should internally forward the request
 	// to the cluster if it does not have it.
-	res := a.CheckWebConn(s.UserId, cfg.ConnectionID)
+	res := a.CheckWebConn(s.UserID, cfg.ConnectionID)
 	if res == nil {
 		// If the connection is not present, then we assume either timeout,
 		// or server restart. In that case, we set a new one.
-		cfg.ConnectionID = model.NewId()
+		cfg.ConnectionID = model.NewID()
 	} else {
 		// Connection is present, we get the active queue, dead queue
 		cfg.activeQueue = res.ActiveQueue
@@ -139,9 +139,9 @@ func (a *App) PopulateWebConnConfig(s *model.Session, cfg *WebConnConfig, seqVal
 
 // NewWebConn returns a new WebConn instance.
 func (a *App) NewWebConn(cfg *WebConnConfig) *WebConn {
-	if cfg.Session.UserId != "" {
+	if cfg.Session.UserID != "" {
 		a.Srv().Go(func() {
-			a.SetStatusOnline(cfg.Session.UserId, false)
+			a.SetStatusOnline(cfg.Session.UserID, false)
 			a.UpdateLastActivityAtIfNeeded(cfg.Session)
 		})
 	}
@@ -173,7 +173,7 @@ func (a *App) NewWebConn(cfg *WebConnConfig) *WebConn {
 		Sequence:           int64(cfg.sequence),
 		WebSocket:          cfg.WebSocket,
 		lastUserActivityAt: model.GetMillis(),
-		UserId:             cfg.Session.UserId,
+		UserID:             cfg.Session.UserID,
 		T:                  cfg.TFunc,
 		Locale:             cfg.Locale,
 		active:             cfg.Active,
@@ -278,7 +278,7 @@ func (wc *WebConn) readPump() {
 		wc.WebSocket.SetReadDeadline(time.Now().Add(pongWaitTime))
 		if wc.IsAuthenticated() {
 			wc.App.Srv().Go(func() {
-				wc.App.SetStatusAwayIfNeeded(wc.UserId, false)
+				wc.App.SetStatusAwayIfNeeded(wc.UserID, false)
 			})
 		}
 		return nil
@@ -318,7 +318,7 @@ func (wc *WebConn) writePump() {
 			// then generate a different connection ID,
 			// and set sequence to 0, and clear dead queue.
 			wc.clearDeadQueue()
-			wc.SetConnectionID(model.NewId())
+			wc.SetConnectionID(model.NewID())
 			wc.Sequence = 0
 
 			// Send hello message
@@ -362,9 +362,9 @@ func (wc *WebConn) writePump() {
 					model.WebsocketEventChannelViewed:
 					mlog.Warn(
 						"websocket.slow: dropping message",
-						mlog.String("user_id", wc.UserId),
+						mlog.String("user_id", wc.UserID),
 						mlog.String("type", msg.EventType()),
-						mlog.String("channel_id", evt.GetBroadcast().ChannelId),
+						mlog.String("channel_id", evt.GetBroadcast().ChannelID),
 					)
 					skipSend = true
 				}
@@ -390,12 +390,12 @@ func (wc *WebConn) writePump() {
 
 			if len(wc.send) >= sendFullWarn {
 				logData := []mlog.Field{
-					mlog.String("user_id", wc.UserId),
+					mlog.String("user_id", wc.UserID),
 					mlog.String("type", msg.EventType()),
 					mlog.Int("size", buf.Len()),
 				}
 				if evtOk {
-					logData = append(logData, mlog.String("channel_id", evt.GetBroadcast().ChannelId))
+					logData = append(logData, mlog.String("channel_id", evt.GetBroadcast().ChannelID))
 				}
 
 				mlog.Warn("websocket.full", logData...)
@@ -582,7 +582,7 @@ func (wc *WebConn) IsAuthenticated() bool {
 }
 
 func (wc *WebConn) createHelloMessage() *model.WebSocketEvent {
-	msg := model.NewWebSocketEvent(model.WebsocketEventHello, "", "", wc.UserId, nil)
+	msg := model.NewWebSocketEvent(model.WebsocketEventHello, "", "", wc.UserID, nil)
 	msg.Add("server_version", fmt.Sprintf("%v.%v.%v.%v", model.CurrentVersion,
 		model.BuildNumber,
 		wc.App.ClientConfigHash(),
@@ -602,14 +602,14 @@ func (wc *WebConn) shouldSendEventToGuest(msg *model.WebSocketEvent) bool {
 			mlog.Debug("webhub.shouldSendEvent: user not found in message", mlog.Any("user", msg.GetData()["user"]))
 			return false
 		}
-		userID = user.Id
+		userID = user.ID
 	case model.WebsocketEventNewUser:
 		userID = msg.GetData()["user_id"].(string)
 	default:
 		return true
 	}
 
-	canSee, err := wc.App.UserCanSeeOtherUser(wc.UserId, userID)
+	canSee, err := wc.App.UserCanSeeOtherUser(wc.UserID, userID)
 	if err != nil {
 		mlog.Error("webhub.shouldSendEvent.", mlog.Err(err))
 		return false
@@ -629,7 +629,7 @@ func (wc *WebConn) shouldSendEvent(msg *model.WebSocketEvent) bool {
 	// see sensitive data. Prevents admin clients from receiving events with bad data
 	var hasReadPrivateDataPermission *bool
 	if msg.GetBroadcast().ContainsSanitizedData {
-		hasReadPrivateDataPermission = model.NewBool(wc.App.RolesGrantPermission(wc.GetSession().GetUserRoles(), model.PermissionManageSystem.Id))
+		hasReadPrivateDataPermission = model.NewBool(wc.App.RolesGrantPermission(wc.GetSession().GetUserRoles(), model.PermissionManageSystem.ID))
 
 		if *hasReadPrivateDataPermission {
 			return false
@@ -639,7 +639,7 @@ func (wc *WebConn) shouldSendEvent(msg *model.WebSocketEvent) bool {
 	// If the event contains sensitive data, only send to users with permission to see it
 	if msg.GetBroadcast().ContainsSensitiveData {
 		if hasReadPrivateDataPermission == nil {
-			hasReadPrivateDataPermission = model.NewBool(wc.App.RolesGrantPermission(wc.GetSession().GetUserRoles(), model.PermissionManageSystem.Id))
+			hasReadPrivateDataPermission = model.NewBool(wc.App.RolesGrantPermission(wc.GetSession().GetUserRoles(), model.PermissionManageSystem.ID))
 		}
 
 		if !*hasReadPrivateDataPermission {
@@ -648,26 +648,26 @@ func (wc *WebConn) shouldSendEvent(msg *model.WebSocketEvent) bool {
 	}
 
 	// If the event is destined to a specific user
-	if msg.GetBroadcast().UserId != "" {
-		return wc.UserId == msg.GetBroadcast().UserId
+	if msg.GetBroadcast().UserID != "" {
+		return wc.UserID == msg.GetBroadcast().UserID
 	}
 
 	// if the user is omitted don't send the message
 	if len(msg.GetBroadcast().OmitUsers) > 0 {
-		if _, ok := msg.GetBroadcast().OmitUsers[wc.UserId]; ok {
+		if _, ok := msg.GetBroadcast().OmitUsers[wc.UserID]; ok {
 			return false
 		}
 	}
 
 	// Only report events to users who are in the channel for the event
-	if msg.GetBroadcast().ChannelId != "" {
+	if msg.GetBroadcast().ChannelID != "" {
 		if model.GetMillis()-wc.lastAllChannelMembersTime > webConnMemberCacheTime {
 			wc.allChannelMembers = nil
 			wc.lastAllChannelMembersTime = 0
 		}
 
 		if wc.allChannelMembers == nil {
-			result, err := wc.App.Srv().Store.Channel().GetAllChannelMembersForUser(wc.UserId, true, false)
+			result, err := wc.App.Srv().Store.Channel().GetAllChannelMembersForUser(wc.UserID, true, false)
 			if err != nil {
 				mlog.Error("webhub.shouldSendEvent.", mlog.Err(err))
 				return false
@@ -676,15 +676,15 @@ func (wc *WebConn) shouldSendEvent(msg *model.WebSocketEvent) bool {
 			wc.lastAllChannelMembersTime = model.GetMillis()
 		}
 
-		if _, ok := wc.allChannelMembers[msg.GetBroadcast().ChannelId]; ok {
+		if _, ok := wc.allChannelMembers[msg.GetBroadcast().ChannelID]; ok {
 			return true
 		}
 		return false
 	}
 
 	// Only report events to users who are in the team for the event
-	if msg.GetBroadcast().TeamId != "" {
-		return wc.isMemberOfTeam(msg.GetBroadcast().TeamId)
+	if msg.GetBroadcast().TeamID != "" {
+		return wc.isMemberOfTeam(msg.GetBroadcast().TeamID)
 	}
 
 	if wc.GetSession().Props[model.SessionPropIsGuest] == "true" {
@@ -713,14 +713,14 @@ func (wc *WebConn) isMemberOfTeam(teamID string) bool {
 		currentSession = session
 	}
 
-	return currentSession.GetTeamByTeamId(teamID) != nil
+	return currentSession.GetTeamByTeamID(teamID) != nil
 }
 
 func (wc *WebConn) logSocketErr(source string, err error) {
 	// browsers will appear as CloseNoStatusReceived
 	if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived) {
-		mlog.Debug(source+": client side closed socket", mlog.String("user_id", wc.UserId))
+		mlog.Debug(source+": client side closed socket", mlog.String("user_id", wc.UserID))
 	} else {
-		mlog.Debug(source+": closing websocket", mlog.String("user_id", wc.UserId), mlog.Err(err))
+		mlog.Debug(source+": closing websocket", mlog.String("user_id", wc.UserID), mlog.Err(err))
 	}
 }

@@ -96,12 +96,12 @@ func TestImportPermissions(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	name := model.NewId()
-	displayName := model.NewId()
+	name := model.NewID()
+	displayName := model.NewID()
 	description := "my test description"
 	scope := model.SchemeScopeChannel
-	roleName1 := model.NewId()
-	roleName2 := model.NewId()
+	roleName1 := model.NewID()
+	roleName2 := model.NewID()
 
 	var results []*model.Scheme
 	var beforeCount int
@@ -176,12 +176,12 @@ func TestImportPermissions_idempotentScheme(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	name := model.NewId()
-	displayName := model.NewId()
+	name := model.NewID()
+	displayName := model.NewID()
 	description := "my test description"
 	scope := model.SchemeScopeChannel
-	roleName1 := model.NewId()
-	roleName2 := model.NewId()
+	roleName1 := model.NewID()
+	roleName2 := model.NewID()
 
 	json := fmt.Sprintf(`{"display_name":"%v","name":"%v","description":"%v","scope":"%v","default_team_admin_role":"","default_team_user_role":"","default_channel_admin_role":"%v","default_channel_user_role":"%v","roles":[{"id":"yzfx3g9xjjfw8cqo6bpn33xr7o","name":"%v","display_name":"Channel Admin Role for Scheme my_scheme_1526475590","description":"","create_at":1526475589687,"update_at":1526475589687,"delete_at":0,"permissions":["manage_channel_roles"],"scheme_managed":true,"built_in":false},{"id":"a7s3cp4n33dfxbsrmyh9djao3a","name":"%v","display_name":"Channel User Role for Scheme my_scheme_1526475590","description":"","create_at":1526475589688,"update_at":1526475589688,"delete_at":0,"permissions":["read_channel","add_reaction","remove_reaction","manage_public_channel_members","upload_file","get_public_link","create_post","use_slash_commands","manage_private_channel_members","delete_post","edit_post"],"scheme_managed":true,"built_in":false}]}`, displayName, name, description, scope, roleName1, roleName2, roleName1, roleName2)
 	jsonl := strings.Repeat(json+"\n", 4)
@@ -219,12 +219,12 @@ func TestImportPermissions_schemeDeletedOnRoleFailure(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	name := model.NewId()
-	displayName := model.NewId()
+	name := model.NewID()
+	displayName := model.NewID()
 	description := "my test description"
 	scope := "invalid scope"
-	roleName1 := model.NewId()
-	roleName2 := model.NewId()
+	roleName1 := model.NewID()
+	roleName2 := model.NewID()
 
 	jsonl := fmt.Sprintf(`{"display_name":"%v","name":"%v","description":"%v","scope":"%v","default_team_admin_role":"","default_team_user_role":"","default_channel_admin_role":"%v","default_channel_user_role":"%v","roles":[{"id":"yzfx3g9xjjfw8cqo6bpn33xr7o","name":"%v","display_name":"Channel Admin Role for Scheme my_scheme_1526475590","description":"","create_at":1526475589687,"update_at":1526475589687,"delete_at":0,"permissions":["manage_channel_roles"],"scheme_managed":true,"built_in":false},{"id":"a7s3cp4n33dfxbsrmyh9djao3a","name":"%v","display_name":"Channel User Role for Scheme my_scheme_1526475590","description":"","create_at":1526475589688,"update_at":1526475589688,"delete_at":0,"permissions":["read_channel","add_reaction","remove_reaction","manage_public_channel_members","upload_file","get_public_link","create_post","use_slash_commands","manage_private_channel_members","delete_post","edit_post"],"scheme_managed":true,"built_in":false}]}`, displayName, name, description, scope, roleName1, roleName2, roleName1, roleName2)
 	r := strings.NewReader(jsonl)
@@ -261,21 +261,21 @@ func TestMigration(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	role, err := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleId)
+	role, err := th.App.GetRoleByName(context.Background(), model.SystemAdminRoleID)
 	require.Nil(t, err)
-	assert.Contains(t, role.Permissions, model.PermissionCreateEmojis.Id)
-	assert.Contains(t, role.Permissions, model.PermissionDeleteEmojis.Id)
-	assert.Contains(t, role.Permissions, model.PermissionDeleteOthersEmojis.Id)
-	assert.Contains(t, role.Permissions, model.PermissionUseGroupMentions.Id)
+	assert.Contains(t, role.Permissions, model.PermissionCreateEmojis.ID)
+	assert.Contains(t, role.Permissions, model.PermissionDeleteEmojis.ID)
+	assert.Contains(t, role.Permissions, model.PermissionDeleteOthersEmojis.ID)
+	assert.Contains(t, role.Permissions, model.PermissionUseGroupMentions.ID)
 
 	th.App.ResetPermissionsSystem()
 
-	role, err = th.App.GetRoleByName(context.Background(), model.SystemAdminRoleId)
+	role, err = th.App.GetRoleByName(context.Background(), model.SystemAdminRoleID)
 	require.Nil(t, err)
-	assert.Contains(t, role.Permissions, model.PermissionCreateEmojis.Id)
-	assert.Contains(t, role.Permissions, model.PermissionDeleteEmojis.Id)
-	assert.Contains(t, role.Permissions, model.PermissionDeleteOthersEmojis.Id)
-	assert.Contains(t, role.Permissions, model.PermissionUseGroupMentions.Id)
+	assert.Contains(t, role.Permissions, model.PermissionCreateEmojis.ID)
+	assert.Contains(t, role.Permissions, model.PermissionDeleteEmojis.ID)
+	assert.Contains(t, role.Permissions, model.PermissionDeleteOthersEmojis.ID)
+	assert.Contains(t, role.Permissions, model.PermissionUseGroupMentions.ID)
 }
 
 func withMigrationMarkedComplete(th *TestHelper, f func()) {

@@ -420,7 +420,7 @@ func TestGetAnalyticsOld(t *testing.T) {
 	_, resp = th.SystemAdminClient.GetAnalyticsOld("extra_counts", "")
 	CheckNoError(t, resp)
 
-	rows, resp = th.SystemAdminClient.GetAnalyticsOld("", th.BasicTeam.Id)
+	rows, resp = th.SystemAdminClient.GetAnalyticsOld("", th.BasicTeam.ID)
 	CheckNoError(t, resp)
 
 	for _, row := range rows {
@@ -450,7 +450,7 @@ func TestGetAnalyticsOld(t *testing.T) {
 	assert.Equal(t, float64(0), rows2[5].Value)
 
 	Client.Logout()
-	_, resp = Client.GetAnalyticsOld("", th.BasicTeam.Id)
+	_, resp = Client.GetAnalyticsOld("", th.BasicTeam.ID)
 	CheckUnauthorizedStatus(t, resp)
 }
 
@@ -473,7 +473,7 @@ func TestS3TestConnection(t *testing.T) {
 	config := model.Config{
 		FileSettings: model.FileSettings{
 			DriverName:              model.NewString(model.ImageDriverS3),
-			AmazonS3AccessKeyId:     model.NewString(model.MinioAccessKey),
+			AmazonS3AccessKeyID:     model.NewString(model.MinioAccessKey),
 			AmazonS3SecretAccessKey: model.NewString(model.MinioSecretKey),
 			AmazonS3Bucket:          model.NewString(""),
 			AmazonS3Endpoint:        model.NewString(s3Endpoint),
@@ -507,20 +507,20 @@ func TestS3TestConnection(t *testing.T) {
 		config.FileSettings.AmazonS3Bucket = model.NewString("Wrong_bucket")
 		_, resp = th.SystemAdminClient.TestS3Connection(&config)
 		CheckInternalErrorStatus(t, resp)
-		assert.Equal(t, "api.file.test_connection_s3_bucket_does_not_exist.app_error", resp.Error.Id)
+		assert.Equal(t, "api.file.test_connection_s3_bucket_does_not_exist.app_error", resp.Error.ID)
 
 		*config.FileSettings.AmazonS3Bucket = "shouldnotcreatenewbucket"
 		_, resp = th.SystemAdminClient.TestS3Connection(&config)
 		CheckInternalErrorStatus(t, resp)
-		assert.Equal(t, "api.file.test_connection_s3_bucket_does_not_exist.app_error", resp.Error.Id)
+		assert.Equal(t, "api.file.test_connection_s3_bucket_does_not_exist.app_error", resp.Error.ID)
 	})
 
 	t.Run("with incorrect credentials", func(t *testing.T) {
 		configCopy := config
-		*configCopy.FileSettings.AmazonS3AccessKeyId = "invalidaccesskey"
+		*configCopy.FileSettings.AmazonS3AccessKeyID = "invalidaccesskey"
 		_, resp := th.SystemAdminClient.TestS3Connection(&configCopy)
 		CheckInternalErrorStatus(t, resp)
-		assert.Equal(t, "api.file.test_connection_s3_auth.app_error", resp.Error.Id)
+		assert.Equal(t, "api.file.test_connection_s3_auth.app_error", resp.Error.ID)
 	})
 
 	t.Run("as restricted system admin", func(t *testing.T) {

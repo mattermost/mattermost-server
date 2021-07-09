@@ -273,7 +273,7 @@ func (a *App) GetProductNotices(c *request.Context, userID, teamID string, clien
 		// check if the notice has been viewed already
 		var view *model.ProductNoticeViewState
 		for viewIndex, v := range views {
-			if v.NoticeId == notice.ID {
+			if v.NoticeID == notice.ID {
 				view = &views[viewIndex]
 				break
 			}
@@ -326,8 +326,8 @@ func (a *App) GetProductNotices(c *request.Context, userID, teamID string, clien
 }
 
 // UpdateViewedProductNotices is called from the frontend to mark a set of notices as 'viewed' by user
-func (a *App) UpdateViewedProductNotices(userID string, noticeIds []string) *model.AppError {
-	if err := a.Srv().Store.ProductNotices().View(userID, noticeIds); err != nil {
+func (a *App) UpdateViewedProductNotices(userID string, noticeIDs []string) *model.AppError {
+	if err := a.Srv().Store.ProductNotices().View(userID, noticeIDs); err != nil {
 		return model.NewAppError("UpdateViewedProductNotices", "api.system.update_viewed_notices.failed", nil, err.Error(), http.StatusBadRequest)
 	}
 	return nil
@@ -336,11 +336,11 @@ func (a *App) UpdateViewedProductNotices(userID string, noticeIds []string) *mod
 // UpdateViewedProductNoticesForNewUser is called when new user is created to mark all current notices for this
 // user as viewed in order to avoid showing them imminently on first login
 func (a *App) UpdateViewedProductNoticesForNewUser(userID string) {
-	var noticeIds []string
+	var noticeIDs []string
 	for _, notice := range cachedNotices {
-		noticeIds = append(noticeIds, notice.ID)
+		noticeIDs = append(noticeIDs, notice.ID)
 	}
-	if err := a.Srv().Store.ProductNotices().View(userID, noticeIds); err != nil {
+	if err := a.Srv().Store.ProductNotices().View(userID, noticeIDs); err != nil {
 		mlog.Error("Cannot update product notices viewed state for user", mlog.String("userId", userID))
 	}
 }

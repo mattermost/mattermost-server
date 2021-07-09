@@ -41,15 +41,15 @@ func remoteClusterPing(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	remoteId := c.GetRemoteID(r)
-	if remoteId != frame.RemoteId {
-		c.SetInvalidRemoteIdError(frame.RemoteId)
+	remoteID := c.GetRemoteID(r)
+	if remoteID != frame.RemoteID {
+		c.SetInvalidRemoteIDError(frame.RemoteID)
 		return
 	}
 
-	rc, err := c.App.GetRemoteCluster(frame.RemoteId)
+	rc, err := c.App.GetRemoteCluster(frame.RemoteID)
 	if err != nil {
-		c.SetInvalidRemoteIdError(frame.RemoteId)
+		c.SetInvalidRemoteIDError(frame.RemoteID)
 		return
 	}
 
@@ -61,7 +61,7 @@ func remoteClusterPing(c *Context, w http.ResponseWriter, r *http.Request) {
 	ping.RecvAt = model.GetMillis()
 
 	if metrics := c.App.Metrics(); metrics != nil {
-		metrics.IncrementRemoteClusterMsgReceivedCounter(rc.RemoteId)
+		metrics.IncrementRemoteClusterMsgReceivedCounter(rc.RemoteID)
 	}
 
 	resp, _ := json.Marshal(ping)
@@ -90,15 +90,15 @@ func remoteClusterAcceptMessage(c *Context, w http.ResponseWriter, r *http.Reque
 	auditRec := c.MakeAuditRecord("remoteClusterAcceptMessage", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	remoteId := c.GetRemoteID(r)
-	if remoteId != frame.RemoteId {
-		c.SetInvalidRemoteIdError(frame.RemoteId)
+	remoteID := c.GetRemoteID(r)
+	if remoteID != frame.RemoteID {
+		c.SetInvalidRemoteIDError(frame.RemoteID)
 		return
 	}
 
-	rc, err := c.App.GetRemoteCluster(frame.RemoteId)
+	rc, err := c.App.GetRemoteCluster(frame.RemoteID)
 	if err != nil {
-		c.SetInvalidRemoteIdError(frame.RemoteId)
+		c.SetInvalidRemoteIDError(frame.RemoteID)
 		return
 	}
 	auditRec.AddMeta("remoteCluster", rc)
@@ -135,15 +135,15 @@ func remoteClusterConfirmInvite(c *Context, w http.ResponseWriter, r *http.Reque
 	auditRec := c.MakeAuditRecord("remoteClusterAcceptInvite", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	remoteId := c.GetRemoteID(r)
-	if remoteId != frame.RemoteId {
-		c.SetInvalidRemoteIdError(frame.RemoteId)
+	remoteID := c.GetRemoteID(r)
+	if remoteID != frame.RemoteID {
+		c.SetInvalidRemoteIDError(frame.RemoteID)
 		return
 	}
 
-	rc, err := c.App.GetRemoteCluster(frame.RemoteId)
+	rc, err := c.App.GetRemoteCluster(frame.RemoteID)
 	if err != nil {
-		c.SetInvalidRemoteIdError(frame.RemoteId)
+		c.SetInvalidRemoteIDError(frame.RemoteID)
 		return
 	}
 	auditRec.AddMeta("remoteCluster", rc)
@@ -159,7 +159,7 @@ func remoteClusterConfirmInvite(c *Context, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	rc.RemoteTeamId = confirm.RemoteTeamId
+	rc.RemoteTeamID = confirm.RemoteTeamID
 	rc.SiteURL = confirm.SiteURL
 	rc.RemoteToken = confirm.Token
 
@@ -179,22 +179,22 @@ func uploadRemoteData(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.RequireUploadId()
+	c.RequireUploadID()
 	if c.Err != nil {
 		return
 	}
 
 	auditRec := c.MakeAuditRecord("uploadRemoteData", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("upload_id", c.Params.UploadId)
+	auditRec.AddMeta("upload_id", c.Params.UploadID)
 
-	us, err := c.App.GetUploadSession(c.Params.UploadId)
+	us, err := c.App.GetUploadSession(c.Params.UploadID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	if us.RemoteId != c.GetRemoteID(r) {
+	if us.RemoteID != c.GetRemoteID(r) {
 		c.Err = model.NewAppError("uploadRemoteData", "api.context.remote_id_mismatch.app_error",
 			nil, "", http.StatusUnauthorized)
 		return
@@ -213,13 +213,13 @@ func uploadRemoteData(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(info.ToJson()))
+	w.Write([]byte(info.ToJSON()))
 }
 
 func remoteSetProfileImage(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer io.Copy(ioutil.Discard, r.Body)
 
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
@@ -257,7 +257,7 @@ func remoteSetProfileImage(c *Context, w http.ResponseWriter, r *http.Request) {
 		auditRec.AddMeta("filename", imageArray[0].Filename)
 	}
 
-	user, err := c.App.GetUser(c.Params.UserId)
+	user, err := c.App.GetUser(c.Params.UserID)
 	if err != nil || !user.IsRemote() {
 		c.SetInvalidUrlParam("user_id")
 		return
@@ -265,7 +265,7 @@ func remoteSetProfileImage(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("user", user)
 
 	imageData := imageArray[0]
-	if err := c.App.SetProfileImage(c.Params.UserId, imageData); err != nil {
+	if err := c.App.SetProfileImage(c.Params.UserID, imageData); err != nil {
 		c.Err = err
 		return
 	}

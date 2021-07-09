@@ -29,7 +29,7 @@ func (us *UserService) GetDefaultProfileImage(user *model.User) ([]byte, error) 
 		return botDefaultImage, nil
 	}
 
-	return createProfileImage(user.Username, user.Id, *us.config().FileSettings.InitialFont)
+	return createProfileImage(user.Username, user.ID, *us.config().FileSettings.InitialFont)
 }
 
 func createProfileImage(username string, userID string, initialFont string) ([]byte, error) {

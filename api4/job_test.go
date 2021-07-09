@@ -31,10 +31,10 @@ func TestCreateJob(t *testing.T) {
 	received, resp := th.SystemAdminClient.CreateJob(job)
 	require.Nil(t, resp.Error)
 
-	defer th.App.Srv().Store.Job().Delete(received.Id)
+	defer th.App.Srv().Store.Job().Delete(received.ID)
 
 	job = &model.Job{
-		Type: model.NewId(),
+		Type: model.NewID(),
 	}
 
 	_, resp = th.SystemAdminClient.CreateJob(job)
@@ -50,28 +50,28 @@ func TestGetJob(t *testing.T) {
 	defer th.TearDown()
 
 	job := &model.Job{
-		Id:     model.NewId(),
+		ID:     model.NewID(),
 		Status: model.JobStatusPending,
 		Type:   model.JobTypeMessageExport,
 	}
 	_, err := th.App.Srv().Store.Job().Save(job)
 	require.NoError(t, err)
 
-	defer th.App.Srv().Store.Job().Delete(job.Id)
+	defer th.App.Srv().Store.Job().Delete(job.ID)
 
-	received, resp := th.SystemAdminClient.GetJob(job.Id)
+	received, resp := th.SystemAdminClient.GetJob(job.ID)
 	require.Nil(t, resp.Error)
 
-	require.Equal(t, job.Id, received.Id, "incorrect job received")
+	require.Equal(t, job.ID, received.ID, "incorrect job received")
 	require.Equal(t, job.Status, received.Status, "incorrect job received")
 
 	_, resp = th.SystemAdminClient.GetJob("1234")
 	CheckBadRequestStatus(t, resp)
 
-	_, resp = th.Client.GetJob(job.Id)
+	_, resp = th.Client.GetJob(job.ID)
 	CheckForbiddenStatus(t, resp)
 
-	_, resp = th.SystemAdminClient.GetJob(model.NewId())
+	_, resp = th.SystemAdminClient.GetJob(model.NewID())
 	CheckNotFoundStatus(t, resp)
 }
 
@@ -84,17 +84,17 @@ func TestGetJobs(t *testing.T) {
 	t0 := model.GetMillis()
 	jobs := []*model.Job{
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: t0 + 1,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: t0,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: t0 + 2,
 		},
@@ -103,20 +103,20 @@ func TestGetJobs(t *testing.T) {
 	for _, job := range jobs {
 		_, err := th.App.Srv().Store.Job().Save(job)
 		require.NoError(t, err)
-		defer th.App.Srv().Store.Job().Delete(job.Id)
+		defer th.App.Srv().Store.Job().Delete(job.ID)
 	}
 
 	received, resp := th.SystemAdminClient.GetJobs(0, 2)
 	require.Nil(t, resp.Error)
 
 	require.Len(t, received, 2, "received wrong number of jobs")
-	require.Equal(t, jobs[2].Id, received[0].Id, "should've received newest job first")
-	require.Equal(t, jobs[0].Id, received[1].Id, "should've received second newest job second")
+	require.Equal(t, jobs[2].ID, received[0].ID, "should've received newest job first")
+	require.Equal(t, jobs[0].ID, received[1].ID, "should've received second newest job second")
 
 	received, resp = th.SystemAdminClient.GetJobs(1, 2)
 	require.Nil(t, resp.Error)
 
-	require.Equal(t, jobs[1].Id, received[0].Id, "should've received oldest job last")
+	require.Equal(t, jobs[1].ID, received[0].ID, "should've received oldest job last")
 
 	_, resp = th.Client.GetJobs(0, 60)
 	CheckForbiddenStatus(t, resp)
@@ -130,23 +130,23 @@ func TestGetJobsByType(t *testing.T) {
 
 	jobs := []*model.Job{
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 1000,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 999,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 1001,
 		},
 		{
-			Id:       model.NewId(),
-			Type:     model.NewId(),
+			ID:       model.NewID(),
+			Type:     model.NewID(),
 			CreateAt: 1002,
 		},
 	}
@@ -154,21 +154,21 @@ func TestGetJobsByType(t *testing.T) {
 	for _, job := range jobs {
 		_, err := th.App.Srv().Store.Job().Save(job)
 		require.NoError(t, err)
-		defer th.App.Srv().Store.Job().Delete(job.Id)
+		defer th.App.Srv().Store.Job().Delete(job.ID)
 	}
 
 	received, resp := th.SystemAdminClient.GetJobsByType(jobType, 0, 2)
 	require.Nil(t, resp.Error)
 
 	require.Len(t, received, 2, "received wrong number of jobs")
-	require.Equal(t, jobs[2].Id, received[0].Id, "should've received newest job first")
-	require.Equal(t, jobs[0].Id, received[1].Id, "should've received second newest job second")
+	require.Equal(t, jobs[2].ID, received[0].ID, "should've received newest job first")
+	require.Equal(t, jobs[0].ID, received[1].ID, "should've received second newest job second")
 
 	received, resp = th.SystemAdminClient.GetJobsByType(jobType, 1, 2)
 	require.Nil(t, resp.Error)
 
 	require.Len(t, received, 1, "received wrong number of jobs")
-	require.Equal(t, jobs[1].Id, received[0].Id, "should've received oldest job last")
+	require.Equal(t, jobs[1].ID, received[0].ID, "should've received oldest job last")
 
 	_, resp = th.SystemAdminClient.GetJobsByType("", 0, 60)
 	CheckNotFoundStatus(t, resp)
@@ -186,9 +186,9 @@ func TestGetJobsByType(t *testing.T) {
 func TestDownloadJob(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
-	jobName := model.NewId()
+	jobName := model.NewID()
 	job := &model.Job{
-		Id:   jobName,
+		ID:   jobName,
 		Type: model.JobTypeMessageExport,
 		Data: map[string]string{
 			"export_type": "csv",
@@ -197,7 +197,7 @@ func TestDownloadJob(t *testing.T) {
 	}
 
 	// DownloadExportResults is not set to true so we should get a not implemented error status
-	_, resp := th.Client.DownloadJob(job.Id)
+	_, resp := th.Client.DownloadJob(job.ID)
 	CheckNotImplementedStatus(t, resp)
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
@@ -205,33 +205,33 @@ func TestDownloadJob(t *testing.T) {
 	})
 
 	// Normal user cannot download the results of these job (non-existent job)
-	_, resp = th.Client.DownloadJob(job.Id)
+	_, resp = th.Client.DownloadJob(job.ID)
 	CheckNotFoundStatus(t, resp)
 
 	// System admin trying to download the results of a non-existent job
-	_, resp = th.SystemAdminClient.DownloadJob(job.Id)
+	_, resp = th.SystemAdminClient.DownloadJob(job.ID)
 	CheckNotFoundStatus(t, resp)
 
 	// Here we have a job that exist in our database but the results do not exist therefore when we try to download the results
 	// as a system admin, we should get a not found status.
 	_, err := th.App.Srv().Store.Job().Save(job)
 	require.NoError(t, err)
-	defer th.App.Srv().Store.Job().Delete(job.Id)
+	defer th.App.Srv().Store.Job().Delete(job.ID)
 
-	filePath := "./data/export/" + job.Id + "/testdat.txt"
+	filePath := "./data/export/" + job.ID + "/testdat.txt"
 	mkdirAllErr := os.MkdirAll(filepath.Dir(filePath), 0770)
 	require.NoError(t, mkdirAllErr)
 	os.Create(filePath)
 
 	// Normal user cannot download the results of these job (not the right permission)
-	_, resp = th.Client.DownloadJob(job.Id)
+	_, resp = th.Client.DownloadJob(job.ID)
 	CheckForbiddenStatus(t, resp)
 
 	// System manager with default permissions cannot download the results of these job (Doesn't have correct permissions)
-	_, resp = th.SystemManagerClient.DownloadJob(job.Id)
+	_, resp = th.SystemManagerClient.DownloadJob(job.ID)
 	CheckForbiddenStatus(t, resp)
 
-	_, resp = th.SystemAdminClient.DownloadJob(job.Id)
+	_, resp = th.SystemAdminClient.DownloadJob(job.ID)
 	CheckBadRequestStatus(t, resp)
 
 	job.Data["is_downloadable"] = "true"
@@ -239,23 +239,23 @@ func TestDownloadJob(t *testing.T) {
 	require.True(t, updateStatus)
 	require.NoError(t, err)
 
-	_, resp = th.SystemAdminClient.DownloadJob(job.Id)
+	_, resp = th.SystemAdminClient.DownloadJob(job.ID)
 	CheckNotFoundStatus(t, resp)
 
 	// Now we stub the results of the job into the same directory and try to download it again
 	// This time we should successfully retrieve the results without any error
-	filePath = "./data/export/" + job.Id + ".zip"
+	filePath = "./data/export/" + job.ID + ".zip"
 	mkdirAllErr = os.MkdirAll(filepath.Dir(filePath), 0770)
 	require.NoError(t, mkdirAllErr)
 	os.Create(filePath)
 
-	_, resp = th.SystemAdminClient.DownloadJob(job.Id)
+	_, resp = th.SystemAdminClient.DownloadJob(job.ID)
 	require.Nil(t, resp.Error)
 
 	// Here we are creating a new job which doesn't have type of message export
-	jobName = model.NewId()
+	jobName = model.NewID()
 	job = &model.Job{
-		Id:   jobName,
+		ID:   jobName,
 		Type: model.JobTypeCloud,
 		Data: map[string]string{
 			"export_type": "csv",
@@ -264,10 +264,10 @@ func TestDownloadJob(t *testing.T) {
 	}
 	_, err = th.App.Srv().Store.Job().Save(job)
 	require.NoError(t, err)
-	defer th.App.Srv().Store.Job().Delete(job.Id)
+	defer th.App.Srv().Store.Job().Delete(job.ID)
 
 	// System admin shouldn't be able to download since the job type is not message export
-	_, resp = th.SystemAdminClient.DownloadJob(job.Id)
+	_, resp = th.SystemAdminClient.DownloadJob(job.ID)
 	CheckBadRequestStatus(t, resp)
 }
 
@@ -278,17 +278,17 @@ func TestCancelJob(t *testing.T) {
 	jobType := model.JobTypeMessageExport
 	jobs := []*model.Job{
 		{
-			Id:     model.NewId(),
+			ID:     model.NewID(),
 			Type:   jobType,
 			Status: model.JobStatusPending,
 		},
 		{
-			Id:     model.NewId(),
+			ID:     model.NewID(),
 			Type:   jobType,
 			Status: model.JobStatusInProgress,
 		},
 		{
-			Id:     model.NewId(),
+			ID:     model.NewID(),
 			Type:   jobType,
 			Status: model.JobStatusSuccess,
 		},
@@ -297,21 +297,21 @@ func TestCancelJob(t *testing.T) {
 	for _, job := range jobs {
 		_, err := th.App.Srv().Store.Job().Save(job)
 		require.NoError(t, err)
-		defer th.App.Srv().Store.Job().Delete(job.Id)
+		defer th.App.Srv().Store.Job().Delete(job.ID)
 	}
 
-	_, resp := th.Client.CancelJob(jobs[0].Id)
+	_, resp := th.Client.CancelJob(jobs[0].ID)
 	CheckForbiddenStatus(t, resp)
 
-	_, resp = th.SystemAdminClient.CancelJob(jobs[0].Id)
+	_, resp = th.SystemAdminClient.CancelJob(jobs[0].ID)
 	require.Nil(t, resp.Error)
 
-	_, resp = th.SystemAdminClient.CancelJob(jobs[1].Id)
+	_, resp = th.SystemAdminClient.CancelJob(jobs[1].ID)
 	require.Nil(t, resp.Error)
 
-	_, resp = th.SystemAdminClient.CancelJob(jobs[2].Id)
+	_, resp = th.SystemAdminClient.CancelJob(jobs[2].ID)
 	CheckInternalErrorStatus(t, resp)
 
-	_, resp = th.SystemAdminClient.CancelJob(model.NewId())
+	_, resp = th.SystemAdminClient.CancelJob(model.NewID())
 	CheckNotFoundStatus(t, resp)
 }

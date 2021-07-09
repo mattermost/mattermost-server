@@ -48,10 +48,10 @@ func connectWebSocket(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	if *c.App.Config().ServiceSettings.EnableReliableWebSockets {
 		cfg.ConnectionID = r.URL.Query().Get(connectionIDParam)
-		if cfg.ConnectionID == "" || c.AppContext.Session().UserId == "" {
+		if cfg.ConnectionID == "" || c.AppContext.Session().UserID == "" {
 			// If not present, we assume client is not capable yet, or it's a fresh connection.
 			// We just create a new ID.
-			cfg.ConnectionID = model.NewId()
+			cfg.ConnectionID = model.NewID()
 			// In case of fresh connection id, sequence number is already zero.
 		} else {
 			cfg, err = c.App.PopulateWebConnConfig(c.AppContext.Session(), cfg, r.URL.Query().Get(sequenceNumberParam))
@@ -64,7 +64,7 @@ func connectWebSocket(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	wc := c.App.NewWebConn(cfg)
-	if c.AppContext.Session().UserId != "" {
+	if c.AppContext.Session().UserID != "" {
 		c.App.HubRegister(wc)
 	}
 

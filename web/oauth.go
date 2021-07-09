@@ -44,7 +44,7 @@ func testHandler(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func authorizeOAuthApp(c *Context, w http.ResponseWriter, r *http.Request) {
-	authRequest := model.AuthorizeRequestFromJson(r.Body)
+	authRequest := model.AuthorizeRequestFromJSON(r.Body)
 	if authRequest == nil {
 		c.SetInvalidParam("authorize_request")
 		return
@@ -65,7 +65,7 @@ func authorizeOAuthApp(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer c.LogAuditRec(auditRec)
 	c.LogAudit("attempt")
 
-	redirectUrl, err := c.App.AllowOAuthAppAccessToUser(c.AppContext.Session().UserId, authRequest)
+	redirectUrl, err := c.App.AllowOAuthAppAccessToUser(c.AppContext.Session().UserID, authRequest)
 
 	if err != nil {
 		c.Err = err
@@ -75,14 +75,14 @@ func authorizeOAuthApp(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	c.LogAudit("")
 
-	w.Write([]byte(model.MapToJson(map[string]string{"redirect": redirectUrl})))
+	w.Write([]byte(model.MapToJSON(map[string]string{"redirect": redirectUrl})))
 }
 
 func deauthorizeOAuthApp(c *Context, w http.ResponseWriter, r *http.Request) {
-	requestData := model.MapFromJson(r.Body)
-	clientId := requestData["client_id"]
+	requestData := model.MapFromJSON(r.Body)
+	clientID := requestData["client_id"]
 
-	if !model.IsValidId(clientId) {
+	if !model.IsValidID(clientID) {
 		c.SetInvalidParam("client_id")
 		return
 	}
@@ -90,7 +90,7 @@ func deauthorizeOAuthApp(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("deauthorizeOAuthApp", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	err := c.App.DeauthorizeOAuthAppForUser(c.AppContext.Session().UserId, clientId)
+	err := c.App.DeauthorizeOAuthAppForUser(c.AppContext.Session().UserID, clientID)
 	if err != nil {
 		c.Err = err
 		return
@@ -111,8 +111,8 @@ func authorizeOAuthPage(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	authRequest := &model.AuthorizeRequest{
 		ResponseType: r.URL.Query().Get("response_type"),
-		ClientId:     r.URL.Query().Get("client_id"),
-		RedirectUri:  r.URL.Query().Get("redirect_uri"),
+		ClientID:     r.URL.Query().Get("client_id"),
+		RedirectURI:  r.URL.Query().Get("redirect_uri"),
 		Scope:        r.URL.Query().Get("scope"),
 		State:        r.URL.Query().Get("state"),
 	}
@@ -128,14 +128,14 @@ func authorizeOAuthPage(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oauthApp, err := c.App.GetOAuthApp(authRequest.ClientId)
+	oauthApp, err := c.App.GetOAuthApp(authRequest.ClientID)
 	if err != nil {
 		utils.RenderWebAppError(c.App.Config(), w, r, err, c.App.AsymmetricSigningKey())
 		return
 	}
 
 	// here we should check if the user is logged in
-	if c.AppContext.Session().UserId == "" {
+	if c.AppContext.Session().UserID == "" {
 		if loginHint == model.UserAuthServiceSaml {
 			http.Redirect(w, r, c.GetSiteURLHeader()+"/login/sso/saml?redirect_to="+url.QueryEscape(r.RequestURI), http.StatusFound)
 		} else {
@@ -144,7 +144,7 @@ func authorizeOAuthPage(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !oauthApp.IsValidRedirectURL(authRequest.RedirectUri) {
+	if !oauthApp.IsValidRedirectURL(authRequest.RedirectURI) {
 		err := model.NewAppError("authorizeOAuthPage", "api.oauth.allow_oauth.redirect_callback.app_error", nil, "", http.StatusBadRequest)
 		utils.RenderWebError(c.App.Config(), w, r, err.StatusCode,
 			url.Values{
@@ -156,14 +156,14 @@ func authorizeOAuthPage(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	isAuthorized := false
 
-	if _, err := c.App.GetPreferenceByCategoryAndNameForUser(c.AppContext.Session().UserId, model.PreferenceCategoryAuthorizedOAuthApp, authRequest.ClientId); err == nil {
+	if _, err := c.App.GetPreferenceByCategoryAndNameForUser(c.AppContext.Session().UserID, model.PreferenceCategoryAuthorizedOAuthApp, authRequest.ClientID); err == nil {
 		// when we support scopes we should check if the scopes match
 		isAuthorized = true
 	}
 
 	// Automatically allow if the app is trusted
 	if oauthApp.IsTrusted || isAuthorized {
-		redirectUrl, err := c.App.AllowOAuthAppAccessToUser(c.AppContext.Session().UserId, authRequest)
+		redirectUrl, err := c.App.AllowOAuthAppAccessToUser(c.AppContext.Session().UserID, authRequest)
 
 		if err != nil {
 			utils.RenderWebAppError(c.App.Config(), w, r, err, c.App.AsymmetricSigningKey())
@@ -206,8 +206,8 @@ func getAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientId := r.FormValue("client_id")
-	if !model.IsValidId(clientId) {
+	clientID := r.FormValue("client_id")
+	if !model.IsValidID(clientID) {
 		c.Err = model.NewAppError("getAccessToken", "api.oauth.get_access_token.bad_client_id.app_error", nil, "", http.StatusBadRequest)
 		return
 	}
@@ -218,15 +218,15 @@ func getAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redirectUri := r.FormValue("redirect_uri")
+	redirectURI := r.FormValue("redirect_uri")
 
 	auditRec := c.MakeAuditRecord("getAccessToken", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 	auditRec.AddMeta("grant_type", grantType)
-	auditRec.AddMeta("client_id", clientId)
+	auditRec.AddMeta("client_id", clientID)
 	c.LogAudit("attempt")
 
-	accessRsp, err := c.App.GetOAuthAccessTokenForCodeFlow(clientId, grantType, redirectUri, code, secret, refreshToken)
+	accessRsp, err := c.App.GetOAuthAccessTokenForCodeFlow(clientID, grantType, redirectURI, code, secret, refreshToken)
 	if err != nil {
 		c.Err = err
 		return
@@ -239,7 +239,7 @@ func getAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	c.LogAudit("success")
 
-	w.Write([]byte(accessRsp.ToJson()))
+	w.Write([]byte(accessRsp.ToJSON()))
 }
 
 func completeOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -272,7 +272,7 @@ func completeOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	uri := c.GetSiteURLHeader() + "/signup/" + service + "/complete"
 
-	body, teamId, props, tokenUser, err := c.App.AuthorizeOAuthUser(w, r, service, code, state, uri)
+	body, teamID, props, tokenUser, err := c.App.AuthorizeOAuthUser(w, r, service, code, state, uri)
 
 	action := ""
 	hasRedirectURL := false
@@ -302,7 +302,7 @@ func completeOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.App.CompleteOAuth(c.AppContext, service, body, teamId, props, tokenUser)
+	user, err := c.App.CompleteOAuth(c.AppContext, service, body, teamID, props, tokenUser)
 	if err != nil {
 		err.Translate(c.AppContext.T)
 		c.LogErrorByCode(err)
@@ -364,13 +364,13 @@ func loginWithOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	teamId, err := c.App.GetTeamIdFromQuery(r.URL.Query())
+	teamID, err := c.App.GetTeamIDFromQuery(r.URL.Query())
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	authUrl, err := c.App.GetOAuthLoginEndpoint(w, r, c.Params.Service, teamId, model.OAuthActionLogin, redirectURL, loginHint, false)
+	authUrl, err := c.App.GetOAuthLoginEndpoint(w, r, c.Params.Service, teamID, model.OAuthActionLogin, redirectURL, loginHint, false)
 	if err != nil {
 		c.Err = err
 		return
@@ -393,13 +393,13 @@ func mobileLoginWithOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	teamId, err := c.App.GetTeamIdFromQuery(r.URL.Query())
+	teamID, err := c.App.GetTeamIDFromQuery(r.URL.Query())
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	authUrl, err := c.App.GetOAuthLoginEndpoint(w, r, c.Params.Service, teamId, model.OAuthActionMobile, redirectURL, "", true)
+	authUrl, err := c.App.GetOAuthLoginEndpoint(w, r, c.Params.Service, teamID, model.OAuthActionMobile, redirectURL, "", true)
 	if err != nil {
 		c.Err = err
 		return
@@ -421,13 +421,13 @@ func signupWithOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	teamId, err := c.App.GetTeamIdFromQuery(r.URL.Query())
+	teamID, err := c.App.GetTeamIDFromQuery(r.URL.Query())
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	authUrl, err := c.App.GetOAuthSignupEndpoint(w, r, c.Params.Service, teamId)
+	authUrl, err := c.App.GetOAuthSignupEndpoint(w, r, c.Params.Service, teamID)
 	if err != nil {
 		c.Err = err
 		return

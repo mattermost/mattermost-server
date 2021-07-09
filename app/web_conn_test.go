@@ -21,18 +21,18 @@ import (
 func TestWebConnShouldSendEvent(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
-	session, err := th.App.CreateSession(&model.Session{UserId: th.BasicUser.Id, Roles: th.BasicUser.GetRawRoles(), TeamMembers: []*model.TeamMember{
+	session, err := th.App.CreateSession(&model.Session{UserID: th.BasicUser.ID, Roles: th.BasicUser.GetRawRoles(), TeamMembers: []*model.TeamMember{
 		{
-			UserId: th.BasicUser.Id,
-			TeamId: th.BasicTeam.Id,
-			Roles:  model.TeamUserRoleId,
+			UserID: th.BasicUser.ID,
+			TeamID: th.BasicTeam.ID,
+			Roles:  model.TeamUserRoleID,
 		},
 	}})
 	require.Nil(t, err)
 
 	basicUserWc := &WebConn{
 		App:    th.App,
-		UserId: th.BasicUser.Id,
+		UserID: th.BasicUser.ID,
 		T:      i18n.T,
 	}
 
@@ -40,18 +40,18 @@ func TestWebConnShouldSendEvent(t *testing.T) {
 	basicUserWc.SetSessionToken(session.Token)
 	basicUserWc.SetSessionExpiresAt(session.ExpiresAt)
 
-	session2, err := th.App.CreateSession(&model.Session{UserId: th.BasicUser2.Id, Roles: th.BasicUser2.GetRawRoles(), TeamMembers: []*model.TeamMember{
+	session2, err := th.App.CreateSession(&model.Session{UserID: th.BasicUser2.ID, Roles: th.BasicUser2.GetRawRoles(), TeamMembers: []*model.TeamMember{
 		{
-			UserId: th.BasicUser2.Id,
-			TeamId: th.BasicTeam.Id,
-			Roles:  model.TeamAdminRoleId,
+			UserID: th.BasicUser2.ID,
+			TeamID: th.BasicTeam.ID,
+			Roles:  model.TeamAdminRoleID,
 		},
 	}})
 	require.Nil(t, err)
 
 	basicUser2Wc := &WebConn{
 		App:    th.App,
-		UserId: th.BasicUser2.Id,
+		UserID: th.BasicUser2.ID,
 		T:      i18n.T,
 	}
 
@@ -59,12 +59,12 @@ func TestWebConnShouldSendEvent(t *testing.T) {
 	basicUser2Wc.SetSessionToken(session2.Token)
 	basicUser2Wc.SetSessionExpiresAt(session2.ExpiresAt)
 
-	session3, err := th.App.CreateSession(&model.Session{UserId: th.SystemAdminUser.Id, Roles: th.SystemAdminUser.GetRawRoles()})
+	session3, err := th.App.CreateSession(&model.Session{UserID: th.SystemAdminUser.ID, Roles: th.SystemAdminUser.GetRawRoles()})
 	require.Nil(t, err)
 
 	adminUserWc := &WebConn{
 		App:    th.App,
-		UserId: th.SystemAdminUser.Id,
+		UserID: th.SystemAdminUser.ID,
 		T:      i18n.T,
 	}
 
@@ -80,8 +80,8 @@ func TestWebConnShouldSendEvent(t *testing.T) {
 		AdminExpected bool
 	}{
 		{"should send to all", &model.WebsocketBroadcast{}, true, true, true},
-		{"should only send to basic user", &model.WebsocketBroadcast{UserId: th.BasicUser.Id}, true, false, false},
-		{"should omit basic user 2", &model.WebsocketBroadcast{OmitUsers: map[string]bool{th.BasicUser2.Id: true}}, true, false, true},
+		{"should only send to basic user", &model.WebsocketBroadcast{UserID: th.BasicUser.ID}, true, false, false},
+		{"should omit basic user 2", &model.WebsocketBroadcast{OmitUsers: map[string]bool{th.BasicUser2.ID: true}}, true, false, true},
 		{"should only send to admin", &model.WebsocketBroadcast{ContainsSensitiveData: true}, false, false, true},
 		{"should only send to non-admins", &model.WebsocketBroadcast{ContainsSanitizedData: true}, true, true, false},
 		{"should send to nobody", &model.WebsocketBroadcast{ContainsSensitiveData: true, ContainsSanitizedData: true}, false, false, false},
@@ -96,7 +96,7 @@ func TestWebConnShouldSendEvent(t *testing.T) {
 		assert.Equal(t, c.AdminExpected, adminUserWc.shouldSendEvent(event), c.Description)
 	}
 
-	event2 := model.NewWebSocketEvent(model.WebsocketEventUpdateTeam, th.BasicTeam.Id, "", "", nil)
+	event2 := model.NewWebSocketEvent(model.WebsocketEventUpdateTeam, th.BasicTeam.ID, "", "", nil)
 	assert.True(t, basicUserWc.shouldSendEvent(event2))
 	assert.True(t, basicUser2Wc.shouldSendEvent(event2))
 
@@ -254,7 +254,7 @@ func TestWebConnDrainDeadQueue(t *testing.T) {
 			i := seqNum
 			for err == nil {
 				_, buf, err = conn.ReadMessage()
-				ev := model.WebSocketEventFromJson(bytes.NewReader(buf))
+				ev := model.WebSocketEventFromJSON(bytes.NewReader(buf))
 				require.LessOrEqual(t, int(i), limit)
 				assert.Equal(t, i, ev.Sequence)
 				i++

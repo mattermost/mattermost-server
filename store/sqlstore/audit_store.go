@@ -36,16 +36,16 @@ func (s SqlAuditStore) createIndexesIfNotExists() {
 }
 
 func (s SqlAuditStore) Save(audit *model.Audit) error {
-	audit.Id = model.NewId()
+	audit.ID = model.NewID()
 	audit.CreateAt = model.GetMillis()
 
 	if err := s.GetMaster().Insert(audit); err != nil {
-		return errors.Wrapf(err, "failed to save Audit with userId=%s and action=%s", audit.UserId, audit.Action)
+		return errors.Wrapf(err, "failed to save Audit with userId=%s and action=%s", audit.UserID, audit.Action)
 	}
 	return nil
 }
 
-func (s SqlAuditStore) Get(userId string, offset int, limit int) (model.Audits, error) {
+func (s SqlAuditStore) Get(userID string, offset int, limit int) (model.Audits, error) {
 	if limit > 1000 {
 		return nil, store.NewErrOutOfBounds(limit)
 	}
@@ -57,8 +57,8 @@ func (s SqlAuditStore) Get(userId string, offset int, limit int) (model.Audits, 
 		Limit(uint64(limit)).
 		Offset(uint64(offset))
 
-	if userId != "" {
-		query = query.Where(sq.Eq{"UserId": userId})
+	if userID != "" {
+		query = query.Where(sq.Eq{"UserId": userID})
 	}
 
 	queryString, args, err := query.ToSql()
@@ -68,15 +68,15 @@ func (s SqlAuditStore) Get(userId string, offset int, limit int) (model.Audits, 
 
 	var audits model.Audits
 	if _, err := s.GetReplica().Select(&audits, queryString, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to get Audit list for userId=%s", userId)
+		return nil, errors.Wrapf(err, "failed to get Audit list for userId=%s", userID)
 	}
 	return audits, nil
 }
 
-func (s SqlAuditStore) PermanentDeleteByUser(userId string) error {
+func (s SqlAuditStore) PermanentDeleteByUser(userID string) error {
 	if _, err := s.GetMaster().Exec("DELETE FROM Audits WHERE UserId = :userId",
-		map[string]interface{}{"userId": userId}); err != nil {
-		return errors.Wrapf(err, "failed to delete Audit with userId=%s", userId)
+		map[string]interface{}{"userId": userID}); err != nil {
+		return errors.Wrapf(err, "failed to delete Audit with userId=%s", userID)
 	}
 	return nil
 }

@@ -25,15 +25,15 @@ func (th *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	bb, err := ioutil.ReadAll(r.Body)
 	assert.NoError(th.t, err)
 	assert.NotEmpty(th.t, string(bb))
-	poir := model.PostActionIntegrationRequestFromJson(bytes.NewReader(bb))
-	assert.NotEmpty(th.t, poir.UserId)
+	poir := model.PostActionIntegrationRequestFromJSON(bytes.NewReader(bb))
+	assert.NotEmpty(th.t, poir.UserID)
 	assert.NotEmpty(th.t, poir.UserName)
-	assert.NotEmpty(th.t, poir.ChannelId)
+	assert.NotEmpty(th.t, poir.ChannelID)
 	assert.NotEmpty(th.t, poir.ChannelName)
-	assert.NotEmpty(th.t, poir.TeamId)
+	assert.NotEmpty(th.t, poir.TeamID)
 	assert.NotEmpty(th.t, poir.TeamName)
-	assert.NotEmpty(th.t, poir.PostId)
-	assert.NotEmpty(th.t, poir.TriggerId)
+	assert.NotEmpty(th.t, poir.PostID)
+	assert.NotEmpty(th.t, poir.TriggerID)
 	assert.Equal(th.t, "button", poir.Type)
 	assert.Equal(th.t, "test-value", poir.Context["test-key"])
 	w.Write([]byte("{}"))
@@ -59,7 +59,7 @@ func TestPostActionCookies(t *testing.T) {
 	}{
 		"32 character ID": {
 			Action: model.PostAction{
-				Id:   model.NewId(),
+				ID:   model.NewID(),
 				Name: "Test-action",
 				Type: model.PostActionTypeButton,
 				Integration: &model.PostActionIntegration{
@@ -74,7 +74,7 @@ func TestPostActionCookies(t *testing.T) {
 		},
 		"6 character ID": {
 			Action: model.PostAction{
-				Id:   "someID",
+				ID:   "someID",
 				Name: "Test-action",
 				Type: model.PostActionTypeButton,
 				Integration: &model.PostActionIntegration{
@@ -89,7 +89,7 @@ func TestPostActionCookies(t *testing.T) {
 		},
 		"Empty ID": {
 			Action: model.PostAction{
-				Id:   "",
+				ID:   "",
 				Name: "Test-action",
 				Type: model.PostActionTypeButton,
 				Integration: &model.PostActionIntegration{
@@ -105,10 +105,10 @@ func TestPostActionCookies(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			post := &model.Post{
-				Id:        model.NewId(),
+				ID:        model.NewID(),
 				Type:      model.PostTypeEphemeral,
-				UserId:    th.BasicUser.Id,
-				ChannelId: th.BasicChannel.Id,
+				UserID:    th.BasicUser.ID,
+				ChannelID: th.BasicChannel.ID,
 				CreateAt:  model.GetMillis(),
 				UpdateAt:  model.GetMillis(),
 				Props: map[string]interface{}{
@@ -127,7 +127,7 @@ func TestPostActionCookies(t *testing.T) {
 			assert.Equal(t, 32, len(th.App.PostActionCookieSecret()))
 			post = model.AddPostActionCookies(post, th.App.PostActionCookieSecret())
 
-			ok, resp := Client.DoPostActionWithCookie(post.Id, test.Action.Id, "", test.Action.Cookie)
+			ok, resp := Client.DoPostActionWithCookie(post.ID, test.Action.ID, "", test.Action.Cookie)
 			require.NotNil(t, resp)
 			if test.ExpectedSucess {
 				assert.True(t, ok)
@@ -137,7 +137,7 @@ func TestPostActionCookies(t *testing.T) {
 				assert.NotNil(t, resp.Error)
 			}
 			assert.Equal(t, test.ExpectedStatusCode, resp.StatusCode)
-			assert.NotNil(t, resp.RequestId)
+			assert.NotNil(t, resp.RequestID)
 			assert.NotNil(t, resp.ServerVersion)
 		})
 	}
@@ -152,14 +152,14 @@ func TestOpenDialog(t *testing.T) {
 		*cfg.ServiceSettings.AllowedUntrustedInternalConnections = "localhost,127.0.0.1"
 	})
 
-	_, triggerId, err := model.GenerateTriggerId(th.BasicUser.Id, th.App.AsymmetricSigningKey())
+	_, triggerID, err := model.GenerateTriggerID(th.BasicUser.ID, th.App.AsymmetricSigningKey())
 	require.Nil(t, err)
 
 	request := model.OpenDialogRequest{
-		TriggerId: triggerId,
+		TriggerID: triggerID,
 		URL:       "http://localhost:8065",
 		Dialog: model.Dialog{
-			CallbackId: "callbackid",
+			CallbackID: "callbackid",
 			Title:      "Some Title",
 			Elements: []model.DialogElement{
 				{
@@ -180,13 +180,13 @@ func TestOpenDialog(t *testing.T) {
 	assert.True(t, pass)
 
 	// Should fail on bad trigger ID
-	request.TriggerId = "junk"
+	request.TriggerID = "junk"
 	pass, resp = Client.OpenInteractiveDialog(request)
 	CheckBadRequestStatus(t, resp)
 	assert.False(t, pass)
 
 	// URL is required
-	request.TriggerId = triggerId
+	request.TriggerID = triggerID
 	request.URL = ""
 	pass, resp = Client.OpenInteractiveDialog(request)
 	CheckBadRequestStatus(t, resp)
@@ -226,11 +226,11 @@ func TestSubmitDialog(t *testing.T) {
 	})
 
 	submit := model.SubmitDialogRequest{
-		CallbackId: "callbackid",
+		CallbackID: "callbackid",
 		State:      "somestate",
-		UserId:     th.BasicUser.Id,
-		ChannelId:  th.BasicChannel.Id,
-		TeamId:     th.BasicTeam.Id,
+		UserID:     th.BasicUser.ID,
+		ChannelID:  th.BasicChannel.ID,
+		TeamID:     th.BasicTeam.ID,
 		Submission: map[string]interface{}{"somename": "somevalue"},
 	}
 
@@ -240,10 +240,10 @@ func TestSubmitDialog(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, request.URL, "")
-		assert.Equal(t, request.UserId, submit.UserId)
-		assert.Equal(t, request.ChannelId, submit.ChannelId)
-		assert.Equal(t, request.TeamId, submit.TeamId)
-		assert.Equal(t, request.CallbackId, submit.CallbackId)
+		assert.Equal(t, request.UserID, submit.UserID)
+		assert.Equal(t, request.ChannelID, submit.ChannelID)
+		assert.Equal(t, request.TeamID, submit.TeamID)
+		assert.Equal(t, request.CallbackID, submit.CallbackID)
 		assert.Equal(t, request.State, submit.State)
 		val, ok := request.Submission["somename"].(string)
 		require.True(t, ok)
@@ -263,14 +263,14 @@ func TestSubmitDialog(t *testing.T) {
 	assert.Nil(t, submitResp)
 
 	submit.URL = ts.URL
-	submit.ChannelId = model.NewId()
+	submit.ChannelID = model.NewID()
 	submitResp, resp = Client.SubmitInteractiveDialog(submit)
 	CheckForbiddenStatus(t, resp)
 	assert.Nil(t, submitResp)
 
 	submit.URL = ts.URL
-	submit.ChannelId = th.BasicChannel.Id
-	submit.TeamId = model.NewId()
+	submit.ChannelID = th.BasicChannel.ID
+	submit.TeamID = model.NewID()
 	submitResp, resp = Client.SubmitInteractiveDialog(submit)
 	CheckForbiddenStatus(t, resp)
 	assert.Nil(t, submitResp)

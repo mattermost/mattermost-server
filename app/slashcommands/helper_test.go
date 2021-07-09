@@ -151,16 +151,16 @@ func (th *TestHelper) initBasic() *TestHelper {
 	// create users once and cache them because password hashing is slow
 	initBasicOnce.Do(func() {
 		th.SystemAdminUser = th.createUser()
-		th.App.UpdateUserRoles(th.SystemAdminUser.Id, model.SystemUserRoleId+" "+model.SystemAdminRoleId, false)
-		th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.Id)
+		th.App.UpdateUserRoles(th.SystemAdminUser.ID, model.SystemUserRoleID+" "+model.SystemAdminRoleID, false)
+		th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.ID)
 		userCache.SystemAdminUser = th.SystemAdminUser.DeepCopy()
 
 		th.BasicUser = th.createUser()
-		th.BasicUser, _ = th.App.GetUser(th.BasicUser.Id)
+		th.BasicUser, _ = th.App.GetUser(th.BasicUser.ID)
 		userCache.BasicUser = th.BasicUser.DeepCopy()
 
 		th.BasicUser2 = th.createUser()
-		th.BasicUser2, _ = th.App.GetUser(th.BasicUser2.Id)
+		th.BasicUser2, _ = th.App.GetUser(th.BasicUser2.ID)
 		userCache.BasicUser2 = th.BasicUser2.DeepCopy()
 	})
 	// restore cached users
@@ -179,7 +179,7 @@ func (th *TestHelper) initBasic() *TestHelper {
 }
 
 func (th *TestHelper) createTeam() *model.Team {
-	id := model.NewId()
+	id := model.NewID()
 	team := &model.Team{
 		DisplayName: "dn_" + id,
 		Name:        "name" + id,
@@ -205,7 +205,7 @@ func (th *TestHelper) createGuest() *model.User {
 }
 
 func (th *TestHelper) createUserOrGuest(guest bool) *model.User {
-	id := model.NewId()
+	id := model.NewID()
 
 	user := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
@@ -247,14 +247,14 @@ func (th *TestHelper) createPrivateChannel(team *model.Team) *model.Channel {
 }
 
 func (th *TestHelper) createChannel(team *model.Team, channelType string, options ...ChannelOption) *model.Channel {
-	id := model.NewId()
+	id := model.NewID()
 
 	channel := &model.Channel{
 		DisplayName: "dn_" + id,
 		Name:        "name_" + id,
 		Type:        channelType,
-		TeamId:      team.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      team.ID,
+		CreatorID:   th.BasicUser.ID,
 	}
 
 	for _, option := range options {
@@ -268,16 +268,16 @@ func (th *TestHelper) createChannel(team *model.Team, channelType string, option
 	}
 
 	if channel.IsShared() {
-		id := model.NewId()
+		id := model.NewID()
 		_, err := th.App.SaveSharedChannel(&model.SharedChannel{
-			ChannelId:        channel.Id,
-			TeamId:           channel.TeamId,
+			ChannelID:        channel.ID,
+			TeamID:           channel.TeamID,
 			Home:             false,
 			ReadOnly:         false,
 			ShareName:        "shared-" + id,
 			ShareDisplayName: "shared-" + id,
-			CreatorId:        th.BasicUser.Id,
-			RemoteId:         model.NewId(),
+			CreatorID:        th.BasicUser.ID,
+			RemoteID:         model.NewID(),
 		})
 		if err != nil {
 			panic(err)
@@ -288,14 +288,14 @@ func (th *TestHelper) createChannel(team *model.Team, channelType string, option
 }
 
 func (th *TestHelper) createChannelWithAnotherUser(team *model.Team, channelType, userID string) *model.Channel {
-	id := model.NewId()
+	id := model.NewID()
 
 	channel := &model.Channel{
 		DisplayName: "dn_" + id,
 		Name:        "name_" + id,
 		Type:        channelType,
-		TeamId:      team.Id,
-		CreatorId:   userID,
+		TeamID:      team.ID,
+		CreatorID:   userID,
 	}
 
 	utils.DisableDebugLogForTest()
@@ -311,7 +311,7 @@ func (th *TestHelper) createDmChannel(user *model.User) *model.Channel {
 	utils.DisableDebugLogForTest()
 	var err *model.AppError
 	var channel *model.Channel
-	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.Id, user.Id); err != nil {
+	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.ID, user.ID); err != nil {
 		panic(err)
 	}
 	utils.EnableDebugLogForTest()
@@ -322,7 +322,7 @@ func (th *TestHelper) createGroupChannel(user1 *model.User, user2 *model.User) *
 	utils.DisableDebugLogForTest()
 	var err *model.AppError
 	var channel *model.Channel
-	if channel, err = th.App.CreateGroupChannel([]string{th.BasicUser.Id, user1.Id, user2.Id}, th.BasicUser.Id); err != nil {
+	if channel, err = th.App.CreateGroupChannel([]string{th.BasicUser.ID, user1.ID, user2.ID}, th.BasicUser.ID); err != nil {
 		panic(err)
 	}
 	utils.EnableDebugLogForTest()
@@ -330,11 +330,11 @@ func (th *TestHelper) createGroupChannel(user1 *model.User, user2 *model.User) *
 }
 
 func (th *TestHelper) createPost(channel *model.Channel) *model.Post {
-	id := model.NewId()
+	id := model.NewID()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: channel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: channel.ID,
 		Message:   "message_" + id,
 		CreateAt:  model.GetMillis() - 10000,
 	}

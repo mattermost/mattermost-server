@@ -46,7 +46,7 @@ func TestHealthCheckJob(t *testing.T) {
 	bundles := env.Active()
 	require.Equal(t, 1, len(bundles))
 
-	id := bundles[0].Manifest.Id
+	id := bundles[0].Manifest.ID
 
 	// First health check
 	hooks, err := env.HooksForPlugin(id)
@@ -55,7 +55,7 @@ func TestHealthCheckJob(t *testing.T) {
 	job.CheckPlugin(id)
 	bundles = env.Active()
 	require.Equal(t, 1, len(bundles))
-	require.Equal(t, id, bundles[0].Manifest.Id)
+	require.Equal(t, id, bundles[0].Manifest.ID)
 	require.Equal(t, model.PluginStateRunning, env.GetPluginState(id))
 
 	// Second health check
@@ -65,7 +65,7 @@ func TestHealthCheckJob(t *testing.T) {
 	job.CheckPlugin(id)
 	bundles = env.Active()
 	require.Equal(t, 1, len(bundles))
-	require.Equal(t, id, bundles[0].Manifest.Id)
+	require.Equal(t, id, bundles[0].Manifest.ID)
 	require.Equal(t, model.PluginStateRunning, env.GetPluginState(id))
 
 	// Third health check, plugin should be deactivated by the job

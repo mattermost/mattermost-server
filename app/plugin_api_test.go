@@ -56,14 +56,14 @@ func setDefaultPluginConfig(th *TestHelper, pluginID string) {
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		cfg.PluginSettings.Plugins[pluginID] = map[string]interface{}{
 			"BasicChannelName":     th.BasicChannel.Name,
-			"BasicChannelId":       th.BasicChannel.Id,
+			"BasicChannelId":       th.BasicChannel.ID,
 			"BasicTeamName":        th.BasicTeam.Name,
-			"BasicTeamId":          th.BasicTeam.Id,
+			"BasicTeamId":          th.BasicTeam.ID,
 			"BasicTeamDisplayName": th.BasicTeam.DisplayName,
 			"BasicUserEmail":       th.BasicUser.Email,
-			"BasicUserId":          th.BasicUser.Id,
+			"BasicUserId":          th.BasicUser.ID,
 			"BasicUser2Email":      th.BasicUser2.Email,
-			"BasicUser2Id":         th.BasicUser2.Id,
+			"BasicUser2Id":         th.BasicUser2.ID,
 			"BasicPostMessage":     th.BasicPost.Message,
 		}
 	})
@@ -168,20 +168,20 @@ func TestPluginAPIGetUserPreferences(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	user1, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user1" + model.NewId(),
+		Username: "user1" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user1)
 
-	preferences, err := api.GetPreferencesForUser(user1.Id)
+	preferences, err := api.GetPreferencesForUser(user1.ID)
 	require.Nil(t, err)
 	assert.Equal(t, 1, len(preferences))
 
-	assert.Equal(t, user1.Id, preferences[0].UserId)
+	assert.Equal(t, user1.ID, preferences[0].UserID)
 	assert.Equal(t, model.PreferenceCategoryTutorialSteps, preferences[0].Category)
-	assert.Equal(t, user1.Id, preferences[0].Name)
+	assert.Equal(t, user1.ID, preferences[0].Name)
 	assert.Equal(t, "0", preferences[0].Value)
 }
 
@@ -191,47 +191,47 @@ func TestPluginAPIDeleteUserPreferences(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	user1, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user1" + model.NewId(),
+		Username: "user1" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user1)
 
-	preferences, err := api.GetPreferencesForUser(user1.Id)
+	preferences, err := api.GetPreferencesForUser(user1.ID)
 	require.Nil(t, err)
 	assert.Equal(t, 1, len(preferences))
 
-	err = api.DeletePreferencesForUser(user1.Id, preferences)
+	err = api.DeletePreferencesForUser(user1.ID, preferences)
 	require.Nil(t, err)
-	preferences, err = api.GetPreferencesForUser(user1.Id)
+	preferences, err = api.GetPreferencesForUser(user1.ID)
 	require.Nil(t, err)
 	assert.Equal(t, 0, len(preferences))
 
 	user2, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user2" + model.NewId(),
+		Username: "user2" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user2)
 
 	preference := model.Preference{
-		Name:     user2.Id,
-		UserId:   user2.Id,
+		Name:     user2.ID,
+		UserID:   user2.ID,
 		Category: model.PreferenceCategoryTheme,
 		Value:    `{"color": "#ff0000", "color2": "#faf"}`,
 	}
-	err = api.UpdatePreferencesForUser(user2.Id, []model.Preference{preference})
+	err = api.UpdatePreferencesForUser(user2.ID, []model.Preference{preference})
 	require.Nil(t, err)
 
-	preferences, err = api.GetPreferencesForUser(user2.Id)
+	preferences, err = api.GetPreferencesForUser(user2.ID)
 	require.Nil(t, err)
 	assert.Equal(t, 2, len(preferences))
 
-	err = api.DeletePreferencesForUser(user2.Id, []model.Preference{preference})
+	err = api.DeletePreferencesForUser(user2.ID, []model.Preference{preference})
 	require.Nil(t, err)
-	preferences, err = api.GetPreferencesForUser(user2.Id)
+	preferences, err = api.GetPreferencesForUser(user2.ID)
 	require.Nil(t, err)
 	assert.Equal(t, 1, len(preferences))
 	assert.Equal(t, model.PreferenceCategoryTutorialSteps, preferences[0].Category)
@@ -243,40 +243,40 @@ func TestPluginAPIUpdateUserPreferences(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	user1, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user1" + model.NewId(),
+		Username: "user1" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user1)
 
-	preferences, err := api.GetPreferencesForUser(user1.Id)
+	preferences, err := api.GetPreferencesForUser(user1.ID)
 	require.Nil(t, err)
 	assert.Equal(t, 1, len(preferences))
-	assert.Equal(t, user1.Id, preferences[0].UserId)
+	assert.Equal(t, user1.ID, preferences[0].UserID)
 	assert.Equal(t, model.PreferenceCategoryTutorialSteps, preferences[0].Category)
-	assert.Equal(t, user1.Id, preferences[0].Name)
+	assert.Equal(t, user1.ID, preferences[0].Name)
 	assert.Equal(t, "0", preferences[0].Value)
 
 	preference := model.Preference{
-		Name:     user1.Id,
-		UserId:   user1.Id,
+		Name:     user1.ID,
+		UserID:   user1.ID,
 		Category: model.PreferenceCategoryTheme,
 		Value:    `{"color": "#ff0000", "color2": "#faf"}`,
 	}
 
-	err = api.UpdatePreferencesForUser(user1.Id, []model.Preference{preference})
+	err = api.UpdatePreferencesForUser(user1.ID, []model.Preference{preference})
 	require.Nil(t, err)
 
-	preferences, err = api.GetPreferencesForUser(user1.Id)
+	preferences, err = api.GetPreferencesForUser(user1.ID)
 	require.Nil(t, err)
 
 	assert.Equal(t, 2, len(preferences))
 	expectedCategories := []string{model.PreferenceCategoryTutorialSteps, model.PreferenceCategoryTheme}
 	for _, pref := range preferences {
 		assert.Contains(t, expectedCategories, pref.Category)
-		assert.Equal(t, user1.Id, pref.UserId)
-		assert.Equal(t, user1.Id, pref.Name)
+		assert.Equal(t, user1.ID, pref.UserID)
+		assert.Equal(t, user1.ID, pref.Name)
 		if pref.Category == model.PreferenceCategoryTutorialSteps {
 			assert.Equal(t, "0", pref.Value)
 		} else {
@@ -292,33 +292,33 @@ func TestPluginAPIGetUsers(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	user1, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user1" + model.NewId(),
+		Username: "user1" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user1)
 
 	user2, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user2" + model.NewId(),
+		Username: "user2" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user2)
 
 	user3, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user3" + model.NewId(),
+		Username: "user3" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user3)
 
 	user4, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user4" + model.NewId(),
+		Username: "user4" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user4)
@@ -382,33 +382,33 @@ func TestPluginAPIGetUsersInTeam(t *testing.T) {
 	team2 := th.CreateTeam()
 
 	user1, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user1" + model.NewId(),
+		Username: "user1" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user1)
 
 	user2, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user2" + model.NewId(),
+		Username: "user2" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user2)
 
 	user3, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user3" + model.NewId(),
+		Username: "user3" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user3)
 
 	user4, err := th.App.CreateUser(th.Context, &model.User{
-		Email:    strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:    strings.ToLower(model.NewID()) + "success+test@example.com",
 		Password: "password",
-		Username: "user4" + model.NewId(),
+		Username: "user4" + model.NewID(),
 	})
 	require.Nil(t, err)
 	defer th.App.PermanentDeleteUser(th.Context, user4)
@@ -431,42 +431,42 @@ func TestPluginAPIGetUsersInTeam(t *testing.T) {
 
 	testCases := []struct {
 		Description   string
-		TeamId        string
+		TeamID        string
 		Page          int
 		PerPage       int
 		ExpectedUsers []*model.User
 	}{
 		{
 			"unknown team",
-			model.NewId(),
+			model.NewID(),
 			0,
 			0,
 			[]*model.User{},
 		},
 		{
 			"team 1, page 0, perPage 10",
-			team1.Id,
+			team1.ID,
 			0,
 			10,
 			[]*model.User{user1, user2, user3, user4},
 		},
 		{
 			"team 1, page 0, perPage 2",
-			team1.Id,
+			team1.ID,
 			0,
 			2,
 			[]*model.User{user1, user2},
 		},
 		{
 			"team 1, page 1, perPage 2",
-			team1.Id,
+			team1.ID,
 			1,
 			2,
 			[]*model.User{user3, user4},
 		},
 		{
 			"team 2, page 0, perPage 10",
-			team2.Id,
+			team2.ID,
 			0,
 			10,
 			[]*model.User{user3, user4},
@@ -475,7 +475,7 @@ func TestPluginAPIGetUsersInTeam(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.Description, func(t *testing.T) {
-			users, err := api.GetUsersInTeam(testCase.TeamId, testCase.Page, testCase.PerPage)
+			users, err := api.GetUsersInTeam(testCase.TeamID, testCase.Page, testCase.PerPage)
 			assert.Nil(t, err)
 			assert.Equal(t, testCase.ExpectedUsers, users)
 		})
@@ -491,14 +491,14 @@ func TestPluginAPIGetFile(t *testing.T) {
 	uploadTime := time.Date(2007, 2, 4, 1, 2, 3, 4, time.Local)
 	filename := "testGetFile"
 	fileData := []byte("Hello World")
-	info, err := th.App.DoUploadFile(th.Context, uploadTime, th.BasicTeam.Id, th.BasicChannel.Id, th.BasicUser.Id, filename, fileData)
+	info, err := th.App.DoUploadFile(th.Context, uploadTime, th.BasicTeam.ID, th.BasicChannel.ID, th.BasicUser.ID, filename, fileData)
 	require.Nil(t, err)
 	defer func() {
-		th.App.Srv().Store.FileInfo().PermanentDelete(info.Id)
+		th.App.Srv().Store.FileInfo().PermanentDelete(info.ID)
 		th.App.RemoveFile(info.Path)
 	}()
 
-	data, err1 := api.GetFile(info.Id)
+	data, err1 := api.GetFile(info.ID)
 	require.Nil(t, err1)
 	assert.Equal(t, data, fileData)
 
@@ -515,59 +515,59 @@ func TestPluginAPIGetFileInfos(t *testing.T) {
 
 	fileInfo1, err := th.App.DoUploadFile(th.Context,
 		time.Date(2020, 1, 1, 1, 1, 1, 1, time.UTC),
-		th.BasicTeam.Id,
-		th.BasicChannel.Id,
-		th.BasicUser.Id,
+		th.BasicTeam.ID,
+		th.BasicChannel.ID,
+		th.BasicUser.ID,
 		"testFile1",
 		[]byte("testfile1 Content"),
 	)
 	require.Nil(t, err)
 	defer func() {
-		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo1.Id)
+		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo1.ID)
 		th.App.RemoveFile(fileInfo1.Path)
 	}()
 
 	fileInfo2, err := th.App.DoUploadFile(th.Context,
 		time.Date(2020, 1, 2, 1, 1, 1, 1, time.UTC),
-		th.BasicTeam.Id,
-		th.BasicChannel.Id,
-		th.BasicUser2.Id,
+		th.BasicTeam.ID,
+		th.BasicChannel.ID,
+		th.BasicUser2.ID,
 		"testFile2",
 		[]byte("testfile2 Content"),
 	)
 	require.Nil(t, err)
 	defer func() {
-		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo2.Id)
+		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo2.ID)
 		th.App.RemoveFile(fileInfo2.Path)
 	}()
 
 	fileInfo3, err := th.App.DoUploadFile(th.Context,
 		time.Date(2020, 1, 3, 1, 1, 1, 1, time.UTC),
-		th.BasicTeam.Id,
-		th.BasicChannel.Id,
-		th.BasicUser.Id,
+		th.BasicTeam.ID,
+		th.BasicChannel.ID,
+		th.BasicUser.ID,
 		"testFile3",
 		[]byte("testfile3 Content"),
 	)
 	require.Nil(t, err)
 	defer func() {
-		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo3.Id)
+		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo3.ID)
 		th.App.RemoveFile(fileInfo3.Path)
 	}()
 
 	_, err = api.CreatePost(&model.Post{
 		Message:   "testFile1",
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
-		FileIds:   model.StringArray{fileInfo1.Id},
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
+		FileIDs:   model.StringArray{fileInfo1.ID},
 	})
 	require.Nil(t, err)
 
 	_, err = api.CreatePost(&model.Post{
 		Message:   "testFile2",
-		UserId:    th.BasicUser2.Id,
-		ChannelId: th.BasicChannel.Id,
-		FileIds:   model.StringArray{fileInfo2.Id},
+		UserID:    th.BasicUser2.ID,
+		ChannelID: th.BasicChannel.ID,
+		FileIDs:   model.StringArray{fileInfo2.ID},
 	})
 	require.Nil(t, err)
 
@@ -578,21 +578,21 @@ func TestPluginAPIGetFileInfos(t *testing.T) {
 	})
 	t.Run("get file infos filtered by user", func(t *testing.T) {
 		fileInfos, err := api.GetFileInfos(0, 5, &model.GetFileInfosOptions{
-			UserIds: []string{th.BasicUser.Id},
+			UserIDs: []string{th.BasicUser.ID},
 		})
 		require.Nil(t, err)
 		require.Len(t, fileInfos, 2)
 	})
 	t.Run("get file infos filtered by channel ordered by created at descending", func(t *testing.T) {
 		fileInfos, err := api.GetFileInfos(0, 5, &model.GetFileInfosOptions{
-			ChannelIds:     []string{th.BasicChannel.Id},
+			ChannelIDs:     []string{th.BasicChannel.ID},
 			SortBy:         model.FileinfoSortByCreated,
 			SortDescending: true,
 		})
 		require.Nil(t, err)
 		require.Len(t, fileInfos, 2)
-		require.Equal(t, fileInfos[0].Id, fileInfo2.Id)
-		require.Equal(t, fileInfos[1].Id, fileInfo1.Id)
+		require.Equal(t, fileInfos[0].ID, fileInfo2.ID)
+		require.Equal(t, fileInfos[1].ID, fileInfo1.ID)
 	})
 }
 
@@ -601,7 +601,7 @@ func TestPluginAPISavePluginConfig(t *testing.T) {
 	defer th.TearDown()
 
 	manifest := &model.Manifest{
-		Id: "pluginid",
+		ID: "pluginid",
 		SettingsSchema: &model.PluginSettingsSchema{
 			Settings: []*model.PluginSetting{
 				{Key: "MyStringSetting", Type: "text"},
@@ -613,10 +613,10 @@ func TestPluginAPISavePluginConfig(t *testing.T) {
 
 	api := NewPluginAPI(th.App, th.Context, manifest)
 
-	pluginConfigJsonString := `{"mystringsetting": "str", "MyIntSetting": 32, "myboolsetting": true}`
+	pluginConfigJSONString := `{"mystringsetting": "str", "MyIntSetting": 32, "myboolsetting": true}`
 
 	var pluginConfig map[string]interface{}
-	err := json.Unmarshal([]byte(pluginConfigJsonString), &pluginConfig)
+	err := json.Unmarshal([]byte(pluginConfigJSONString), &pluginConfig)
 	require.NoError(t, err)
 
 	appErr := api.SavePluginConfig(pluginConfig)
@@ -633,7 +633,7 @@ func TestPluginAPISavePluginConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	expectedConfiguration := new(Configuration)
-	err = json.Unmarshal([]byte(pluginConfigJsonString), &expectedConfiguration)
+	err = json.Unmarshal([]byte(pluginConfigJSONString), &expectedConfiguration)
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedConfiguration, savedConfiguration)
@@ -644,7 +644,7 @@ func TestPluginAPIGetPluginConfig(t *testing.T) {
 	defer th.TearDown()
 
 	manifest := &model.Manifest{
-		Id: "pluginid",
+		ID: "pluginid",
 		SettingsSchema: &model.PluginSettingsSchema{
 			Settings: []*model.PluginSetting{
 				{Key: "MyStringSetting", Type: "text"},
@@ -656,10 +656,10 @@ func TestPluginAPIGetPluginConfig(t *testing.T) {
 
 	api := NewPluginAPI(th.App, th.Context, manifest)
 
-	pluginConfigJsonString := `{"mystringsetting": "str", "myintsetting": 32, "myboolsetting": true}`
+	pluginConfigJSONString := `{"mystringsetting": "str", "myintsetting": 32, "myboolsetting": true}`
 	var pluginConfig map[string]interface{}
 
-	err := json.Unmarshal([]byte(pluginConfigJsonString), &pluginConfig)
+	err := json.Unmarshal([]byte(pluginConfigJSONString), &pluginConfig)
 	require.NoError(t, err)
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
@@ -674,12 +674,12 @@ func TestPluginAPILoadPluginConfiguration(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	var pluginJson map[string]interface{}
-	err := json.Unmarshal([]byte(`{"mystringsetting": "str", "MyIntSetting": 32, "myboolsetting": true}`), &pluginJson)
+	var pluginJSON map[string]interface{}
+	err := json.Unmarshal([]byte(`{"mystringsetting": "str", "MyIntSetting": 32, "myboolsetting": true}`), &pluginJSON)
 	require.NoError(t, err)
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
-		cfg.PluginSettings.Plugins["testloadpluginconfig"] = pluginJson
+		cfg.PluginSettings.Plugins["testloadpluginconfig"] = pluginJSON
 	})
 
 	testFolder, found := fileutils.FindDir("mattermost-server/app/plugin_api_tests")
@@ -710,12 +710,12 @@ func TestPluginAPILoadPluginConfigurationDefaults(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	var pluginJson map[string]interface{}
-	err := json.Unmarshal([]byte(`{"mystringsetting": "override"}`), &pluginJson)
+	var pluginJSON map[string]interface{}
+	err := json.Unmarshal([]byte(`{"mystringsetting": "override"}`), &pluginJSON)
 	require.NoError(t, err)
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
-		cfg.PluginSettings.Plugins["testloadpluginconfig"] = pluginJson
+		cfg.PluginSettings.Plugins["testloadpluginconfig"] = pluginJSON
 	})
 
 	testFolder, found := fileutils.FindDir("mattermost-server/app/plugin_api_tests")
@@ -825,7 +825,7 @@ func TestPluginAPIInstallPlugin(t *testing.T) {
 	manifest, appErr := api.InstallPlugin(bytes.NewReader(tarData), true)
 	defer os.RemoveAll("plugins/testplugin")
 	require.Nil(t, appErr)
-	assert.Equal(t, "testplugin", manifest.Id)
+	assert.Equal(t, "testplugin", manifest.ID)
 
 	// Successfully installed
 	pluginsResp, appErr := api.GetPlugins()
@@ -833,7 +833,7 @@ func TestPluginAPIInstallPlugin(t *testing.T) {
 
 	found := false
 	for _, m := range pluginsResp {
-		if m.Id == manifest.Id {
+		if m.ID == manifest.ID {
 			found = true
 		}
 	}
@@ -964,7 +964,7 @@ func TestInstallPlugin(t *testing.T) {
 	plugins, aerr := th.App.GetPlugins()
 	require.Nil(t, aerr)
 	require.Len(t, plugins.Inactive, 1)
-	require.Equal(t, "testplugin", plugins.Inactive[0].Id)
+	require.Equal(t, "testplugin", plugins.Inactive[0].ID)
 }
 
 func TestPluginAPIGetTeamIcon(t *testing.T) {
@@ -987,7 +987,7 @@ func TestPluginAPIGetTeamIcon(t *testing.T) {
 	require.Nil(t, appErr)
 
 	// Get the team icon to check
-	teamIcon, appErr := api.GetTeamIcon(th.BasicTeam.Id)
+	teamIcon, appErr := api.GetTeamIcon(th.BasicTeam.ID)
 	require.Nil(t, appErr)
 	require.NotEmpty(t, teamIcon)
 
@@ -1013,11 +1013,11 @@ func TestPluginAPISetTeamIcon(t *testing.T) {
 	dataBytes := buf.Bytes()
 
 	// Set the user profile image
-	appErr := api.SetTeamIcon(th.BasicTeam.Id, dataBytes)
+	appErr := api.SetTeamIcon(th.BasicTeam.ID, dataBytes)
 	require.Nil(t, appErr)
 
 	// Get the user profile image to check
-	teamIcon, appErr := api.GetTeamIcon(th.BasicTeam.Id)
+	teamIcon, appErr := api.GetTeamIcon(th.BasicTeam.ID)
 	require.Nil(t, appErr)
 	require.NotEmpty(t, teamIcon)
 
@@ -1047,7 +1047,7 @@ func TestPluginAPIRemoveTeamIcon(t *testing.T) {
 	// Set the Team Icon
 	err := th.App.SetTeamIconFromFile(th.BasicTeam, fileReader)
 	require.Nil(t, err)
-	err = api.RemoveTeamIcon(th.BasicTeam.Id)
+	err = api.RemoveTeamIcon(th.BasicTeam.ID)
 	require.Nil(t, err)
 }
 
@@ -1267,7 +1267,7 @@ func TestPluginCreateBot(t *testing.T) {
 
 	_, err = api.CreateBot(&model.Bot{
 		Username:    model.NewRandomString(10),
-		OwnerId:     bot.UserId,
+		OwnerID:     bot.UserID,
 		DisplayName: "bot2",
 		Description: "bot2",
 	})
@@ -1281,32 +1281,32 @@ func TestPluginCreatePostWithUploadedFile(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	data := []byte("Hello World")
-	channelID := th.BasicChannel.Id
+	channelID := th.BasicChannel.ID
 	filename := "testGetFile"
 	fileInfo, err := api.UploadFile(data, channelID, filename)
 	require.Nil(t, err)
 	defer func() {
-		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo.Id)
+		th.App.Srv().Store.FileInfo().PermanentDelete(fileInfo.ID)
 		th.App.RemoveFile(fileInfo.Path)
 	}()
 
-	actualData, err := api.GetFile(fileInfo.Id)
+	actualData, err := api.GetFile(fileInfo.ID)
 	require.Nil(t, err)
 	assert.Equal(t, data, actualData)
 
-	userID := th.BasicUser.Id
+	userID := th.BasicUser.ID
 	post, err := api.CreatePost(&model.Post{
 		Message:   "test",
-		UserId:    userID,
-		ChannelId: channelID,
-		FileIds:   model.StringArray{fileInfo.Id},
+		UserID:    userID,
+		ChannelID: channelID,
+		FileIDs:   model.StringArray{fileInfo.ID},
 	})
 	require.Nil(t, err)
-	assert.Equal(t, model.StringArray{fileInfo.Id}, post.FileIds)
+	assert.Equal(t, model.StringArray{fileInfo.ID}, post.FileIDs)
 
-	actualPost, err := api.GetPost(post.Id)
+	actualPost, err := api.GetPost(post.ID)
 	require.Nil(t, err)
-	assert.Equal(t, model.StringArray{fileInfo.Id}, actualPost.FileIds)
+	assert.Equal(t, model.StringArray{fileInfo.ID}, actualPost.FileIDs)
 }
 
 func TestPluginAPIGetConfig(t *testing.T) {
@@ -1388,11 +1388,11 @@ func TestPluginAddUserToChannel(t *testing.T) {
 	defer th.TearDown()
 	api := th.SetupPluginAPI()
 
-	member, err := api.AddUserToChannel(th.BasicChannel.Id, th.BasicUser.Id, th.BasicUser2.Id)
+	member, err := api.AddUserToChannel(th.BasicChannel.ID, th.BasicUser.ID, th.BasicUser2.ID)
 	require.Nil(t, err)
 	require.NotNil(t, member)
-	require.Equal(t, th.BasicChannel.Id, member.ChannelId)
-	require.Equal(t, th.BasicUser.Id, member.UserId)
+	require.Equal(t, th.BasicChannel.ID, member.ChannelID)
+	require.Equal(t, th.BasicUser.ID, member.UserID)
 }
 
 func TestInterpluginPluginHTTP(t *testing.T) {
@@ -1520,7 +1520,7 @@ func TestApiMetrics(t *testing.T) {
 
 		th.App.SetPluginsEnvironment(env)
 
-		pluginID := model.NewId()
+		pluginID := model.NewID()
 		backend := filepath.Join(pluginDir, pluginID, "backend.exe")
 		code :=
 			`
@@ -1561,16 +1561,16 @@ func TestApiMetrics(t *testing.T) {
 		require.True(t, th.App.GetPluginsEnvironment().IsActive(pluginID))
 
 		user1 := &model.User{
-			Email:       model.NewId() + "success+test@example.com",
+			Email:       model.NewID() + "success+test@example.com",
 			Nickname:    "Darth Vader1",
-			Username:    "vader" + model.NewId(),
+			Username:    "vader" + model.NewID(),
 			Password:    "passwd1",
 			AuthService: "",
 		}
 		_, appErr := th.App.CreateUser(th.Context, user1)
 		require.Nil(t, appErr)
 		time.Sleep(1 * time.Second)
-		user1, appErr = th.App.GetUser(user1.Id)
+		user1, appErr = th.App.GetUser(user1.ID)
 		require.Nil(t, appErr)
 		require.Equal(t, "plugin-callback-success", user1.Nickname)
 
@@ -1604,23 +1604,23 @@ func TestPluginAPIGetPostsForChannel(t *testing.T) {
 		post.Metadata = nil
 	}
 
-	postList, err := api.GetPostsForChannel(th.BasicChannel.Id, 0, 0)
+	postList, err := api.GetPostsForChannel(th.BasicChannel.ID, 0, 0)
 	require.Nil(err)
 	require.Nil(postList.ToSlice())
 
-	postList, err = api.GetPostsForChannel(th.BasicChannel.Id, 0, numPosts/2)
+	postList, err = api.GetPostsForChannel(th.BasicChannel.ID, 0, numPosts/2)
 	require.Nil(err)
 	require.Equal(expectedPosts[:numPosts/2], postList.ToSlice())
 
-	postList, err = api.GetPostsForChannel(th.BasicChannel.Id, 1, numPosts/2)
+	postList, err = api.GetPostsForChannel(th.BasicChannel.ID, 1, numPosts/2)
 	require.Nil(err)
 	require.Equal(expectedPosts[numPosts/2:], postList.ToSlice())
 
-	postList, err = api.GetPostsForChannel(th.BasicChannel.Id, 2, numPosts/2)
+	postList, err = api.GetPostsForChannel(th.BasicChannel.ID, 2, numPosts/2)
 	require.Nil(err)
 	require.Nil(postList.ToSlice())
 
-	postList, err = api.GetPostsForChannel(th.BasicChannel.Id, 0, numPosts+1)
+	postList, err = api.GetPostsForChannel(th.BasicChannel.ID, 0, numPosts+1)
 	require.Nil(err)
 	require.Equal(expectedPosts, postList.ToSlice())
 }
@@ -1745,9 +1745,9 @@ func TestPluginExecuteSlashCommand(t *testing.T) {
 	t.Run("run invite command", func(t *testing.T) {
 		args := &model.CommandArgs{
 			Command:   "/mock @" + newUser.Username,
-			TeamId:    th.BasicTeam.Id,
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			TeamID:    th.BasicTeam.ID,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 		}
 		_, err := api.ExecuteSlashCommand(args)
 		require.NoError(t, err)
@@ -1773,22 +1773,22 @@ func TestPluginAPISearchPostsInTeamByUser(t *testing.T) {
 	}{
 		{
 			"empty params",
-			th.BasicTeam.Id,
-			th.BasicUser.Id,
+			th.BasicTeam.ID,
+			th.BasicUser.ID,
 			model.SearchParameter{},
 			0,
 		},
 		{
 			"doesn't match any posts",
-			th.BasicTeam.Id,
-			th.BasicUser.Id,
+			th.BasicTeam.ID,
+			th.BasicUser.ID,
 			model.SearchParameter{Terms: &unknwonTerm},
 			0,
 		},
 		{
 			"matched posts",
-			th.BasicTeam.Id,
-			th.BasicUser.Id,
+			th.BasicTeam.ID,
+			th.BasicUser.ID,
 			model.SearchParameter{Terms: basicPostText},
 			1,
 		},
@@ -1809,7 +1809,7 @@ func TestPluginAPICreateCommandAndListCommands(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	foundCommand := func(listXCommand func(teamID string) ([]*model.Command, error)) bool {
-		cmds, appErr := listXCommand(th.BasicTeam.Id)
+		cmds, appErr := listXCommand(th.BasicTeam.ID)
 		require.NoError(t, appErr)
 
 		for _, cmd := range cmds {
@@ -1823,7 +1823,7 @@ func TestPluginAPICreateCommandAndListCommands(t *testing.T) {
 	require.False(t, foundCommand(api.ListCommands))
 
 	cmd := &model.Command{
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 		Trigger: "testcmd",
 		Method:  "G",
 		URL:     "http://test.com/testcmd",
@@ -1832,10 +1832,10 @@ func TestPluginAPICreateCommandAndListCommands(t *testing.T) {
 	cmd, appErr := api.CreateCommand(cmd)
 	require.NoError(t, appErr)
 
-	newCmd, appErr := api.GetCommand(cmd.Id)
+	newCmd, appErr := api.GetCommand(cmd.ID)
 	require.NoError(t, appErr)
-	require.Equal(t, "pluginid", newCmd.PluginId)
-	require.Equal(t, "", newCmd.CreatorId)
+	require.Equal(t, "pluginid", newCmd.PluginID)
+	require.Equal(t, "", newCmd.CreatorID)
 	require.True(t, foundCommand(api.ListCommands))
 	require.True(t, foundCommand(api.ListCustomCommands))
 	require.False(t, foundCommand(api.ListPluginCommands))
@@ -1847,7 +1847,7 @@ func TestPluginAPIUpdateCommand(t *testing.T) {
 	api := th.SetupPluginAPI()
 
 	cmd := &model.Command{
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 		Trigger: "testcmd",
 		Method:  "G",
 		URL:     "http://test.com/testcmd",
@@ -1856,34 +1856,34 @@ func TestPluginAPIUpdateCommand(t *testing.T) {
 	cmd, appErr := api.CreateCommand(cmd)
 	require.NoError(t, appErr)
 
-	newCmd, appErr := api.GetCommand(cmd.Id)
+	newCmd, appErr := api.GetCommand(cmd.ID)
 	require.NoError(t, appErr)
-	require.Equal(t, "pluginid", newCmd.PluginId)
-	require.Equal(t, "", newCmd.CreatorId)
+	require.Equal(t, "pluginid", newCmd.PluginID)
+	require.Equal(t, "", newCmd.CreatorID)
 
 	newCmd.Trigger = "NewTrigger"
-	newCmd.PluginId = "CannotChangeMe"
-	newCmd2, appErr := api.UpdateCommand(newCmd.Id, newCmd)
+	newCmd.PluginID = "CannotChangeMe"
+	newCmd2, appErr := api.UpdateCommand(newCmd.ID, newCmd)
 	require.NoError(t, appErr)
-	require.Equal(t, "pluginid", newCmd2.PluginId)
+	require.Equal(t, "pluginid", newCmd2.PluginID)
 	require.Equal(t, "newtrigger", newCmd2.Trigger)
 
 	team1 := th.CreateTeam()
 
-	newCmd2.PluginId = "CannotChangeMe"
+	newCmd2.PluginID = "CannotChangeMe"
 	newCmd2.Trigger = "anotherNewTrigger"
-	newCmd2.TeamId = team1.Id
-	newCmd3, appErr := api.UpdateCommand(newCmd2.Id, newCmd2)
+	newCmd2.TeamID = team1.ID
+	newCmd3, appErr := api.UpdateCommand(newCmd2.ID, newCmd2)
 	require.NoError(t, appErr)
-	require.Equal(t, "pluginid", newCmd3.PluginId)
+	require.Equal(t, "pluginid", newCmd3.PluginID)
 	require.Equal(t, "anothernewtrigger", newCmd3.Trigger)
-	require.Equal(t, team1.Id, newCmd3.TeamId)
+	require.Equal(t, team1.ID, newCmd3.TeamID)
 
 	newCmd3.Trigger = "anotherNewTriggerAgain"
-	newCmd3.TeamId = ""
-	newCmd4, appErr := api.UpdateCommand(newCmd2.Id, newCmd2)
+	newCmd3.TeamID = ""
+	newCmd4, appErr := api.UpdateCommand(newCmd2.ID, newCmd2)
 	require.NoError(t, appErr)
 	require.Equal(t, "anothernewtriggeragain", newCmd4.Trigger)
-	require.Equal(t, team1.Id, newCmd4.TeamId)
+	require.Equal(t, team1.ID, newCmd4.TeamID)
 
 }

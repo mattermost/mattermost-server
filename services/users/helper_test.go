@@ -108,13 +108,13 @@ func (th *TestHelper) InitBasic() *TestHelper {
 	// create users once and cache them because password hashing is slow
 	initBasicOnce.Do(func() {
 		th.SystemAdminUser = th.CreateUser()
-		th.SystemAdminUser, _ = th.service.GetUser(th.SystemAdminUser.Id)
+		th.SystemAdminUser, _ = th.service.GetUser(th.SystemAdminUser.ID)
 
 		th.BasicUser = th.CreateUser()
-		th.BasicUser, _ = th.service.GetUser(th.BasicUser.Id)
+		th.BasicUser, _ = th.service.GetUser(th.BasicUser.ID)
 
 		th.BasicUser2 = th.CreateUser()
-		th.BasicUser2, _ = th.service.GetUser(th.BasicUser2.Id)
+		th.BasicUser2, _ = th.service.GetUser(th.BasicUser2.ID)
 	})
 
 	return th
@@ -129,7 +129,7 @@ func (th *TestHelper) CreateGuest() *model.User {
 }
 
 func (th *TestHelper) CreateUserOrGuest(guest bool) *model.User {
-	id := model.NewId()
+	id := model.NewID()
 
 	user := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",

@@ -60,10 +60,10 @@ func (s sqlRemoteClusterStore) Update(remoteCluster *model.RemoteCluster) (*mode
 	return remoteCluster, nil
 }
 
-func (s sqlRemoteClusterStore) Delete(remoteId string) (bool, error) {
+func (s sqlRemoteClusterStore) Delete(remoteID string) (bool, error) {
 	squery, args, err := s.getQueryBuilder().
 		Delete("RemoteClusters").
-		Where(sq.Eq{"RemoteId": remoteId}).
+		Where(sq.Eq{"RemoteId": remoteID}).
 		ToSql()
 	if err != nil {
 		return false, errors.Wrap(err, "delete_remote_cluster_tosql")
@@ -82,11 +82,11 @@ func (s sqlRemoteClusterStore) Delete(remoteId string) (bool, error) {
 	return count > 0, nil
 }
 
-func (s sqlRemoteClusterStore) Get(remoteId string) (*model.RemoteCluster, error) {
+func (s sqlRemoteClusterStore) Get(remoteID string) (*model.RemoteCluster, error) {
 	query := s.getQueryBuilder().
 		Select("*").
 		From("RemoteClusters").
-		Where(sq.Eq{"RemoteId": remoteId})
+		Where(sq.Eq{"RemoteId": remoteID})
 
 	queryString, args, err := query.ToSql()
 	if err != nil {
@@ -117,8 +117,8 @@ func (s sqlRemoteClusterStore) GetAll(filter model.RemoteClusterQueryFilter) ([]
 		query = query.Where(sq.Gt{"rc.LastPingAt": model.GetMillis() - model.RemoteOfflineAfterMillis})
 	}
 
-	if filter.CreatorId != "" {
-		query = query.Where(sq.Eq{"rc.CreatorId": filter.CreatorId})
+	if filter.CreatorID != "" {
+		query = query.Where(sq.Eq{"rc.CreatorId": filter.CreatorID})
 	}
 
 	if filter.OnlyConfirmed {
@@ -161,11 +161,11 @@ func (s sqlRemoteClusterStore) UpdateTopics(remoteClusterid string, topics strin
 	return rc, nil
 }
 
-func (s sqlRemoteClusterStore) SetLastPingAt(remoteClusterId string) error {
+func (s sqlRemoteClusterStore) SetLastPingAt(remoteClusterID string) error {
 	query := s.getQueryBuilder().
 		Update("RemoteClusters").
 		Set("LastPingAt", model.GetMillis()).
-		Where(sq.Eq{"RemoteId": remoteClusterId})
+		Where(sq.Eq{"RemoteId": remoteClusterID})
 
 	queryString, args, err := query.ToSql()
 	if err != nil {

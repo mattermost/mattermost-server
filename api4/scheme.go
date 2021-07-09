@@ -21,7 +21,7 @@ func (api *API) InitScheme() {
 }
 
 func createScheme(c *Context, w http.ResponseWriter, r *http.Request) {
-	scheme := model.SchemeFromJson(r.Body)
+	scheme := model.SchemeFromJSON(r.Body)
 	if scheme == nil {
 		c.SetInvalidParam("scheme")
 		return
@@ -51,11 +51,11 @@ func createScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("scheme", scheme) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(scheme.ToJson()))
+	w.Write([]byte(scheme.ToJSON()))
 }
 
 func getScheme(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireSchemeId()
+	c.RequireSchemeID()
 	if c.Err != nil {
 		return
 	}
@@ -65,13 +65,13 @@ func getScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scheme, err := c.App.GetScheme(c.Params.SchemeId)
+	scheme, err := c.App.GetScheme(c.Params.SchemeID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(scheme.ToJson()))
+	w.Write([]byte(scheme.ToJSON()))
 }
 
 func getSchemes(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -92,11 +92,11 @@ func getSchemes(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.SchemesToJson(schemes)))
+	w.Write([]byte(model.SchemesToJSON(schemes)))
 }
 
 func getTeamsForScheme(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireSchemeId()
+	c.RequireSchemeID()
 	if c.Err != nil {
 		return
 	}
@@ -106,7 +106,7 @@ func getTeamsForScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scheme, err := c.App.GetScheme(c.Params.SchemeId)
+	scheme, err := c.App.GetScheme(c.Params.SchemeID)
 	if err != nil {
 		c.Err = err
 		return
@@ -123,11 +123,11 @@ func getTeamsForScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.TeamListToJson(teams)))
+	w.Write([]byte(model.TeamListToJSON(teams)))
 }
 
 func getChannelsForScheme(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireSchemeId()
+	c.RequireSchemeID()
 	if c.Err != nil {
 		return
 	}
@@ -137,7 +137,7 @@ func getChannelsForScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scheme, err := c.App.GetScheme(c.Params.SchemeId)
+	scheme, err := c.App.GetScheme(c.Params.SchemeID)
 	if err != nil {
 		c.Err = err
 		return
@@ -154,16 +154,16 @@ func getChannelsForScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(channels.ToJson()))
+	w.Write([]byte(channels.ToJSON()))
 }
 
 func patchScheme(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireSchemeId()
+	c.RequireSchemeID()
 	if c.Err != nil {
 		return
 	}
 
-	patch := model.SchemePatchFromJson(r.Body)
+	patch := model.SchemePatchFromJSON(r.Body)
 	if patch == nil {
 		c.SetInvalidParam("scheme")
 		return
@@ -177,7 +177,7 @@ func patchScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scheme, err := c.App.GetScheme(c.Params.SchemeId)
+	scheme, err := c.App.GetScheme(c.Params.SchemeID)
 	if err != nil {
 		c.Err = err
 		return
@@ -199,11 +199,11 @@ func patchScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	c.LogAudit("")
 
-	w.Write([]byte(scheme.ToJson()))
+	w.Write([]byte(scheme.ToJSON()))
 }
 
 func deleteScheme(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireSchemeId()
+	c.RequireSchemeID()
 	if c.Err != nil {
 		return
 	}
@@ -221,7 +221,7 @@ func deleteScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scheme, err := c.App.DeleteScheme(c.Params.SchemeId)
+	scheme, err := c.App.DeleteScheme(c.Params.SchemeID)
 	if err != nil {
 		c.Err = err
 		return

@@ -19,7 +19,7 @@ func TestGetMigrationState(t *testing.T) {
 	th := Setup()
 	defer th.TearDown()
 
-	migrationKey := model.NewId()
+	migrationKey := model.NewID()
 
 	th.DeleteAllJobsByTypeAndMigrationKey(model.JobTypeMigrations, migrationKey)
 
@@ -47,7 +47,7 @@ func TestGetMigrationState(t *testing.T) {
 
 	// Test with a job scheduled in "pending" state.
 	j1 := &model.Job{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		CreateAt: model.GetMillis(),
 		Data: map[string]string{
 			JobDataKeyMigration: migrationKey,
@@ -61,12 +61,12 @@ func TestGetMigrationState(t *testing.T) {
 
 	state, job, err = GetMigrationState(migrationKey, th.App.Srv().Store)
 	assert.Nil(t, err)
-	assert.Equal(t, j1.Id, job.Id)
+	assert.Equal(t, j1.ID, job.ID)
 	assert.Equal(t, "in_progress", state)
 
 	// Test with a job scheduled in "in progress" state.
 	j2 := &model.Job{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		CreateAt: j1.CreateAt + 1,
 		Data: map[string]string{
 			JobDataKeyMigration: migrationKey,
@@ -80,12 +80,12 @@ func TestGetMigrationState(t *testing.T) {
 
 	state, job, err = GetMigrationState(migrationKey, th.App.Srv().Store)
 	assert.Nil(t, err)
-	assert.Equal(t, j2.Id, job.Id)
+	assert.Equal(t, j2.ID, job.ID)
 	assert.Equal(t, "in_progress", state)
 
 	// Test with a job scheduled in "error" state.
 	j3 := &model.Job{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		CreateAt: j2.CreateAt + 1,
 		Data: map[string]string{
 			JobDataKeyMigration: migrationKey,
@@ -99,6 +99,6 @@ func TestGetMigrationState(t *testing.T) {
 
 	state, job, err = GetMigrationState(migrationKey, th.App.Srv().Store)
 	assert.Nil(t, err)
-	assert.Equal(t, j3.Id, job.Id)
+	assert.Equal(t, j3.ID, job.ID)
 	assert.Equal(t, "unscheduled", state)
 }

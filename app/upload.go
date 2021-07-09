@@ -103,30 +103,30 @@ func (a *App) runPluginsHook(c *request.Context, info *model.FileInfo, file io.R
 func (a *App) CreateUploadSession(us *model.UploadSession) (*model.UploadSession, *model.AppError) {
 	if us.FileSize > *a.Config().FileSettings.MaxFileSize {
 		return nil, model.NewAppError("CreateUploadSession", "app.upload.create.upload_too_large.app_error",
-			map[string]interface{}{"channelId": us.ChannelId}, "", http.StatusRequestEntityTooLarge)
+			map[string]interface{}{"channelId": us.ChannelID}, "", http.StatusRequestEntityTooLarge)
 	}
 
 	us.FileOffset = 0
 	now := time.Now()
 	us.CreateAt = model.GetMillisForTime(now)
 	if us.Type == model.UploadTypeAttachment {
-		us.Path = now.Format("20060102") + "/teams/noteam/channels/" + us.ChannelId + "/users/" + us.UserId + "/" + us.Id + "/" + filepath.Base(us.Filename)
+		us.Path = now.Format("20060102") + "/teams/noteam/channels/" + us.ChannelID + "/users/" + us.UserID + "/" + us.ID + "/" + filepath.Base(us.Filename)
 	} else if us.Type == model.UploadTypeImport {
-		us.Path = filepath.Clean(*a.Config().ImportSettings.Directory) + "/" + us.Id + "_" + filepath.Base(us.Filename)
+		us.Path = filepath.Clean(*a.Config().ImportSettings.Directory) + "/" + us.ID + "_" + filepath.Base(us.Filename)
 	}
 	if err := us.IsValid(); err != nil {
 		return nil, err
 	}
 
 	if us.Type == model.UploadTypeAttachment {
-		channel, err := a.GetChannel(us.ChannelId)
+		channel, err := a.GetChannel(us.ChannelID)
 		if err != nil {
 			return nil, model.NewAppError("CreateUploadSession", "app.upload.create.incorrect_channel_id.app_error",
-				map[string]interface{}{"channelId": us.ChannelId}, "", http.StatusBadRequest)
+				map[string]interface{}{"channelId": us.ChannelID}, "", http.StatusBadRequest)
 		}
 		if channel.DeleteAt != 0 {
 			return nil, model.NewAppError("CreateUploadSession", "app.upload.create.cannot_upload_to_deleted_channel.app_error",
-				map[string]interface{}{"channelId": us.ChannelId}, "", http.StatusBadRequest)
+				map[string]interface{}{"channelId": us.ChannelID}, "", http.StatusBadRequest)
 		}
 	}
 
@@ -138,8 +138,8 @@ func (a *App) CreateUploadSession(us *model.UploadSession) (*model.UploadSession
 	return us, nil
 }
 
-func (a *App) GetUploadSession(uploadId string) (*model.UploadSession, *model.AppError) {
-	us, err := a.Srv().Store.UploadSession().Get(uploadId)
+func (a *App) GetUploadSession(uploadID string) (*model.UploadSession, *model.AppError) {
+	us, err := a.Srv().Store.UploadSession().Get(uploadID)
 	if err != nil {
 		var nfErr *store.ErrNotFound
 		switch {
@@ -167,7 +167,7 @@ func (a *App) UploadData(c *request.Context, us *model.UploadSession, rd io.Read
 	// prevent more than one caller to upload data at the same time for a given upload session.
 	// This is to avoid possible inconsistencies.
 	a.Srv().uploadLockMapMut.Lock()
-	locked := a.Srv().uploadLockMap[us.Id]
+	locked := a.Srv().uploadLockMap[us.ID]
 	if locked {
 		// session lock is already taken, return error.
 		a.Srv().uploadLockMapMut.Unlock()
@@ -175,18 +175,18 @@ func (a *App) UploadData(c *request.Context, us *model.UploadSession, rd io.Read
 			nil, "", http.StatusBadRequest)
 	}
 	// grab the session lock.
-	a.Srv().uploadLockMap[us.Id] = true
+	a.Srv().uploadLockMap[us.ID] = true
 	a.Srv().uploadLockMapMut.Unlock()
 
 	// reset the session lock on exit.
 	defer func() {
 		a.Srv().uploadLockMapMut.Lock()
-		delete(a.Srv().uploadLockMap, us.Id)
+		delete(a.Srv().uploadLockMap, us.ID)
 		a.Srv().uploadLockMapMut.Unlock()
 	}()
 
 	// fetch the session from store to check for inconsistencies.
-	if storedSession, err := a.GetUploadSession(us.Id); err != nil {
+	if storedSession, err := a.GetUploadSession(us.ID); err != nil {
 		return nil, err
 	} else if us.FileOffset != storedSession.FileOffset {
 		return nil, model.NewAppError("UploadData", "app.upload.upload_data.concurrent.app_error",
@@ -251,11 +251,11 @@ func (a *App) UploadData(c *request.Context, us *model.UploadSession, rd io.Read
 		return nil, err
 	}
 
-	info.CreatorId = us.UserId
+	info.CreatorID = us.UserID
 	info.Path = us.Path
-	info.RemoteId = model.NewString(us.RemoteId)
-	if us.ReqFileId != "" {
-		info.Id = us.ReqFileId
+	info.RemoteID = model.NewString(us.RemoteID)
+	if us.ReqFileID != "" {
+		info.ID = us.ReqFileID
 	}
 
 	// run plugins upload hook
@@ -302,13 +302,13 @@ func (a *App) UploadData(c *request.Context, us *model.UploadSession, rd io.Read
 		a.Srv().Go(func() {
 			err := a.ExtractContentFromFileInfo(&infoCopy)
 			if err != nil {
-				mlog.Error("Failed to extract file content", mlog.Err(err), mlog.String("fileInfoId", infoCopy.Id))
+				mlog.Error("Failed to extract file content", mlog.Err(err), mlog.String("fileInfoId", infoCopy.ID))
 			}
 		})
 	}
 
 	// delete upload session
-	if storeErr := a.Srv().Store.UploadSession().Delete(us.Id); storeErr != nil {
+	if storeErr := a.Srv().Store.UploadSession().Delete(us.ID); storeErr != nil {
 		mlog.Warn("Failed to delete UploadSession", mlog.Err(storeErr))
 	}
 

@@ -86,7 +86,7 @@ func (job *EmailBatchingJob) Start() {
 
 func (job *EmailBatchingJob) Add(user *model.User, post *model.Post, team *model.Team) bool {
 	notification := &batchedNotification{
-		userID:   user.Id,
+		userID:   user.ID,
 		post:     post,
 		teamName: team.Name,
 	}
@@ -147,7 +147,7 @@ func (job *EmailBatchingJob) checkPendingNotifications(now time.Time, handler fu
 			}
 
 			if team != nil {
-				inspectedTeamNames[notification.teamName] = team.Id
+				inspectedTeamNames[notification.teamName] = team.ID
 			}
 
 			// if the user has viewed any channels in this team since the notification was queued, delete
@@ -215,19 +215,19 @@ func (es *EmailService) sendBatchedEmailNotification(userID string, notification
 
 	if emailNotificationContentsType == model.EmailNotificationContentsFull {
 		for i, notification := range notifications {
-			sender, errSender := es.srv.Store.User().Get(context.Background(), notification.post.UserId)
+			sender, errSender := es.srv.Store.User().Get(context.Background(), notification.post.UserID)
 			if errSender != nil {
 				mlog.Warn("Unable to find sender of post for batched email notification")
 			}
 
-			channel, errCh := es.srv.Store.Channel().Get(notification.post.ChannelId, true)
+			channel, errCh := es.srv.Store.Channel().Get(notification.post.ChannelID, true)
 			if errCh != nil {
 				mlog.Warn("Unable to find channel of post for batched email notification")
 			}
 
 			senderProfileImage, _, errProfileImage := es.srv.GetProfileImage(sender)
 			if errProfileImage != nil {
-				mlog.Warn("Unable to get the sender user profile image.", mlog.String("user_id", sender.Id), mlog.Err(errProfileImage))
+				mlog.Warn("Unable to get the sender user profile image.", mlog.String("user_id", sender.ID), mlog.Err(errProfileImage))
 			}
 
 			senderPhoto := fmt.Sprintf("user-avatar-%d.png", i)
@@ -247,7 +247,7 @@ func (es *EmailService) sendBatchedEmailNotification(userID string, notification
 				"Timezone": timezone,
 			})
 
-			MessageURL := siteURL + "/" + notification.teamName + "/pl/" + notification.post.Id
+			MessageURL := siteURL + "/" + notification.teamName + "/pl/" + notification.post.ID
 
 			postsData = append(postsData, &postData{
 				SenderPhoto: senderPhoto,
@@ -269,7 +269,7 @@ func (es *EmailService) sendBatchedEmailNotification(userID string, notification
 		"Day":      tm.Day(),
 	})
 
-	firstSender, err := es.srv.Store.User().Get(context.Background(), notifications[0].post.UserId)
+	firstSender, err := es.srv.Store.User().Get(context.Background(), notifications[0].post.UserID)
 	if err != nil {
 		mlog.Warn("Unable to find sender of post for batched email notification")
 	}

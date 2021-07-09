@@ -50,7 +50,7 @@ func (rcs *Service) SendFile(ctx context.Context, us *model.UploadSession, fi *m
 		rp: rp,
 		f:  f,
 	}
-	return rcs.enqueueTask(ctx, rc.RemoteId, task)
+	return rcs.enqueueTask(ctx, rc.RemoteID, task)
 }
 
 // sendFile is called when a sendFileTask is popped from the send channel.
@@ -61,7 +61,7 @@ func (rcs *Service) sendFile(task sendFileTask) {
 	if err != nil {
 		rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceError, "Remote Cluster send file failed",
 			mlog.String("remote", task.rc.DisplayName),
-			mlog.String("uploadId", task.us.Id),
+			mlog.String("uploadId", task.us.ID),
 			mlog.Err(err),
 		)
 		response.Status = ResponseStatusFail
@@ -69,7 +69,7 @@ func (rcs *Service) sendFile(task sendFileTask) {
 	} else {
 		rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceDebug, "Remote Cluster file sent successfully",
 			mlog.String("remote", task.rc.DisplayName),
-			mlog.String("uploadId", task.us.Id),
+			mlog.String("uploadId", task.us.ID),
 		)
 		response.Status = ResponseStatusOK
 		response.SetPayload(fi)
@@ -84,28 +84,28 @@ func (rcs *Service) sendFile(task sendFileTask) {
 func (rcs *Service) sendFileToRemote(timeout time.Duration, task sendFileTask) (*model.FileInfo, error) {
 	rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceDebug, "sending file to remote...",
 		mlog.String("remote", task.rc.DisplayName),
-		mlog.String("uploadId", task.us.Id),
+		mlog.String("uploadId", task.us.ID),
 		mlog.String("file_path", task.us.Path),
 	)
 
 	r, appErr := task.rp.FileReader(task.fi.Path) // get Reader for the file
 	if appErr != nil {
-		return nil, fmt.Errorf("error opening file while sending file to remote %s: %w", task.rc.RemoteId, appErr)
+		return nil, fmt.Errorf("error opening file while sending file to remote %s: %w", task.rc.RemoteID, appErr)
 	}
 	defer r.Close()
 
 	u, err := url.Parse(task.rc.SiteURL)
 	if err != nil {
-		return nil, fmt.Errorf("invalid siteURL while sending file to remote %s: %w", task.rc.RemoteId, err)
+		return nil, fmt.Errorf("invalid siteURL while sending file to remote %s: %w", task.rc.RemoteID, err)
 	}
-	u.Path = path.Join(u.Path, model.ApiUrlSuffix, "remotecluster", "upload", task.us.Id)
+	u.Path = path.Join(u.Path, model.ApiUrlSuffix, "remotecluster", "upload", task.us.ID)
 
 	req, err := http.NewRequest("POST", u.String(), r)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set(model.HeaderRemoteclusterId, task.rc.RemoteId)
+	req.Header.Set(model.HeaderRemoteclusterID, task.rc.RemoteID)
 	req.Header.Set(model.HeaderRemoteclusterToken, task.rc.RemoteToken)
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

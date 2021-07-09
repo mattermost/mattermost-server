@@ -21,35 +21,35 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 
 	publicChannel, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "AA",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	privateChannel, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "BB",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
-	defaultChannel, err := th.App.GetChannelByName(model.DefaultChannelName, th.BasicTeam.Id, false)
+	defaultChannel, err := th.App.GetChannelByName(model.DefaultChannelName, th.BasicTeam.ID, false)
 	require.Nil(t, err)
 
 	guest := th.createGuest()
 
-	th.App.AddUserToTeam(th.Context, th.BasicTeam.Id, th.BasicUser.Id, th.BasicUser.Id)
+	th.App.AddUserToTeam(th.Context, th.BasicTeam.ID, th.BasicUser.ID, th.BasicUser.ID)
 	th.App.AddUserToChannel(th.BasicUser, publicChannel, false)
 	th.App.AddUserToChannel(th.BasicUser, privateChannel, false)
-	th.App.AddUserToTeam(th.Context, th.BasicTeam.Id, guest.Id, guest.Id)
+	th.App.AddUserToTeam(th.Context, th.BasicTeam.ID, guest.ID, guest.ID)
 	th.App.AddUserToChannel(guest, publicChannel, false)
 	th.App.AddUserToChannel(guest, defaultChannel, false)
 
 	t.Run("Should error when no Channel ID in args", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId: th.BasicUser.Id,
+			UserID: th.BasicUser.ID,
 			T:      func(s string, args ...interface{}) string { return s },
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -59,8 +59,8 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 
 	t.Run("Should error when no Team ID in args", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId:    th.BasicUser.Id,
-			ChannelId: publicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: publicChannel.ID,
 			T:         func(s string, args ...interface{}) string { return s },
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -70,10 +70,10 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 
 	t.Run("Leave a public channel", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId:    th.BasicUser.Id,
-			ChannelId: publicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: publicChannel.ID,
 			T:         func(s string, args ...interface{}) string { return s },
-			TeamId:    th.BasicTeam.Id,
+			TeamID:    th.BasicTeam.ID,
 			SiteURL:   "http://localhost:8065",
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -81,17 +81,17 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 		assert.Equal(t, args.SiteURL+"/"+th.BasicTeam.Name+"/channels/"+model.DefaultChannelName, actual.GotoLocation)
 		assert.Equal(t, "", actual.ResponseType)
 
-		_, err = th.App.GetChannelMember(context.Background(), publicChannel.Id, th.BasicUser.Id)
+		_, err = th.App.GetChannelMember(context.Background(), publicChannel.ID, th.BasicUser.ID)
 		assert.NotNil(t, err)
-		assert.NotNil(t, err.Id, "app.channel.get_member.missing.app_error")
+		assert.NotNil(t, err.ID, "app.channel.get_member.missing.app_error")
 	})
 
 	t.Run("Leave a private channel", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId:    th.BasicUser.Id,
-			ChannelId: privateChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: privateChannel.ID,
 			T:         func(s string, args ...interface{}) string { return s },
-			TeamId:    th.BasicTeam.Id,
+			TeamID:    th.BasicTeam.ID,
 			SiteURL:   "http://localhost:8065",
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -100,10 +100,10 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 
 	t.Run("Should not leave a default channel", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId:    th.BasicUser.Id,
-			ChannelId: defaultChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: defaultChannel.ID,
 			T:         func(s string, args ...interface{}) string { return s },
-			TeamId:    th.BasicTeam.Id,
+			TeamID:    th.BasicTeam.ID,
 			SiteURL:   "http://localhost:8065",
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -112,10 +112,10 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 
 	t.Run("Should allow to leave a default channel if user is guest", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId:    guest.Id,
-			ChannelId: defaultChannel.Id,
+			UserID:    guest.ID,
+			ChannelID: defaultChannel.ID,
 			T:         func(s string, args ...interface{}) string { return s },
-			TeamId:    th.BasicTeam.Id,
+			TeamID:    th.BasicTeam.ID,
 			SiteURL:   "http://localhost:8065",
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -123,17 +123,17 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 		assert.Equal(t, args.SiteURL+"/"+th.BasicTeam.Name+"/channels/"+publicChannel.Name, actual.GotoLocation)
 		assert.Equal(t, "", actual.ResponseType)
 
-		_, err = th.App.GetChannelMember(context.Background(), defaultChannel.Id, guest.Id)
+		_, err = th.App.GetChannelMember(context.Background(), defaultChannel.ID, guest.ID)
 		assert.NotNil(t, err)
-		assert.NotNil(t, err.Id, "app.channel.get_member.missing.app_error")
+		assert.NotNil(t, err.ID, "app.channel.get_member.missing.app_error")
 	})
 
 	t.Run("Should redirect to the team if is the last channel", func(t *testing.T) {
 		args := &model.CommandArgs{
-			UserId:    guest.Id,
-			ChannelId: publicChannel.Id,
+			UserID:    guest.ID,
+			ChannelID: publicChannel.ID,
 			T:         func(s string, args ...interface{}) string { return s },
-			TeamId:    th.BasicTeam.Id,
+			TeamID:    th.BasicTeam.ID,
 			SiteURL:   "http://localhost:8065",
 		}
 		actual := lp.DoCommand(th.App, th.Context, args, "")
@@ -141,8 +141,8 @@ func TestLeaveProviderDoCommand(t *testing.T) {
 		assert.Equal(t, args.SiteURL+"/", actual.GotoLocation)
 		assert.Equal(t, "", actual.ResponseType)
 
-		_, err = th.App.GetChannelMember(context.Background(), publicChannel.Id, guest.Id)
+		_, err = th.App.GetChannelMember(context.Background(), publicChannel.ID, guest.ID)
 		assert.NotNil(t, err)
-		assert.NotNil(t, err.Id, "app.channel.get_member.missing.app_error")
+		assert.NotNil(t, err.ID, "app.channel.get_member.missing.app_error")
 	})
 }

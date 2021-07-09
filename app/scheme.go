@@ -138,12 +138,12 @@ func (a *App) UpdateScheme(scheme *model.Scheme) (*model.Scheme, *model.AppError
 	return scheme, nil
 }
 
-func (a *App) DeleteScheme(schemeId string) (*model.Scheme, *model.AppError) {
+func (a *App) DeleteScheme(schemeID string) (*model.Scheme, *model.AppError) {
 	if err := a.IsPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
-	scheme, err := a.Srv().Store.Scheme().Delete(schemeId)
+	scheme, err := a.Srv().Store.Scheme().Delete(schemeID)
 	if err != nil {
 		var nfErr *store.ErrNotFound
 		switch {
@@ -169,7 +169,7 @@ func (a *App) GetTeamsForScheme(scheme *model.Scheme, offset int, limit int) ([]
 		return nil, err
 	}
 
-	teams, err := a.Srv().Store.Team().GetTeamsByScheme(scheme.Id, offset, limit)
+	teams, err := a.Srv().Store.Team().GetTeamsByScheme(scheme.ID, offset, limit)
 	if err != nil {
 		return nil, model.NewAppError("GetTeamsForScheme", "app.team.get_by_scheme.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -189,7 +189,7 @@ func (a *App) GetChannelsForScheme(scheme *model.Scheme, offset int, limit int) 
 		return nil, err
 	}
 
-	channelList, nErr := a.Srv().Store.Channel().GetChannelsByScheme(scheme.Id, offset, limit)
+	channelList, nErr := a.Srv().Store.Channel().GetChannelsByScheme(scheme.ID, offset, limit)
 	if nErr != nil {
 		return nil, model.NewAppError("GetChannelsForScheme", "app.channel.get_by_scheme.app_error", nil, nErr.Error(), http.StatusInternalServerError)
 	}

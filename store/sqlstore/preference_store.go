@@ -85,7 +85,7 @@ func (s SqlPreferenceStore) save(transaction *gorp.Transaction, preference *mode
 		queryString, args, err := s.getQueryBuilder().
 			Insert("Preferences").
 			Columns("UserId", "Category", "Name", "Value").
-			Values(preference.UserId, preference.Category, preference.Name, preference.Value).
+			Values(preference.UserID, preference.Category, preference.Name, preference.Value).
 			SuffixExpr(sq.Expr("ON DUPLICATE KEY UPDATE Value = ?", preference.Value)).
 			ToSql()
 
@@ -103,7 +103,7 @@ func (s SqlPreferenceStore) save(transaction *gorp.Transaction, preference *mode
 		queryString, args, err := s.getQueryBuilder().
 			Select("count(0)").
 			From("Preferences").
-			Where(sq.Eq{"UserId": preference.UserId}).
+			Where(sq.Eq{"UserId": preference.UserID}).
 			Where(sq.Eq{"Category": preference.Category}).
 			Where(sq.Eq{"Name": preference.Name}).
 			ToSql()
@@ -128,9 +128,9 @@ func (s SqlPreferenceStore) save(transaction *gorp.Transaction, preference *mode
 func (s SqlPreferenceStore) insert(transaction *gorp.Transaction, preference *model.Preference) error {
 	if err := transaction.Insert(preference); err != nil {
 		if IsUniqueConstraintError(err, []string{"UserId", "preferences_pkey"}) {
-			return store.NewErrInvalidInput("Preference", "<userId, category, name>", fmt.Sprintf("<%s, %s, %s>", preference.UserId, preference.Category, preference.Name))
+			return store.NewErrInvalidInput("Preference", "<userId, category, name>", fmt.Sprintf("<%s, %s, %s>", preference.UserID, preference.Category, preference.Name))
 		}
-		return errors.Wrapf(err, "failed to save Preference with userId=%s, category=%s, name=%s", preference.UserId, preference.Category, preference.Name)
+		return errors.Wrapf(err, "failed to save Preference with userId=%s, category=%s, name=%s", preference.UserID, preference.Category, preference.Name)
 	}
 
 	return nil
@@ -138,18 +138,18 @@ func (s SqlPreferenceStore) insert(transaction *gorp.Transaction, preference *mo
 
 func (s SqlPreferenceStore) update(transaction *gorp.Transaction, preference *model.Preference) error {
 	if _, err := transaction.Update(preference); err != nil {
-		return errors.Wrapf(err, "failed to update Preference with userId=%s, category=%s, name=%s", preference.UserId, preference.Category, preference.Name)
+		return errors.Wrapf(err, "failed to update Preference with userId=%s, category=%s, name=%s", preference.UserID, preference.Category, preference.Name)
 	}
 
 	return nil
 }
 
-func (s SqlPreferenceStore) Get(userId string, category string, name string) (*model.Preference, error) {
+func (s SqlPreferenceStore) Get(userID string, category string, name string) (*model.Preference, error) {
 	var preference *model.Preference
 	query, args, err := s.getQueryBuilder().
 		Select("*").
 		From("Preferences").
-		Where(sq.Eq{"UserId": userId}).
+		Where(sq.Eq{"UserId": userID}).
 		Where(sq.Eq{"Category": category}).
 		Where(sq.Eq{"Name": name}).
 		ToSql()
@@ -158,64 +158,64 @@ func (s SqlPreferenceStore) Get(userId string, category string, name string) (*m
 		return nil, errors.Wrap(err, "could not build sql query to get preference")
 	}
 	if err = s.GetReplica().SelectOne(&preference, query, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to find Preference with userId=%s, category=%s, name=%s", userId, category, name)
+		return nil, errors.Wrapf(err, "failed to find Preference with userId=%s, category=%s, name=%s", userID, category, name)
 	}
 
 	return preference, nil
 }
 
-func (s SqlPreferenceStore) GetCategory(userId string, category string) (model.Preferences, error) {
+func (s SqlPreferenceStore) GetCategory(userID string, category string) (model.Preferences, error) {
 	var preferences model.Preferences
 	query, args, err := s.getQueryBuilder().
 		Select("*").
 		From("Preferences").
-		Where(sq.Eq{"UserId": userId}).
+		Where(sq.Eq{"UserId": userID}).
 		Where(sq.Eq{"Category": category}).
 		ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not build sql query to get preference")
 	}
 	if _, err = s.GetReplica().Select(&preferences, query, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to find Preference with userId=%s, category=%s", userId, category)
+		return nil, errors.Wrapf(err, "failed to find Preference with userId=%s, category=%s", userID, category)
 	}
 	return preferences, nil
 
 }
 
-func (s SqlPreferenceStore) GetAll(userId string) (model.Preferences, error) {
+func (s SqlPreferenceStore) GetAll(userID string) (model.Preferences, error) {
 	var preferences model.Preferences
 	query, args, err := s.getQueryBuilder().
 		Select("*").
 		From("Preferences").
-		Where(sq.Eq{"UserId": userId}).
+		Where(sq.Eq{"UserId": userID}).
 		ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not build sql query to get preference")
 	}
 	if _, err = s.GetReplica().Select(&preferences, query, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to find Preference with userId=%s", userId)
+		return nil, errors.Wrapf(err, "failed to find Preference with userId=%s", userID)
 	}
 	return preferences, nil
 }
 
-func (s SqlPreferenceStore) PermanentDeleteByUser(userId string) error {
+func (s SqlPreferenceStore) PermanentDeleteByUser(userID string) error {
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
-		Where(sq.Eq{"UserId": userId}).ToSql()
+		Where(sq.Eq{"UserId": userID}).ToSql()
 	if err != nil {
 		return errors.Wrap(err, "could not build sql query to get delete preference by user")
 	}
 	if _, err := s.GetMaster().Exec(sql, args...); err != nil {
-		return errors.Wrapf(err, "failed to delete Preference with userId=%s", userId)
+		return errors.Wrapf(err, "failed to delete Preference with userId=%s", userID)
 	}
 	return nil
 }
 
-func (s SqlPreferenceStore) Delete(userId, category, name string) error {
+func (s SqlPreferenceStore) Delete(userID, category, name string) error {
 
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
-		Where(sq.Eq{"UserId": userId}).
+		Where(sq.Eq{"UserId": userID}).
 		Where(sq.Eq{"Category": category}).
 		Where(sq.Eq{"Name": name}).ToSql()
 
@@ -224,17 +224,17 @@ func (s SqlPreferenceStore) Delete(userId, category, name string) error {
 	}
 
 	if _, err = s.GetMaster().Exec(sql, args...); err != nil {
-		return errors.Wrapf(err, "failed to delete Preference with userId=%s, category=%s and name=%s", userId, category, name)
+		return errors.Wrapf(err, "failed to delete Preference with userId=%s, category=%s and name=%s", userID, category, name)
 	}
 
 	return nil
 }
 
-func (s SqlPreferenceStore) DeleteCategory(userId string, category string) error {
+func (s SqlPreferenceStore) DeleteCategory(userID string, category string) error {
 
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
-		Where(sq.Eq{"UserId": userId}).
+		Where(sq.Eq{"UserId": userID}).
 		Where(sq.Eq{"Category": category}).ToSql()
 
 	if err != nil {
@@ -242,7 +242,7 @@ func (s SqlPreferenceStore) DeleteCategory(userId string, category string) error
 	}
 
 	if _, err = s.GetMaster().Exec(sql, args...); err != nil {
-		return errors.Wrapf(err, "failed to delete Preference with userId=%s and category=%s", userId, category)
+		return errors.Wrapf(err, "failed to delete Preference with userId=%s and category=%s", userID, category)
 	}
 
 	return nil

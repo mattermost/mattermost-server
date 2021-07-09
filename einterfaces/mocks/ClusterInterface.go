@@ -33,7 +33,7 @@ func (_m *ClusterInterface) ConfigChanged(previousConfig *model.Config, newConfi
 }
 
 // GetClusterId provides a mock function with given fields:
-func (_m *ClusterInterface) GetClusterId() string {
+func (_m *ClusterInterface) GetClusterID() string {
 	ret := _m.Called()
 
 	var r0 string

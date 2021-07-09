@@ -66,16 +66,16 @@ func (a *App) InstallPluginFromData(data model.PluginEventData) {
 }
 
 func (s *Server) installPluginFromData(data model.PluginEventData) {
-	mlog.Debug("Installing plugin as per cluster message", mlog.String("plugin_id", data.Id))
+	mlog.Debug("Installing plugin as per cluster message", mlog.String("plugin_id", data.ID))
 
 	pluginSignaturePathMap, appErr := s.getPluginsFromFolder()
 	if appErr != nil {
 		mlog.Error("Failed to get plugin signatures from filestore. Can't install plugin from data.", mlog.Err(appErr))
 		return
 	}
-	plugin, ok := pluginSignaturePathMap[data.Id]
+	plugin, ok := pluginSignaturePathMap[data.ID]
 	if !ok {
-		mlog.Error("Failed to get plugin signature from filestore. Can't install plugin from data.", mlog.String("plugin id", data.Id))
+		mlog.Error("Failed to get plugin signature from filestore. Can't install plugin from data.", mlog.String("plugin id", data.ID))
 		return
 	}
 
@@ -116,10 +116,10 @@ func (a *App) RemovePluginFromData(data model.PluginEventData) {
 }
 
 func (s *Server) removePluginFromData(data model.PluginEventData) {
-	mlog.Debug("Removing plugin as per cluster message", mlog.String("plugin_id", data.Id))
+	mlog.Debug("Removing plugin as per cluster message", mlog.String("plugin_id", data.ID))
 
-	if err := s.removePluginLocally(data.Id); err != nil {
-		mlog.Warn("Failed to remove plugin locally", mlog.Err(err), mlog.String("id", data.Id))
+	if err := s.removePluginLocally(data.ID); err != nil {
+		mlog.Warn("Failed to remove plugin locally", mlog.Err(err), mlog.String("id", data.ID))
 	}
 
 	if err := s.notifyPluginStatusesChanged(); err != nil {
@@ -158,21 +158,21 @@ func (s *Server) installPlugin(pluginFile, signature io.ReadSeeker, installation
 
 	if signature != nil {
 		signature.Seek(0, 0)
-		if _, appErr = s.writeFile(signature, getSignatureStorePath(manifest.Id)); appErr != nil {
+		if _, appErr = s.writeFile(signature, getSignatureStorePath(manifest.ID)); appErr != nil {
 			return nil, model.NewAppError("saveSignature", "app.plugin.store_signature.app_error", nil, appErr.Error(), http.StatusInternalServerError)
 		}
 	}
 
 	// Store bundle in the file store to allow access from other servers.
 	pluginFile.Seek(0, 0)
-	if _, appErr := s.writeFile(pluginFile, getBundleStorePath(manifest.Id)); appErr != nil {
+	if _, appErr := s.writeFile(pluginFile, getBundleStorePath(manifest.ID)); appErr != nil {
 		return nil, model.NewAppError("uploadPlugin", "app.plugin.store_bundle.app_error", nil, appErr.Error(), http.StatusInternalServerError)
 	}
 
 	s.notifyClusterPluginEvent(
 		model.ClusterEventInstallPlugin,
 		model.PluginEventData{
-			Id: manifest.Id,
+			ID: manifest.ID,
 		},
 	)
 
@@ -196,8 +196,8 @@ func (a *App) InstallMarketplacePlugin(request *model.InstallMarketplacePluginRe
 func (s *Server) installMarketplacePlugin(request *model.InstallMarketplacePluginRequest) (*model.Manifest, *model.AppError) {
 	var pluginFile, signatureFile io.ReadSeeker
 
-	prepackagedPlugin, appErr := s.getPrepackagedPlugin(request.Id, request.Version)
-	if appErr != nil && appErr.Id != "app.plugin.marketplace_plugins.not_found.app_error" {
+	prepackagedPlugin, appErr := s.getPrepackagedPlugin(request.ID, request.Version)
+	if appErr != nil && appErr.ID != "app.plugin.marketplace_plugins.not_found.app_error" {
 		return nil, appErr
 	}
 	if prepackagedPlugin != nil {
@@ -214,7 +214,7 @@ func (s *Server) installMarketplacePlugin(request *model.InstallMarketplacePlugi
 
 	if *s.Config().PluginSettings.EnableRemoteMarketplace && pluginFile == nil {
 		var plugin *model.BaseMarketplacePlugin
-		plugin, appErr = s.getRemoteMarketplacePlugin(request.Id, request.Version)
+		plugin, appErr = s.getRemoteMarketplacePlugin(request.ID, request.Version)
 		if appErr != nil {
 			return nil, appErr
 		}
@@ -313,8 +313,8 @@ func extractPlugin(pluginFile io.ReadSeeker, extractDir string) (*model.Manifest
 		return nil, "", model.NewAppError("extractPlugin", "app.plugin.manifest.app_error", nil, err.Error(), http.StatusBadRequest)
 	}
 
-	if !model.IsValidPluginId(manifest.Id) {
-		return nil, "", model.NewAppError("installPluginLocally", "app.plugin.invalid_id.app_error", map[string]interface{}{"Min": model.MinIdLength, "Max": model.MaxIdLength, "Regex": model.ValidIdRegex}, "", http.StatusBadRequest)
+	if !model.IsValidPluginID(manifest.ID) {
+		return nil, "", model.NewAppError("installPluginLocally", "app.plugin.invalid_id.app_error", map[string]interface{}{"Min": model.MinIDLength, "Max": model.MaxIDLength, "Regex": model.ValidIDRegex}, "", http.StatusBadRequest)
 	}
 
 	return manifest, extractDir, nil
@@ -334,7 +334,7 @@ func (s *Server) installExtractedPlugin(manifest *model.Manifest, fromPluginDir 
 	// Check for plugins installed with the same ID.
 	var existingManifest *model.Manifest
 	for _, bundle := range bundles {
-		if bundle.Manifest != nil && bundle.Manifest.Id == manifest.Id {
+		if bundle.Manifest != nil && bundle.Manifest.ID == manifest.ID {
 			existingManifest = bundle.Manifest
 			break
 		}
@@ -361,19 +361,19 @@ func (s *Server) installExtractedPlugin(manifest *model.Manifest, fromPluginDir 
 			}
 
 			if version.LTE(existingVersion) {
-				mlog.Debug("Skipping local installation of plugin since existing version is newer", mlog.String("plugin_id", manifest.Id))
+				mlog.Debug("Skipping local installation of plugin since existing version is newer", mlog.String("plugin_id", manifest.ID))
 				return nil, nil
 			}
 		}
 
 		// Otherwise remove the existing installation prior to install below.
-		mlog.Debug("Removing existing installation of plugin before local install", mlog.String("plugin_id", existingManifest.Id), mlog.String("version", existingManifest.Version))
-		if err := s.removePluginLocally(existingManifest.Id); err != nil {
+		mlog.Debug("Removing existing installation of plugin before local install", mlog.String("plugin_id", existingManifest.ID), mlog.String("version", existingManifest.Version))
+		if err := s.removePluginLocally(existingManifest.ID); err != nil {
 			return nil, model.NewAppError("installExtractedPlugin", "app.plugin.install_id_failed_remove.app_error", nil, "", http.StatusBadRequest)
 		}
 	}
 
-	pluginPath := filepath.Join(*s.Config().PluginSettings.Directory, manifest.Id)
+	pluginPath := filepath.Join(*s.Config().PluginSettings.Directory, manifest.ID)
 	err = utils.CopyDir(fromPluginDir, pluginPath)
 	if err != nil {
 		return nil, model.NewAppError("installExtractedPlugin", "app.plugin.mvdir.app_error", nil, err.Error(), http.StatusInternalServerError)
@@ -387,7 +387,7 @@ func (s *Server) installExtractedPlugin(manifest *model.Manifest, fromPluginDir 
 	f.Close()
 
 	if manifest.HasWebapp() {
-		updatedManifest, err := pluginsEnvironment.UnpackWebappBundle(manifest.Id)
+		updatedManifest, err := pluginsEnvironment.UnpackWebappBundle(manifest.ID)
 		if err != nil {
 			return nil, model.NewAppError("installExtractedPlugin", "app.plugin.webapp_bundle.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
@@ -395,12 +395,12 @@ func (s *Server) installExtractedPlugin(manifest *model.Manifest, fromPluginDir 
 	}
 
 	// Activate the plugin if enabled.
-	pluginState := s.Config().PluginSettings.PluginStates[manifest.Id]
+	pluginState := s.Config().PluginSettings.PluginStates[manifest.ID]
 	if pluginState != nil && pluginState.Enable {
-		if manifest.Id == "com.mattermost.apps" && !s.Config().FeatureFlags.AppsEnabled {
+		if manifest.ID == "com.mattermost.apps" && !s.Config().FeatureFlags.AppsEnabled {
 			return manifest, nil
 		}
-		updatedManifest, _, err := pluginsEnvironment.Activate(manifest.Id)
+		updatedManifest, _, err := pluginsEnvironment.Activate(manifest.ID)
 		if err != nil {
 			return nil, model.NewAppError("installExtractedPlugin", "app.plugin.restart.app_error", nil, err.Error(), http.StatusInternalServerError)
 		} else if updatedManifest == nil {
@@ -446,7 +446,7 @@ func (s *Server) removePlugin(id string) *model.AppError {
 	s.notifyClusterPluginEvent(
 		model.ClusterEventRemovePlugin,
 		model.PluginEventData{
-			Id: id,
+			ID: id,
 		},
 	)
 
@@ -475,7 +475,7 @@ func (s *Server) removePluginLocally(id string) *model.AppError {
 	var manifest *model.Manifest
 	var pluginPath string
 	for _, p := range plugins {
-		if p.Manifest != nil && p.Manifest.Id == id {
+		if p.Manifest != nil && p.Manifest.ID == id {
 			manifest = p.Manifest
 			pluginPath = filepath.Dir(p.ManifestPath)
 			break

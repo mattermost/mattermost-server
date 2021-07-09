@@ -12,9 +12,9 @@ import (
 type SharedChannelServiceIFace interface {
 	Shutdown() error
 	Start() error
-	NotifyChannelChanged(channelId string)
+	NotifyChannelChanged(channelID string)
 	NotifyUserProfileChanged(userID string)
-	SendChannelInvite(channel *model.Channel, userId string, rc *model.RemoteCluster, options ...sharedchannel.InviteOption) error
+	SendChannelInvite(channel *model.Channel, userID string, rc *model.RemoteCluster, options ...sharedchannel.InviteOption) error
 	Active() bool
 }
 
@@ -42,12 +42,12 @@ type mockSharedChannelService struct {
 	numInvitations           int
 }
 
-func (mrcs *mockSharedChannelService) NotifyChannelChanged(channelId string) {
-	mrcs.channelNotifications = append(mrcs.channelNotifications, channelId)
+func (mrcs *mockSharedChannelService) NotifyChannelChanged(channelID string) {
+	mrcs.channelNotifications = append(mrcs.channelNotifications, channelID)
 }
 
-func (mrcs *mockSharedChannelService) NotifyUserProfileChanged(userId string) {
-	mrcs.userProfileNotifications = append(mrcs.userProfileNotifications, userId)
+func (mrcs *mockSharedChannelService) NotifyUserProfileChanged(userID string) {
+	mrcs.userProfileNotifications = append(mrcs.userProfileNotifications, userID)
 }
 
 func (mrcs *mockSharedChannelService) Shutdown() error {
@@ -62,7 +62,7 @@ func (mrcs *mockSharedChannelService) Active() bool {
 	return mrcs.active
 }
 
-func (mrcs *mockSharedChannelService) SendChannelInvite(channel *model.Channel, userId string, rc *model.RemoteCluster, options ...sharedchannel.InviteOption) error {
+func (mrcs *mockSharedChannelService) SendChannelInvite(channel *model.Channel, userID string, rc *model.RemoteCluster, options ...sharedchannel.InviteOption) error {
 	mrcs.numInvitations += 1
 	return nil
 }

@@ -25,28 +25,28 @@ func randInt(max int) (int, error) {
 }
 
 func generatePassword(minimumLength int) (string, error) {
-	upperIdx, err := randInt(len(passwordUpperCaseLetters))
+	upperIDx, err := randInt(len(passwordUpperCaseLetters))
 	if err != nil {
 		return "", err
 	}
-	numberIdx, err := randInt(len(passwordNumbers))
+	numberIDx, err := randInt(len(passwordNumbers))
 	if err != nil {
 		return "", err
 	}
-	lowerIdx, err := randInt(len(passwordLowerCaseLetters))
+	lowerIDx, err := randInt(len(passwordLowerCaseLetters))
 	if err != nil {
 		return "", err
 	}
-	specialIdx, err := randInt(len(passwordSpecialChars))
+	specialIDx, err := randInt(len(passwordSpecialChars))
 	if err != nil {
 		return "", err
 	}
 
 	// Make sure we are guaranteed at least one of each type to meet any possible password complexity requirements.
-	password := string([]rune(passwordUpperCaseLetters)[upperIdx]) +
-		string([]rune(passwordNumbers)[numberIdx]) +
-		string([]rune(passwordLowerCaseLetters)[lowerIdx]) +
-		string([]rune(passwordSpecialChars)[specialIdx])
+	password := string([]rune(passwordUpperCaseLetters)[upperIDx]) +
+		string([]rune(passwordNumbers)[numberIDx]) +
+		string([]rune(passwordLowerCaseLetters)[lowerIDx]) +
+		string([]rune(passwordSpecialChars)[specialIDx])
 
 	for len(password) < minimumLength {
 		i, err := randInt(len(passwordAllChars))

@@ -32,27 +32,27 @@ func printRelationalIntegrityCheckResult(data model.RelationalIntegrityCheckData
 		return
 	}
 	for _, record := range data.Records {
-		var parentId string
+		var parentID string
 
-		if record.ParentId == nil {
-			parentId = "NULL"
-		} else if *record.ParentId == "" {
-			parentId = "empty"
+		if record.ParentID == nil {
+			parentID = "NULL"
+		} else if *record.ParentID == "" {
+			parentID = "empty"
 		} else {
-			parentId = *record.ParentId
+			parentID = *record.ParentID
 		}
 
-		if record.ChildId != nil {
-			if parentId == "NULL" || parentId == "empty" {
-				fmt.Printf("  Child %s (%s.%s) has %s ParentIdAttr (%s.%s)\n", *record.ChildId, data.ChildName, data.ChildIdAttr, parentId, data.ChildName, data.ParentIdAttr)
+		if record.ChildID != nil {
+			if parentID == "NULL" || parentID == "empty" {
+				fmt.Printf("  Child %s (%s.%s) has %s ParentIdAttr (%s.%s)\n", *record.ChildID, data.ChildName, data.ChildIDAttr, parentID, data.ChildName, data.ParentIDAttr)
 			} else {
-				fmt.Printf("  Child %s (%s.%s) is missing Parent %s (%s.%s)\n", *record.ChildId, data.ChildName, data.ChildIdAttr, parentId, data.ChildName, data.ParentIdAttr)
+				fmt.Printf("  Child %s (%s.%s) is missing Parent %s (%s.%s)\n", *record.ChildID, data.ChildName, data.ChildIDAttr, parentID, data.ChildName, data.ParentIDAttr)
 			}
 		} else {
-			if parentId == "NULL" || parentId == "empty" {
-				fmt.Printf("  Child has %s ParentIdAttr (%s.%s)\n", parentId, data.ChildName, data.ParentIdAttr)
+			if parentID == "NULL" || parentID == "empty" {
+				fmt.Printf("  Child has %s ParentIdAttr (%s.%s)\n", parentID, data.ChildName, data.ParentIDAttr)
 			} else {
-				fmt.Printf("  Child is missing Parent %s (%s.%s)\n", parentId, data.ChildName, data.ParentIdAttr)
+				fmt.Printf("  Child is missing Parent %s (%s.%s)\n", parentID, data.ChildName, data.ParentIDAttr)
 			}
 		}
 	}

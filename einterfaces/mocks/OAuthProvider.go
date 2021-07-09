@@ -40,7 +40,7 @@ func (_m *OAuthProvider) GetSSOSettings(config *model.Config, service string) (*
 }
 
 // GetUserFromIdToken provides a mock function with given fields: idToken
-func (_m *OAuthProvider) GetUserFromIdToken(idToken string) (*model.User, error) {
+func (_m *OAuthProvider) GetUserFromIDToken(idToken string) (*model.User, error) {
 	ret := _m.Called(idToken)
 
 	var r0 *model.User
@@ -63,7 +63,7 @@ func (_m *OAuthProvider) GetUserFromIdToken(idToken string) (*model.User, error)
 }
 
 // GetUserFromJson provides a mock function with given fields: data, tokenUser
-func (_m *OAuthProvider) GetUserFromJson(data io.Reader, tokenUser *model.User) (*model.User, error) {
+func (_m *OAuthProvider) GetUserFromJSON(data io.Reader, tokenUser *model.User) (*model.User, error) {
 	ret := _m.Called(data, tokenUser)
 
 	var r0 *model.User

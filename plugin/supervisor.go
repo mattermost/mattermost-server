@@ -46,7 +46,7 @@ func newSupervisor(pluginInfo *model.BundleInfo, apiImpl API, driver Driver, par
 		"hooks": &hooksPlugin{
 			log:        wrappedLogger,
 			driverImpl: driver,
-			apiImpl:    &apiTimerLayer{pluginInfo.Manifest.Id, apiImpl, metrics},
+			apiImpl:    &apiTimerLayer{pluginInfo.Manifest.ID, apiImpl, metrics},
 		},
 	}
 
@@ -83,15 +83,15 @@ func newSupervisor(pluginInfo *model.BundleInfo, apiImpl API, driver Driver, par
 		return nil, err
 	}
 
-	sup.hooks = &hooksTimerLayer{pluginInfo.Manifest.Id, raw.(Hooks), metrics}
+	sup.hooks = &hooksTimerLayer{pluginInfo.Manifest.ID, raw.(Hooks), metrics}
 
 	impl, err := sup.hooks.Implemented()
 	if err != nil {
 		return nil, err
 	}
 	for _, hookName := range impl {
-		if hookId, ok := hookNameToId[hookName]; ok {
-			sup.implemented[hookId] = true
+		if hookID, ok := hookNameToID[hookName]; ok {
+			sup.implemented[hookID] = true
 		}
 	}
 
@@ -142,8 +142,8 @@ func (sup *supervisor) Ping() error {
 	return client.Ping()
 }
 
-func (sup *supervisor) Implements(hookId int) bool {
+func (sup *supervisor) Implements(hookID int) bool {
 	sup.lock.RLock()
 	defer sup.lock.RUnlock()
-	return sup.implemented[hookId]
+	return sup.implemented[hookID]
 }

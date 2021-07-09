@@ -11,7 +11,7 @@ import (
 
 func (api *API) InitStatus() {
 	api.BaseRoutes.User.Handle("/status", api.ApiSessionRequired(getUserStatus)).Methods("GET")
-	api.BaseRoutes.Users.Handle("/status/ids", api.ApiSessionRequired(getUserStatusesByIds)).Methods("POST")
+	api.BaseRoutes.Users.Handle("/status/ids", api.ApiSessionRequired(getUserStatusesByIDs)).Methods("POST")
 	api.BaseRoutes.User.Handle("/status", api.ApiSessionRequired(updateUserStatus)).Methods("PUT")
 	api.BaseRoutes.User.Handle("/status/custom", api.ApiSessionRequired(updateUserCustomStatus)).Methods("PUT")
 	api.BaseRoutes.User.Handle("/status/custom", api.ApiSessionRequired(removeUserCustomStatus)).Methods("DELETE")
@@ -23,14 +23,14 @@ func (api *API) InitStatus() {
 }
 
 func getUserStatus(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
 	// No permission check required
 
-	statusMap, err := c.App.GetUserStatusesByIds([]string{c.Params.UserId})
+	statusMap, err := c.App.GetUserStatusesByIDs([]string{c.Params.UserID})
 	if err != nil {
 		c.Err = err
 		return
@@ -41,19 +41,19 @@ func getUserStatus(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(statusMap[0].ToJson()))
+	w.Write([]byte(statusMap[0].ToJSON()))
 }
 
-func getUserStatusesByIds(c *Context, w http.ResponseWriter, r *http.Request) {
-	userIds := model.ArrayFromJson(r.Body)
+func getUserStatusesByIDs(c *Context, w http.ResponseWriter, r *http.Request) {
+	userIDs := model.ArrayFromJSON(r.Body)
 
-	if len(userIds) == 0 {
+	if len(userIDs) == 0 {
 		c.SetInvalidParam("user_ids")
 		return
 	}
 
-	for _, userId := range userIds {
-		if len(userId) != 26 {
+	for _, userID := range userIDs {
+		if len(userID) != 26 {
 			c.SetInvalidParam("user_ids")
 			return
 		}
@@ -61,55 +61,55 @@ func getUserStatusesByIds(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	// No permission check required
 
-	statusMap, err := c.App.GetUserStatusesByIds(userIds)
+	statusMap, err := c.App.GetUserStatusesByIDs(userIDs)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(model.StatusListToJson(statusMap)))
+	w.Write([]byte(model.StatusListToJSON(statusMap)))
 }
 
 func updateUserStatus(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	status := model.StatusFromJson(r.Body)
+	status := model.StatusFromJSON(r.Body)
 	if status == nil {
 		c.SetInvalidParam("status")
 		return
 	}
 
 	// The user being updated in the payload must be the same one as indicated in the URL.
-	if status.UserId != c.Params.UserId {
+	if status.UserID != c.Params.UserID {
 		c.SetInvalidParam("user_id")
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	currentStatus, err := c.App.GetStatus(c.Params.UserId)
+	currentStatus, err := c.App.GetStatus(c.Params.UserID)
 	if err == nil && currentStatus.Status == model.StatusOutOfOffice && status.Status != model.StatusOutOfOffice {
-		c.App.DisableAutoResponder(c.Params.UserId, c.IsSystemAdmin())
+		c.App.DisableAutoResponder(c.Params.UserID, c.IsSystemAdmin())
 	}
 
 	switch status.Status {
 	case "online":
-		c.App.SetStatusOnline(c.Params.UserId, true)
+		c.App.SetStatusOnline(c.Params.UserID, true)
 	case "offline":
-		c.App.SetStatusOffline(c.Params.UserId, true)
+		c.App.SetStatusOffline(c.Params.UserID, true)
 	case "away":
-		c.App.SetStatusAwayIfNeeded(c.Params.UserId, true)
+		c.App.SetStatusAwayIfNeeded(c.Params.UserID, true)
 	case "dnd":
 		if c.App.Config().FeatureFlags.TimedDND {
-			c.App.SetStatusDoNotDisturbTimed(c.Params.UserId, status.DNDEndTime)
+			c.App.SetStatusDoNotDisturbTimed(c.Params.UserID, status.DNDEndTime)
 		} else {
-			c.App.SetStatusDoNotDisturb(c.Params.UserId)
+			c.App.SetStatusDoNotDisturb(c.Params.UserID)
 		}
 	default:
 		c.SetInvalidParam("status")
@@ -120,7 +120,7 @@ func updateUserStatus(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func updateUserCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
@@ -130,19 +130,19 @@ func updateUserCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	customStatus := model.CustomStatusFromJson(r.Body)
+	customStatus := model.CustomStatusFromJSON(r.Body)
 	if customStatus == nil || (customStatus.Emoji == "" && customStatus.Text == "") || !customStatus.AreDurationAndExpirationTimeValid() {
 		c.SetInvalidParam("custom_status")
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
 	customStatus.PreSave()
-	err := c.App.SetCustomStatus(c.Params.UserId, customStatus)
+	err := c.App.SetCustomStatus(c.Params.UserID, customStatus)
 	if err != nil {
 		c.Err = err
 		return
@@ -152,7 +152,7 @@ func updateUserCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) 
 }
 
 func removeUserCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
@@ -162,12 +162,12 @@ func removeUserCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	if err := c.App.RemoveCustomStatus(c.Params.UserId); err != nil {
+	if err := c.App.RemoveCustomStatus(c.Params.UserID); err != nil {
 		c.Err = err
 		return
 	}
@@ -176,7 +176,7 @@ func removeUserCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) 
 }
 
 func removeUserRecentCustomStatus(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
@@ -186,18 +186,18 @@ func removeUserRecentCustomStatus(c *Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	recentCustomStatus := model.CustomStatusFromJson(r.Body)
+	recentCustomStatus := model.CustomStatusFromJSON(r.Body)
 	if recentCustomStatus == nil {
 		c.SetInvalidParam("recent_custom_status")
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	if err := c.App.RemoveRecentCustomStatus(c.Params.UserId, recentCustomStatus); err != nil {
+	if err := c.App.RemoveRecentCustomStatus(c.Params.UserID, recentCustomStatus); err != nil {
 		c.Err = err
 		return
 	}

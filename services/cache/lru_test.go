@@ -130,17 +130,17 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 	assert.Equal(t, "value2", v2)
 
 	post := model.Post{
-		Id:            "id",
+		ID:            "id",
 		CreateAt:      11111,
 		UpdateAt:      11111,
 		DeleteAt:      11111,
 		EditAt:        111111,
 		IsPinned:      true,
-		UserId:        "UserId",
-		ChannelId:     "ChannelId",
-		RootId:        "RootId",
-		ParentId:      "ParentId",
-		OriginalId:    "OriginalId",
+		UserID:        "UserId",
+		ChannelID:     "ChannelId",
+		RootID:        "RootId",
+		ParentID:      "ParentId",
+		OriginalID:    "OriginalId",
 		Message:       "OriginalId",
 		MessageSource: "MessageSource",
 		Type:          "Type",
@@ -149,8 +149,8 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 		},
 		Hashtags:      "Hashtags",
 		Filenames:     []string{"item1", "item2"},
-		FileIds:       []string{"item1", "item2"},
-		PendingPostId: "PendingPostId",
+		FileIDs:       []string{"item1", "item2"},
+		PendingPostID: "PendingPostId",
 		HasReactions:  true,
 		ReplyCount:    11111,
 		Metadata: &model.PostMetadata{
@@ -168,7 +168,7 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 			},
 			Emojis: []*model.Emoji{
 				{
-					Id:   "id",
+					ID:   "id",
 					Name: "name",
 				},
 			},
@@ -189,8 +189,8 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 			},
 			Reactions: []*model.Reaction{
 				{
-					UserId:    "user_id",
-					PostId:    "post_id",
+					UserID:    "user_id",
+					PostID:    "post_id",
 					EmojiName: "emoji_name",
 					CreateAt:  111,
 				},
@@ -206,12 +206,12 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 	require.Equal(t, post.Clone(), p.Clone())
 
 	session := &model.Session{
-		Id:             "ty7ia14yuty5bmpt8wmz6da1fw",
+		ID:             "ty7ia14yuty5bmpt8wmz6da1fw",
 		Token:          "79c3iq6nzpycmkkawudanqhg5c",
 		CreateAt:       1595445296960,
 		ExpiresAt:      1598296496960,
 		LastActivityAt: 1595445296960,
-		UserId:         "rpgh1q5ra38y9xjn9z8fjctezr",
+		UserID:         "rpgh1q5ra38y9xjn9z8fjctezr",
 		Roles:          "system_admin system_user",
 		IsOAuth:        false,
 		ExpiredNotify:  false,
@@ -234,7 +234,7 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 	require.Equal(t, session, s)
 
 	user := &model.User{
-		Id:             "id",
+		ID:             "id",
 		CreateAt:       11111,
 		UpdateAt:       11111,
 		DeleteAt:       11111,
@@ -264,7 +264,7 @@ func TestLRUMarshalUnMarshal(t *testing.T) {
 		MfaSecret:              "MfaSecret",
 		LastActivityAt:         111111,
 		IsBot:                  true,
-		TermsOfServiceId:       "TermsOfServiceId",
+		TermsOfServiceID:       "TermsOfServiceId",
 		TermsOfServiceCreateAt: 111111,
 	}
 
@@ -362,7 +362,7 @@ func BenchmarkLRU(b *testing.B) {
 	})
 
 	user := &model.User{
-		Id:             "id",
+		ID:             "id",
 		CreateAt:       11111,
 		UpdateAt:       11111,
 		DeleteAt:       11111,
@@ -424,7 +424,7 @@ func BenchmarkLRU(b *testing.B) {
 		IsBot:                  true,
 		BotDescription:         "field5 is a looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong string",
 		BotLastIconUpdate:      111111,
-		TermsOfServiceId:       "TermsOfServiceId",
+		TermsOfServiceID:       "TermsOfServiceId",
 		TermsOfServiceCreateAt: 111111,
 	}
 
@@ -446,14 +446,14 @@ func BenchmarkLRU(b *testing.B) {
 
 	uMap := map[string]*model.User{
 		"id1": {
-			Id:       "id1",
+			ID:       "id1",
 			CreateAt: 1111,
 			UpdateAt: 1112,
 			Username: "user1",
 			Password: "pass",
 		},
 		"id2": {
-			Id:       "id2",
+			ID:       "id2",
 			CreateAt: 1113,
 			UpdateAt: 1114,
 			Username: "user2",
@@ -478,17 +478,17 @@ func BenchmarkLRU(b *testing.B) {
 	})
 
 	post := &model.Post{
-		Id:            "id",
+		ID:            "id",
 		CreateAt:      11111,
 		UpdateAt:      11111,
 		DeleteAt:      11111,
 		EditAt:        111111,
 		IsPinned:      true,
-		UserId:        "UserId",
-		ChannelId:     "ChannelId",
-		RootId:        "RootId",
-		ParentId:      "ParentId",
-		OriginalId:    "OriginalId",
+		UserID:        "UserId",
+		ChannelID:     "ChannelId",
+		RootID:        "RootId",
+		ParentID:      "ParentId",
+		OriginalID:    "OriginalId",
 		Message:       "OriginalId",
 		MessageSource: "MessageSource",
 		Type:          "Type",
@@ -497,8 +497,8 @@ func BenchmarkLRU(b *testing.B) {
 		},
 		Hashtags:      "Hashtags",
 		Filenames:     []string{"item1", "item2"},
-		FileIds:       []string{"item1", "item2"},
-		PendingPostId: "PendingPostId",
+		FileIDs:       []string{"item1", "item2"},
+		PendingPostID: "PendingPostId",
 		HasReactions:  true,
 
 		// Transient data populated before sending a post to the client
@@ -518,7 +518,7 @@ func BenchmarkLRU(b *testing.B) {
 			},
 			Emojis: []*model.Emoji{
 				{
-					Id:   "id",
+					ID:   "id",
 					Name: "name",
 				},
 			},
@@ -558,7 +558,7 @@ func BenchmarkLRU(b *testing.B) {
 	})
 
 	status := model.Status{
-		UserId:         "UserId",
+		UserID:         "UserId",
 		Status:         "Status",
 		Manual:         true,
 		LastActivityAt: 111111,
@@ -582,12 +582,12 @@ func BenchmarkLRU(b *testing.B) {
 	})
 
 	session := model.Session{
-		Id:             "ty7ia14yuty5bmpt8wmz6da1fw",
+		ID:             "ty7ia14yuty5bmpt8wmz6da1fw",
 		Token:          "79c3iq6nzpycmkkawudanqhg5c",
 		CreateAt:       1595445296960,
 		ExpiresAt:      1598296496960,
 		LastActivityAt: 1595445296960,
-		UserId:         "rpgh1q5ra38y9xjn9z8fjctezr",
+		UserID:         "rpgh1q5ra38y9xjn9z8fjctezr",
 		Roles:          "system_admin system_user",
 		IsOAuth:        false,
 		ExpiredNotify:  false,

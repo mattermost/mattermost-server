@@ -40,9 +40,9 @@ func (a *App) GetPreferenceByCategoryAndNameForUser(userID string, category stri
 
 func (a *App) UpdatePreferences(userID string, preferences model.Preferences) *model.AppError {
 	for _, preference := range preferences {
-		if userID != preference.UserId {
+		if userID != preference.UserID {
 			return model.NewAppError("savePreferences", "api.preference.update_preferences.set.app_error", nil,
-				"userId="+userID+", preference.UserId="+preference.UserId, http.StatusForbidden)
+				"userId="+userID+", preference.UserId="+preference.UserID, http.StatusForbidden)
 		}
 	}
 
@@ -65,7 +65,7 @@ func (a *App) UpdatePreferences(userID string, preferences model.Preferences) *m
 	a.Publish(message)
 
 	message = model.NewWebSocketEvent(model.WebsocketEventPreferencesChanged, "", "", userID, nil)
-	message.Add("preferences", preferences.ToJson())
+	message.Add("preferences", preferences.ToJSON())
 	a.Publish(message)
 
 	return nil
@@ -73,9 +73,9 @@ func (a *App) UpdatePreferences(userID string, preferences model.Preferences) *m
 
 func (a *App) DeletePreferences(userID string, preferences model.Preferences) *model.AppError {
 	for _, preference := range preferences {
-		if userID != preference.UserId {
+		if userID != preference.UserID {
 			err := model.NewAppError("DeletePreferences", "api.preference.delete_preferences.delete.app_error", nil,
-				"userId="+userID+", preference.UserId="+preference.UserId, http.StatusForbidden)
+				"userId="+userID+", preference.UserId="+preference.UserID, http.StatusForbidden)
 			return err
 		}
 	}
@@ -95,7 +95,7 @@ func (a *App) DeletePreferences(userID string, preferences model.Preferences) *m
 	a.Publish(message)
 
 	message = model.NewWebSocketEvent(model.WebsocketEventPreferencesDeleted, "", "", userID, nil)
-	message.Add("preferences", preferences.ToJson())
+	message.Add("preferences", preferences.ToJSON())
 	a.Publish(message)
 
 	return nil

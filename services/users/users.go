@@ -26,9 +26,9 @@ func (us *UserService) CreateUser(user *model.User, opts UserCreateOptions) (*mo
 		return us.createUser(user)
 	}
 
-	user.Roles = model.SystemUserRoleId
+	user.Roles = model.SystemUserRoleID
 	if opts.Guest {
-		user.Roles = model.SystemGuestRoleId
+		user.Roles = model.SystemGuestRoleID
 	}
 
 	if !user.IsLDAPUser() && !user.IsSAMLUser() && !user.IsGuest() && !CheckUserDomain(user, *us.config().TeamSettings.RestrictCreationToDomains) {
@@ -46,7 +46,7 @@ func (us *UserService) CreateUser(user *model.User, opts UserCreateOptions) (*mo
 		return nil, UserCountError
 	}
 	if count <= 0 {
-		user.Roles = model.SystemAdminRoleId + " " + model.SystemUserRoleId
+		user.Roles = model.SystemAdminRoleID + " " + model.SystemUserRoleID
 	}
 
 	if _, ok := i18n.GetSupportedLocales()[user.Locale]; !ok {
@@ -69,7 +69,7 @@ func (us *UserService) createUser(user *model.User) (*model.User, error) {
 	}
 
 	if user.EmailVerified {
-		if err := us.verifyUserEmail(ruser.Id, user.Email); err != nil {
+		if err := us.verifyUserEmail(ruser.ID, user.Email); err != nil {
 			mlog.Warn("Failed to set email verified", mlog.Err(err))
 		}
 	}
@@ -126,10 +126,10 @@ func (us *UserService) GetUsersEtag(restrictionsHash string) string {
 	return fmt.Sprintf("%v.%v.%v.%v", us.store.GetEtagForAllProfiles(), us.config().PrivacySettings.ShowFullName, us.config().PrivacySettings.ShowEmailAddress, restrictionsHash)
 }
 
-func (us *UserService) GetUsersByIds(userIDs []string, options *store.UserGetByIdsOpts) ([]*model.User, error) {
+func (us *UserService) GetUsersByIDs(userIDs []string, options *store.UserGetByIDsOpts) ([]*model.User, error) {
 	allowFromCache := options.ViewRestrictions == nil
 
-	users, err := us.store.GetProfileByIds(context.Background(), userIDs, options, allowFromCache)
+	users, err := us.store.GetProfileByIDs(context.Background(), userIDs, options, allowFromCache)
 	if err != nil {
 		return nil, err
 	}
@@ -223,22 +223,22 @@ func (us *UserService) InvalidateCacheForUser(userID string) {
 }
 
 func (us *UserService) GenerateMfaSecret(user *model.User) (*model.MfaSecret, error) {
-	secret, img, err := mfa.New(us.store).GenerateSecret(*us.config().ServiceSettings.SiteURL, user.Email, user.Id)
+	secret, img, err := mfa.New(us.store).GenerateSecret(*us.config().ServiceSettings.SiteURL, user.Email, user.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Make sure the old secret is not cached on any cluster nodes.
-	us.InvalidateCacheForUser(user.Id)
+	us.InvalidateCacheForUser(user.ID)
 
 	mfaSecret := &model.MfaSecret{Secret: secret, QRCode: base64.StdEncoding.EncodeToString(img)}
 	return mfaSecret, nil
 }
 
 func (us *UserService) ActivateMfa(user *model.User, token string) error {
-	return mfa.New(us.store).Activate(user.MfaSecret, user.Id, token)
+	return mfa.New(us.store).Activate(user.MfaSecret, user.ID, token)
 }
 
 func (us *UserService) DeactivateMfa(user *model.User) error {
-	return mfa.New(us.store).Deactivate(user.Id)
+	return mfa.New(us.store).Deactivate(user.ID)
 }

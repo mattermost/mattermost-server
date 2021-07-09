@@ -64,15 +64,15 @@ func (s *Server) startFeatureFlagUpdateJob() error {
 	attributes := map[string]interface{}{}
 
 	// if we are part of a cloud installation, add its installation and group id
-	if installationId := os.Getenv("MM_CLOUD_INSTALLATION_ID"); installationId != "" {
-		attributes["installation_id"] = installationId
+	if installationID := os.Getenv("MM_CLOUD_INSTALLATION_ID"); installationID != "" {
+		attributes["installation_id"] = installationID
 	}
-	if groupId := os.Getenv("MM_CLOUD_GROUP_ID"); groupId != "" {
-		attributes["group_id"] = groupId
+	if groupID := os.Getenv("MM_CLOUD_GROUP_ID"); groupID != "" {
+		attributes["group_id"] = groupID
 	}
 
 	synchronizer, err := featureflag.NewSynchronizer(featureflag.SyncParams{
-		ServerID:   s.TelemetryId(),
+		ServerID:   s.TelemetryID(),
 		SplitKey:   *s.Config().ServiceSettings.SplitKey,
 		Log:        log,
 		Attributes: attributes,

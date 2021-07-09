@@ -18,8 +18,8 @@ func TestGetAncillaryPermissions(t *testing.T) {
 	var subsectionPermissions []string
 	var expectedAncillaryPermissions []string
 	t.Run("Valid Case, Passing in SubSection Permissions", func(t *testing.T) {
-		subsectionPermissions = []string{model.PermissionSysconsoleReadReportingSiteStatistics.Id}
-		expectedAncillaryPermissions = []string{model.PermissionGetAnalytics.Id}
+		subsectionPermissions = []string{model.PermissionSysconsoleReadReportingSiteStatistics.ID}
+		expectedAncillaryPermissions = []string{model.PermissionGetAnalytics.ID}
 		actualAncillaryPermissions, resp := th.Client.GetAncillaryPermissions(subsectionPermissions)
 		CheckNoError(t, resp)
 		assert.Equal(t, append(subsectionPermissions, expectedAncillaryPermissions...), actualAncillaryPermissions)

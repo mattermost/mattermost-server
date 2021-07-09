@@ -61,8 +61,8 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 		mockStore := &mocks.Store{}
 		remoteCluster := &model.RemoteCluster{Name: "test"}
 		invitation := channelInviteMsg{
-			ChannelId: model.NewId(),
-			TeamId:    model.NewId(),
+			ChannelID: model.NewID(),
+			TeamID:    model.NewID(),
 			ReadOnly:  true,
 			Type:      "0",
 		}
@@ -76,7 +76,7 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 		mockSharedChannelStore := mocks.SharedChannelStore{}
 		channel := &model.Channel{}
 
-		mockChannelStore.On("Get", invitation.ChannelId, true).Return(channel, nil)
+		mockChannelStore.On("Get", invitation.ChannelID, true).Return(channel, nil)
 		mockSharedChannelStore.On("Save", mock.Anything).Return(nil, nil)
 		mockSharedChannelStore.On("SaveRemote", mock.Anything).Return(nil, nil)
 		mockStore.On("Channel").Return(&mockChannelStore)
@@ -84,8 +84,8 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 
 		mockServer = scs.server.(*MockServerIface)
 		mockServer.On("GetStore").Return(mockStore)
-		createPostPermission := model.ChannelModeratedPermissionsMap[model.PermissionCreatePost.Id]
-		createReactionPermission := model.ChannelModeratedPermissionsMap[model.PermissionAddReaction.Id]
+		createPostPermission := model.ChannelModeratedPermissionsMap[model.PermissionCreatePost.ID]
+		createReactionPermission := model.ChannelModeratedPermissionsMap[model.PermissionAddReaction.ID]
 		updateMap := model.ChannelModeratedRolesPatch{
 			Guests:  model.NewBool(false),
 			Members: model.NewBool(false),
@@ -121,8 +121,8 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 		mockStore := &mocks.Store{}
 		remoteCluster := &model.RemoteCluster{Name: "test2"}
 		invitation := channelInviteMsg{
-			ChannelId: model.NewId(),
-			TeamId:    model.NewId(),
+			ChannelID: model.NewID(),
+			TeamID:    model.NewID(),
 			ReadOnly:  true,
 			Type:      "0",
 		}
@@ -135,7 +135,7 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 		mockChannelStore := mocks.ChannelStore{}
 		channel := &model.Channel{}
 
-		mockChannelStore.On("Get", invitation.ChannelId, true).Return(channel, nil)
+		mockChannelStore.On("Get", invitation.ChannelID, true).Return(channel, nil)
 		mockStore.On("Channel").Return(&mockChannelStore)
 
 		mockServer = scs.server.(*MockServerIface)
@@ -147,7 +147,7 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 
 		err = scs.onReceiveChannelInvite(msg, remoteCluster, nil)
 		require.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("cannot make channel readonly `%s`: foo: bar, boom", invitation.ChannelId), err.Error())
+		assert.Equal(t, fmt.Sprintf("cannot make channel readonly `%s`: foo: bar, boom", invitation.ChannelID), err.Error())
 	})
 
 	t.Run("when invitation prescribes a direct channel, it does create a direct channel", func(t *testing.T) {
@@ -161,13 +161,13 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 		}
 
 		mockStore := &mocks.Store{}
-		remoteCluster := &model.RemoteCluster{Name: "test3", CreatorId: model.NewId()}
+		remoteCluster := &model.RemoteCluster{Name: "test3", CreatorID: model.NewID()}
 		invitation := channelInviteMsg{
-			ChannelId:            model.NewId(),
-			TeamId:               model.NewId(),
+			ChannelID:            model.NewID(),
+			TeamID:               model.NewID(),
 			ReadOnly:             false,
 			Type:                 model.ChannelTypeDirect,
-			DirectParticipantIDs: []string{model.NewId(), model.NewId()},
+			DirectParticipantIDs: []string{model.NewID(), model.NewID()},
 		}
 		payload, err := json.Marshal(invitation)
 		require.NoError(t, err)
@@ -179,7 +179,7 @@ func TestOnReceiveChannelInvite(t *testing.T) {
 		mockSharedChannelStore := mocks.SharedChannelStore{}
 		channel := &model.Channel{}
 
-		mockChannelStore.On("Get", invitation.ChannelId, true).Return(nil, errors.New("boom"))
+		mockChannelStore.On("Get", invitation.ChannelID, true).Return(nil, errors.New("boom"))
 		mockSharedChannelStore.On("Save", mock.Anything).Return(nil, nil)
 		mockSharedChannelStore.On("SaveRemote", mock.Anything).Return(nil, nil)
 		mockStore.On("Channel").Return(&mockChannelStore)

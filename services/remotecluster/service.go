@@ -58,13 +58,13 @@ type RemoteClusterServiceIFace interface {
 	Start() error
 	Active() bool
 	AddTopicListener(topic string, listener TopicListener) string
-	RemoveTopicListener(listenerId string)
+	RemoveTopicListener(listenerID string)
 	AddConnectionStateListener(listener ConnectionStateListener) string
-	RemoveConnectionStateListener(listenerId string)
+	RemoveConnectionStateListener(listenerID string)
 	SendMsg(ctx context.Context, msg model.RemoteClusterMsg, rc *model.RemoteCluster, f SendMsgResultFunc) error
 	SendFile(ctx context.Context, us *model.UploadSession, fi *model.FileInfo, rc *model.RemoteCluster, rp ReaderProvider, f SendFileResultFunc) error
 	SendProfileImage(ctx context.Context, userID string, rc *model.RemoteCluster, provider ProfileImageProvider, f SendProfileImageResultFunc) error
-	AcceptInvitation(invite *model.RemoteClusterInvite, name string, displayName string, creatorId string, teamId string, siteURL string) (*model.RemoteCluster, error)
+	AcceptInvitation(invite *model.RemoteClusterInvite, name string, displayName string, creatorID string, teamID string, siteURL string) (*model.RemoteCluster, error)
 	ReceiveIncomingMsg(rc *model.RemoteCluster, msg model.RemoteClusterMsg) Response
 }
 
@@ -84,7 +84,7 @@ type Service struct {
 	// everything below guarded by `mux`
 	mux                      sync.RWMutex
 	active                   bool
-	leaderListenerId         string
+	leaderListenerID         string
 	topicListeners           map[string]map[string]TopicListener // maps topic id to a map of listenerid->listener
 	connectionStateListeners map[string]ConnectionStateListener  // maps listener id to listener
 	done                     chan struct{}
@@ -131,7 +131,7 @@ func NewRemoteClusterService(server ServerIface) (*Service, error) {
 // Start is called by the server on server start-up.
 func (rcs *Service) Start() error {
 	rcs.mux.Lock()
-	rcs.leaderListenerId = rcs.server.AddClusterLeaderChangedListener(rcs.onClusterLeaderChange)
+	rcs.leaderListenerID = rcs.server.AddClusterLeaderChangedListener(rcs.onClusterLeaderChange)
 	rcs.mux.Unlock()
 
 	rcs.onClusterLeaderChange()
@@ -141,7 +141,7 @@ func (rcs *Service) Start() error {
 
 // Shutdown is called by the server on server shutdown.
 func (rcs *Service) Shutdown() error {
-	rcs.server.RemoveClusterLeaderChangedListener(rcs.leaderListenerId)
+	rcs.server.RemoveClusterLeaderChangedListener(rcs.leaderListenerID)
 	rcs.pause()
 	return nil
 }
@@ -159,7 +159,7 @@ func (rcs *Service) AddTopicListener(topic string, listener TopicListener) strin
 	rcs.mux.Lock()
 	defer rcs.mux.Unlock()
 
-	id := model.NewId()
+	id := model.NewID()
 
 	listeners, ok := rcs.topicListeners[topic]
 	if !ok || listeners == nil {
@@ -169,13 +169,13 @@ func (rcs *Service) AddTopicListener(topic string, listener TopicListener) strin
 	return id
 }
 
-func (rcs *Service) RemoveTopicListener(listenerId string) {
+func (rcs *Service) RemoveTopicListener(listenerID string) {
 	rcs.mux.Lock()
 	defer rcs.mux.Unlock()
 
 	for topic, listeners := range rcs.topicListeners {
-		if _, ok := listeners[listenerId]; ok {
-			delete(listeners, listenerId)
+		if _, ok := listeners[listenerID]; ok {
+			delete(listeners, listenerID)
 			if len(listeners) == 0 {
 				delete(rcs.topicListeners, topic)
 			}
@@ -201,7 +201,7 @@ func (rcs *Service) getTopicListeners(topic string) []TopicListener {
 }
 
 func (rcs *Service) AddConnectionStateListener(listener ConnectionStateListener) string {
-	id := model.NewId()
+	id := model.NewID()
 
 	rcs.mux.Lock()
 	defer rcs.mux.Unlock()
@@ -210,10 +210,10 @@ func (rcs *Service) AddConnectionStateListener(listener ConnectionStateListener)
 	return id
 }
 
-func (rcs *Service) RemoveConnectionStateListener(listenerId string) {
+func (rcs *Service) RemoveConnectionStateListener(listenerID string) {
 	rcs.mux.Lock()
 	defer rcs.mux.Unlock()
-	delete(rcs.connectionStateListeners, listenerId)
+	delete(rcs.connectionStateListeners, listenerID)
 }
 
 // onClusterLeaderChange is called whenever the cluster leader may have changed.

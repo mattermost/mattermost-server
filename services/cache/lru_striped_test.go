@@ -105,8 +105,8 @@ func BenchmarkSum64(b *testing.B) {
 		"1",
 		"22",
 		"333",
-		model.NewId(),
-		model.NewId() + model.NewId(),
+		model.NewID(),
+		model.NewID() + model.NewID(),
 	}
 
 	for _, case_ := range cases {

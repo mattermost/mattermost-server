@@ -30,9 +30,9 @@ func TestRoleStore(t *testing.T, ss store.Store, s SqlStore) {
 func testRoleStoreSave(t *testing.T, ss store.Store) {
 	// Save a new role.
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -43,7 +43,7 @@ func testRoleStoreSave(t *testing.T, ss store.Store) {
 
 	d1, err := ss.Role().Save(r1)
 	assert.NoError(t, err)
-	assert.Len(t, d1.Id, 26)
+	assert.Len(t, d1.ID, 26)
 	assert.Equal(t, r1.Name, d1.Name)
 	assert.Equal(t, r1.DisplayName, d1.DisplayName)
 	assert.Equal(t, r1.Description, d1.Description)
@@ -59,7 +59,7 @@ func testRoleStoreSave(t *testing.T, ss store.Store) {
 
 	d2, err := ss.Role().Save(d1)
 	assert.NoError(t, err)
-	assert.Len(t, d2.Id, 26)
+	assert.Len(t, d2.ID, 26)
 	assert.Equal(t, r1.Name, d2.Name)
 	assert.Equal(t, r1.DisplayName, d2.DisplayName)
 	assert.Equal(t, r1.Description, d2.Description)
@@ -68,10 +68,10 @@ func testRoleStoreSave(t *testing.T, ss store.Store) {
 
 	// Try saving one with an invalid ID set.
 	r3 := &model.Role{
-		Id:          model.NewId(),
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		ID:          model.NewID(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -86,8 +86,8 @@ func testRoleStoreSave(t *testing.T, ss store.Store) {
 	// Try saving one with a duplicate "name" field.
 	r4 := &model.Role{
 		Name:        r1.Name,
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -107,9 +107,9 @@ func testRoleStoreGetAll(t *testing.T, ss store.Store) {
 
 	// Save a role to test with.
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -122,9 +122,9 @@ func testRoleStoreGetAll(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 
 	r2 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -143,9 +143,9 @@ func testRoleStoreGetAll(t *testing.T, ss store.Store) {
 func testRoleStoreGet(t *testing.T, ss store.Store) {
 	// Save a role to test with.
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -156,12 +156,12 @@ func testRoleStoreGet(t *testing.T, ss store.Store) {
 
 	d1, err := ss.Role().Save(r1)
 	assert.NoError(t, err)
-	assert.Len(t, d1.Id, 26)
+	assert.Len(t, d1.ID, 26)
 
 	// Get a valid role
-	d2, err := ss.Role().Get(d1.Id)
+	d2, err := ss.Role().Get(d1.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, d1.Id, d2.Id)
+	assert.Equal(t, d1.ID, d2.ID)
 	assert.Equal(t, r1.Name, d2.Name)
 	assert.Equal(t, r1.DisplayName, d2.DisplayName)
 	assert.Equal(t, r1.Description, d2.Description)
@@ -169,16 +169,16 @@ func testRoleStoreGet(t *testing.T, ss store.Store) {
 	assert.Equal(t, r1.SchemeManaged, d2.SchemeManaged)
 
 	// Get an invalid role
-	_, err = ss.Role().Get(model.NewId())
+	_, err = ss.Role().Get(model.NewID())
 	assert.Error(t, err)
 }
 
 func testRoleStoreGetByName(t *testing.T, ss store.Store) {
 	// Save a role to test with.
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -189,12 +189,12 @@ func testRoleStoreGetByName(t *testing.T, ss store.Store) {
 
 	d1, err := ss.Role().Save(r1)
 	assert.NoError(t, err)
-	assert.Len(t, d1.Id, 26)
+	assert.Len(t, d1.ID, 26)
 
 	// Get a valid role
 	d2, err := ss.Role().GetByName(context.Background(), d1.Name)
 	assert.NoError(t, err)
-	assert.Equal(t, d1.Id, d2.Id)
+	assert.Equal(t, d1.ID, d2.ID)
 	assert.Equal(t, r1.Name, d2.Name)
 	assert.Equal(t, r1.DisplayName, d2.DisplayName)
 	assert.Equal(t, r1.Description, d2.Description)
@@ -202,16 +202,16 @@ func testRoleStoreGetByName(t *testing.T, ss store.Store) {
 	assert.Equal(t, r1.SchemeManaged, d2.SchemeManaged)
 
 	// Get an invalid role
-	_, err = ss.Role().GetByName(context.Background(), model.NewId())
+	_, err = ss.Role().GetByName(context.Background(), model.NewID())
 	assert.Error(t, err)
 }
 
 func testRoleStoreGetByNames(t *testing.T, ss store.Store) {
 	// Save some roles to test with.
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -220,9 +220,9 @@ func testRoleStoreGetByNames(t *testing.T, ss store.Store) {
 		SchemeManaged: false,
 	}
 	r2 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"read_channel",
 			"create_public_channel",
@@ -231,9 +231,9 @@ func testRoleStoreGetByNames(t *testing.T, ss store.Store) {
 		SchemeManaged: false,
 	}
 	r3 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"delete_private_channel",
@@ -244,15 +244,15 @@ func testRoleStoreGetByNames(t *testing.T, ss store.Store) {
 
 	d1, err := ss.Role().Save(r1)
 	assert.NoError(t, err)
-	assert.Len(t, d1.Id, 26)
+	assert.Len(t, d1.ID, 26)
 
 	d2, err := ss.Role().Save(r2)
 	assert.NoError(t, err)
-	assert.Len(t, d2.Id, 26)
+	assert.Len(t, d2.ID, 26)
 
 	d3, err := ss.Role().Save(r3)
 	assert.NoError(t, err)
-	assert.Len(t, d3.Id, 26)
+	assert.Len(t, d3.ID, 26)
 
 	// Get two valid roles.
 	n4 := []string{r1.Name, r2.Name}
@@ -264,13 +264,13 @@ func testRoleStoreGetByNames(t *testing.T, ss store.Store) {
 	assert.NotContains(t, roles4, d3)
 
 	// Get two invalid roles.
-	n5 := []string{model.NewId(), model.NewId()}
+	n5 := []string{model.NewID(), model.NewID()}
 	roles5, err := ss.Role().GetByNames(n5)
 	assert.NoError(t, err)
 	assert.Empty(t, roles5)
 
 	// Get one valid one and one invalid one.
-	n6 := []string{r1.Name, model.NewId()}
+	n6 := []string{r1.Name, model.NewID()}
 	roles6, err := ss.Role().GetByNames(n6)
 	assert.NoError(t, err)
 	assert.Len(t, roles6, 1)
@@ -282,9 +282,9 @@ func testRoleStoreGetByNames(t *testing.T, ss store.Store) {
 func testRoleStoreDelete(t *testing.T, ss store.Store) {
 	// Save a role to test with.
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -295,18 +295,18 @@ func testRoleStoreDelete(t *testing.T, ss store.Store) {
 
 	d1, err := ss.Role().Save(r1)
 	assert.NoError(t, err)
-	assert.Len(t, d1.Id, 26)
+	assert.Len(t, d1.ID, 26)
 
 	// Check the role is there.
-	_, err = ss.Role().Get(d1.Id)
+	_, err = ss.Role().Get(d1.ID)
 	assert.NoError(t, err)
 
 	// Delete the role.
-	_, err = ss.Role().Delete(d1.Id)
+	_, err = ss.Role().Delete(d1.ID)
 	assert.NoError(t, err)
 
 	// Check the role is deleted there.
-	d2, err := ss.Role().Get(d1.Id)
+	d2, err := ss.Role().Get(d1.ID)
 	assert.NoError(t, err)
 	assert.NotZero(t, d2.DeleteAt)
 
@@ -315,15 +315,15 @@ func testRoleStoreDelete(t *testing.T, ss store.Store) {
 	assert.NotZero(t, d3.DeleteAt)
 
 	// Try and delete a role that does not exist.
-	_, err = ss.Role().Delete(model.NewId())
+	_, err = ss.Role().Delete(model.NewID())
 	assert.Error(t, err)
 }
 
 func testRoleStorePermanentDeleteAll(t *testing.T, ss store.Store) {
 	r1 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"invite_user",
 			"create_public_channel",
@@ -333,9 +333,9 @@ func testRoleStorePermanentDeleteAll(t *testing.T, ss store.Store) {
 	}
 
 	r2 := &model.Role{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
-		Description: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
+		Description: model.NewID(),
 		Permissions: []string{
 			"read_channel",
 			"create_public_channel",
@@ -365,88 +365,88 @@ func testRoleStoreLowerScopedChannelSchemeRoles(t *testing.T, ss store.Store) {
 	createDefaultRoles(ss)
 
 	teamScheme1 := &model.Scheme{
-		DisplayName: model.NewId(),
-		Name:        model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Name:        model.NewID(),
+		Description: model.NewID(),
 		Scope:       model.SchemeScopeTeam,
 	}
 	teamScheme1, err := ss.Scheme().Save(teamScheme1)
 	require.NoError(t, err)
-	defer ss.Scheme().Delete(teamScheme1.Id)
+	defer ss.Scheme().Delete(teamScheme1.ID)
 
 	teamScheme2 := &model.Scheme{
-		DisplayName: model.NewId(),
-		Name:        model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Name:        model.NewID(),
+		Description: model.NewID(),
 		Scope:       model.SchemeScopeTeam,
 	}
 	teamScheme2, err = ss.Scheme().Save(teamScheme2)
 	require.NoError(t, err)
-	defer ss.Scheme().Delete(teamScheme2.Id)
+	defer ss.Scheme().Delete(teamScheme2.ID)
 
 	channelScheme1 := &model.Scheme{
-		DisplayName: model.NewId(),
-		Name:        model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Name:        model.NewID(),
+		Description: model.NewID(),
 		Scope:       model.SchemeScopeChannel,
 	}
 	channelScheme1, err = ss.Scheme().Save(channelScheme1)
 	require.NoError(t, err)
-	defer ss.Scheme().Delete(channelScheme1.Id)
+	defer ss.Scheme().Delete(channelScheme1.ID)
 
 	channelScheme2 := &model.Scheme{
-		DisplayName: model.NewId(),
-		Name:        model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Name:        model.NewID(),
+		Description: model.NewID(),
 		Scope:       model.SchemeScopeChannel,
 	}
 	channelScheme2, err = ss.Scheme().Save(channelScheme2)
 	require.NoError(t, err)
-	defer ss.Scheme().Delete(channelScheme1.Id)
+	defer ss.Scheme().Delete(channelScheme1.ID)
 
 	team1 := &model.Team{
 		DisplayName: "Name",
-		Name:        "zz" + model.NewId(),
+		Name:        "zz" + model.NewID(),
 		Email:       MakeEmail(),
 		Type:        model.TeamOpen,
-		SchemeId:    &teamScheme1.Id,
+		SchemeID:    &teamScheme1.ID,
 	}
 	team1, err = ss.Team().Save(team1)
 	require.NoError(t, err)
-	defer ss.Team().PermanentDelete(team1.Id)
+	defer ss.Team().PermanentDelete(team1.ID)
 
 	team2 := &model.Team{
 		DisplayName: "Name",
-		Name:        "zz" + model.NewId(),
+		Name:        "zz" + model.NewID(),
 		Email:       MakeEmail(),
 		Type:        model.TeamOpen,
-		SchemeId:    &teamScheme2.Id,
+		SchemeID:    &teamScheme2.ID,
 	}
 	team2, err = ss.Team().Save(team2)
 	require.NoError(t, err)
-	defer ss.Team().PermanentDelete(team2.Id)
+	defer ss.Team().PermanentDelete(team2.ID)
 
 	channel1 := &model.Channel{
-		TeamId:      team1.Id,
-		DisplayName: "Display " + model.NewId(),
-		Name:        "zz" + model.NewId() + "b",
+		TeamID:      team1.ID,
+		DisplayName: "Display " + model.NewID(),
+		Name:        "zz" + model.NewID() + "b",
 		Type:        model.ChannelTypeOpen,
-		SchemeId:    &channelScheme1.Id,
+		SchemeID:    &channelScheme1.ID,
 	}
 	channel1, nErr := ss.Channel().Save(channel1, -1)
 	require.NoError(t, nErr)
-	defer ss.Channel().Delete(channel1.Id, 0)
+	defer ss.Channel().Delete(channel1.ID, 0)
 
 	channel2 := &model.Channel{
-		TeamId:      team2.Id,
-		DisplayName: "Display " + model.NewId(),
-		Name:        "zz" + model.NewId() + "b",
+		TeamID:      team2.ID,
+		DisplayName: "Display " + model.NewID(),
+		Name:        "zz" + model.NewID() + "b",
 		Type:        model.ChannelTypeOpen,
-		SchemeId:    &channelScheme2.Id,
+		SchemeID:    &channelScheme2.ID,
 	}
 	channel2, nErr = ss.Channel().Save(channel2, -1)
 	require.NoError(t, nErr)
-	defer ss.Channel().Delete(channel2.Id, 0)
+	defer ss.Channel().Delete(channel2.ID, 0)
 
 	t.Run("ChannelRolesUnderTeamRole", func(t *testing.T) {
 		t.Run("guest role for the right team's channels are returned", func(t *testing.T) {
@@ -519,46 +519,46 @@ func testRoleStoreLowerScopedChannelSchemeRoles(t *testing.T, ss store.Store) {
 
 func testRoleStoreChannelHigherScopedPermissionsBlankTeamSchemeChannelGuest(t *testing.T, ss store.Store, s SqlStore) {
 	teamScheme := &model.Scheme{
-		DisplayName: model.NewId(),
-		Name:        model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Name:        model.NewID(),
+		Description: model.NewID(),
 		Scope:       model.SchemeScopeTeam,
 	}
 	teamScheme, err := ss.Scheme().Save(teamScheme)
 	require.NoError(t, err)
-	defer ss.Scheme().Delete(teamScheme.Id)
+	defer ss.Scheme().Delete(teamScheme.ID)
 
 	channelScheme := &model.Scheme{
-		DisplayName: model.NewId(),
-		Name:        model.NewId(),
-		Description: model.NewId(),
+		DisplayName: model.NewID(),
+		Name:        model.NewID(),
+		Description: model.NewID(),
 		Scope:       model.SchemeScopeChannel,
 	}
 	channelScheme, err = ss.Scheme().Save(channelScheme)
 	require.NoError(t, err)
-	defer ss.Scheme().Delete(channelScheme.Id)
+	defer ss.Scheme().Delete(channelScheme.ID)
 
 	team := &model.Team{
 		DisplayName: "Name",
-		Name:        "zz" + model.NewId(),
+		Name:        "zz" + model.NewID(),
 		Email:       MakeEmail(),
 		Type:        model.TeamOpen,
-		SchemeId:    &teamScheme.Id,
+		SchemeID:    &teamScheme.ID,
 	}
 	team, err = ss.Team().Save(team)
 	require.NoError(t, err)
-	defer ss.Team().PermanentDelete(team.Id)
+	defer ss.Team().PermanentDelete(team.ID)
 
 	channel := &model.Channel{
-		TeamId:      team.Id,
-		DisplayName: "Display " + model.NewId(),
-		Name:        "zz" + model.NewId() + "b",
+		TeamID:      team.ID,
+		DisplayName: "Display " + model.NewID(),
+		Name:        "zz" + model.NewID() + "b",
 		Type:        model.ChannelTypeOpen,
-		SchemeId:    &channelScheme.Id,
+		SchemeID:    &channelScheme.ID,
 	}
 	channel, nErr := ss.Channel().Save(channel, -1)
 	require.NoError(t, nErr)
-	defer ss.Channel().Delete(channel.Id, 0)
+	defer ss.Channel().Delete(channel.ID, 0)
 
 	channelSchemeUserRole, err := ss.Role().GetByName(context.Background(), channelScheme.DefaultChannelUserRole)
 	require.NoError(t, err)
@@ -568,7 +568,7 @@ func testRoleStoreChannelHigherScopedPermissionsBlankTeamSchemeChannelGuest(t *t
 
 	teamSchemeUserRole, err := ss.Role().GetByName(context.Background(), teamScheme.DefaultChannelUserRole)
 	require.NoError(t, err)
-	teamSchemeUserRole.Permissions = []string{model.PermissionUploadFile.Id}
+	teamSchemeUserRole.Permissions = []string{model.PermissionUploadFile.ID}
 	_, err = ss.Role().Save(teamSchemeUserRole)
 	require.NoError(t, err)
 
@@ -578,12 +578,12 @@ func testRoleStoreChannelHigherScopedPermissionsBlankTeamSchemeChannelGuest(t *t
 	require.NoError(t, err)
 
 	// blank-out the guest role to simulate an old team scheme, ensure it's blank
-	result, sqlErr := s.GetMaster().Exec(fmt.Sprintf("UPDATE Schemes SET DefaultChannelGuestRole = '' WHERE Id = '%s'", teamScheme.Id))
+	result, sqlErr := s.GetMaster().Exec(fmt.Sprintf("UPDATE Schemes SET DefaultChannelGuestRole = '' WHERE Id = '%s'", teamScheme.ID))
 	require.NoError(t, sqlErr)
 	rows, serr := result.RowsAffected()
 	require.NoError(t, serr)
 	require.Equal(t, int64(1), rows)
-	teamScheme, err = ss.Scheme().Get(teamScheme.Id)
+	teamScheme, err = ss.Scheme().Get(teamScheme.ID)
 	require.NoError(t, err)
 	require.Equal(t, "", teamScheme.DefaultChannelGuestRole)
 

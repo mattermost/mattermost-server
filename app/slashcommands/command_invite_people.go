@@ -43,11 +43,11 @@ func (*InvitePeopleProvider) GetCommand(a *app.App, T i18n.TranslateFunc) *model
 }
 
 func (*InvitePeopleProvider) DoCommand(a *app.App, c *request.Context, args *model.CommandArgs, message string) *model.CommandResponse {
-	if !a.HasPermissionToTeam(args.UserId, args.TeamId, model.PermissionInviteUser) {
+	if !a.HasPermissionToTeam(args.UserID, args.TeamID, model.PermissionInviteUser) {
 		return &model.CommandResponse{Text: args.T("api.command_invite_people.permission.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 	}
 
-	if !a.HasPermissionToTeam(args.UserId, args.TeamId, model.PermissionAddUserToTeam) {
+	if !a.HasPermissionToTeam(args.UserID, args.TeamID, model.PermissionAddUserToTeam) {
 		return &model.CommandResponse{Text: args.T("api.command_invite_people.permission.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 	}
 
@@ -76,7 +76,7 @@ func (*InvitePeopleProvider) DoCommand(a *app.App, c *request.Context, args *mod
 		return &model.CommandResponse{ResponseType: model.CommandResponseTypeEphemeral, Text: args.T("api.command.invite_people.no_email")}
 	}
 
-	if err := a.InviteNewUsersToTeam(emailList, args.TeamId, args.UserId); err != nil {
+	if err := a.InviteNewUsersToTeam(emailList, args.TeamID, args.UserID); err != nil {
 		mlog.Error(err.Error())
 		return &model.CommandResponse{ResponseType: model.CommandResponseTypeEphemeral, Text: args.T("api.command.invite_people.fail")}
 	}

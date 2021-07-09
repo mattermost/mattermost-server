@@ -184,7 +184,7 @@ func (ds *DatabaseStore) persist(cfg *model.Config) error {
 		return errors.Wrap(err, "failed to serialize")
 	}
 
-	id := model.NewId()
+	id := model.NewID()
 	value := string(b)
 	createAt := model.GetMillis()
 

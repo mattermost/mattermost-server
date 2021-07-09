@@ -67,8 +67,8 @@ func (s *SearchStore) User() store.UserStore {
 	return s.user
 }
 
-func (s *SearchStore) indexUserFromID(userId string) {
-	user, err := s.User().Get(context.Background(), userId)
+func (s *SearchStore) indexUserFromID(userID string) {
+	user, err := s.User().Get(context.Background(), userID)
 	if err != nil {
 		return
 	}
@@ -79,33 +79,33 @@ func (s *SearchStore) indexUser(user *model.User) {
 	for _, engine := range s.searchEngine.GetActiveEngines() {
 		if engine.IsIndexingEnabled() {
 			runIndexFn(engine, func(engineCopy searchengine.SearchEngineInterface) {
-				userTeams, nErr := s.Team().GetTeamsByUserId(user.Id)
+				userTeams, nErr := s.Team().GetTeamsByUserID(user.ID)
 				if nErr != nil {
-					mlog.Error("Encountered error indexing user", mlog.String("user_id", user.Id), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(nErr))
+					mlog.Error("Encountered error indexing user", mlog.String("user_id", user.ID), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(nErr))
 					return
 				}
 
-				userTeamsIds := []string{}
+				userTeamsIDs := []string{}
 				for _, team := range userTeams {
-					userTeamsIds = append(userTeamsIds, team.Id)
+					userTeamsIDs = append(userTeamsIDs, team.ID)
 				}
 
-				userChannelMembers, err := s.Channel().GetAllChannelMembersForUser(user.Id, false, true)
+				userChannelMembers, err := s.Channel().GetAllChannelMembersForUser(user.ID, false, true)
 				if err != nil {
-					mlog.Error("Encountered error indexing user", mlog.String("user_id", user.Id), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
+					mlog.Error("Encountered error indexing user", mlog.String("user_id", user.ID), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
 					return
 				}
 
-				userChannelsIds := []string{}
-				for channelId := range userChannelMembers {
-					userChannelsIds = append(userChannelsIds, channelId)
+				userChannelsIDs := []string{}
+				for channelID := range userChannelMembers {
+					userChannelsIDs = append(userChannelsIDs, channelID)
 				}
 
-				if err := engineCopy.IndexUser(user, userTeamsIds, userChannelsIds); err != nil {
-					mlog.Error("Encountered error indexing user", mlog.String("user_id", user.Id), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
+				if err := engineCopy.IndexUser(user, userTeamsIDs, userChannelsIDs); err != nil {
+					mlog.Error("Encountered error indexing user", mlog.String("user_id", user.ID), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
 					return
 				}
-				mlog.Debug("Indexed user in search engine", mlog.String("search_engine", engineCopy.GetName()), mlog.String("user_id", user.Id))
+				mlog.Debug("Indexed user in search engine", mlog.String("search_engine", engineCopy.GetName()), mlog.String("user_id", user.ID))
 			})
 		}
 	}

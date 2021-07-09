@@ -15,12 +15,12 @@ type UserTermsOfServiceStore struct {
 }
 
 // Delete provides a mock function with given fields: userID, termsOfServiceId
-func (_m *UserTermsOfServiceStore) Delete(userID string, termsOfServiceId string) error {
-	ret := _m.Called(userID, termsOfServiceId)
+func (_m *UserTermsOfServiceStore) Delete(userID string, termsOfServiceID string) error {
+	ret := _m.Called(userID, termsOfServiceID)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(userID, termsOfServiceId)
+		r0 = rf(userID, termsOfServiceID)
 	} else {
 		r0 = ret.Error(0)
 	}

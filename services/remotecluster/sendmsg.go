@@ -72,7 +72,7 @@ func (rcs *Service) SendMsg(ctx context.Context, msg model.RemoteClusterMsg, rc 
 		msg: msg,
 		f:   f,
 	}
-	return rcs.enqueueTask(ctx, rc.RemoteId, task)
+	return rcs.enqueueTask(ctx, rc.RemoteID, task)
 }
 
 // sendMsg is called when a sendMsgTask is popped from the send channel.
@@ -93,7 +93,7 @@ func (rcs *Service) sendMsg(task sendMsgTask) {
 	}()
 
 	frame := &model.RemoteClusterFrame{
-		RemoteId: task.rc.RemoteId,
+		RemoteID: task.rc.RemoteID,
 		Msg:      task.msg,
 	}
 
@@ -101,7 +101,7 @@ func (rcs *Service) sendMsg(task sendMsgTask) {
 	if err != nil {
 		rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceError, "Invalid siteURL while sending message to remote",
 			mlog.String("remote", task.rc.DisplayName),
-			mlog.String("msgId", task.msg.Id),
+			mlog.String("msgId", task.msg.ID),
 			mlog.Err(err),
 		)
 		errResp = err
@@ -114,14 +114,14 @@ func (rcs *Service) sendMsg(task sendMsgTask) {
 	if err != nil {
 		rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceError, "Remote Cluster send message failed",
 			mlog.String("remote", task.rc.DisplayName),
-			mlog.String("msgId", task.msg.Id),
+			mlog.String("msgId", task.msg.ID),
 			mlog.Err(err),
 		)
 		errResp = err
 	} else {
 		rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceDebug, "Remote Cluster message sent successfully",
 			mlog.String("remote", task.rc.DisplayName),
-			mlog.String("msgId", task.msg.Id),
+			mlog.String("msgId", task.msg.ID),
 		)
 
 		if err = json.Unmarshal(respJSON, &response); err != nil {
@@ -148,15 +148,15 @@ func (rcs *Service) sendFrameToRemote(timeout time.Duration, rc *model.RemoteClu
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(model.HeaderRemoteclusterId, rc.RemoteId)
+	req.Header.Set(model.HeaderRemoteclusterID, rc.RemoteID)
 	req.Header.Set(model.HeaderRemoteclusterToken, rc.RemoteToken)
 
 	resp, err := rcs.httpClient.Do(req.WithContext(ctx))
 	if metrics := rcs.server.GetMetrics(); metrics != nil {
 		if err != nil || resp.StatusCode != http.StatusOK {
-			metrics.IncrementRemoteClusterMsgErrorsCounter(frame.RemoteId, os.IsTimeout(err))
+			metrics.IncrementRemoteClusterMsgErrorsCounter(frame.RemoteID, os.IsTimeout(err))
 		} else {
-			metrics.IncrementRemoteClusterMsgSentCounter(frame.RemoteId)
+			metrics.IncrementRemoteClusterMsgSentCounter(frame.RemoteID)
 		}
 	}
 	if err != nil {

@@ -279,7 +279,7 @@ func TestPluginDeadlock(t *testing.T) {
 
 		done := make(chan bool)
 		go func() {
-			posts, appErr := th.App.GetPosts(th.BasicChannel.Id, 0, 2)
+			posts, appErr := th.App.GetPosts(th.BasicChannel.ID, 0, 2)
 			require.Nil(t, appErr)
 			require.NotNil(t, posts)
 
@@ -294,7 +294,7 @@ func TestPluginDeadlock(t *testing.T) {
 			SetAppEnvironmentWithPlugins(t, plugins, th.App, th.NewPluginAPI)
 			th.TearDown()
 
-			posts, appErr = th.App.GetPosts(th.BasicChannel.Id, 0, 2)
+			posts, appErr = th.App.GetPosts(th.BasicChannel.ID, 0, 2)
 			require.Nil(t, appErr)
 			require.NotNil(t, posts)
 

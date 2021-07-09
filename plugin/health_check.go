@@ -39,7 +39,7 @@ func (job *PluginHealthCheckJob) run() {
 		case <-ticker.C:
 			activePlugins := job.env.Active()
 			for _, plugin := range activePlugins {
-				job.CheckPlugin(plugin.Manifest.Id)
+				job.CheckPlugin(plugin.Manifest.ID)
 			}
 		case <-job.cancel:
 			return

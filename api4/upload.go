@@ -27,15 +27,15 @@ func createUpload(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	us := model.UploadSessionFromJson(r.Body)
+	us := model.UploadSessionFromJSON(r.Body)
 	if us == nil {
 		c.SetInvalidParam("upload")
 		return
 	}
 
 	// these are not supported for client uploads; shared channels only.
-	us.RemoteId = ""
-	us.ReqFileId = ""
+	us.RemoteID = ""
+	us.ReqFileID = ""
 
 	auditRec := c.MakeAuditRecord("createUpload", audit.Fail)
 	defer c.LogAuditRec(auditRec)
@@ -47,16 +47,16 @@ func createUpload(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), us.ChannelId, model.PermissionUploadFile) {
+		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), us.ChannelID, model.PermissionUploadFile) {
 			c.SetPermissionError(model.PermissionUploadFile)
 			return
 		}
 		us.Type = model.UploadTypeAttachment
 	}
 
-	us.Id = model.NewId()
-	if c.AppContext.Session().UserId != "" {
-		us.UserId = c.AppContext.Session().UserId
+	us.ID = model.NewID()
+	if c.AppContext.Session().UserID != "" {
+		us.UserID = c.AppContext.Session().UserID
 	}
 	us, err := c.App.CreateUploadSession(us)
 	if err != nil {
@@ -66,27 +66,27 @@ func createUpload(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec.Success()
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(us.ToJson()))
+	w.Write([]byte(us.ToJSON()))
 }
 
 func getUpload(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUploadId()
+	c.RequireUploadID()
 	if c.Err != nil {
 		return
 	}
 
-	us, err := c.App.GetUploadSession(c.Params.UploadId)
+	us, err := c.App.GetUploadSession(c.Params.UploadID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	if us.UserId != c.AppContext.Session().UserId && !c.IsSystemAdmin() {
+	if us.UserID != c.AppContext.Session().UserID && !c.IsSystemAdmin() {
 		c.Err = model.NewAppError("getUpload", "api.upload.get_upload.forbidden.app_error", nil, "", http.StatusForbidden)
 		return
 	}
 
-	w.Write([]byte(us.ToJson()))
+	w.Write([]byte(us.ToJSON()))
 }
 
 func uploadData(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -96,16 +96,16 @@ func uploadData(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.RequireUploadId()
+	c.RequireUploadID()
 	if c.Err != nil {
 		return
 	}
 
 	auditRec := c.MakeAuditRecord("uploadData", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("upload_id", c.Params.UploadId)
+	auditRec.AddMeta("upload_id", c.Params.UploadID)
 
-	us, err := c.App.GetUploadSession(c.Params.UploadId)
+	us, err := c.App.GetUploadSession(c.Params.UploadID)
 	if err != nil {
 		c.Err = err
 		return
@@ -117,7 +117,7 @@ func uploadData(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		if us.UserId != c.AppContext.Session().UserId || !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), us.ChannelId, model.PermissionUploadFile) {
+		if us.UserID != c.AppContext.Session().UserID || !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), us.ChannelID, model.PermissionUploadFile) {
 			c.SetPermissionError(model.PermissionUploadFile)
 			return
 		}
@@ -136,7 +136,7 @@ func uploadData(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(info.ToJson()))
+	w.Write([]byte(info.ToJSON()))
 }
 
 func doUploadData(c *Context, us *model.UploadSession, r *http.Request) (*model.FileInfo, *model.AppError) {

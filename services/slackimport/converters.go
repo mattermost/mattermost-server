@@ -22,7 +22,7 @@ func slackConvertTimeStamp(ts string) int64 {
 	return timeStamp * 1000 // Convert to milliseconds
 }
 
-func slackConvertChannelName(channelName string, channelId string) string {
+func slackConvertChannelName(channelName string, channelID string) string {
 	newName := strings.Trim(channelName, "_-")
 	if len(newName) == 1 {
 		return "slack-channel-" + newName
@@ -31,15 +31,15 @@ func slackConvertChannelName(channelName string, channelId string) string {
 	if isValidChannelNameCharacters(newName) {
 		return newName
 	}
-	return strings.ToLower(channelId)
+	return strings.ToLower(channelID)
 }
 
 func slackConvertUserMentions(users []slackUser, posts map[string][]slackPost) map[string][]slackPost {
 	var regexes = make(map[string]*regexp.Regexp, len(users))
 	for _, user := range users {
-		r, err := regexp.Compile("<@" + user.Id + `(\|` + user.Username + ")?>")
+		r, err := regexp.Compile("<@" + user.ID + `(\|` + user.Username + ")?>")
 		if err != nil {
-			mlog.Warn("Slack Import: Unable to compile the @mention, matching regular expression for the Slack user.", mlog.String("user_name", user.Username), mlog.String("user_id", user.Id))
+			mlog.Warn("Slack Import: Unable to compile the @mention, matching regular expression for the Slack user.", mlog.String("user_name", user.Username), mlog.String("user_id", user.ID))
 			continue
 		}
 		regexes["@"+user.Username] = r
@@ -51,10 +51,10 @@ func slackConvertUserMentions(users []slackUser, posts map[string][]slackPost) m
 	regexes["@all"], _ = regexp.Compile("<!everyone>")
 
 	for channelName, channelPosts := range posts {
-		for postIdx, post := range channelPosts {
+		for postIDx, post := range channelPosts {
 			for mention, r := range regexes {
 				post.Text = r.ReplaceAllString(post.Text, mention)
-				posts[channelName][postIdx] = post
+				posts[channelName][postIDx] = post
 			}
 		}
 	}
@@ -65,19 +65,19 @@ func slackConvertUserMentions(users []slackUser, posts map[string][]slackPost) m
 func slackConvertChannelMentions(channels []slackChannel, posts map[string][]slackPost) map[string][]slackPost {
 	var regexes = make(map[string]*regexp.Regexp, len(channels))
 	for _, channel := range channels {
-		r, err := regexp.Compile("<#" + channel.Id + `(\|` + channel.Name + ")?>")
+		r, err := regexp.Compile("<#" + channel.ID + `(\|` + channel.Name + ")?>")
 		if err != nil {
-			mlog.Warn("Slack Import: Unable to compile the !channel, matching regular expression for the Slack channel.", mlog.String("channel_id", channel.Id), mlog.String("channel_name", channel.Name))
+			mlog.Warn("Slack Import: Unable to compile the !channel, matching regular expression for the Slack channel.", mlog.String("channel_id", channel.ID), mlog.String("channel_name", channel.Name))
 			continue
 		}
 		regexes["~"+channel.Name] = r
 	}
 
 	for channelName, channelPosts := range posts {
-		for postIdx, post := range channelPosts {
+		for postIDx, post := range channelPosts {
 			for channelReplace, r := range regexes {
 				post.Text = r.ReplaceAllString(post.Text, channelReplace)
-				posts[channelName][postIdx] = post
+				posts[channelName][postIDx] = post
 			}
 		}
 	}
@@ -132,7 +132,7 @@ func slackConvertPostsMarkup(posts map[string][]slackPost) map[string][]slackPos
 	}
 
 	for channelName, channelPosts := range posts {
-		for postIdx, post := range channelPosts {
+		for postIDx, post := range channelPosts {
 			result := post.Text
 
 			for _, rule := range regexReplaceAllString {
@@ -142,7 +142,7 @@ func slackConvertPostsMarkup(posts map[string][]slackPost) map[string][]slackPos
 			for _, rule := range regexReplaceAllStringFunc {
 				result = rule.regex.ReplaceAllStringFunc(result, rule.fn)
 			}
-			posts[channelName][postIdx].Text = result
+			posts[channelName][postIDx].Text = result
 		}
 	}
 

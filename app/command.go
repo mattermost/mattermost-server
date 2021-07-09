@@ -70,8 +70,8 @@ func (a *App) CreateCommandPost(c *request.Context, post *model.Post, teamID str
 	}
 
 	if (response.ResponseType == "" || response.ResponseType == model.CommandResponseTypeEphemeral) && (response.Text != "" || response.Attachments != nil) {
-		post.ParentId = ""
-		a.SendEphemeralPost(post.UserId, post)
+		post.ParentID = ""
+		a.SendEphemeralPost(post.UserID, post)
 	}
 
 	return post, nil
@@ -192,19 +192,19 @@ func (a *App) ExecuteCommand(c *request.Context, args *model.CommandArgs) (*mode
 	}
 	trigger = strings.TrimPrefix(trigger, "/")
 
-	clientTriggerId, triggerId, appErr := model.GenerateTriggerId(args.UserId, a.AsymmetricSigningKey())
+	clientTriggerID, triggerID, appErr := model.GenerateTriggerID(args.UserID, a.AsymmetricSigningKey())
 	if appErr != nil {
 		mlog.Warn("error occurred in generating trigger Id for a user ", mlog.Err(appErr))
 	}
 
-	args.TriggerId = triggerId
+	args.TriggerID = triggerID
 
 	// Plugins can override built in and custom commands
 	cmd, response, appErr := a.tryExecutePluginCommand(c, args)
 	if appErr != nil {
 		return nil, appErr
 	} else if cmd != nil && response != nil {
-		response.TriggerId = clientTriggerId
+		response.TriggerID = clientTriggerID
 		return a.HandleCommandResponse(c, cmd, args, response, true)
 	}
 
@@ -213,7 +213,7 @@ func (a *App) ExecuteCommand(c *request.Context, args *model.CommandArgs) (*mode
 	if appErr != nil {
 		return nil, appErr
 	} else if cmd != nil && response != nil {
-		response.TriggerId = clientTriggerId
+		response.TriggerID = clientTriggerID
 		return a.HandleCommandResponse(c, cmd, args, response, false)
 	}
 
@@ -230,7 +230,7 @@ func (a *App) ExecuteCommand(c *request.Context, args *model.CommandArgs) (*mode
 func (a *App) MentionsToTeamMembers(message, teamID string) model.UserMentionMap {
 	type mentionMapItem struct {
 		Name string
-		Id   string
+		ID   string
 	}
 
 	possibleMentions := model.PossibleAtMentions(message)
@@ -263,26 +263,26 @@ func (a *App) MentionsToTeamMembers(message, teamID string) model.UserMentionMap
 						continue
 					}
 
-					_, err := a.GetTeamMember(teamID, userFromTrimmed.Id)
+					_, err := a.GetTeamMember(teamID, userFromTrimmed.ID)
 					if err != nil {
 						// The user is not in the team, so we should ignore it
 						return
 					}
 
-					mentionChan <- &mentionMapItem{trimmed, userFromTrimmed.Id}
+					mentionChan <- &mentionMapItem{trimmed, userFromTrimmed.ID}
 					return
 				}
 
 				return
 			}
 
-			_, err := a.GetTeamMember(teamID, user.Id)
+			_, err := a.GetTeamMember(teamID, user.ID)
 			if err != nil {
 				// The user is not in the team, so we should ignore it
 				return
 			}
 
-			mentionChan <- &mentionMapItem{mention, user.Id}
+			mentionChan <- &mentionMapItem{mention, user.ID}
 		}(mention)
 	}
 
@@ -291,7 +291,7 @@ func (a *App) MentionsToTeamMembers(message, teamID string) model.UserMentionMap
 
 	atMentionMap := make(model.UserMentionMap)
 	for mention := range mentionChan {
-		atMentionMap[mention.Name] = mention.Id
+		atMentionMap[mention.Name] = mention.ID
 	}
 
 	return atMentionMap
@@ -302,7 +302,7 @@ func (a *App) MentionsToTeamMembers(message, teamID string) model.UserMentionMap
 func (a *App) MentionsToPublicChannels(message, teamID string) model.ChannelMentionMap {
 	type mentionMapItem struct {
 		Name string
-		Id   string
+		ID   string
 	}
 
 	channelMentions := model.ChannelMentions(message)
@@ -322,7 +322,7 @@ func (a *App) MentionsToPublicChannels(message, teamID string) model.ChannelMent
 				return
 			}
 
-			mentionChan <- &mentionMapItem{channelName, channel.Id}
+			mentionChan <- &mentionMapItem{channelName, channel.ID}
 		}(channelName)
 	}
 
@@ -331,7 +331,7 @@ func (a *App) MentionsToPublicChannels(message, teamID string) model.ChannelMent
 
 	channelMentionMap := make(model.ChannelMentionMap)
 	for mention := range mentionChan {
-		channelMentionMap[mention.Name] = mention.Id
+		channelMentionMap[mention.Name] = mention.ID
 	}
 
 	return channelMentionMap
@@ -363,26 +363,26 @@ func (a *App) tryExecuteCustomCommand(args *model.CommandArgs, trigger string, m
 
 	chanChan := make(chan store.StoreResult, 1)
 	go func() {
-		channel, err := a.Srv().Store.Channel().Get(args.ChannelId, true)
+		channel, err := a.Srv().Store.Channel().Get(args.ChannelID, true)
 		chanChan <- store.StoreResult{Data: channel, NErr: err}
 		close(chanChan)
 	}()
 
 	teamChan := make(chan store.StoreResult, 1)
 	go func() {
-		team, err := a.Srv().Store.Team().Get(args.TeamId)
+		team, err := a.Srv().Store.Team().Get(args.TeamID)
 		teamChan <- store.StoreResult{Data: team, NErr: err}
 		close(teamChan)
 	}()
 
 	userChan := make(chan store.StoreResult, 1)
 	go func() {
-		user, err := a.Srv().Store.User().Get(context.Background(), args.UserId)
+		user, err := a.Srv().Store.User().Get(context.Background(), args.UserID)
 		userChan <- store.StoreResult{Data: user, NErr: err}
 		close(userChan)
 	}()
 
-	teamCmds, err := a.Srv().Store.Command().GetByTeam(args.TeamId)
+	teamCmds, err := a.Srv().Store.Command().GetByTeam(args.TeamID)
 	if err != nil {
 		return nil, nil, model.NewAppError("tryExecuteCustomCommand", "app.command.tryexecutecustomcommand.internal_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -435,40 +435,40 @@ func (a *App) tryExecuteCustomCommand(args *model.CommandArgs, trigger string, m
 		return nil, nil, nil
 	}
 
-	mlog.Debug("Executing command", mlog.String("command", trigger), mlog.String("user_id", args.UserId))
+	mlog.Debug("Executing command", mlog.String("command", trigger), mlog.String("user_id", args.UserID))
 
 	p := url.Values{}
 	p.Set("token", cmd.Token)
 
-	p.Set("team_id", cmd.TeamId)
+	p.Set("team_id", cmd.TeamID)
 	p.Set("team_domain", team.Name)
 
-	p.Set("channel_id", args.ChannelId)
+	p.Set("channel_id", args.ChannelID)
 	p.Set("channel_name", channel.Name)
 
-	p.Set("user_id", args.UserId)
+	p.Set("user_id", args.UserID)
 	p.Set("user_name", user.Username)
 
 	p.Set("command", "/"+trigger)
 	p.Set("text", message)
 
-	p.Set("trigger_id", args.TriggerId)
+	p.Set("trigger_id", args.TriggerID)
 
-	userMentionMap := a.MentionsToTeamMembers(message, team.Id)
+	userMentionMap := a.MentionsToTeamMembers(message, team.ID)
 	for key, values := range userMentionMap.ToURLValues() {
 		p[key] = values
 	}
 
-	channelMentionMap := a.MentionsToPublicChannels(message, team.Id)
+	channelMentionMap := a.MentionsToPublicChannels(message, team.ID)
 	for key, values := range channelMentionMap.ToURLValues() {
 		p[key] = values
 	}
 
-	hook, appErr := a.CreateCommandWebhook(cmd.Id, args)
+	hook, appErr := a.CreateCommandWebhook(cmd.ID, args)
 	if appErr != nil {
 		return cmd, nil, model.NewAppError("command", "api.command.execute_command.failed.app_error", map[string]interface{}{"Trigger": trigger}, appErr.Error(), http.StatusInternalServerError)
 	}
-	p.Set("response_url", args.SiteURL+"/hooks/commands/"+hook.Id)
+	p.Set("response_url", args.SiteURL+"/hooks/commands/"+hook.ID)
 
 	return a.DoCommandRequest(cmd, p)
 }
@@ -564,20 +564,20 @@ func (a *App) HandleCommandResponse(c *request.Context, command *model.Command, 
 
 func (a *App) HandleCommandResponsePost(c *request.Context, command *model.Command, args *model.CommandArgs, response *model.CommandResponse, builtIn bool) (*model.Post, *model.AppError) {
 	post := &model.Post{}
-	post.ChannelId = args.ChannelId
-	post.RootId = args.RootId
-	post.ParentId = args.ParentId
-	post.UserId = args.UserId
+	post.ChannelID = args.ChannelID
+	post.RootID = args.RootID
+	post.ParentID = args.ParentID
+	post.UserID = args.UserID
 	post.Type = response.Type
 	post.SetProps(response.Props)
 
-	if response.ChannelId != "" {
-		_, err := a.GetChannelMember(context.Background(), response.ChannelId, args.UserId)
+	if response.ChannelID != "" {
+		_, err := a.GetChannelMember(context.Background(), response.ChannelID, args.UserID)
 		if err != nil {
 			err = model.NewAppError("HandleCommandResponsePost", "api.command.command_post.forbidden.app_error", nil, err.Error(), http.StatusForbidden)
 			return nil, err
 		}
-		post.ChannelId = response.ChannelId
+		post.ChannelID = response.ChannelID
 	}
 
 	isBotPost := !builtIn
@@ -614,7 +614,7 @@ func (a *App) HandleCommandResponsePost(c *request.Context, command *model.Comma
 		response.Attachments = a.ProcessSlackAttachments(response.Attachments)
 	}
 
-	if _, err := a.CreateCommandPost(c, post, args.TeamId, response, response.SkipSlackParsing); err != nil {
+	if _, err := a.CreateCommandPost(c, post, args.TeamID, response, response.SkipSlackParsing); err != nil {
 		return post, err
 	}
 
@@ -632,7 +632,7 @@ func (a *App) CreateCommand(cmd *model.Command) (*model.Command, *model.AppError
 func (a *App) createCommand(cmd *model.Command) (*model.Command, *model.AppError) {
 	cmd.Trigger = strings.ToLower(cmd.Trigger)
 
-	teamCmds, err := a.Srv().Store.Command().GetByTeam(cmd.TeamId)
+	teamCmds, err := a.Srv().Store.Command().GetByTeam(cmd.TeamID)
 	if err != nil {
 		return nil, model.NewAppError("CreateCommand", "app.command.createcommand.internal_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -688,14 +688,14 @@ func (a *App) UpdateCommand(oldCmd, updatedCmd *model.Command) (*model.Command, 
 	}
 
 	updatedCmd.Trigger = strings.ToLower(updatedCmd.Trigger)
-	updatedCmd.Id = oldCmd.Id
+	updatedCmd.ID = oldCmd.ID
 	updatedCmd.Token = oldCmd.Token
 	updatedCmd.CreateAt = oldCmd.CreateAt
 	updatedCmd.UpdateAt = model.GetMillis()
 	updatedCmd.DeleteAt = oldCmd.DeleteAt
-	updatedCmd.CreatorId = oldCmd.CreatorId
-	updatedCmd.PluginId = oldCmd.PluginId
-	updatedCmd.TeamId = oldCmd.TeamId
+	updatedCmd.CreatorID = oldCmd.CreatorID
+	updatedCmd.PluginID = oldCmd.PluginID
+	updatedCmd.TeamID = oldCmd.TeamID
 
 	command, err := a.Srv().Store.Command().Update(updatedCmd)
 	if err != nil {
@@ -703,7 +703,7 @@ func (a *App) UpdateCommand(oldCmd, updatedCmd *model.Command) (*model.Command, 
 		var appErr *model.AppError
 		switch {
 		case errors.As(err, &nfErr):
-			return nil, model.NewAppError("SqlCommandStore.Update", "store.sql_command.update.missing.app_error", map[string]interface{}{"command_id": updatedCmd.Id}, "", http.StatusNotFound)
+			return nil, model.NewAppError("SqlCommandStore.Update", "store.sql_command.update.missing.app_error", map[string]interface{}{"command_id": updatedCmd.ID}, "", http.StatusNotFound)
 		case errors.As(err, &appErr):
 			return nil, appErr
 		default:
@@ -715,7 +715,7 @@ func (a *App) UpdateCommand(oldCmd, updatedCmd *model.Command) (*model.Command, 
 }
 
 func (a *App) MoveCommand(team *model.Team, command *model.Command) *model.AppError {
-	command.TeamId = team.Id
+	command.TeamID = team.ID
 
 	_, err := a.Srv().Store.Command().Update(command)
 	if err != nil {
@@ -723,7 +723,7 @@ func (a *App) MoveCommand(team *model.Team, command *model.Command) *model.AppEr
 		var appErr *model.AppError
 		switch {
 		case errors.As(err, &nfErr):
-			return model.NewAppError("SqlCommandStore.Update", "store.sql_command.update.missing.app_error", map[string]interface{}{"command_id": command.Id}, "", http.StatusNotFound)
+			return model.NewAppError("SqlCommandStore.Update", "store.sql_command.update.missing.app_error", map[string]interface{}{"command_id": command.ID}, "", http.StatusNotFound)
 		case errors.As(err, &appErr):
 			return appErr
 		default:
@@ -739,7 +739,7 @@ func (a *App) RegenCommandToken(cmd *model.Command) (*model.Command, *model.AppE
 		return nil, model.NewAppError("RegenCommandToken", "api.command.disabled.app_error", nil, "", http.StatusNotImplemented)
 	}
 
-	cmd.Token = model.NewId()
+	cmd.Token = model.NewID()
 
 	command, err := a.Srv().Store.Command().Update(cmd)
 	if err != nil {
@@ -747,7 +747,7 @@ func (a *App) RegenCommandToken(cmd *model.Command) (*model.Command, *model.AppE
 		var appErr *model.AppError
 		switch {
 		case errors.As(err, &nfErr):
-			return nil, model.NewAppError("SqlCommandStore.Update", "store.sql_command.update.missing.app_error", map[string]interface{}{"command_id": cmd.Id}, "", http.StatusNotFound)
+			return nil, model.NewAppError("SqlCommandStore.Update", "store.sql_command.update.missing.app_error", map[string]interface{}{"command_id": cmd.ID}, "", http.StatusNotFound)
 		case errors.As(err, &appErr):
 			return nil, appErr
 		default:

@@ -31,8 +31,8 @@ func TestConfigListener(t *testing.T) {
 
 		listenerCalled = true
 	}
-	listenerId := th.App.AddConfigListener(listener)
-	defer th.App.RemoveConfigListener(listenerId)
+	listenerID := th.App.AddConfigListener(listener)
+	defer th.App.RemoveConfigListener(listenerID)
 
 	listener2Called := false
 	listener2 := func(oldConfig *model.Config, newConfig *model.Config) {
@@ -40,8 +40,8 @@ func TestConfigListener(t *testing.T) {
 
 		listener2Called = true
 	}
-	listener2Id := th.App.AddConfigListener(listener2)
-	defer th.App.RemoveConfigListener(listener2Id)
+	listener2ID := th.App.AddConfigListener(listener2)
+	defer th.App.RemoveConfigListener(listener2ID)
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.TeamSettings.SiteName = "test123"
@@ -131,7 +131,7 @@ func TestEnsureInstallationDate(t *testing.T) {
 			for _, createAt := range tc.UsersCreationDates {
 				user := th.CreateUser()
 				user.CreateAt = createAt
-				sqlStore.GetMaster().Exec("UPDATE Users SET CreateAt = :CreateAt WHERE Id = :UserId", map[string]interface{}{"CreateAt": createAt, "UserId": user.Id})
+				sqlStore.GetMaster().Exec("UPDATE Users SET CreateAt = :CreateAt WHERE Id = :UserId", map[string]interface{}{"CreateAt": createAt, "UserId": user.ID})
 			}
 
 			if tc.PrevInstallationDate == nil {

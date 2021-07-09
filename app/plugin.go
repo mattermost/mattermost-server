@@ -96,7 +96,7 @@ func (s *Server) syncPluginsActiveState() {
 		disabledPlugins := []*model.BundleInfo{}
 		enabledPlugins := []*model.BundleInfo{}
 		for _, plugin := range availablePlugins {
-			pluginID := plugin.Manifest.Id
+			pluginID := plugin.Manifest.ID
 			pluginEnabled := false
 			if state, ok := config.PluginStates[pluginID]; ok {
 				pluginEnabled = state.Enable
@@ -125,7 +125,7 @@ func (s *Server) syncPluginsActiveState() {
 			go func(plugin *model.BundleInfo) {
 				defer wg.Done()
 
-				deactivated := pluginsEnvironment.Deactivate(plugin.Manifest.Id)
+				deactivated := pluginsEnvironment.Deactivate(plugin.Manifest.ID)
 				if deactivated && plugin.Manifest.HasClient() {
 					message := model.NewWebSocketEvent(model.WebsocketEventPluginDisabled, "", "", "", nil)
 					message.Add("manifest", plugin.Manifest.ClientManifest())
@@ -140,7 +140,7 @@ func (s *Server) syncPluginsActiveState() {
 			go func(plugin *model.BundleInfo) {
 				defer wg.Done()
 
-				pluginID := plugin.Manifest.Id
+				pluginID := plugin.Manifest.ID
 				updatedManifest, activated, err := pluginsEnvironment.Activate(pluginID)
 				if err != nil {
 					plugin.WrapLogger(s.Log).Error("Unable to activate plugin", mlog.Err(err))
@@ -224,8 +224,8 @@ func (s *Server) initPlugins(c *request.Context, pluginDir, webappPluginDir stri
 
 	// Sync plugin active state when config changes. Also notify plugins.
 	s.PluginsLock.Lock()
-	s.RemoveConfigListener(s.PluginConfigListenerId)
-	s.PluginConfigListenerId = s.AddConfigListener(func(old, new *model.Config) {
+	s.RemoveConfigListener(s.PluginConfigListenerID)
+	s.PluginConfigListenerID = s.AddConfigListener(func(old, new *model.Config) {
 		// If plugin status remains unchanged, only then run this.
 		// Because (*App).InitPlugins is already run as a config change hook.
 		if *old.PluginSettings.Enable == *new.PluginSettings.Enable {
@@ -284,7 +284,7 @@ func (s *Server) syncPlugins() *model.AppError {
 					mlog.Error("Failed to remove local installation of managed plugin before sync", mlog.String("plugin_id", pluginID), mlog.Err(err))
 				}
 			}
-		}(plugin.Manifest.Id)
+		}(plugin.Manifest.ID)
 	}
 	wg.Wait()
 
@@ -336,8 +336,8 @@ func (s *Server) ShutDownPlugins() {
 
 	pluginsEnvironment.Shutdown()
 
-	s.RemoveConfigListener(s.PluginConfigListenerId)
-	s.PluginConfigListenerId = ""
+	s.RemoveConfigListener(s.PluginConfigListenerID)
+	s.PluginConfigListenerID = ""
 
 	// Acquiring lock manually before cleaning up PluginsEnvironment.
 	s.PluginsLock.Lock()
@@ -387,7 +387,7 @@ func (s *Server) enablePlugin(id string) *model.AppError {
 
 	var manifest *model.Manifest
 	for _, p := range availablePlugins {
-		if p.Manifest.Id == id {
+		if p.Manifest.ID == id {
 			manifest = p.Manifest
 			break
 		}
@@ -403,7 +403,7 @@ func (s *Server) enablePlugin(id string) *model.AppError {
 
 	// This call will implicitly invoke SyncPluginsActiveState which will activate enabled plugins.
 	if _, _, err := s.SaveConfig(s.Config(), true); err != nil {
-		if err.Id == "ent.cluster.save_config.error" {
+		if err.ID == "ent.cluster.save_config.error" {
 			return model.NewAppError("EnablePlugin", "app.plugin.cluster.save_config.app_error", nil, "", http.StatusInternalServerError)
 		}
 		return model.NewAppError("EnablePlugin", "app.plugin.config.app_error", nil, err.Error(), http.StatusInternalServerError)
@@ -433,7 +433,7 @@ func (s *Server) disablePlugin(id string) *model.AppError {
 
 	var manifest *model.Manifest
 	for _, p := range availablePlugins {
-		if p.Manifest.Id == id {
+		if p.Manifest.ID == id {
 			manifest = p.Manifest
 			break
 		}
@@ -476,7 +476,7 @@ func (a *App) GetPlugins() (*model.PluginsResponse, *model.AppError) {
 			Manifest: *plugin.Manifest,
 		}
 
-		if pluginsEnvironment.IsActive(plugin.Manifest.Id) {
+		if pluginsEnvironment.IsActive(plugin.Manifest.ID) {
 			resp.Active = append(resp.Active, info)
 		} else {
 			resp.Inactive = append(resp.Inactive, info)
@@ -542,7 +542,7 @@ func (s *Server) getPrepackagedPlugin(pluginID, version string) (*plugin.Prepack
 
 	prepackagedPlugins := pluginsEnvironment.PrepackagedPlugins()
 	for _, p := range prepackagedPlugins {
-		if p.Manifest.Id == pluginID && p.Manifest.Version == version {
+		if p.Manifest.ID == pluginID && p.Manifest.Version == version {
 			return p, nil
 		}
 	}
@@ -561,7 +561,7 @@ func (s *Server) getRemoteMarketplacePlugin(pluginID, version string) (*model.Ba
 	}
 
 	filter := s.getBaseMarketplaceFilter()
-	filter.PluginId = pluginID
+	filter.PluginID = pluginID
 	filter.ReturnAllVersions = true
 
 	plugin, err := marketplaceClient.GetPlugin(filter, version)
@@ -602,7 +602,7 @@ func (a *App) getRemotePlugins() (map[string]*model.MarketplacePlugin, *model.Ap
 			continue
 		}
 
-		result[p.Manifest.Id] = &model.MarketplacePlugin{BaseMarketplacePlugin: p}
+		result[p.Manifest.ID] = &model.MarketplacePlugin{BaseMarketplacePlugin: p}
 	}
 
 	return result, nil
@@ -630,8 +630,8 @@ func (a *App) mergePrepackagedPlugins(remoteMarketplacePlugins map[string]*model
 		}
 
 		// If not available in marketplace, add the prepackaged
-		if remoteMarketplacePlugins[prepackaged.Manifest.Id] == nil {
-			remoteMarketplacePlugins[prepackaged.Manifest.Id] = prepackagedMarketplace
+		if remoteMarketplacePlugins[prepackaged.Manifest.ID] == nil {
+			remoteMarketplacePlugins[prepackaged.Manifest.ID] = prepackagedMarketplace
 			continue
 		}
 
@@ -641,14 +641,14 @@ func (a *App) mergePrepackagedPlugins(remoteMarketplacePlugins map[string]*model
 			return model.NewAppError("mergePrepackagedPlugins", "app.plugin.invalid_version.app_error", nil, err.Error(), http.StatusBadRequest)
 		}
 
-		marketplacePlugin := remoteMarketplacePlugins[prepackaged.Manifest.Id]
+		marketplacePlugin := remoteMarketplacePlugins[prepackaged.Manifest.ID]
 		marketplaceVersion, err := semver.Parse(marketplacePlugin.Manifest.Version)
 		if err != nil {
 			return model.NewAppError("mergePrepackagedPlugins", "app.plugin.invalid_version.app_error", nil, err.Error(), http.StatusBadRequest)
 		}
 
 		if prepackagedVersion.GT(marketplaceVersion) {
-			remoteMarketplacePlugins[prepackaged.Manifest.Id] = prepackagedMarketplace
+			remoteMarketplacePlugins[prepackaged.Manifest.ID] = prepackagedMarketplace
 		}
 	}
 
@@ -672,9 +672,9 @@ func (a *App) mergeLocalPlugins(remoteMarketplacePlugins map[string]*model.Marke
 			continue
 		}
 
-		if remoteMarketplacePlugins[plugin.Manifest.Id] != nil {
+		if remoteMarketplacePlugins[plugin.Manifest.ID] != nil {
 			// Remote plugin is installed.
-			remoteMarketplacePlugins[plugin.Manifest.Id].InstalledVersion = plugin.Manifest.Version
+			remoteMarketplacePlugins[plugin.Manifest.ID].InstalledVersion = plugin.Manifest.Version
 			continue
 		}
 
@@ -682,7 +682,7 @@ func (a *App) mergeLocalPlugins(remoteMarketplacePlugins map[string]*model.Marke
 		if plugin.Manifest.IconPath != "" {
 			iconData, err = getIcon(filepath.Join(plugin.Path, plugin.Manifest.IconPath))
 			if err != nil {
-				mlog.Warn("Error loading local plugin icon", mlog.String("plugin", plugin.Manifest.Id), mlog.String("icon_path", plugin.Manifest.IconPath), mlog.Err(err))
+				mlog.Warn("Error loading local plugin icon", mlog.String("plugin", plugin.Manifest.ID), mlog.String("icon_path", plugin.Manifest.IconPath), mlog.Err(err))
 			}
 		}
 
@@ -695,7 +695,7 @@ func (a *App) mergeLocalPlugins(remoteMarketplacePlugins map[string]*model.Marke
 			})
 		}
 
-		remoteMarketplacePlugins[plugin.Manifest.Id] = &model.MarketplacePlugin{
+		remoteMarketplacePlugins[plugin.Manifest.ID] = &model.MarketplacePlugin{
 			BaseMarketplacePlugin: &model.BaseMarketplacePlugin{
 				HomepageURL:     plugin.Manifest.HomepageURL,
 				IconData:        iconData,
@@ -744,7 +744,7 @@ func pluginMatchesFilter(manifest *model.Manifest, filter string) bool {
 		return true
 	}
 
-	if strings.ToLower(manifest.Id) == filter {
+	if strings.ToLower(manifest.ID) == filter {
 		return true
 	}
 
@@ -771,7 +771,7 @@ func (s *Server) notifyPluginEnabled(manifest *model.Manifest) error {
 	if pluginsEnvironment == nil {
 		return errors.New("pluginsEnvironment is nil")
 	}
-	if !manifest.HasClient() || !pluginsEnvironment.IsActive(manifest.Id) {
+	if !manifest.HasClient() || !pluginsEnvironment.IsActive(manifest.ID) {
 		return nil
 	}
 
@@ -785,7 +785,7 @@ func (s *Server) notifyPluginEnabled(manifest *model.Manifest) error {
 		}
 	}
 
-	localStatus, err := s.GetPluginStatus(manifest.Id)
+	localStatus, err := s.GetPluginStatus(manifest.ID)
 	if err != nil {
 		return err
 	}
@@ -796,8 +796,8 @@ func (s *Server) notifyPluginEnabled(manifest *model.Manifest) error {
 	// this peer will end up checking status against itself and will notify all webclients (including peer webclients),
 	// which may result in a 404.
 	for _, status := range statuses {
-		if status.PluginId == manifest.Id && status.Version != manifest.Version {
-			mlog.Debug("Not ready to notify webclients", mlog.String("cluster_id", status.ClusterId), mlog.String("plugin_id", manifest.Id))
+		if status.PluginID == manifest.ID && status.Version != manifest.Version {
+			mlog.Debug("Not ready to notify webclients", mlog.String("cluster_id", status.ClusterID), mlog.String("plugin_id", manifest.ID))
 			return nil
 		}
 	}
@@ -929,7 +929,7 @@ func (s *Server) processPrepackagedPlugin(pluginPath *pluginSignaturePath) (*plu
 	}
 
 	// Skip installing if the plugin is has not been previously enabled.
-	pluginState := s.Config().PluginSettings.PluginStates[plugin.Manifest.Id]
+	pluginState := s.Config().PluginSettings.PluginStates[plugin.Manifest.ID]
 	if pluginState == nil || !pluginState.Enable {
 		return plugin, nil
 	}
@@ -989,7 +989,7 @@ func (s *Server) installFeatureFlagPlugins() {
 			}
 
 			_, err := s.installMarketplacePlugin(&model.InstallMarketplacePluginRequest{
-				Id:      pluginID,
+				ID:      pluginID,
 				Version: version,
 			})
 			if err != nil {

@@ -52,14 +52,14 @@ func TestSendInviteEmailRateLimits(t *testing.T) {
 	for i := 0; i < 22; i++ {
 		emailList[i] = "test-" + strconv.Itoa(i) + "@common.com"
 	}
-	err = th.App.InviteNewUsersToTeam(emailList, th.BasicTeam.Id, th.BasicUser.Id)
+	err = th.App.InviteNewUsersToTeam(emailList, th.BasicTeam.ID, th.BasicUser.ID)
 	require.NotNil(t, err)
-	assert.Equal(t, "app.email.rate_limit_exceeded.app_error", err.Id)
+	assert.Equal(t, "app.email.rate_limit_exceeded.app_error", err.ID)
 	assert.Equal(t, http.StatusRequestEntityTooLarge, err.StatusCode)
 
-	_, err = th.App.InviteNewUsersToTeamGracefully(emailList, th.BasicTeam.Id, th.BasicUser.Id)
+	_, err = th.App.InviteNewUsersToTeamGracefully(emailList, th.BasicTeam.ID, th.BasicUser.ID)
 	require.NotNil(t, err)
-	assert.Equal(t, "app.email.rate_limit_exceeded.app_error", err.Id)
+	assert.Equal(t, "app.email.rate_limit_exceeded.app_error", err.ID)
 	assert.Equal(t, http.StatusRequestEntityTooLarge, err.StatusCode)
 }
 
@@ -92,11 +92,11 @@ func TestSendAdminUpgradeRequestEmail(t *testing.T) {
 	// other attempts by the same user or other users to send emails are blocked by rate limiter
 	err = th.App.SendAdminUpgradeRequestEmail(th.BasicUser.Username, mockSubscription, model.InviteLimitation)
 	require.NotNil(t, err)
-	assert.Equal(t, err.Id, "app.email.rate_limit_exceeded.app_error")
+	assert.Equal(t, err.ID, "app.email.rate_limit_exceeded.app_error")
 
 	err = th.App.SendAdminUpgradeRequestEmail(th.BasicUser2.Username, mockSubscription, model.InviteLimitation)
 	require.NotNil(t, err)
-	assert.Equal(t, err.Id, "app.email.rate_limit_exceeded.app_error")
+	assert.Equal(t, err.ID, "app.email.rate_limit_exceeded.app_error")
 }
 
 func TestSendAdminUpgradeRequestEmailOnJoin(t *testing.T) {
@@ -128,11 +128,11 @@ func TestSendAdminUpgradeRequestEmailOnJoin(t *testing.T) {
 	// other attempts by the same user or other users to send emails are blocked by rate limiter
 	err = th.App.SendAdminUpgradeRequestEmail(th.BasicUser.Username, mockSubscription, model.JoinLimitation)
 	require.NotNil(t, err)
-	assert.Equal(t, err.Id, "app.email.rate_limit_exceeded.app_error")
+	assert.Equal(t, err.ID, "app.email.rate_limit_exceeded.app_error")
 
 	err = th.App.SendAdminUpgradeRequestEmail(th.BasicUser2.Username, mockSubscription, model.JoinLimitation)
 	require.NotNil(t, err)
-	assert.Equal(t, err.Id, "app.email.rate_limit_exceeded.app_error")
+	assert.Equal(t, err.ID, "app.email.rate_limit_exceeded.app_error")
 }
 
 func TestSendInviteEmails(t *testing.T) {
@@ -147,7 +147,7 @@ func TestSendInviteEmails(t *testing.T) {
 	emailTo := "test@example.com"
 	mail.DeleteMailBox(emailTo)
 
-	appErr := th.App.Srv().EmailService.SendInviteEmails(th.BasicTeam, "test-user", th.BasicUser.Id, []string{emailTo}, "http://testserver")
+	appErr := th.App.Srv().EmailService.SendInviteEmails(th.BasicTeam, "test-user", th.BasicUser.ID, []string{emailTo}, "http://testserver")
 	require.Nil(t, appErr)
 
 	var resultsMailbox mail.JSONMessageHeaderInbucket

@@ -64,7 +64,7 @@ func (*CollapseProvider) DoCommand(a *app.App, c *request.Context, args *model.C
 
 func setCollapsePreference(a *app.App, args *model.CommandArgs, isCollapse bool) *model.CommandResponse {
 	pref := model.Preference{
-		UserId:   args.UserId,
+		UserID:   args.UserID,
 		Category: model.PreferenceCategoryDisplaySettings,
 		Name:     model.PreferenceNameCollapseSetting,
 		Value:    strconv.FormatBool(isCollapse),
@@ -74,8 +74,8 @@ func setCollapsePreference(a *app.App, args *model.CommandArgs, isCollapse bool)
 		return &model.CommandResponse{Text: args.T("api.command_expand_collapse.fail.app_error"), ResponseType: model.CommandResponseTypeEphemeral}
 	}
 
-	socketMessage := model.NewWebSocketEvent(model.WebsocketEventPreferenceChanged, "", "", args.UserId, nil)
-	socketMessage.Add("preference", pref.ToJson())
+	socketMessage := model.NewWebSocketEvent(model.WebsocketEventPreferenceChanged, "", "", args.UserID, nil)
+	socketMessage.Add("preference", pref.ToJSON())
 	a.Publish(socketMessage)
 
 	var rmsg string

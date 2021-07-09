@@ -131,7 +131,7 @@ func createCommandCmdF(command *cobra.Command, args []string) error {
 	}
 
 	// check if creator has permission to create slash commands
-	if !a.HasPermissionToTeam(user.Id, team.Id, model.PermissionManageSlashCommands) {
+	if !a.HasPermissionToTeam(user.ID, team.ID, model.PermissionManageSlashCommands) {
 		return errors.New("the creator must be a user who has permissions to manage slash commands")
 	}
 
@@ -159,8 +159,8 @@ func createCommandCmdF(command *cobra.Command, args []string) error {
 	}
 
 	newCommand := &model.Command{
-		CreatorId:        user.Id,
-		TeamId:           team.Id,
+		CreatorID:        user.ID,
+		TeamID:           team.ID,
 		Trigger:          trigger,
 		Method:           method,
 		Username:         responseUsername,
@@ -267,13 +267,13 @@ func listCommandCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find team '" + args[i] + "'")
 			continue
 		}
-		commands, err := a.Srv().Store.Command().GetByTeam(team.Id)
+		commands, err := a.Srv().Store.Command().GetByTeam(team.ID)
 		if err != nil {
 			CommandPrintErrorln("Unable to list commands for '" + args[i] + "'")
 			continue
 		}
 		for _, command := range commands {
-			commandListItem := fmt.Sprintf("%s: %s (team: %s)", command.Id, command.DisplayName, team.Name)
+			commandListItem := fmt.Sprintf("%s: %s (team: %s)", command.ID, command.DisplayName, team.Name)
 			CommandPrettyPrintln(commandListItem)
 		}
 	}
@@ -293,11 +293,11 @@ func deleteCommandCmdF(command *cobra.Command, args []string) error {
 		return errors.New("Unable to find command '" + args[0] + "'")
 	}
 
-	if err := a.DeleteCommand(slashCommand.Id); err != nil {
+	if err := a.DeleteCommand(slashCommand.ID); err != nil {
 		command.SilenceUsage = true
-		return errors.New("Unable to delete command '" + slashCommand.Id + "' error: " + err.Error())
+		return errors.New("Unable to delete command '" + slashCommand.ID + "' error: " + err.Error())
 	}
-	CommandPrettyPrintln("Deleted command '" + slashCommand.Id + "' (" + slashCommand.DisplayName + ")")
+	CommandPrettyPrintln("Deleted command '" + slashCommand.ID + "' (" + slashCommand.DisplayName + ")")
 
 	auditRec := a.MakeAuditRecord("deleteCommand", audit.Success)
 	auditRec.AddMeta("command", slashCommand)
@@ -332,11 +332,11 @@ func modifyCommandCmdF(command *cobra.Command, args []string) (cmdError error) {
 		}
 
 		// check if creator has permission to create slash commands
-		if !a.HasPermissionToTeam(user.Id, modifiedCommand.TeamId, model.PermissionManageSlashCommands) {
+		if !a.HasPermissionToTeam(user.ID, modifiedCommand.TeamID, model.PermissionManageSlashCommands) {
 			return errors.New("the creator must be a user who has permissions to manage slash commands")
 		}
 
-		modifiedCommand.CreatorId = user.Id
+		modifiedCommand.CreatorID = user.ID
 	}
 
 	title, _ := command.Flags().GetString("title")

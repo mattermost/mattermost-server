@@ -42,7 +42,7 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 
 			ExpectedError:           true,
@@ -55,7 +55,7 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    ":invalid and ignored:",
 				IconURL:     "ignored",
 			},
@@ -64,7 +64,7 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			ExpectedIncomingWebhook: &model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 		},
 		"invalid username, override enabled": {
@@ -74,7 +74,7 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    ":invalid:",
 			},
 
@@ -88,14 +88,14 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 
 			ExpectedError: false,
 			ExpectedIncomingWebhook: &model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 		},
 		"valid, with username and post icon": {
@@ -105,7 +105,7 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    "valid",
 				IconURL:     "http://example.com/icon",
 			},
@@ -114,7 +114,7 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			ExpectedIncomingWebhook: &model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    "valid",
 				IconURL:     "http://example.com/icon",
 			},
@@ -127,21 +127,21 @@ func TestCreateIncomingWebhookForChannel(t *testing.T) {
 			})
 			th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnablePostIconOverride = tc.EnablePostIconOverride })
 
-			createdHook, err := th.App.CreateIncomingWebhookForChannel(th.BasicUser.Id, th.BasicChannel, &tc.IncomingWebhook)
+			createdHook, err := th.App.CreateIncomingWebhookForChannel(th.BasicUser.ID, th.BasicChannel, &tc.IncomingWebhook)
 			if tc.ExpectedError {
 				require.NotNil(t, err, "should have failed")
 			} else {
 				require.Nil(t, err, "should not have failed")
 			}
 			if createdHook != nil {
-				defer th.App.DeleteIncomingWebhook(createdHook.Id)
+				defer th.App.DeleteIncomingWebhook(createdHook.ID)
 			}
 			if tc.ExpectedIncomingWebhook == nil {
 				assert.Nil(t, createdHook, "expected nil webhook")
 			} else if assert.NotNil(t, createdHook, "expected non-nil webhook") {
 				assert.Equal(t, tc.ExpectedIncomingWebhook.DisplayName, createdHook.DisplayName)
 				assert.Equal(t, tc.ExpectedIncomingWebhook.Description, createdHook.Description)
-				assert.Equal(t, tc.ExpectedIncomingWebhook.ChannelId, createdHook.ChannelId)
+				assert.Equal(t, tc.ExpectedIncomingWebhook.ChannelID, createdHook.ChannelID)
 				assert.Equal(t, tc.ExpectedIncomingWebhook.Username, createdHook.Username)
 				assert.Equal(t, tc.ExpectedIncomingWebhook.IconURL, createdHook.IconURL)
 			}
@@ -171,7 +171,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 
 			ExpectedError:           true,
@@ -184,7 +184,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    ":invalid and ignored:",
 				IconURL:     "ignored",
 			},
@@ -193,7 +193,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			ExpectedIncomingWebhook: &model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 		},
 		"invalid username, override enabled": {
@@ -203,7 +203,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    ":invalid:",
 			},
 
@@ -217,14 +217,14 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 
 			ExpectedError: false,
 			ExpectedIncomingWebhook: &model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 			},
 		},
 		"valid, with username and post icon": {
@@ -234,7 +234,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			IncomingWebhook: model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    "valid",
 				IconURL:     "http://example.com/icon",
 			},
@@ -243,7 +243,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			ExpectedIncomingWebhook: &model.IncomingWebhook{
 				DisplayName: "title",
 				Description: "description",
-				ChannelId:   th.BasicChannel.Id,
+				ChannelID:   th.BasicChannel.ID,
 				Username:    "valid",
 				IconURL:     "http://example.com/icon",
 			},
@@ -252,11 +252,11 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableIncomingWebhooks = true })
 
-			hook, err := th.App.CreateIncomingWebhookForChannel(th.BasicUser.Id, th.BasicChannel, &model.IncomingWebhook{
-				ChannelId: th.BasicChannel.Id,
+			hook, err := th.App.CreateIncomingWebhookForChannel(th.BasicUser.ID, th.BasicChannel, &model.IncomingWebhook{
+				ChannelID: th.BasicChannel.ID,
 			})
 			require.Nil(t, err)
-			defer th.App.DeleteIncomingWebhook(hook.Id)
+			defer th.App.DeleteIncomingWebhook(hook.ID)
 
 			th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableIncomingWebhooks = tc.EnableIncomingHooks })
 			th.App.UpdateConfig(func(cfg *model.Config) {
@@ -275,7 +275,7 @@ func TestUpdateIncomingWebhook(t *testing.T) {
 			} else if assert.NotNil(t, updatedHook, "expected non-nil webhook") {
 				assert.Equal(t, tc.ExpectedIncomingWebhook.DisplayName, updatedHook.DisplayName)
 				assert.Equal(t, tc.ExpectedIncomingWebhook.Description, updatedHook.Description)
-				assert.Equal(t, tc.ExpectedIncomingWebhook.ChannelId, updatedHook.ChannelId)
+				assert.Equal(t, tc.ExpectedIncomingWebhook.ChannelID, updatedHook.ChannelID)
 				assert.Equal(t, tc.ExpectedIncomingWebhook.Username, updatedHook.Username)
 				assert.Equal(t, tc.ExpectedIncomingWebhook.IconURL, updatedHook.IconURL)
 			}
@@ -289,11 +289,11 @@ func TestCreateWebhookPost(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableIncomingWebhooks = true })
 
-	hook, err := th.App.CreateIncomingWebhookForChannel(th.BasicUser.Id, th.BasicChannel, &model.IncomingWebhook{ChannelId: th.BasicChannel.Id})
+	hook, err := th.App.CreateIncomingWebhookForChannel(th.BasicUser.ID, th.BasicChannel, &model.IncomingWebhook{ChannelID: th.BasicChannel.ID})
 	require.Nil(t, err)
-	defer th.App.DeleteIncomingWebhook(hook.Id)
+	defer th.App.DeleteIncomingWebhook(hook.ID)
 
-	post, err := th.App.CreateWebhookPost(th.Context, hook.UserId, th.BasicChannel, "foo", "user", "http://iconurl", "", model.StringInterface{
+	post, err := th.App.CreateWebhookPost(th.Context, hook.UserID, th.BasicChannel, "foo", "user", "http://iconurl", "", model.StringInterface{
 		"attachments": []*model.SlackAttachment{
 			{
 				Text: "text",
@@ -307,11 +307,11 @@ func TestCreateWebhookPost(t *testing.T) {
 	assert.Contains(t, post.GetProps(), "attachments", "missing attachments prop")
 	assert.Contains(t, post.GetProps(), "webhook_display_name", "missing webhook_display_name prop")
 
-	_, err = th.App.CreateWebhookPost(th.Context, hook.UserId, th.BasicChannel, "foo", "user", "http://iconurl", "", nil, model.PostTypeSystemGeneric, "")
+	_, err = th.App.CreateWebhookPost(th.Context, hook.UserID, th.BasicChannel, "foo", "user", "http://iconurl", "", nil, model.PostTypeSystemGeneric, "")
 	require.NotNil(t, err, "Should have failed - bad post type")
 
 	expectedText := "`<>|<>|`"
-	post, err = th.App.CreateWebhookPost(th.Context, hook.UserId, th.BasicChannel, expectedText, "user", "http://iconurl", "", model.StringInterface{
+	post, err = th.App.CreateWebhookPost(th.Context, hook.UserID, th.BasicChannel, expectedText, "user", "http://iconurl", "", model.StringInterface{
 		"attachments": []*model.SlackAttachment{
 			{
 				Text: "text",
@@ -323,7 +323,7 @@ func TestCreateWebhookPost(t *testing.T) {
 	assert.Equal(t, expectedText, post.Message)
 
 	expectedText = "< | \n|\n>"
-	post, err = th.App.CreateWebhookPost(th.Context, hook.UserId, th.BasicChannel, expectedText, "user", "http://iconurl", "", model.StringInterface{
+	post, err = th.App.CreateWebhookPost(th.Context, hook.UserID, th.BasicChannel, expectedText, "user", "http://iconurl", "", model.StringInterface{
 		"attachments": []*model.SlackAttachment{
 			{
 				Text: "text",
@@ -351,7 +351,7 @@ Date:   Thu Mar 1 19:46:48 2018 +0300
 
  test | 3 +++
  1 file changed, 3 insertions(+)`
-	post, err = th.App.CreateWebhookPost(th.Context, hook.UserId, th.BasicChannel, expectedText, "user", "http://iconurl", "", model.StringInterface{
+	post, err = th.App.CreateWebhookPost(th.Context, hook.UserID, th.BasicChannel, expectedText, "user", "http://iconurl", "", model.StringInterface{
 		"attachments": []*model.SlackAttachment{
 			{
 				Text: "text",
@@ -542,14 +542,14 @@ func TestCreateOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 	defer th.TearDown()
 
 	outgoingWebhook := model.OutgoingWebhook{
-		ChannelId:    th.BasicChannel.Id,
-		TeamId:       th.BasicChannel.TeamId,
+		ChannelID:    th.BasicChannel.ID,
+		TeamID:       th.BasicChannel.TeamID,
 		CallbackURLs: []string{"http://nowhere.com"},
 		Username:     "some-user-name",
 		IconURL:      "http://some-icon/",
 		DisplayName:  "some-display-name",
 		Description:  "some-description",
-		CreatorId:    th.BasicUser.Id,
+		CreatorID:    th.BasicUser.ID,
 	}
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOutgoingWebhooks = true })
@@ -559,8 +559,8 @@ func TestCreateOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 
 	assert.NotNil(t, createdHook, "should not be null")
 
-	assert.Equal(t, createdHook.ChannelId, outgoingWebhook.ChannelId)
-	assert.Equal(t, createdHook.TeamId, outgoingWebhook.TeamId)
+	assert.Equal(t, createdHook.ChannelID, outgoingWebhook.ChannelID)
+	assert.Equal(t, createdHook.TeamID, outgoingWebhook.TeamID)
 	assert.Equal(t, createdHook.CallbackURLs, outgoingWebhook.CallbackURLs)
 	assert.Equal(t, createdHook.Username, outgoingWebhook.Username)
 	assert.Equal(t, createdHook.IconURL, outgoingWebhook.IconURL)
@@ -574,17 +574,17 @@ func TestTriggerOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 	getPayload := func(hook *model.OutgoingWebhook, th *TestHelper, channel *model.Channel) *model.OutgoingWebhookPayload {
 		return &model.OutgoingWebhookPayload{
 			Token:       hook.Token,
-			TeamId:      hook.TeamId,
+			TeamID:      hook.TeamID,
 			TeamDomain:  th.BasicTeam.Name,
-			ChannelId:   channel.Id,
+			ChannelID:   channel.ID,
 			ChannelName: channel.Name,
 			Timestamp:   th.BasicPost.CreateAt,
-			UserId:      th.BasicPost.UserId,
+			UserID:      th.BasicPost.UserID,
 			UserName:    th.BasicUser.Username,
-			PostId:      th.BasicPost.Id,
+			PostID:      th.BasicPost.ID,
 			Text:        th.BasicPost.Message,
 			TriggerWord: "Abracadabra",
-			FileIds:     strings.Join(th.BasicPost.FileIds, ","),
+			FileIDs:     strings.Join(th.BasicPost.FileIDs, ","),
 		}
 	}
 
@@ -592,7 +592,7 @@ func TestTriggerOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 		go func() {
 			for i := 0; i < 5; i++ {
 				time.Sleep(time.Second)
-				posts, _ := th.App.GetPosts(channel.Id, 0, 5)
+				posts, _ := th.App.GetPosts(channel.ID, 0, 5)
 				if len(posts.Posts) > 0 {
 					for _, post := range posts.Posts {
 						createdPost <- post
@@ -613,14 +613,14 @@ func TestTriggerOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 
 	createOutgoingWebhook := func(channel *model.Channel, testCallBackUrl string, th *TestHelper) (*model.OutgoingWebhook, *model.AppError) {
 		outgoingWebhook := model.OutgoingWebhook{
-			ChannelId:    channel.Id,
-			TeamId:       channel.TeamId,
+			ChannelID:    channel.ID,
+			TeamID:       channel.TeamID,
 			CallbackURLs: []string{testCallBackUrl},
 			Username:     "some-user-name",
 			IconURL:      "http://some-icon/",
 			DisplayName:  "some-display-name",
 			Description:  "some-description",
-			CreatorId:    th.BasicUser.Id,
+			CreatorID:    th.BasicUser.ID,
 			TriggerWords: []string{"Abracadabra"},
 			ContentType:  "application/json",
 		}
@@ -673,7 +673,7 @@ func TestTriggerOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if testCase.WebhookResponse != nil {
-					w.Write([]byte(testCase.WebhookResponse.ToJson()))
+					w.Write([]byte(testCase.WebhookResponse.ToJSON()))
 				} else {
 					w.Write([]byte(`{"text": "sample response text from test server"}`))
 				}

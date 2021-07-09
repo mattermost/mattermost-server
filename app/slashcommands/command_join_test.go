@@ -23,9 +23,9 @@ func TestJoinCommandNoChannel(t *testing.T) {
 	cmd := &JoinProvider{}
 	resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
-		UserId:  th.BasicUser2.Id,
+		UserID:  th.BasicUser2.ID,
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 	}, "asdsad")
 
 	assert.Equal(t, "api.command_join.list.app_error", resp.Text)
@@ -41,18 +41,18 @@ func TestJoinCommandForExistingChannel(t *testing.T) {
 
 	channel2, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "AA",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	cmd := &JoinProvider{}
 	resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
-		UserId:  th.BasicUser2.Id,
+		UserID:  th.BasicUser2.ID,
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 	}, channel2.Name)
 
 	assert.Equal(t, "", resp.Text)
@@ -69,18 +69,18 @@ func TestJoinCommandWithTilde(t *testing.T) {
 
 	channel2, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "AA",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	cmd := &JoinProvider{}
 	resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
-		UserId:  th.BasicUser2.Id,
+		UserID:  th.BasicUser2.ID,
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 	}, "~"+channel2.Name)
 
 	assert.Equal(t, "", resp.Text)
@@ -93,10 +93,10 @@ func TestJoinCommandPermissions(t *testing.T) {
 
 	channel2, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "AA",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypeOpen,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	cmd := &JoinProvider{}
@@ -106,9 +106,9 @@ func TestJoinCommandPermissions(t *testing.T) {
 	// Try a public channel *without* permission.
 	args := &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
-		UserId:  user3.Id,
+		UserID:  user3.ID,
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 	}
 
 	actual := cmd.DoCommand(th.App, th.Context, args, "~"+channel2.Name).Text
@@ -117,9 +117,9 @@ func TestJoinCommandPermissions(t *testing.T) {
 	// Try a public channel with permission.
 	args = &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
-		UserId:  th.BasicUser2.Id,
+		UserID:  th.BasicUser2.ID,
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 	}
 
 	actual = cmd.DoCommand(th.App, th.Context, args, "~"+channel2.Name).Text
@@ -128,17 +128,17 @@ func TestJoinCommandPermissions(t *testing.T) {
 	// Try a private channel *without* permission.
 	channel3, _ := th.App.CreateChannel(th.Context, &model.Channel{
 		DisplayName: "BB",
-		Name:        "aa" + model.NewId() + "a",
+		Name:        "aa" + model.NewID() + "a",
 		Type:        model.ChannelTypePrivate,
-		TeamId:      th.BasicTeam.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      th.BasicTeam.ID,
+		CreatorID:   th.BasicUser.ID,
 	}, false)
 
 	args = &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
-		UserId:  th.BasicUser2.Id,
+		UserID:  th.BasicUser2.ID,
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
+		TeamID:  th.BasicTeam.ID,
 	}
 
 	actual = cmd.DoCommand(th.App, th.Context, args, "~"+channel3.Name).Text

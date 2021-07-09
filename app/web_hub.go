@@ -122,7 +122,7 @@ func (a *App) HubStop() {
 }
 
 // GetHubForUserId returns the hub for a given user id.
-func (s *Server) GetHubForUserId(userID string) *Hub {
+func (s *Server) GetHubForUserID(userID string) *Hub {
 	// TODO: check if caching the userID -> hub mapping
 	// is worth the memory tradeoff.
 	// https://mattermost.atlassian.net/browse/MM-26629.
@@ -134,13 +134,13 @@ func (s *Server) GetHubForUserId(userID string) *Hub {
 	return s.hubs[int(index)]
 }
 
-func (a *App) GetHubForUserId(userID string) *Hub {
-	return a.Srv().GetHubForUserId(userID)
+func (a *App) GetHubForUserID(userID string) *Hub {
+	return a.Srv().GetHubForUserID(userID)
 }
 
 // HubRegister registers a connection to a hub.
 func (a *App) HubRegister(webConn *WebConn) {
-	hub := a.GetHubForUserId(webConn.UserId)
+	hub := a.GetHubForUserID(webConn.UserID)
 	if hub != nil {
 		if metrics := a.Metrics(); metrics != nil {
 			metrics.IncrementWebSocketBroadcastUsersRegistered(strconv.Itoa(hub.connectionIndex), 1)
@@ -151,7 +151,7 @@ func (a *App) HubRegister(webConn *WebConn) {
 
 // HubUnregister unregisters a connection from a hub.
 func (a *App) HubUnregister(webConn *WebConn) {
-	hub := a.GetHubForUserId(webConn.UserId)
+	hub := a.GetHubForUserID(webConn.UserID)
 	if hub != nil {
 		if metrics := a.Metrics(); metrics != nil {
 			metrics.DecrementWebSocketBroadcastUsersRegistered(strconv.Itoa(hub.connectionIndex), 1)
@@ -171,7 +171,7 @@ func (s *Server) Publish(message *model.WebSocketEvent) {
 		cm := &model.ClusterMessage{
 			Event:    model.ClusterEventPublish,
 			SendType: model.ClusterSendBestEffort,
-			Data:     message.ToJson(),
+			Data:     message.ToJSON(),
 		}
 
 		if message.EventType() == model.WebsocketEventPosted ||
@@ -191,8 +191,8 @@ func (a *App) Publish(message *model.WebSocketEvent) {
 }
 
 func (s *Server) PublishSkipClusterSend(event *model.WebSocketEvent) {
-	if event.GetBroadcast().UserId != "" {
-		hub := s.GetHubForUserId(event.GetBroadcast().UserId)
+	if event.GetBroadcast().UserID != "" {
+		hub := s.GetHubForUserID(event.GetBroadcast().UserID)
 		if hub != nil {
 			hub.Broadcast(event)
 		}
@@ -207,8 +207,8 @@ func (s *Server) PublishSkipClusterSend(event *model.WebSocketEvent) {
 }
 
 func (a *App) invalidateCacheForChannel(channel *model.Channel) {
-	a.Srv().Store.Channel().InvalidateChannel(channel.Id)
-	a.Srv().invalidateCacheForChannelByNameSkipClusterSend(channel.TeamId, channel.Name)
+	a.Srv().Store.Channel().InvalidateChannel(channel.ID)
+	a.Srv().invalidateCacheForChannelByNameSkipClusterSend(channel.TeamID, channel.Name)
 
 	if a.Cluster() != nil {
 		nameMsg := &model.ClusterMessage{
@@ -218,10 +218,10 @@ func (a *App) invalidateCacheForChannel(channel *model.Channel) {
 		}
 
 		nameMsg.Props["name"] = channel.Name
-		if channel.TeamId == "" {
+		if channel.TeamID == "" {
 			nameMsg.Props["id"] = "dm"
 		} else {
-			nameMsg.Props["id"] = channel.TeamId
+			nameMsg.Props["id"] = channel.TeamID
 		}
 
 		a.Cluster().SendClusterMessage(nameMsg)
@@ -260,7 +260,7 @@ func (a *App) InvalidateCacheForUser(userID string) {
 
 func (a *App) invalidateCacheForUserTeams(userID string) {
 	a.Srv().invalidateWebConnSessionCacheForUser(userID)
-	a.Srv().Store.Team().InvalidateAllTeamIdsForUser(userID)
+	a.Srv().Store.Team().InvalidateAllTeamIDsForUser(userID)
 
 	if a.Cluster() != nil {
 		msg := &model.ClusterMessage{
@@ -274,23 +274,23 @@ func (a *App) invalidateCacheForUserTeams(userID string) {
 
 // UpdateWebConnUserActivity sets the LastUserActivityAt of the hub for the given session.
 func (a *App) UpdateWebConnUserActivity(session model.Session, activityAt int64) {
-	hub := a.GetHubForUserId(session.UserId)
+	hub := a.GetHubForUserID(session.UserID)
 	if hub != nil {
-		hub.UpdateActivity(session.UserId, session.Token, activityAt)
+		hub.UpdateActivity(session.UserID, session.Token, activityAt)
 	}
 }
 
 // SessionIsRegistered determines if a specific session has been registered
 func (a *App) SessionIsRegistered(session model.Session) bool {
-	hub := a.GetHubForUserId(session.UserId)
+	hub := a.GetHubForUserID(session.UserID)
 	if hub != nil {
-		return hub.IsRegistered(session.UserId, session.Token)
+		return hub.IsRegistered(session.UserID, session.Token)
 	}
 	return false
 }
 
 func (a *App) CheckWebConn(userID, connectionID string) *CheckConnResult {
-	hub := a.GetHubForUserId(userID)
+	hub := a.GetHubForUserID(userID)
 	if hub != nil {
 		return hub.CheckConn(userID, connectionID)
 	}
@@ -448,7 +448,7 @@ func (h *Hub) Start() {
 				if *h.app.Config().ServiceSettings.EnableReliableWebSockets {
 					// Delete the old conn from connIndex if it exists.
 					oldConn = connIndex.RemoveInactiveByConnectionID(
-						webConn.GetSession().UserId,
+						webConn.GetSession().UserID,
 						webConn.GetConnectionID())
 				}
 
@@ -478,14 +478,14 @@ func (h *Hub) Start() {
 
 				atomic.StoreInt64(&h.connectionCount, int64(connIndex.AllActive()))
 
-				if webConn.UserId == "" {
+				if webConn.UserID == "" {
 					continue
 				}
 
-				conns := connIndex.ForUser(webConn.UserId)
+				conns := connIndex.ForUser(webConn.UserID)
 				if len(conns) == 0 || areAllInactive(conns) {
 					h.app.Srv().Go(func() {
-						h.app.SetStatusOffline(webConn.UserId, false)
+						h.app.SetStatusOffline(webConn.UserID, false)
 					})
 					continue
 				}
@@ -501,7 +501,7 @@ func (h *Hub) Start() {
 
 				if h.app.IsUserAway(latestActivity) {
 					h.app.Srv().Go(func() {
-						h.app.SetStatusLastActivityAt(webConn.UserId, latestActivity)
+						h.app.SetStatusLastActivityAt(webConn.UserID, latestActivity)
 					})
 				}
 			case userID := <-h.invalidateUser:
@@ -524,7 +524,7 @@ func (h *Hub) Start() {
 				select {
 				case directMsg.conn.send <- directMsg.msg:
 				default:
-					mlog.Error("webhub.broadcast: cannot send, closing websocket for user", mlog.String("user_id", directMsg.conn.UserId))
+					mlog.Error("webhub.broadcast: cannot send, closing websocket for user", mlog.String("user_id", directMsg.conn.UserID))
 					close(directMsg.conn.send)
 					connIndex.Remove(directMsg.conn)
 				}
@@ -541,14 +541,14 @@ func (h *Hub) Start() {
 						select {
 						case webConn.send <- msg:
 						default:
-							mlog.Error("webhub.broadcast: cannot send, closing websocket for user", mlog.String("user_id", webConn.UserId))
+							mlog.Error("webhub.broadcast: cannot send, closing websocket for user", mlog.String("user_id", webConn.UserID))
 							close(webConn.send)
 							connIndex.Remove(webConn)
 						}
 					}
 				}
-				if msg.GetBroadcast().UserId != "" {
-					candidates := connIndex.ForUser(msg.GetBroadcast().UserId)
+				if msg.GetBroadcast().UserID != "" {
+					candidates := connIndex.ForUser(msg.GetBroadcast().UserID)
 					for _, webConn := range candidates {
 						broadcast(webConn)
 					}
@@ -561,7 +561,7 @@ func (h *Hub) Start() {
 			case <-h.stop:
 				for webConn := range connIndex.All() {
 					webConn.Close()
-					h.app.SetStatusOffline(webConn.UserId, false)
+					h.app.SetStatusOffline(webConn.UserID, false)
 				}
 
 				h.explicitStop = true
@@ -601,7 +601,7 @@ func (h *Hub) Start() {
 // - get all connections.
 type hubConnectionIndex struct {
 	// byUserId stores the list of connections for a given userID
-	byUserId map[string][]*WebConn
+	byUserID map[string][]*WebConn
 	// byConnection serves the dual purpose of storing the index of the webconn
 	// in the value of byUserId map, and also to get all connections.
 	byConnection map[*WebConn]int
@@ -612,15 +612,15 @@ type hubConnectionIndex struct {
 
 func newHubConnectionIndex(interval time.Duration) *hubConnectionIndex {
 	return &hubConnectionIndex{
-		byUserId:       make(map[string][]*WebConn),
+		byUserID:       make(map[string][]*WebConn),
 		byConnection:   make(map[*WebConn]int),
 		staleThreshold: interval,
 	}
 }
 
 func (i *hubConnectionIndex) Add(wc *WebConn) {
-	i.byUserId[wc.UserId] = append(i.byUserId[wc.UserId], wc)
-	i.byConnection[wc] = len(i.byUserId[wc.UserId]) - 1
+	i.byUserID[wc.UserID] = append(i.byUserID[wc.UserID], wc)
+	i.byConnection[wc] = len(i.byUserID[wc.UserID]) - 1
 }
 
 func (i *hubConnectionIndex) Remove(wc *WebConn) {
@@ -630,13 +630,13 @@ func (i *hubConnectionIndex) Remove(wc *WebConn) {
 	}
 
 	// get the conn slice.
-	userConnections := i.byUserId[wc.UserId]
+	userConnections := i.byUserID[wc.UserID]
 	// get the last connection.
 	last := userConnections[len(userConnections)-1]
 	// set the slot that we are trying to remove to be the last connection.
 	userConnections[userConnIndex] = last
 	// remove the last connection from the slice.
-	i.byUserId[wc.UserId] = userConnections[:len(userConnections)-1]
+	i.byUserID[wc.UserID] = userConnections[:len(userConnections)-1]
 	// set the index of the connection that was moved to the new index.
 	i.byConnection[last] = userConnIndex
 
@@ -650,7 +650,7 @@ func (i *hubConnectionIndex) Has(wc *WebConn) bool {
 
 // ForUser returns all connections for a user ID.
 func (i *hubConnectionIndex) ForUser(id string) []*WebConn {
-	return i.byUserId[id]
+	return i.byUserID[id]
 }
 
 // All returns the full webConn index.

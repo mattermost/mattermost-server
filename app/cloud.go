@@ -17,7 +17,7 @@ func (a *App) getSysAdminsEmailRecipients() ([]*model.User, *model.AppError) {
 	userOptions := &model.UserGetOptions{
 		Page:     0,
 		PerPage:  100,
-		Role:     model.SystemAdminRoleId,
+		Role:     model.SystemAdminRoleID,
 		Inactive: false,
 	}
 	return a.GetUsers(userOptions)
@@ -131,7 +131,7 @@ func (a *App) CheckAndSendUserLimitWarningEmails(c *request.Context) *model.AppE
 		return nil
 	}
 
-	subscription, err := a.Cloud().GetSubscription(c.Session().UserId)
+	subscription, err := a.Cloud().GetSubscription(c.Session().UserID)
 	if err != nil {
 		return model.NewAppError(
 			"app.CheckAndSendUserLimitWarningEmails",

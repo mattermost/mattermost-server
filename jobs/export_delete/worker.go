@@ -79,7 +79,7 @@ func (w *ExportDeleteWorker) doJob(job *model.Job) {
 	if claimed, err := w.jobServer.ClaimJob(job); err != nil {
 		mlog.Warn("Worker experienced an error while trying to claim job",
 			mlog.String("worker", w.name),
-			mlog.String("job_id", job.Id),
+			mlog.String("job_id", job.ID),
 			mlog.String("error", err.Error()))
 		return
 	} else if !claimed {
@@ -120,19 +120,19 @@ func (w *ExportDeleteWorker) doJob(job *model.Job) {
 		mlog.Warn("Worker: errors occurred")
 	}
 
-	mlog.Info("Worker: Job is complete", mlog.String("worker", w.name), mlog.String("job_id", job.Id))
+	mlog.Info("Worker: Job is complete", mlog.String("worker", w.name), mlog.String("job_id", job.ID))
 	w.setJobSuccess(job)
 }
 
 func (w *ExportDeleteWorker) setJobSuccess(job *model.Job) {
 	if err := w.app.Srv().Jobs.SetJobSuccess(job); err != nil {
-		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", w.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", w.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 		w.setJobError(job, err)
 	}
 }
 
 func (w *ExportDeleteWorker) setJobError(job *model.Job, appError *model.AppError) {
 	if err := w.app.Srv().Jobs.SetJobError(job, appError); err != nil {
-		mlog.Error("Worker: Failed to set job error", mlog.String("worker", w.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set job error", mlog.String("worker", w.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 	}
 }

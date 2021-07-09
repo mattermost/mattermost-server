@@ -41,16 +41,16 @@ func TestProcessPermalinkToRemote(t *testing.T) {
 	t.Run("same channel", func(t *testing.T) {
 		post := &model.Post{
 			Message:   "hello world https://comm.matt.com/team/pl/postID link",
-			ChannelId: "sourceChan",
-			UserId:    "user",
+			ChannelID: "sourceChan",
+			UserID:    "user",
 		}
 
 		*pl = model.PostList{
 			Order: []string{"1"},
 			Posts: map[string]*model.Post{
 				"1": {
-					ChannelId: "sourceChan",
-					UserId:    "user",
+					ChannelID: "sourceChan",
+					UserID:    "user",
 				},
 			},
 		}
@@ -62,15 +62,15 @@ func TestProcessPermalinkToRemote(t *testing.T) {
 	t.Run("different channel", func(t *testing.T) {
 		post := &model.Post{
 			Message:   "hello world https://comm.matt.com/team/pl/postID link https://comm.matt.com/team/pl/postID ",
-			ChannelId: "sourceChan",
-			UserId:    "user",
+			ChannelID: "sourceChan",
+			UserID:    "user",
 		}
 
 		*pl = model.PostList{
 			Order: []string{"1"},
 			Posts: map[string]*model.Post{
 				"1": {
-					ChannelId: "otherChan",
+					ChannelID: "otherChan",
 				},
 			},
 		}

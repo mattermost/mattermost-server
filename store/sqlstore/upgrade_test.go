@@ -115,36 +115,36 @@ func TestSaveSchemaVersion(t *testing.T) {
 		})
 	})
 }
-func createChannelMemberWithLastViewAt(ss store.Store, channelId, userId string, lastViewAt int64) *model.ChannelMember {
+func createChannelMemberWithLastViewAt(ss store.Store, channelID, userID string, lastViewAt int64) *model.ChannelMember {
 	m := model.ChannelMember{}
-	m.ChannelId = channelId
-	m.UserId = userId
+	m.ChannelID = channelID
+	m.UserID = userID
 	m.LastViewedAt = lastViewAt
 	m.NotifyProps = model.GetDefaultChannelNotifyProps()
 	cm, _ := ss.Channel().SaveMember(&m)
 	return cm
 }
-func createPostWithTimestamp(ss store.Store, channelId, userId, rootId, parentId string, timestamp int64) *model.Post {
+func createPostWithTimestamp(ss store.Store, channelID, userID, rootID, parentID string, timestamp int64) *model.Post {
 	m := model.Post{}
 	m.CreateAt = timestamp
-	m.ChannelId = channelId
-	m.UserId = userId
-	m.RootId = rootId
-	m.ParentId = parentId
-	m.Message = "zz" + model.NewId() + "b"
+	m.ChannelID = channelID
+	m.UserID = userID
+	m.RootID = rootID
+	m.ParentID = parentID
+	m.Message = "zz" + model.NewID() + "b"
 	p, _ := ss.Post().Save(&m)
 	return p
 }
 
-func createChannelWithLastPostAt(ss store.Store, teamId, creatorId string, lastPostAt, msgCount, rootCount int64) (*model.Channel, error) {
+func createChannelWithLastPostAt(ss store.Store, teamID, creatorID string, lastPostAt, msgCount, rootCount int64) (*model.Channel, error) {
 	m := model.Channel{}
-	m.TeamId = teamId
+	m.TeamID = teamID
 	m.TotalMsgCount = msgCount
 	m.TotalMsgCountRoot = rootCount
 	m.LastPostAt = lastPostAt
-	m.CreatorId = creatorId
+	m.CreatorID = creatorID
 	m.DisplayName = "Name"
-	m.Name = "zz" + model.NewId() + "b"
+	m.Name = "zz" + model.NewID() + "b"
 	m.Type = model.ChannelTypeOpen
 	return ss.Channel().Save(&m, -1)
 }
@@ -212,22 +212,22 @@ func TestMsgCountRootMigration(t *testing.T) {
 								lastPostAt = testChannel.ReplyTimes[i]
 							}
 						}
-						channel, err := createChannelWithLastPostAt(ss, team.Id, model.NewId(), lastPostAt, int64(len(testChannel.PostTimes)+len(testChannel.ReplyTimes)), int64(len(testChannel.PostTimes)))
+						channel, err := createChannelWithLastPostAt(ss, team.ID, model.NewID(), lastPostAt, int64(len(testChannel.PostTimes)+len(testChannel.ReplyTimes)), int64(len(testChannel.PostTimes)))
 						require.NoError(t, err)
-						var userIds []string
+						var userIDs []string
 						for _, md := range testChannel.MembershipsLastViewAt {
 							user := createUser(ss)
-							userIds = append(userIds, user.Id)
+							userIDs = append(userIDs, user.ID)
 							require.NotNil(t, user)
-							cm := createChannelMemberWithLastViewAt(ss, channel.Id, user.Id, md)
+							cm := createChannelMemberWithLastViewAt(ss, channel.ID, user.ID, md)
 							require.NotNil(t, cm)
 						}
 						for i, pt := range testChannel.PostTimes {
 							rt := testChannel.ReplyTimes[i]
-							post := createPostWithTimestamp(ss, channel.Id, model.NewId(), "", "", pt)
+							post := createPostWithTimestamp(ss, channel.ID, model.NewID(), "", "", pt)
 							require.NotNil(t, post)
 							if rt > 0 {
-								reply := createPostWithTimestamp(ss, channel.Id, model.NewId(), post.Id, post.Id, rt)
+								reply := createPostWithTimestamp(ss, channel.ID, model.NewID(), post.ID, post.ID, rt)
 								require.NotNil(t, reply)
 							}
 						}
@@ -238,12 +238,12 @@ func TestMsgCountRootMigration(t *testing.T) {
 						require.NoError(t, err)
 						rootCountMigration(sqlStore)
 
-						members, err := ss.Channel().GetMembersByIds(channel.Id, userIds)
+						members, err := ss.Channel().GetMembersByIDs(channel.ID, userIDs)
 						require.NoError(t, err)
 
 						for _, m := range *members {
-							for i, uid := range userIds {
-								if m.UserId == uid {
+							for i, uid := range userIDs {
+								if m.UserID == uid {
 									assert.Equal(t, testChannel.ExpectedMembershipMsgCountRoot[i], m.MsgCountRoot)
 									break
 								}

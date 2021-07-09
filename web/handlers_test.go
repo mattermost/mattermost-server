@@ -124,9 +124,9 @@ func TestHandlerServeCSRFToken(t *testing.T) {
 	defer th.TearDown()
 
 	session := &model.Session{
-		UserId:   th.BasicUser.Id,
+		UserID:   th.BasicUser.ID,
 		CreateAt: model.GetMillis(),
-		Roles:    model.SystemUserRoleId,
+		Roles:    model.SystemUserRoleID,
 		IsOAuth:  false,
 	}
 	session.GenerateCSRF()

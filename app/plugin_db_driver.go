@@ -48,7 +48,7 @@ func (d *DriverImpl) Conn(isMaster bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	connID := model.NewId()
+	connID := model.NewID()
 	d.connMut.Lock()
 	d.connMap[connID] = conn
 	d.connMut.Unlock()
@@ -94,7 +94,7 @@ func (d *DriverImpl) ConnQuery(connID, q string, args []driver.NamedValue) (_ st
 		return "", err
 	}
 
-	rowsID := model.NewId()
+	rowsID := model.NewID()
 	d.rowsMut.Lock()
 	d.rowsMap[rowsID] = rows
 	d.rowsMut.Unlock()
@@ -156,7 +156,7 @@ func (d *DriverImpl) Tx(connID string, opts driver.TxOptions) (_ string, err err
 		return "", err
 	}
 
-	txID := model.NewId()
+	txID := model.NewID()
 	d.txMut.Lock()
 	d.txMap[txID] = tx
 	d.txMut.Unlock()
@@ -198,7 +198,7 @@ func (d *DriverImpl) Stmt(connID, q string) (_ string, err error) {
 		return "", err
 	}
 
-	stID := model.NewId()
+	stID := model.NewID()
 	d.stMut.Lock()
 	d.stMap[stID] = stmt
 	d.stMut.Unlock()
@@ -233,7 +233,7 @@ func (d *DriverImpl) StmtQuery(stID string, args []driver.NamedValue) (string, e
 	if err != nil {
 		return "", err
 	}
-	rowsID := model.NewId()
+	rowsID := model.NewID()
 	d.rowsMut.Lock()
 	d.rowsMap[rowsID] = rows
 	d.rowsMut.Unlock()

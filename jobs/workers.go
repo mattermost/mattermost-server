@@ -33,7 +33,7 @@ type Workers struct {
 	Cloud                    model.Worker
 	ResendInvitationEmail    model.Worker
 
-	listenerId string
+	listenerID string
 	running    bool
 }
 
@@ -204,7 +204,7 @@ func (workers *Workers) Start() {
 
 	go workers.Watcher.Start()
 
-	workers.listenerId = workers.ConfigService.AddConfigListener(workers.handleConfigChange)
+	workers.listenerID = workers.ConfigService.AddConfigListener(workers.handleConfigChange)
 	workers.running = true
 }
 
@@ -263,7 +263,7 @@ func (workers *Workers) handleConfigChange(oldConfig *model.Config, newConfig *m
 // Stop stops the workers. This call is not safe for concurrent use.
 // Synchronization should be implemented by the caller.
 func (workers *Workers) Stop() {
-	workers.ConfigService.RemoveConfigListener(workers.listenerId)
+	workers.ConfigService.RemoveConfigListener(workers.listenerID)
 
 	workers.Watcher.Stop()
 

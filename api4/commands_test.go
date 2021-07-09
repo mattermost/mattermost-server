@@ -23,15 +23,15 @@ func TestEchoCommand(t *testing.T) {
 
 	echoTestString := "/echo test"
 
-	r1 := Client.Must(Client.ExecuteCommand(channel1.Id, echoTestString)).(*model.CommandResponse)
+	r1 := Client.Must(Client.ExecuteCommand(channel1.ID, echoTestString)).(*model.CommandResponse)
 	require.NotNil(t, r1, "Echo command failed to execute")
 
-	r1 = Client.Must(Client.ExecuteCommand(channel1.Id, "/echo ")).(*model.CommandResponse)
+	r1 = Client.Must(Client.ExecuteCommand(channel1.ID, "/echo ")).(*model.CommandResponse)
 	require.NotNil(t, r1, "Echo command failed to execute")
 
 	time.Sleep(100 * time.Millisecond)
 
-	p1 := Client.Must(Client.GetPostsForChannel(channel1.Id, 0, 2, "", false)).(*model.PostList)
+	p1 := Client.Must(Client.GetPostsForChannel(channel1.ID, 0, 2, "", false)).(*model.PostList)
 	require.Len(t, p1.Order, 2, "Echo command failed to send")
 }
 
@@ -53,26 +53,26 @@ func TestGroupmsgCommands(t *testing.T) {
 	th.LinkUserToTeam(user3, team)
 	th.LinkUserToTeam(user4, team)
 
-	rs1 := Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg "+user2.Username+","+user3.Username)).(*model.CommandResponse)
+	rs1 := Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg "+user2.Username+","+user3.Username)).(*model.CommandResponse)
 
-	group1 := model.GetGroupNameFromUserIds([]string{user1.Id, user2.Id, user3.Id})
+	group1 := model.GetGroupNameFromUserIDs([]string{user1.ID, user2.ID, user3.ID})
 	require.True(t, strings.HasSuffix(rs1.GotoLocation, "/"+team.Name+"/channels/"+group1), "failed to create group channel")
 
-	rs2 := Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg "+user3.Username+","+user4.Username+" foobar")).(*model.CommandResponse)
-	group2 := model.GetGroupNameFromUserIds([]string{user1.Id, user3.Id, user4.Id})
+	rs2 := Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg "+user3.Username+","+user4.Username+" foobar")).(*model.CommandResponse)
+	group2 := model.GetGroupNameFromUserIDs([]string{user1.ID, user3.ID, user4.ID})
 
 	require.True(t, strings.HasSuffix(rs2.GotoLocation, "/"+team.Name+"/channels/"+group2), "failed to create second direct channel")
 
-	result := Client.Must(Client.SearchPosts(team.Id, "foobar", false)).(*model.PostList)
+	result := Client.Must(Client.SearchPosts(team.ID, "foobar", false)).(*model.PostList)
 	require.NotEqual(t, 0, len(result.Order), "post did not get sent to direct message")
 
-	rs3 := Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg "+user2.Username+","+user3.Username)).(*model.CommandResponse)
+	rs3 := Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg "+user2.Username+","+user3.Username)).(*model.CommandResponse)
 	require.True(t, strings.HasSuffix(rs3.GotoLocation, "/"+team.Name+"/channels/"+group1), "failed to go back to existing group channel")
 
-	Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg "+user2.Username+" foobar"))
-	Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg "+user2.Username+","+user3.Username+","+user4.Username+","+user5.Username+","+user6.Username+","+user7.Username+","+user8.Username+","+user9.Username+" foobar"))
-	Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg junk foobar"))
-	Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/groupmsg junk,junk2 foobar"))
+	Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg "+user2.Username+" foobar"))
+	Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg "+user2.Username+","+user3.Username+","+user4.Username+","+user5.Username+","+user6.Username+","+user7.Username+","+user8.Username+","+user9.Username+" foobar"))
+	Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg junk foobar"))
+	Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/groupmsg junk,junk2 foobar"))
 }
 
 func TestInvitePeopleCommand(t *testing.T) {
@@ -82,13 +82,13 @@ func TestInvitePeopleCommand(t *testing.T) {
 	Client := th.Client
 	channel := th.BasicChannel
 
-	r1 := Client.Must(Client.ExecuteCommand(channel.Id, "/invite_people test@example.com")).(*model.CommandResponse)
+	r1 := Client.Must(Client.ExecuteCommand(channel.ID, "/invite_people test@example.com")).(*model.CommandResponse)
 	require.NotNil(t, r1, "Command failed to execute")
 
-	r2 := Client.Must(Client.ExecuteCommand(channel.Id, "/invite_people test1@example.com test2@example.com")).(*model.CommandResponse)
+	r2 := Client.Must(Client.ExecuteCommand(channel.ID, "/invite_people test1@example.com test2@example.com")).(*model.CommandResponse)
 	require.NotNil(t, r2, "Command failed to execute")
 
-	r3 := Client.Must(Client.ExecuteCommand(channel.Id, "/invite_people")).(*model.CommandResponse)
+	r3 := Client.Must(Client.ExecuteCommand(channel.ID, "/invite_people")).(*model.CommandResponse)
 	require.NotNil(t, r3, "Command failed to execute")
 }
 
@@ -101,40 +101,40 @@ func testJoinCommands(t *testing.T, alias string) {
 	team := th.BasicTeam
 	user2 := th.BasicUser2
 
-	channel0 := &model.Channel{DisplayName: "00", Name: "00" + model.NewId() + "a", Type: model.ChannelTypeOpen, TeamId: team.Id}
+	channel0 := &model.Channel{DisplayName: "00", Name: "00" + model.NewID() + "a", Type: model.ChannelTypeOpen, TeamID: team.ID}
 	channel0 = Client.Must(Client.CreateChannel(channel0)).(*model.Channel)
 
-	channel1 := &model.Channel{DisplayName: "AA", Name: "aa" + model.NewId() + "a", Type: model.ChannelTypeOpen, TeamId: team.Id}
+	channel1 := &model.Channel{DisplayName: "AA", Name: "aa" + model.NewID() + "a", Type: model.ChannelTypeOpen, TeamID: team.ID}
 	channel1 = Client.Must(Client.CreateChannel(channel1)).(*model.Channel)
-	Client.Must(Client.RemoveUserFromChannel(channel1.Id, th.BasicUser.Id))
+	Client.Must(Client.RemoveUserFromChannel(channel1.ID, th.BasicUser.ID))
 
-	channel2 := &model.Channel{DisplayName: "BB", Name: "bb" + model.NewId() + "a", Type: model.ChannelTypeOpen, TeamId: team.Id}
+	channel2 := &model.Channel{DisplayName: "BB", Name: "bb" + model.NewID() + "a", Type: model.ChannelTypeOpen, TeamID: team.ID}
 	channel2 = Client.Must(Client.CreateChannel(channel2)).(*model.Channel)
-	Client.Must(Client.RemoveUserFromChannel(channel2.Id, th.BasicUser.Id))
+	Client.Must(Client.RemoveUserFromChannel(channel2.ID, th.BasicUser.ID))
 
-	channel3 := Client.Must(Client.CreateDirectChannel(th.BasicUser.Id, user2.Id)).(*model.Channel)
+	channel3 := Client.Must(Client.CreateDirectChannel(th.BasicUser.ID, user2.ID)).(*model.Channel)
 
-	rs5 := Client.Must(Client.ExecuteCommand(channel0.Id, "/"+alias+" "+channel2.Name)).(*model.CommandResponse)
+	rs5 := Client.Must(Client.ExecuteCommand(channel0.ID, "/"+alias+" "+channel2.Name)).(*model.CommandResponse)
 	require.True(t, strings.HasSuffix(rs5.GotoLocation, "/"+team.Name+"/channels/"+channel2.Name), "failed to join channel")
 
-	rs6 := Client.Must(Client.ExecuteCommand(channel0.Id, "/"+alias+" "+channel3.Name)).(*model.CommandResponse)
+	rs6 := Client.Must(Client.ExecuteCommand(channel0.ID, "/"+alias+" "+channel3.Name)).(*model.CommandResponse)
 	require.False(t, strings.HasSuffix(rs6.GotoLocation, "/"+team.Name+"/channels/"+channel3.Name), "should not have joined direct message channel")
 
-	c1 := Client.Must(Client.GetChannelsForTeamForUser(th.BasicTeam.Id, th.BasicUser.Id, false, "")).([]*model.Channel)
+	c1 := Client.Must(Client.GetChannelsForTeamForUser(th.BasicTeam.ID, th.BasicUser.ID, false, "")).([]*model.Channel)
 
 	found := false
 	for _, c := range c1 {
-		if c.Id == channel2.Id {
+		if c.ID == channel2.ID {
 			found = true
 		}
 	}
 	require.True(t, found, "did not join channel")
 
 	// test case insensitively
-	channel4 := &model.Channel{DisplayName: "BB", Name: "bb" + model.NewId() + "a", Type: model.ChannelTypeOpen, TeamId: team.Id}
+	channel4 := &model.Channel{DisplayName: "BB", Name: "bb" + model.NewID() + "a", Type: model.ChannelTypeOpen, TeamID: team.ID}
 	channel4 = Client.Must(Client.CreateChannel(channel4)).(*model.Channel)
-	Client.Must(Client.RemoveUserFromChannel(channel4.Id, th.BasicUser.Id))
-	rs7 := Client.Must(Client.ExecuteCommand(channel0.Id, "/"+alias+" "+strings.ToUpper(channel4.Name))).(*model.CommandResponse)
+	Client.Must(Client.RemoveUserFromChannel(channel4.ID, th.BasicUser.ID))
+	rs7 := Client.Must(Client.ExecuteCommand(channel0.ID, "/"+alias+" "+strings.ToUpper(channel4.Name))).(*model.CommandResponse)
 	require.True(t, strings.HasSuffix(rs7.GotoLocation, "/"+team.Name+"/channels/"+channel4.Name), "failed to join channel")
 }
 
@@ -156,7 +156,7 @@ func TestLoadTestHelpCommands(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableTesting = true })
 
-	rs := Client.Must(Client.ExecuteCommand(channel.Id, "/test help")).(*model.CommandResponse)
+	rs := Client.Must(Client.ExecuteCommand(channel.ID, "/test help")).(*model.CommandResponse)
 	require.True(t, strings.Contains(rs.Text, "Mattermost testing commands to help"), rs.Text)
 
 	time.Sleep(2 * time.Second)
@@ -176,7 +176,7 @@ func TestLoadTestSetupCommands(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableTesting = true })
 
-	rs := Client.Must(Client.ExecuteCommand(channel.Id, "/test setup fuzz 1 1 1")).(*model.CommandResponse)
+	rs := Client.Must(Client.ExecuteCommand(channel.ID, "/test setup fuzz 1 1 1")).(*model.CommandResponse)
 	require.Equal(t, "Created environment", rs.Text, rs.Text)
 
 	time.Sleep(2 * time.Second)
@@ -196,7 +196,7 @@ func TestLoadTestUsersCommands(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableTesting = true })
 
-	rs := Client.Must(Client.ExecuteCommand(channel.Id, "/test users fuzz 1 2")).(*model.CommandResponse)
+	rs := Client.Must(Client.ExecuteCommand(channel.ID, "/test users fuzz 1 2")).(*model.CommandResponse)
 	require.Equal(t, "Added users", rs.Text, rs.Text)
 
 	time.Sleep(2 * time.Second)
@@ -216,7 +216,7 @@ func TestLoadTestChannelsCommands(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableTesting = true })
 
-	rs := Client.Must(Client.ExecuteCommand(channel.Id, "/test channels fuzz 1 2")).(*model.CommandResponse)
+	rs := Client.Must(Client.ExecuteCommand(channel.ID, "/test channels fuzz 1 2")).(*model.CommandResponse)
 	require.Equal(t, "Added channels", rs.Text, rs.Text)
 
 	time.Sleep(2 * time.Second)
@@ -236,7 +236,7 @@ func TestLoadTestPostsCommands(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableTesting = true })
 
-	rs := Client.Must(Client.ExecuteCommand(channel.Id, "/test posts fuzz 2 3 2")).(*model.CommandResponse)
+	rs := Client.Must(Client.ExecuteCommand(channel.ID, "/test posts fuzz 2 3 2")).(*model.CommandResponse)
 	require.Equal(t, "Added posts", rs.Text, rs.Text)
 
 	time.Sleep(2 * time.Second)
@@ -250,31 +250,31 @@ func TestLeaveCommands(t *testing.T) {
 	team := th.BasicTeam
 	user2 := th.BasicUser2
 
-	channel1 := &model.Channel{DisplayName: "AA", Name: "aa" + model.NewId() + "a", Type: model.ChannelTypeOpen, TeamId: team.Id}
+	channel1 := &model.Channel{DisplayName: "AA", Name: "aa" + model.NewID() + "a", Type: model.ChannelTypeOpen, TeamID: team.ID}
 	channel1 = Client.Must(Client.CreateChannel(channel1)).(*model.Channel)
-	Client.Must(Client.AddChannelMember(channel1.Id, th.BasicUser.Id))
+	Client.Must(Client.AddChannelMember(channel1.ID, th.BasicUser.ID))
 
-	channel2 := &model.Channel{DisplayName: "BB", Name: "bb" + model.NewId() + "a", Type: model.ChannelTypePrivate, TeamId: team.Id}
+	channel2 := &model.Channel{DisplayName: "BB", Name: "bb" + model.NewID() + "a", Type: model.ChannelTypePrivate, TeamID: team.ID}
 	channel2 = Client.Must(Client.CreateChannel(channel2)).(*model.Channel)
-	Client.Must(Client.AddChannelMember(channel2.Id, th.BasicUser.Id))
-	Client.Must(Client.AddChannelMember(channel2.Id, user2.Id))
+	Client.Must(Client.AddChannelMember(channel2.ID, th.BasicUser.ID))
+	Client.Must(Client.AddChannelMember(channel2.ID, user2.ID))
 
-	channel3 := Client.Must(Client.CreateDirectChannel(th.BasicUser.Id, user2.Id)).(*model.Channel)
+	channel3 := Client.Must(Client.CreateDirectChannel(th.BasicUser.ID, user2.ID)).(*model.Channel)
 
-	rs1 := Client.Must(Client.ExecuteCommand(channel1.Id, "/leave")).(*model.CommandResponse)
+	rs1 := Client.Must(Client.ExecuteCommand(channel1.ID, "/leave")).(*model.CommandResponse)
 	require.True(t, strings.HasSuffix(rs1.GotoLocation, "/"+team.Name+"/channels/"+model.DefaultChannelName), "failed to leave open channel 1")
 
-	rs2 := Client.Must(Client.ExecuteCommand(channel2.Id, "/leave")).(*model.CommandResponse)
+	rs2 := Client.Must(Client.ExecuteCommand(channel2.ID, "/leave")).(*model.CommandResponse)
 	require.True(t, strings.HasSuffix(rs2.GotoLocation, "/"+team.Name+"/channels/"+model.DefaultChannelName), "failed to leave private channel 1")
 
-	_, err := Client.ExecuteCommand(channel3.Id, "/leave")
+	_, err := Client.ExecuteCommand(channel3.ID, "/leave")
 	require.NotNil(t, err, "should fail leaving direct channel")
 
-	cdata := Client.Must(Client.GetChannelsForTeamForUser(th.BasicTeam.Id, th.BasicUser.Id, false, "")).([]*model.Channel)
+	cdata := Client.Must(Client.GetChannelsForTeamForUser(th.BasicTeam.ID, th.BasicUser.ID, false, "")).([]*model.Channel)
 
 	found := false
 	for _, c := range cdata {
-		if c.Id == channel1.Id || c.Id == channel2.Id {
+		if c.ID == channel1.ID || c.ID == channel2.ID {
 			found = true
 		}
 	}
@@ -282,7 +282,7 @@ func TestLeaveCommands(t *testing.T) {
 
 	for _, c := range cdata {
 		if c.Name == model.DefaultChannelName {
-			_, err := Client.RemoveUserFromChannel(c.Id, th.BasicUser.Id)
+			_, err := Client.RemoveUserFromChannel(c.ID, th.BasicUser.ID)
 			require.NotNil(t, err, "should have errored on leaving default channel")
 			break
 		}
@@ -293,7 +293,7 @@ func TestLogoutTestCommand(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.Id, "/logout"))
+	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.ID, "/logout"))
 }
 
 func TestMeCommand(t *testing.T) {
@@ -305,12 +305,12 @@ func TestMeCommand(t *testing.T) {
 
 	testString := "/me hello"
 
-	r1 := Client.Must(Client.ExecuteCommand(channel.Id, testString)).(*model.CommandResponse)
+	r1 := Client.Must(Client.ExecuteCommand(channel.ID, testString)).(*model.CommandResponse)
 	require.NotNil(t, r1, "Command failed to execute")
 
 	time.Sleep(100 * time.Millisecond)
 
-	p1 := Client.Must(Client.GetPostsForChannel(channel.Id, 0, 2, "", false)).(*model.PostList)
+	p1 := Client.Must(Client.GetPostsForChannel(channel.ID, 0, 2, "", false)).(*model.PostList)
 	require.Len(t, p1.Order, 2, "Command failed to send")
 
 	pt := p1.Posts[p1.Order[0]].Type
@@ -332,32 +332,32 @@ func TestMsgCommands(t *testing.T) {
 	user3 := th.CreateUser()
 	th.LinkUserToTeam(user3, team)
 
-	Client.Must(Client.CreateDirectChannel(th.BasicUser.Id, user2.Id))
-	Client.Must(Client.CreateDirectChannel(th.BasicUser.Id, user3.Id))
+	Client.Must(Client.CreateDirectChannel(th.BasicUser.ID, user2.ID))
+	Client.Must(Client.CreateDirectChannel(th.BasicUser.ID, user3.ID))
 
-	rs1 := Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/msg "+user2.Username)).(*model.CommandResponse)
+	rs1 := Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/msg "+user2.Username)).(*model.CommandResponse)
 	require.Condition(t, func() bool {
-		return strings.HasSuffix(rs1.GotoLocation, "/"+team.Name+"/channels/"+user1.Id+"__"+user2.Id) ||
-			strings.HasSuffix(rs1.GotoLocation, "/"+team.Name+"/channels/"+user2.Id+"__"+user1.Id)
+		return strings.HasSuffix(rs1.GotoLocation, "/"+team.Name+"/channels/"+user1.ID+"__"+user2.ID) ||
+			strings.HasSuffix(rs1.GotoLocation, "/"+team.Name+"/channels/"+user2.ID+"__"+user1.ID)
 	}, "failed to create direct channel")
 
-	rs2 := Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/msg "+user3.Username+" foobar")).(*model.CommandResponse)
+	rs2 := Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/msg "+user3.Username+" foobar")).(*model.CommandResponse)
 	require.Condition(t, func() bool {
-		return strings.HasSuffix(rs2.GotoLocation, "/"+team.Name+"/channels/"+user1.Id+"__"+user3.Id) ||
-			strings.HasSuffix(rs2.GotoLocation, "/"+team.Name+"/channels/"+user3.Id+"__"+user1.Id)
+		return strings.HasSuffix(rs2.GotoLocation, "/"+team.Name+"/channels/"+user1.ID+"__"+user3.ID) ||
+			strings.HasSuffix(rs2.GotoLocation, "/"+team.Name+"/channels/"+user3.ID+"__"+user1.ID)
 	}, "failed to create second direct channel")
 
-	result := Client.Must(Client.SearchPosts(th.BasicTeam.Id, "foobar", false)).(*model.PostList)
+	result := Client.Must(Client.SearchPosts(th.BasicTeam.ID, "foobar", false)).(*model.PostList)
 	require.NotEqual(t, 0, len(result.Order), "post did not get sent to direct message")
 
-	rs3 := Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/msg "+user2.Username)).(*model.CommandResponse)
+	rs3 := Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/msg "+user2.Username)).(*model.CommandResponse)
 	require.Condition(t, func() bool {
-		return strings.HasSuffix(rs3.GotoLocation, "/"+team.Name+"/channels/"+user1.Id+"__"+user2.Id) ||
-			strings.HasSuffix(rs3.GotoLocation, "/"+team.Name+"/channels/"+user2.Id+"__"+user1.Id)
+		return strings.HasSuffix(rs3.GotoLocation, "/"+team.Name+"/channels/"+user1.ID+"__"+user2.ID) ||
+			strings.HasSuffix(rs3.GotoLocation, "/"+team.Name+"/channels/"+user2.ID+"__"+user1.ID)
 	}, "failed to go back to existing direct channel")
 
-	Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/msg "+th.BasicUser.Username+" foobar"))
-	Client.Must(Client.ExecuteCommand(th.BasicChannel.Id, "/msg junk foobar"))
+	Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/msg "+th.BasicUser.Username+" foobar"))
+	Client.Must(Client.ExecuteCommand(th.BasicChannel.ID, "/msg junk foobar"))
 }
 
 func TestOpenCommands(t *testing.T) {
@@ -368,21 +368,21 @@ func TestSearchCommand(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.Id, "/search"))
+	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.ID, "/search"))
 }
 
 func TestSettingsCommand(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.Id, "/settings"))
+	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.ID, "/settings"))
 }
 
 func TestShortcutsCommand(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.Id, "/shortcuts"))
+	th.Client.Must(th.Client.ExecuteCommand(th.BasicChannel.ID, "/shortcuts"))
 }
 
 func TestShrugCommand(t *testing.T) {
@@ -394,12 +394,12 @@ func TestShrugCommand(t *testing.T) {
 
 	testString := "/shrug"
 
-	r1 := Client.Must(Client.ExecuteCommand(channel.Id, testString)).(*model.CommandResponse)
+	r1 := Client.Must(Client.ExecuteCommand(channel.ID, testString)).(*model.CommandResponse)
 	require.NotNil(t, r1, "Command failed to execute")
 
 	time.Sleep(100 * time.Millisecond)
 
-	p1 := Client.Must(Client.GetPostsForChannel(channel.Id, 0, 2, "", false)).(*model.PostList)
+	p1 := Client.Must(Client.GetPostsForChannel(channel.ID, 0, 2, "", false)).(*model.PostList)
 	require.Len(t, p1.Order, 2, "Command failed to send")
 	require.Equal(t, `¯\\\_(ツ)\_/¯`, p1.Posts[p1.Order[0]].Message, "invalid shrug response")
 }
@@ -418,11 +418,11 @@ func commandAndTest(t *testing.T, th *TestHelper, status string) {
 	channel := th.BasicChannel
 	user := th.BasicUser
 
-	r1 := Client.Must(Client.ExecuteCommand(channel.Id, "/"+status)).(*model.CommandResponse)
+	r1 := Client.Must(Client.ExecuteCommand(channel.ID, "/"+status)).(*model.CommandResponse)
 	require.NotEqual(t, "Command failed to execute", r1)
 
 	time.Sleep(1000 * time.Millisecond)
 
-	rstatus := Client.Must(Client.GetUserStatus(user.Id, "")).(*model.Status)
+	rstatus := Client.Must(Client.GetUserStatus(user.ID, "")).(*model.Status)
 	require.Equal(t, status, rstatus.Status, "Error setting status")
 }

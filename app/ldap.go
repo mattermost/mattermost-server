@@ -82,7 +82,7 @@ func (a *App) GetAllLdapGroupsPage(page int, perPage int, opts model.LdapGroupSe
 	return groups, total, nil
 }
 
-func (a *App) SwitchEmailToLdap(email, password, code, ldapLoginId, ldapPassword string) (string, *model.AppError) {
+func (a *App) SwitchEmailToLdap(email, password, code, ldapLoginID, ldapPassword string) (string, *model.AppError) {
 	if a.Srv().License() != nil && !*a.Config().ServiceSettings.ExperimentalEnableAuthenticationTransfer {
 		return "", model.NewAppError("emailToLdap", "api.user.email_to_ldap.not_available.app_error", nil, "", http.StatusForbidden)
 	}
@@ -96,7 +96,7 @@ func (a *App) SwitchEmailToLdap(email, password, code, ldapLoginId, ldapPassword
 		return "", err
 	}
 
-	if err := a.RevokeAllSessions(user.Id); err != nil {
+	if err := a.RevokeAllSessions(user.ID); err != nil {
 		return "", err
 	}
 
@@ -105,7 +105,7 @@ func (a *App) SwitchEmailToLdap(email, password, code, ldapLoginId, ldapPassword
 		return "", model.NewAppError("SwitchEmailToLdap", "api.user.email_to_ldap.not_available.app_error", nil, "", http.StatusNotImplemented)
 	}
 
-	if err := ldapInterface.SwitchToLdap(user.Id, ldapLoginId, ldapPassword); err != nil {
+	if err := ldapInterface.SwitchToLdap(user.ID, ldapLoginID, ldapPassword); err != nil {
 		return "", err
 	}
 
@@ -149,7 +149,7 @@ func (a *App) SwitchLdapToEmail(ldapPassword, code, email, newPassword string) (
 		return "", err
 	}
 
-	if err := a.RevokeAllSessions(user.Id); err != nil {
+	if err := a.RevokeAllSessions(user.ID); err != nil {
 		return "", err
 	}
 
@@ -164,7 +164,7 @@ func (a *App) SwitchLdapToEmail(ldapPassword, code, email, newPassword string) (
 	return "/login?extra=signin_change", nil
 }
 
-func (a *App) MigrateIdLDAP(toAttribute string) *model.AppError {
+func (a *App) MigrateIDLDAP(toAttribute string) *model.AppError {
 	if ldapI := a.Ldap(); ldapI != nil {
 		if err := ldapI.MigrateIDAttribute(toAttribute); err != nil {
 			switch err := err.(type) {

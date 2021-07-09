@@ -36,7 +36,7 @@ func (api *API) InitChannelLocal() {
 }
 
 func localCreateChannel(c *Context, w http.ResponseWriter, r *http.Request) {
-	channel := model.ChannelFromJson(r.Body)
+	channel := model.ChannelFromJSON(r.Body)
 	if channel == nil {
 		c.SetInvalidParam("channel")
 		return
@@ -57,23 +57,23 @@ func localCreateChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.LogAudit("name=" + channel.Name)
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(sc.ToJson()))
+	w.Write([]byte(sc.ToJSON()))
 }
 
 func localUpdateChannelPrivacy(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
 
-	props := model.StringInterfaceFromJson(r.Body)
+	props := model.StringInterfaceFromJSON(r.Body)
 	privacy, ok := props["privacy"].(string)
 	if !ok || (privacy != model.ChannelTypeOpen && privacy != model.ChannelTypePrivate) {
 		c.SetInvalidParam("privacy")
 		return
 	}
 
-	channel, err := c.App.GetChannel(c.Params.ChannelId)
+	channel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
@@ -99,16 +99,16 @@ func localUpdateChannelPrivacy(c *Context, w http.ResponseWriter, r *http.Reques
 	auditRec.Success()
 	c.LogAudit("name=" + updatedChannel.Name)
 
-	w.Write([]byte(updatedChannel.ToJson()))
+	w.Write([]byte(updatedChannel.ToJSON()))
 }
 
 func localRestoreChannel(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
 
-	channel, err := c.App.GetChannel(c.Params.ChannelId)
+	channel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
@@ -127,46 +127,46 @@ func localRestoreChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	c.LogAudit("name=" + channel.Name)
 
-	w.Write([]byte(channel.ToJson()))
+	w.Write([]byte(channel.ToJSON()))
 }
 
 func localAddChannelMember(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
 
-	props := model.StringInterfaceFromJson(r.Body)
-	userId, ok := props["user_id"].(string)
-	if !ok || !model.IsValidId(userId) {
+	props := model.StringInterfaceFromJSON(r.Body)
+	userID, ok := props["user_id"].(string)
+	if !ok || !model.IsValidID(userID) {
 		c.SetInvalidParam("user_id")
 		return
 	}
 
 	member := &model.ChannelMember{
-		ChannelId: c.Params.ChannelId,
-		UserId:    userId,
+		ChannelID: c.Params.ChannelID,
+		UserID:    userID,
 	}
 
-	postRootId, ok := props["post_root_id"].(string)
-	if ok && postRootId != "" && !model.IsValidId(postRootId) {
+	postRootID, ok := props["post_root_id"].(string)
+	if ok && postRootID != "" && !model.IsValidID(postRootID) {
 		c.SetInvalidParam("post_root_id")
 		return
 	}
 
-	if ok && len(postRootId) == 26 {
-		rootPost, err := c.App.GetSinglePost(postRootId)
+	if ok && len(postRootID) == 26 {
+		rootPost, err := c.App.GetSinglePost(postRootID)
 		if err != nil {
 			c.Err = err
 			return
 		}
-		if rootPost.ChannelId != member.ChannelId {
+		if rootPost.ChannelID != member.ChannelID {
 			c.SetInvalidParam("post_root_id")
 			return
 		}
 	}
 
-	channel, err := c.App.GetChannel(member.ChannelId)
+	channel, err := c.App.GetChannel(member.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
@@ -182,7 +182,7 @@ func localAddChannelMember(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if channel.IsGroupConstrained() {
-		nonMembers, err := c.App.FilterNonGroupChannelMembers([]string{member.UserId}, channel)
+		nonMembers, err := c.App.FilterNonGroupChannelMembers([]string{member.UserID}, channel)
 		if err != nil {
 			if v, ok := err.(*model.AppError); ok {
 				c.Err = v
@@ -197,8 +197,8 @@ func localAddChannelMember(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	cm, err := c.App.AddChannelMember(c.AppContext, member.UserId, channel, app.ChannelMemberOpts{
-		PostRootID: postRootId,
+	cm, err := c.App.AddChannelMember(c.AppContext, member.UserID, channel, app.ChannelMemberOpts{
+		PostRootID: postRootID,
 	})
 	if err != nil {
 		c.Err = err
@@ -206,26 +206,26 @@ func localAddChannelMember(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("add_user_id", cm.UserId)
-	c.LogAudit("name=" + channel.Name + " user_id=" + cm.UserId)
+	auditRec.AddMeta("add_user_id", cm.UserID)
+	c.LogAudit("name=" + channel.Name + " user_id=" + cm.UserID)
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(cm.ToJson()))
+	w.Write([]byte(cm.ToJSON()))
 }
 
 func localRemoveChannelMember(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId().RequireUserId()
+	c.RequireChannelID().RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	channel, err := c.App.GetChannel(c.Params.ChannelId)
+	channel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	user, err := c.App.GetUser(c.Params.UserId)
+	user, err := c.App.GetUser(c.Params.UserID)
 	if err != nil {
 		c.Err = err
 		return
@@ -244,32 +244,32 @@ func localRemoveChannelMember(c *Context, w http.ResponseWriter, r *http.Request
 	auditRec := c.MakeAuditRecord("localRemoveChannelMember", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 	auditRec.AddMeta("channel", channel)
-	auditRec.AddMeta("remove_user_id", user.Id)
+	auditRec.AddMeta("remove_user_id", user.ID)
 
-	if err = c.App.RemoveUserFromChannel(c.AppContext, c.Params.UserId, "", channel); err != nil {
+	if err = c.App.RemoveUserFromChannel(c.AppContext, c.Params.UserID, "", channel); err != nil {
 		c.Err = err
 		return
 	}
 
 	auditRec.Success()
-	c.LogAudit("name=" + channel.Name + " user_id=" + c.Params.UserId)
+	c.LogAudit("name=" + channel.Name + " user_id=" + c.Params.UserID)
 
 	ReturnStatusOK(w)
 }
 
 func localPatchChannel(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
 
-	patch := model.ChannelPatchFromJson(r.Body)
+	patch := model.ChannelPatchFromJSON(r.Body)
 	if patch == nil {
 		c.SetInvalidParam("channel")
 		return
 	}
 
-	originalOldChannel, err := c.App.GetChannel(c.Params.ChannelId)
+	originalOldChannel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
@@ -297,23 +297,23 @@ func localPatchChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.LogAudit("")
 	auditRec.AddMeta("patch", rchannel)
 
-	w.Write([]byte(rchannel.ToJson()))
+	w.Write([]byte(rchannel.ToJSON()))
 }
 
 func localMoveChannel(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
 
-	channel, err := c.App.GetChannel(c.Params.ChannelId)
+	channel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	props := model.StringInterfaceFromJson(r.Body)
-	teamId, ok := props["team_id"].(string)
+	props := model.StringInterfaceFromJSON(r.Body)
+	teamID, ok := props["team_id"].(string)
 	if !ok {
 		c.SetInvalidParam("team_id")
 		return
@@ -325,7 +325,7 @@ func localMoveChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	team, err := c.App.GetTeam(teamId)
+	team, err := c.App.GetTeam(teamID)
 	if err != nil {
 		c.Err = err
 		return
@@ -333,9 +333,9 @@ func localMoveChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("localMoveChannel", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("channel_id", channel.Id)
+	auditRec.AddMeta("channel_id", channel.ID)
 	auditRec.AddMeta("channel_name", channel.Name)
-	auditRec.AddMeta("team_id", team.Id)
+	auditRec.AddMeta("team_id", team.ID)
 	auditRec.AddMeta("team_name", team.Name)
 
 	if channel.Type == model.ChannelTypeDirect || channel.Type == model.ChannelTypeGroup {
@@ -367,16 +367,16 @@ func localMoveChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.LogAudit("channel=" + channel.Name)
 	c.LogAudit("team=" + team.Name)
 
-	w.Write([]byte(channel.ToJson()))
+	w.Write([]byte(channel.ToJSON()))
 }
 
 func localDeleteChannel(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
 
-	channel, err := c.App.GetChannel(c.Params.ChannelId)
+	channel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return

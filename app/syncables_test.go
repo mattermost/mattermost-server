@@ -18,7 +18,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 
 	singersTeam, err := th.App.CreateTeam(th.Context, &model.Team{
 		DisplayName: "Singers",
-		Name:        "zz" + model.NewId(),
+		Name:        "zz" + model.NewID(),
 		Email:       "singers@test.com",
 		Type:        model.TeamOpen,
 	})
@@ -28,7 +28,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 
 	nerdsTeam, err := th.App.CreateTeam(th.Context, &model.Team{
 		DisplayName: "Nerds",
-		Name:        "zz" + model.NewId(),
+		Name:        "zz" + model.NewID(),
 		Email:       "nerds@test.com",
 		Type:        model.TeamInvite,
 	})
@@ -37,9 +37,9 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	practiceChannel, err := th.App.CreateChannel(th.Context, &model.Channel{
-		TeamId:      singersTeam.Id,
+		TeamID:      singersTeam.ID,
 		DisplayName: "Practices",
-		Name:        model.NewId(),
+		Name:        model.NewID(),
 		Type:        model.ChannelTypeOpen,
 	}, false)
 	if err != nil {
@@ -47,9 +47,9 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	experimentsChannel, err := th.App.CreateChannel(th.Context, &model.Channel{
-		TeamId:      singersTeam.Id,
+		TeamID:      singersTeam.ID,
 		DisplayName: "Experiments",
-		Name:        model.NewId(),
+		Name:        model.NewID(),
 		Type:        model.ChannelTypePrivate,
 	}, false)
 	if err != nil {
@@ -57,9 +57,9 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	gleeGroup, err := th.App.CreateGroup(&model.Group{
-		Name:        model.NewString(model.NewId()),
+		Name:        model.NewString(model.NewID()),
 		DisplayName: "Glee Club",
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 		Source:      model.GroupSourceLdap,
 	})
 	if err != nil {
@@ -67,26 +67,26 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	scienceGroup, err := th.App.CreateGroup(&model.Group{
-		Name:        model.NewString(model.NewId()),
+		Name:        model.NewString(model.NewID()),
 		DisplayName: "Science Club",
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 		Source:      model.GroupSourceLdap,
 	})
 	if err != nil {
 		t.Errorf("test group not created: %s", err.Error())
 	}
 
-	_, err = th.App.UpsertGroupSyncable(model.NewGroupChannel(gleeGroup.Id, practiceChannel.Id, true))
+	_, err = th.App.UpsertGroupSyncable(model.NewGroupChannel(gleeGroup.ID, practiceChannel.ID, true))
 	if err != nil {
 		t.Errorf("test groupchannel not created: %s", err.Error())
 	}
 
-	scienceTeamGroupSyncable, err := th.App.UpsertGroupSyncable(model.NewGroupTeam(scienceGroup.Id, nerdsTeam.Id, false))
+	scienceTeamGroupSyncable, err := th.App.UpsertGroupSyncable(model.NewGroupTeam(scienceGroup.ID, nerdsTeam.ID, false))
 	if err != nil {
 		t.Errorf("test groupteam not created: %s", err.Error())
 	}
 
-	scienceChannelGroupSyncable, err := th.App.UpsertGroupSyncable(model.NewGroupChannel(scienceGroup.Id, experimentsChannel.Id, false))
+	scienceChannelGroupSyncable, err := th.App.UpsertGroupSyncable(model.NewGroupChannel(scienceGroup.ID, experimentsChannel.ID, false))
 	if err != nil {
 		t.Errorf("test groupchannel not created: %s", err.Error())
 	}
@@ -94,12 +94,12 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	singer1 := th.BasicUser
 	scientist1 := th.BasicUser2
 
-	_, err = th.App.UpsertGroupMember(gleeGroup.Id, singer1.Id)
+	_, err = th.App.UpsertGroupMember(gleeGroup.ID, singer1.ID)
 	if err != nil {
 		t.Errorf("test groupmember not created: %s", err.Error())
 	}
 
-	scientistGroupMember, err := th.App.UpsertGroupMember(scienceGroup.Id, scientist1.Id)
+	scientistGroupMember, err := th.App.UpsertGroupMember(scienceGroup.ID, scientist1.ID)
 	if err != nil {
 		t.Errorf("test groupmember not created: %s", err.Error())
 	}
@@ -110,16 +110,16 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	// Singer should be in team and channel
-	_, err = th.App.GetTeamMember(singersTeam.Id, singer1.Id)
+	_, err = th.App.GetTeamMember(singersTeam.ID, singer1.ID)
 	if err != nil {
 		t.Errorf("error retrieving team member: %s", err.Error())
 	}
-	_, err = th.App.GetChannelMember(context.Background(), practiceChannel.Id, singer1.Id)
+	_, err = th.App.GetChannelMember(context.Background(), practiceChannel.ID, singer1.ID)
 	if err != nil {
 		t.Errorf("error retrieving channel member: %s", err.Error())
 	}
 
-	tMembers, err := th.App.GetTeamMembers(singersTeam.Id, 0, 999, nil)
+	tMembers, err := th.App.GetTeamMembers(singersTeam.ID, 0, 999, nil)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -129,7 +129,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 		t.Errorf("expected %d team members but got %d", expected, actual)
 	}
 
-	cMembersCount, err := th.App.GetChannelMemberCount(practiceChannel.Id)
+	cMembersCount, err := th.App.GetChannelMemberCount(practiceChannel.ID)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -138,17 +138,17 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	// Scientist should not be in team or channel
-	_, err = th.App.GetTeamMember(nerdsTeam.Id, scientist1.Id)
-	if err.Id != "app.team.get_member.missing.app_error" {
-		t.Errorf("wrong error: %s", err.Id)
+	_, err = th.App.GetTeamMember(nerdsTeam.ID, scientist1.ID)
+	if err.ID != "app.team.get_member.missing.app_error" {
+		t.Errorf("wrong error: %s", err.ID)
 	}
 
-	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.Id, scientist1.Id)
-	if err.Id != "app.channel.get_member.missing.app_error" {
-		t.Errorf("wrong error: %s", err.Id)
+	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.ID, scientist1.ID)
+	if err.ID != "app.channel.get_member.missing.app_error" {
+		t.Errorf("wrong error: %s", err.ID)
 	}
 
-	tMembers, err = th.App.GetTeamMembers(nerdsTeam.Id, 0, 999, nil)
+	tMembers, err = th.App.GetTeamMembers(nerdsTeam.ID, 0, 999, nil)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -158,7 +158,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 		t.Errorf("expected %d team members but got %d", expected, actual)
 	}
 
-	cMembersCount, err = th.App.GetChannelMemberCount(experimentsChannel.Id)
+	cMembersCount, err = th.App.GetChannelMemberCount(experimentsChannel.ID)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -180,17 +180,17 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	// Scientist should be in team but not the channel
-	_, err = th.App.GetTeamMember(nerdsTeam.Id, scientist1.Id)
+	_, err = th.App.GetTeamMember(nerdsTeam.ID, scientist1.ID)
 	if err != nil {
 		t.Errorf("error retrieving team member: %s", err.Error())
 	}
 
-	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.Id, scientist1.Id)
-	if err.Id != "app.channel.get_member.missing.app_error" {
-		t.Errorf("wrong error: %s", err.Id)
+	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.ID, scientist1.ID)
+	if err.ID != "app.channel.get_member.missing.app_error" {
+		t.Errorf("wrong error: %s", err.ID)
 	}
 
-	tMembers, err = th.App.GetTeamMembers(nerdsTeam.Id, 0, 999, nil)
+	tMembers, err = th.App.GetTeamMembers(nerdsTeam.ID, 0, 999, nil)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -201,7 +201,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	expected = 0
-	cMembersCount, err = th.App.GetChannelMemberCount(experimentsChannel.Id)
+	cMembersCount, err = th.App.GetChannelMemberCount(experimentsChannel.ID)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -223,7 +223,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	expected = 1
-	cMembersCount, err = th.App.GetChannelMemberCount(experimentsChannel.Id)
+	cMembersCount, err = th.App.GetChannelMemberCount(experimentsChannel.ID)
 	if err != nil {
 		t.Errorf("error retrieving team members: %s", err.Error())
 	}
@@ -232,7 +232,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	// singer leaves team and channel
-	err = th.App.LeaveChannel(th.Context, practiceChannel.Id, singer1.Id)
+	err = th.App.LeaveChannel(th.Context, practiceChannel.ID, singer1.ID)
 	if err != nil {
 		t.Errorf("error leaving channel: %s", err.Error())
 	}
@@ -248,7 +248,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	// Singer should not be in team or channel
-	tMember, err := th.App.GetTeamMember(singersTeam.Id, singer1.Id)
+	tMember, err := th.App.GetTeamMember(singersTeam.ID, singer1.ID)
 	if err != nil {
 		t.Errorf("error retrieving team member: %s", err.Error())
 	}
@@ -256,23 +256,23 @@ func TestCreateDefaultMemberships(t *testing.T) {
 		t.Error("expected team member to remain deleted")
 	}
 
-	_, err = th.App.GetChannelMember(context.Background(), practiceChannel.Id, singer1.Id)
+	_, err = th.App.GetChannelMember(context.Background(), practiceChannel.ID, singer1.ID)
 	if err == nil {
 		t.Error("Expected channel member to remain deleted")
 	}
 
 	// Ensure members are in channel
-	_, err = th.App.AddChannelMember(th.Context, scientist1.Id, experimentsChannel, ChannelMemberOpts{})
+	_, err = th.App.AddChannelMember(th.Context, scientist1.ID, experimentsChannel, ChannelMemberOpts{})
 	if err != nil {
 		t.Errorf("unable to add user to channel: %s", err.Error())
 	}
 
 	// Add other user so that user can leave channel
-	_, err = th.App.AddTeamMember(th.Context, singersTeam.Id, singer1.Id)
+	_, err = th.App.AddTeamMember(th.Context, singersTeam.ID, singer1.ID)
 	if err != nil {
 		t.Errorf("unable to add user to team: %s", err.Error())
 	}
-	_, err = th.App.AddChannelMember(th.Context, singer1.Id, experimentsChannel, ChannelMemberOpts{})
+	_, err = th.App.AddChannelMember(th.Context, singer1.ID, experimentsChannel, ChannelMemberOpts{})
 	if err != nil {
 		t.Errorf("unable to add user to channel: %s", err.Error())
 	}
@@ -291,7 +291,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	timeBeforeLeaving := model.GetMillis()
 
 	// User leaves channel
-	err = th.App.LeaveChannel(th.Context, experimentsChannel.Id, scientist1.Id)
+	err = th.App.LeaveChannel(th.Context, experimentsChannel.ID, scientist1.ID)
 	if err != nil {
 		t.Errorf("unable to add user to channel: %s", err.Error())
 	}
@@ -310,7 +310,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 		t.Errorf("failed to populate syncables: %s", pErr.Error())
 	}
 
-	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.Id, scientist1.Id)
+	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.ID, scientist1.ID)
 	if err == nil {
 		t.Error("Expected channel member to remain deleted")
 	}
@@ -328,7 +328,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 	}
 
 	// Channel member is re-added.
-	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.Id, scientist1.Id)
+	_, err = th.App.GetChannelMember(context.Background(), experimentsChannel.ID, scientist1.ID)
 	if err != nil {
 		t.Errorf("expected channel member: %s", err.Error())
 	}
@@ -338,41 +338,41 @@ func TestCreateDefaultMemberships(t *testing.T) {
 		restrictedUser.Email = "restricted@mattermost.org"
 		_, err = th.App.UpdateUser(restrictedUser, false)
 		require.Nil(t, err)
-		_, err = th.App.UpsertGroupMember(scienceGroup.Id, restrictedUser.Id)
+		_, err = th.App.UpsertGroupMember(scienceGroup.ID, restrictedUser.ID)
 		require.Nil(t, err)
 
 		restrictedTeam, err := th.App.CreateTeam(th.Context, &model.Team{
 			DisplayName:    "Restricted",
-			Name:           "restricted" + model.NewId(),
+			Name:           "restricted" + model.NewID(),
 			Email:          "restricted@mattermost.org",
 			AllowedDomains: "mattermost.org",
 			Type:           model.TeamOpen,
 		})
 		require.Nil(t, err)
-		_, err = th.App.UpsertGroupSyncable(model.NewGroupTeam(scienceGroup.Id, restrictedTeam.Id, true))
+		_, err = th.App.UpsertGroupSyncable(model.NewGroupTeam(scienceGroup.ID, restrictedTeam.ID, true))
 		require.Nil(t, err)
 
 		restrictedChannel, err := th.App.CreateChannel(th.Context, &model.Channel{
-			TeamId:      restrictedTeam.Id,
+			TeamID:      restrictedTeam.ID,
 			DisplayName: "Restricted",
-			Name:        "restricted" + model.NewId(),
+			Name:        "restricted" + model.NewID(),
 			Type:        model.ChannelTypeOpen,
 		}, false)
 		require.Nil(t, err)
-		_, err = th.App.UpsertGroupSyncable(model.NewGroupChannel(scienceGroup.Id, restrictedChannel.Id, true))
+		_, err = th.App.UpsertGroupSyncable(model.NewGroupChannel(scienceGroup.ID, restrictedChannel.ID, true))
 		require.Nil(t, err)
 
 		pErr = th.App.CreateDefaultMemberships(th.Context, 0, false)
 		require.NoError(t, pErr)
 
 		// Ensure only the restricted user was added to both the team and channel
-		cMembersCount, err = th.App.GetChannelMemberCount(restrictedChannel.Id)
+		cMembersCount, err = th.App.GetChannelMemberCount(restrictedChannel.ID)
 		require.Nil(t, err)
 		require.Equal(t, cMembersCount, int64(1))
-		tmembers, err := th.App.GetTeamMembers(restrictedTeam.Id, 0, 100, nil)
+		tmembers, err := th.App.GetTeamMembers(restrictedTeam.ID, 0, 100, nil)
 		require.Nil(t, err)
 		require.Len(t, tmembers, 1)
-		require.Equal(t, tmembers[0].UserId, restrictedUser.Id)
+		require.Equal(t, tmembers[0].UserID, restrictedUser.ID)
 	})
 }
 
@@ -382,12 +382,12 @@ func TestDeleteGroupMemberships(t *testing.T) {
 
 	group := th.CreateGroup()
 
-	userIDs := []string{th.BasicUser.Id, th.BasicUser2.Id, th.SystemAdminUser.Id}
+	userIDs := []string{th.BasicUser.ID, th.BasicUser2.ID, th.SystemAdminUser.ID}
 
 	var err *model.AppError
 	// add users to teams and channels
 	for _, userID := range userIDs {
-		_, err = th.App.AddTeamMember(th.Context, th.BasicTeam.Id, userID)
+		_, err = th.App.AddTeamMember(th.Context, th.BasicTeam.ID, userID)
 		require.Nil(t, err)
 
 		_, err = th.App.AddChannelMember(th.Context, userID, th.BasicChannel, ChannelMemberOpts{})
@@ -409,22 +409,22 @@ func TestDeleteGroupMemberships(t *testing.T) {
 	require.True(t, *channel.GroupConstrained)
 
 	// create groupteam and groupchannel
-	_, err = th.App.UpsertGroupSyncable(model.NewGroupTeam(group.Id, team.Id, true))
+	_, err = th.App.UpsertGroupSyncable(model.NewGroupTeam(group.ID, team.ID, true))
 	require.Nil(t, err)
-	_, err = th.App.UpsertGroupSyncable(model.NewGroupChannel(group.Id, channel.Id, true))
+	_, err = th.App.UpsertGroupSyncable(model.NewGroupChannel(group.ID, channel.ID, true))
 	require.Nil(t, err)
 
 	// verify the member count
-	tmembers, err := th.App.GetTeamMembers(th.BasicTeam.Id, 0, 100, nil)
+	tmembers, err := th.App.GetTeamMembers(th.BasicTeam.ID, 0, 100, nil)
 	require.Nil(t, err)
 	require.Len(t, tmembers, 3)
 
-	cmemberCount, err := th.App.GetChannelMemberCount(th.BasicChannel.Id)
+	cmemberCount, err := th.App.GetChannelMemberCount(th.BasicChannel.ID)
 	require.Nil(t, err)
 	require.Equal(t, 3, int(cmemberCount))
 
 	// add a user to the group
-	_, err = th.App.UpsertGroupMember(group.Id, th.SystemAdminUser.Id)
+	_, err = th.App.UpsertGroupMember(group.ID, th.SystemAdminUser.ID)
 	require.Nil(t, err)
 
 	// run the delete
@@ -432,15 +432,15 @@ func TestDeleteGroupMemberships(t *testing.T) {
 	require.NoError(t, appErr)
 
 	// verify the new member counts
-	tmembers, err = th.App.GetTeamMembers(th.BasicTeam.Id, 0, 100, nil)
+	tmembers, err = th.App.GetTeamMembers(th.BasicTeam.ID, 0, 100, nil)
 	require.Nil(t, err)
 	require.Len(t, tmembers, 1)
-	require.Equal(t, th.SystemAdminUser.Id, tmembers[0].UserId)
+	require.Equal(t, th.SystemAdminUser.ID, tmembers[0].UserID)
 
-	cmembers, err := th.App.GetChannelMembersPage(channel.Id, 0, 99)
+	cmembers, err := th.App.GetChannelMembersPage(channel.ID, 0, 99)
 	require.Nil(t, err)
 	require.Len(t, (*cmembers), 1)
-	require.Equal(t, th.SystemAdminUser.Id, (*cmembers)[0].UserId)
+	require.Equal(t, th.SystemAdminUser.ID, (*cmembers)[0].UserID)
 }
 
 func TestSyncSyncableRoles(t *testing.T) {
@@ -459,25 +459,25 @@ func TestSyncSyncableRoles(t *testing.T) {
 	group := th.CreateGroup()
 
 	teamSyncable, err := th.App.UpsertGroupSyncable(&model.GroupSyncable{
-		SyncableId: team.Id,
+		SyncableID: team.ID,
 		Type:       model.GroupSyncableTypeTeam,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
 	channelSyncable, err := th.App.UpsertGroupSyncable(&model.GroupSyncable{
-		SyncableId: channel.Id,
+		SyncableID: channel.ID,
 		Type:       model.GroupSyncableTypeChannel,
-		GroupId:    group.Id,
+		GroupID:    group.ID,
 	})
 	require.Nil(t, err)
 
 	for _, user := range []*model.User{user1, user2} {
-		_, err = th.App.UpsertGroupMember(group.Id, user.Id)
+		_, err = th.App.UpsertGroupMember(group.ID, user.ID)
 		require.Nil(t, err)
 
 		var tm *model.TeamMember
-		tm, err = th.App.AddTeamMember(th.Context, team.Id, user.Id)
+		tm, err = th.App.AddTeamMember(th.Context, team.ID, user.ID)
 		require.Nil(t, err)
 		require.False(t, tm.SchemeAdmin)
 
@@ -493,18 +493,18 @@ func TestSyncSyncableRoles(t *testing.T) {
 	_, err = th.App.UpdateGroupSyncable(channelSyncable)
 	require.Nil(t, err)
 
-	err = th.App.SyncSyncableRoles(channel.Id, model.GroupSyncableTypeChannel)
+	err = th.App.SyncSyncableRoles(channel.ID, model.GroupSyncableTypeChannel)
 	require.Nil(t, err)
 
-	err = th.App.SyncSyncableRoles(team.Id, model.GroupSyncableTypeTeam)
+	err = th.App.SyncSyncableRoles(team.ID, model.GroupSyncableTypeTeam)
 	require.Nil(t, err)
 
 	for _, user := range []*model.User{user1, user2} {
-		tm, err := th.App.GetTeamMember(team.Id, user.Id)
+		tm, err := th.App.GetTeamMember(team.ID, user.ID)
 		require.Nil(t, err)
 		require.True(t, tm.SchemeAdmin)
 
-		cm, err := th.App.GetChannelMember(context.Background(), channel.Id, user.Id)
+		cm, err := th.App.GetChannelMember(context.Background(), channel.ID, user.ID)
 		require.Nil(t, err)
 		require.True(t, cm.SchemeAdmin)
 	}

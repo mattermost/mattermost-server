@@ -235,7 +235,7 @@ func (o *Channel) IsValid() *AppError {
 		return NewAppError("Channel.IsValid", "model.channel.is_valid.display_name.app_error", nil, "id="+o.ID, http.StatusBadRequest)
 	}
 
-	if !IsValidChannelIDentifier(o.Name) {
+	if !IsValidChannelIdentifier(o.Name) {
 		return NewAppError("Channel.IsValid", "model.channel.is_valid.2_or_more.app_error", nil, "id="+o.ID, http.StatusBadRequest)
 	}
 

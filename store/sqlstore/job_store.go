@@ -50,9 +50,9 @@ func (jss SqlJobStore) UpdateOptimistically(job *model.Job, currentStatus string
 		Update("Jobs").
 		Set("LastActivityAt", model.GetMillis()).
 		Set("Status", job.Status).
-		Set("Data", job.DataToJson()).
+		Set("Data", job.DataToJSON()).
 		Set("Progress", job.Progress).
-		Where(sq.Eq{"Id": job.Id, "Status": currentStatus}).ToSql()
+		Where(sq.Eq{"Id": job.ID, "Status": currentStatus}).ToSql()
 	if err != nil {
 		return false, errors.Wrap(err, "job_tosql")
 	}
@@ -76,7 +76,7 @@ func (jss SqlJobStore) UpdateOptimistically(job *model.Job, currentStatus string
 
 func (jss SqlJobStore) UpdateStatus(id string, status string) (*model.Job, error) {
 	job := &model.Job{
-		Id:             id,
+		ID:             id,
 		Status:         status,
 		LastActivityAt: model.GetMillis(),
 	}

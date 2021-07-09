@@ -63,7 +63,7 @@ func (sc *SharedChannel) IsValid() *AppError {
 		return NewAppError("SharedChannel.IsValid", "model.channel.is_valid.display_name.app_error", nil, "id="+sc.ChannelID, http.StatusBadRequest)
 	}
 
-	if !IsValidChannelIDentifier(sc.ShareName) {
+	if !IsValidChannelIdentifier(sc.ShareName) {
 		return NewAppError("SharedChannel.IsValid", "model.channel.is_valid.2_or_more.app_error", nil, "id="+sc.ChannelID, http.StatusBadRequest)
 	}
 

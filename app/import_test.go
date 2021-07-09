@@ -52,8 +52,8 @@ func checkPreference(t *testing.T, a *App, userID string, category string, name 
 
 func checkNotifyProp(t *testing.T, user *model.User, key string, value string) {
 	actual, ok := user.NotifyProps[key]
-	require.True(t, ok, "Notify prop %v not found. User: %v", key, user.Id)
-	require.Equalf(t, actual, value, "Notify Prop %v was %v but expected %v. User: %v", key, actual, value, user.Id)
+	require.True(t, ok, "Notify prop %v not found. User: %v", key, user.ID)
+	require.Equalf(t, actual, value, "Notify Prop %v was %v but expected %v. User: %v", key, actual, value, user.ID)
 }
 
 func checkError(t *testing.T, err *model.AppError) {
@@ -158,11 +158,11 @@ func TestImportBulkImport(t *testing.T) {
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableCustomEmoji = true })
 
 	teamName := model.NewRandomTeamName()
-	channelName := model.NewId()
-	username := model.NewId()
-	username2 := model.NewId()
-	username3 := model.NewId()
-	emojiName := model.NewId()
+	channelName := model.NewID()
+	username := model.NewID()
+	username2 := model.NewID()
+	username3 := model.NewID()
+	emojiName := model.NewID()
 	testsDir, _ := fileutils.FindDir("tests")
 	testImage := filepath.Join(testsDir, "test.png")
 	teamTheme1 := `{\"awayIndicator\":\"#DBBD4E\",\"buttonBg\":\"#23A1FF\",\"buttonColor\":\"#FFFFFF\",\"centerChannelBg\":\"#ffffff\",\"centerChannelColor\":\"#333333\",\"codeTheme\":\"github\",\"image\":\"/static/files/a4a388b38b32678e83823ef1b3e17766.png\",\"linkColor\":\"#2389d7\",\"mentionBg\":\"#2389d7\",\"mentionColor\":\"#ffffff\",\"mentionHighlightBg\":\"#fff2bb\",\"mentionHighlightLink\":\"#2f81b7\",\"newMessageSeparator\":\"#FF8800\",\"onlineIndicator\":\"#7DBE00\",\"sidebarBg\":\"#fafafa\",\"sidebarHeaderBg\":\"#3481B9\",\"sidebarHeaderTextColor\":\"#ffffff\",\"sidebarText\":\"#333333\",\"sidebarTextActiveBorder\":\"#378FD2\",\"sidebarTextActiveColor\":\"#111111\",\"sidebarTextHoverBg\":\"#e6f2fa\",\"sidebarUnreadText\":\"#333333\",\"type\":\"Mattermost\"}`
@@ -265,16 +265,16 @@ func GetAttachments(userID string, th *TestHelper, t *testing.T) []*model.FileIn
 	return fileInfos
 }
 
-func AssertFileIdsInPost(files []*model.FileInfo, th *TestHelper, t *testing.T) {
-	postID := files[0].PostId
+func AssertFileIDsInPost(files []*model.FileInfo, th *TestHelper, t *testing.T) {
+	postID := files[0].PostID
 	require.NotNil(t, postID)
 
-	posts, err := th.App.Srv().Store.Post().GetPostsByIds([]string{postID})
+	posts, err := th.App.Srv().Store.Post().GetPostsByIDs([]string{postID})
 	require.NoError(t, err)
 
 	require.Len(t, posts, 1)
 	for _, file := range files {
-		assert.Contains(t, posts[0].FileIds, file.Id)
+		assert.Contains(t, posts[0].FileIDs, file.ID)
 	}
 }
 

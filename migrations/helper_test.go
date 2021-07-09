@@ -99,8 +99,8 @@ func Setup() *TestHelper {
 
 func (th *TestHelper) InitBasic() *TestHelper {
 	th.SystemAdminUser = th.CreateUser()
-	th.App.UpdateUserRoles(th.SystemAdminUser.Id, model.SystemUserRoleId+" "+model.SystemAdminRoleId, false)
-	th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.Id)
+	th.App.UpdateUserRoles(th.SystemAdminUser.ID, model.SystemUserRoleID+" "+model.SystemAdminRoleID, false)
+	th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.ID)
 
 	th.BasicTeam = th.CreateTeam()
 	th.BasicUser = th.CreateUser()
@@ -114,11 +114,11 @@ func (th *TestHelper) InitBasic() *TestHelper {
 }
 
 func (*TestHelper) MakeEmail() string {
-	return "success_" + model.NewId() + "@simulator.amazonses.com"
+	return "success_" + model.NewID() + "@simulator.amazonses.com"
 }
 
 func (th *TestHelper) CreateTeam() *model.Team {
-	id := model.NewId()
+	id := model.NewID()
 	team := &model.Team{
 		DisplayName: "dn_" + id,
 		Name:        "name" + id,
@@ -136,7 +136,7 @@ func (th *TestHelper) CreateTeam() *model.Team {
 }
 
 func (th *TestHelper) CreateUser() *model.User {
-	id := model.NewId()
+	id := model.NewID()
 
 	user := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
@@ -160,14 +160,14 @@ func (th *TestHelper) CreateChannel(team *model.Team) *model.Channel {
 }
 
 func (th *TestHelper) createChannel(team *model.Team, channelType string) *model.Channel {
-	id := model.NewId()
+	id := model.NewID()
 
 	channel := &model.Channel{
 		DisplayName: "dn_" + id,
 		Name:        "name_" + id,
 		Type:        channelType,
-		TeamId:      team.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      team.ID,
+		CreatorID:   th.BasicUser.ID,
 	}
 
 	utils.DisableDebugLogForTest()
@@ -183,7 +183,7 @@ func (th *TestHelper) CreateDmChannel(user *model.User) *model.Channel {
 	utils.DisableDebugLogForTest()
 	var err *model.AppError
 	var channel *model.Channel
-	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.Id, user.Id); err != nil {
+	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.ID, user.ID); err != nil {
 		panic(err)
 	}
 	utils.EnableDebugLogForTest()
@@ -191,11 +191,11 @@ func (th *TestHelper) CreateDmChannel(user *model.User) *model.Channel {
 }
 
 func (th *TestHelper) CreatePost(channel *model.Channel) *model.Post {
-	id := model.NewId()
+	id := model.NewID()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: channel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: channel.ID,
 		Message:   "message_" + id,
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -263,7 +263,7 @@ func (th *TestHelper) DeleteAllJobsByTypeAndMigrationKey(jobType string, migrati
 
 	for _, job := range jobs {
 		if key, ok := job.Data[JobDataKeyMigration]; ok && key == migrationKey {
-			if _, err = th.App.Srv().Store.Job().Delete(job.Id); err != nil {
+			if _, err = th.App.Srv().Store.Job().Delete(job.ID); err != nil {
 				panic(err)
 			}
 		}

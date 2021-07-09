@@ -14,7 +14,7 @@ import (
 )
 
 func (a *App) AddStatusCacheSkipClusterSend(status *model.Status) {
-	a.Srv().statusCache.Set(status.UserId, status)
+	a.Srv().statusCache.Set(status.UserID, status)
 }
 
 func (a *App) AddStatusCache(status *model.Status) {
@@ -24,7 +24,7 @@ func (a *App) AddStatusCache(status *model.Status) {
 		msg := &model.ClusterMessage{
 			Event:    model.ClusterEventUpdateStatus,
 			SendType: model.ClusterSendBestEffort,
-			Data:     status.ToClusterJson(),
+			Data:     status.ToClusterJSON(),
 		}
 		a.Cluster().SendClusterMessage(msg)
 	}
@@ -47,7 +47,7 @@ func (a *App) GetAllStatuses() map[string]*model.Status {
 	return statusMap
 }
 
-func (a *App) GetStatusesByIds(userIDs []string) (map[string]interface{}, *model.AppError) {
+func (a *App) GetStatusesByIDs(userIDs []string) (map[string]interface{}, *model.AppError) {
 	if !*a.Config().ServiceSettings.EnableUserStatuses {
 		return map[string]interface{}{}, nil
 	}
@@ -55,7 +55,7 @@ func (a *App) GetStatusesByIds(userIDs []string) (map[string]interface{}, *model
 	statusMap := map[string]interface{}{}
 	metrics := a.Metrics()
 
-	missingUserIds := []string{}
+	missingUserIDs := []string{}
 	for _, userID := range userIDs {
 		var status *model.Status
 		if err := a.Srv().statusCache.Get(userID, &status); err == nil {
@@ -64,28 +64,28 @@ func (a *App) GetStatusesByIds(userIDs []string) (map[string]interface{}, *model
 				metrics.IncrementMemCacheHitCounter("Status")
 			}
 		} else {
-			missingUserIds = append(missingUserIds, userID)
+			missingUserIDs = append(missingUserIDs, userID)
 			if metrics != nil {
 				metrics.IncrementMemCacheMissCounter("Status")
 			}
 		}
 	}
 
-	if len(missingUserIds) > 0 {
-		statuses, err := a.Srv().Store.Status().GetByIds(missingUserIds)
+	if len(missingUserIDs) > 0 {
+		statuses, err := a.Srv().Store.Status().GetByIDs(missingUserIDs)
 		if err != nil {
 			return nil, model.NewAppError("GetStatusesByIds", "app.status.get.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
 
 		for _, s := range statuses {
 			a.AddStatusCacheSkipClusterSend(s)
-			statusMap[s.UserId] = s.Status
+			statusMap[s.UserID] = s.Status
 		}
 
 	}
 
 	// For the case where the user does not have a row in the Status table and cache
-	for _, userID := range missingUserIds {
+	for _, userID := range missingUserIDs {
 		if _, ok := statusMap[userID]; !ok {
 			statusMap[userID] = model.StatusOffline
 		}
@@ -95,7 +95,7 @@ func (a *App) GetStatusesByIds(userIDs []string) (map[string]interface{}, *model
 }
 
 //GetUserStatusesByIds used by apiV4
-func (a *App) GetUserStatusesByIds(userIDs []string) ([]*model.Status, *model.AppError) {
+func (a *App) GetUserStatusesByIDs(userIDs []string) ([]*model.Status, *model.AppError) {
 	if !*a.Config().ServiceSettings.EnableUserStatuses {
 		return []*model.Status{}, nil
 	}
@@ -103,7 +103,7 @@ func (a *App) GetUserStatusesByIds(userIDs []string) ([]*model.Status, *model.Ap
 	var statusMap []*model.Status
 	metrics := a.Metrics()
 
-	missingUserIds := []string{}
+	missingUserIDs := []string{}
 	for _, userID := range userIDs {
 		var status *model.Status
 		if err := a.Srv().statusCache.Get(userID, &status); err == nil {
@@ -112,15 +112,15 @@ func (a *App) GetUserStatusesByIds(userIDs []string) ([]*model.Status, *model.Ap
 				metrics.IncrementMemCacheHitCounter("Status")
 			}
 		} else {
-			missingUserIds = append(missingUserIds, userID)
+			missingUserIDs = append(missingUserIDs, userID)
 			if metrics != nil {
 				metrics.IncrementMemCacheMissCounter("Status")
 			}
 		}
 	}
 
-	if len(missingUserIds) > 0 {
-		statuses, err := a.Srv().Store.Status().GetByIds(missingUserIds)
+	if len(missingUserIDs) > 0 {
+		statuses, err := a.Srv().Store.Status().GetByIDs(missingUserIDs)
 		if err != nil {
 			return nil, model.NewAppError("GetUserStatusesByIds", "app.status.get.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
@@ -136,18 +136,18 @@ func (a *App) GetUserStatusesByIds(userIDs []string) ([]*model.Status, *model.Ap
 	// For the case where the user does not have a row in the Status table and cache
 	// remove the existing ids from missingUserIds and then create a offline state for the missing ones
 	// This also return the status offline for the non-existing Ids in the system
-	for i := 0; i < len(missingUserIds); i++ {
-		missingUserId := missingUserIds[i]
+	for i := 0; i < len(missingUserIDs); i++ {
+		missingUserID := missingUserIDs[i]
 		for _, userMap := range statusMap {
-			if missingUserId == userMap.UserId {
-				missingUserIds = append(missingUserIds[:i], missingUserIds[i+1:]...)
+			if missingUserID == userMap.UserID {
+				missingUserIDs = append(missingUserIDs[:i], missingUserIDs[i+1:]...)
 				i--
 				break
 			}
 		}
 	}
-	for _, userID := range missingUserIds {
-		statusMap = append(statusMap, &model.Status{UserId: userID, Status: "offline"})
+	for _, userID := range missingUserIDs {
+		statusMap = append(statusMap, &model.Status{UserID: userID, Status: "offline"})
 	}
 
 	return statusMap, nil
@@ -183,7 +183,7 @@ func (a *App) SetStatusOnline(userID string, manual bool) {
 	var err *model.AppError
 
 	if status, err = a.GetStatus(userID); err != nil {
-		status = &model.Status{UserId: userID, Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+		status = &model.Status{UserID: userID, Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
 		broadcast = true
 	} else {
 		if status.Manual && !manual {
@@ -213,7 +213,7 @@ func (a *App) SetStatusOnline(userID string, manual bool) {
 				mlog.Warn("Failed to save status", mlog.String("user_id", userID), mlog.Err(err), mlog.String("user_id", userID))
 			}
 		} else {
-			if err := a.Srv().Store.Status().UpdateLastActivityAt(status.UserId, status.LastActivityAt); err != nil {
+			if err := a.Srv().Store.Status().UpdateLastActivityAt(status.UserID, status.LastActivityAt); err != nil {
 				mlog.Error("Failed to save status", mlog.String("user_id", userID), mlog.Err(err), mlog.String("user_id", userID))
 			}
 		}
@@ -229,9 +229,9 @@ func (a *App) BroadcastStatus(status *model.Status) {
 		// this is considered a non-critical service and will be disabled when server busy.
 		return
 	}
-	event := model.NewWebSocketEvent(model.WebsocketEventStatusChange, "", "", status.UserId, nil)
+	event := model.NewWebSocketEvent(model.WebsocketEventStatusChange, "", "", status.UserID, nil)
 	event.Add("status", status.Status)
-	event.Add("user_id", status.UserId)
+	event.Add("user_id", status.UserID)
 	a.Publish(event)
 }
 
@@ -245,7 +245,7 @@ func (a *App) SetStatusOffline(userID string, manual bool) {
 		return // manually set status always overrides non-manual one
 	}
 
-	status = &model.Status{UserId: userID, Status: model.StatusOffline, Manual: manual, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	status = &model.Status{UserID: userID, Status: model.StatusOffline, Manual: manual, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
 
 	a.SaveAndBroadcastStatus(status)
 }
@@ -258,7 +258,7 @@ func (a *App) SetStatusAwayIfNeeded(userID string, manual bool) {
 	status, err := a.GetStatus(userID)
 
 	if err != nil {
-		status = &model.Status{UserId: userID, Status: model.StatusOffline, Manual: manual, LastActivityAt: 0, ActiveChannel: ""}
+		status = &model.Status{UserID: userID, Status: model.StatusOffline, Manual: manual, LastActivityAt: 0, ActiveChannel: ""}
 	}
 
 	if !manual && status.Manual {
@@ -284,15 +284,15 @@ func (a *App) SetStatusAwayIfNeeded(userID string, manual bool) {
 
 // SetStatusDoNotDisturbTimed takes endtime in unix epoch format in UTC
 // and sets status of given userId to dnd which will be restored back after endtime
-func (a *App) SetStatusDoNotDisturbTimed(userId string, endtime int64) {
+func (a *App) SetStatusDoNotDisturbTimed(userID string, endtime int64) {
 	if !*a.Config().ServiceSettings.EnableUserStatuses {
 		return
 	}
 
-	status, err := a.GetStatus(userId)
+	status, err := a.GetStatus(userID)
 
 	if err != nil {
-		status = &model.Status{UserId: userId, Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+		status = &model.Status{UserID: userID, Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
 	}
 
 	status.PrevStatus = status.Status
@@ -312,7 +312,7 @@ func (a *App) SetStatusDoNotDisturb(userID string) {
 	status, err := a.GetStatus(userID)
 
 	if err != nil {
-		status = &model.Status{UserId: userID, Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+		status = &model.Status{UserID: userID, Status: model.StatusOffline, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
 	}
 
 	status.Status = model.StatusDnd
@@ -325,7 +325,7 @@ func (a *App) SaveAndBroadcastStatus(status *model.Status) {
 	a.AddStatusCache(status)
 
 	if err := a.Srv().Store.Status().SaveOrUpdate(status); err != nil {
-		mlog.Warn("Failed to save status", mlog.String("user_id", status.UserId), mlog.Err(err))
+		mlog.Warn("Failed to save status", mlog.String("user_id", status.UserID), mlog.Err(err))
 	}
 
 	a.BroadcastStatus(status)
@@ -339,7 +339,7 @@ func (a *App) SetStatusOutOfOffice(userID string) {
 	status, err := a.GetStatus(userID)
 
 	if err != nil {
-		status = &model.Status{UserId: userID, Status: model.StatusOutOfOffice, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
+		status = &model.Status{UserID: userID, Status: model.StatusOutOfOffice, Manual: false, LastActivityAt: 0, ActiveChannel: ""}
 	}
 
 	status.Status = model.StatusOutOfOffice
@@ -443,15 +443,15 @@ func (a *App) addRecentCustomStatus(userID string, status *model.CustomStatus) *
 	if err != nil || pref.Value == "" {
 		newRCS = &model.RecentCustomStatuses{*status}
 	} else {
-		existingRCS := model.RecentCustomStatusesFromJson(strings.NewReader(pref.Value))
+		existingRCS := model.RecentCustomStatusesFromJSON(strings.NewReader(pref.Value))
 		newRCS = existingRCS.Add(status)
 	}
 
 	pref = &model.Preference{
-		UserId:   userID,
+		UserID:   userID,
 		Category: model.PreferenceCategoryCustomStatus,
 		Name:     model.PreferenceNameRecentCustomStatuses,
-		Value:    newRCS.ToJson(),
+		Value:    newRCS.ToJSON(),
 	}
 	if err := a.UpdatePreferences(userID, model.Preferences{*pref}); err != nil {
 		return err
@@ -470,13 +470,13 @@ func (a *App) RemoveRecentCustomStatus(userID string, status *model.CustomStatus
 		return model.NewAppError("RemoveRecentCustomStatus", "api.custom_status.recent_custom_statuses.delete.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	existingRCS := model.RecentCustomStatusesFromJson(strings.NewReader(pref.Value))
+	existingRCS := model.RecentCustomStatusesFromJSON(strings.NewReader(pref.Value))
 	if !existingRCS.Contains(status) {
 		return model.NewAppError("RemoveRecentCustomStatus", "api.custom_status.recent_custom_statuses.delete.app_error", nil, "", http.StatusBadRequest)
 	}
 
 	newRCS := existingRCS.Remove(status)
-	pref.Value = newRCS.ToJson()
+	pref.Value = newRCS.ToJSON()
 
 	if err := a.UpdatePreferences(userID, model.Preferences{*pref}); err != nil {
 		return err

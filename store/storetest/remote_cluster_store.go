@@ -31,7 +31,7 @@ func testRemoteClusterSave(t *testing.T, ss store.Store) {
 		rc := &model.RemoteCluster{
 			Name:      "some_remote",
 			SiteURL:   "somewhere.com",
-			CreatorId: model.NewId(),
+			CreatorID: model.NewID(),
 		}
 
 		rcSaved, err := ss.RemoteCluster().Save(rc)
@@ -45,7 +45,7 @@ func testRemoteClusterSave(t *testing.T, ss store.Store) {
 	t.Run("Save missing display name", func(t *testing.T) {
 		rc := &model.RemoteCluster{
 			SiteURL:   "somewhere.com",
-			CreatorId: model.NewId(),
+			CreatorID: model.NewID(),
 		}
 		_, err := ss.RemoteCluster().Save(rc)
 		require.Error(t, err)
@@ -66,18 +66,18 @@ func testRemoteClusterDelete(t *testing.T, ss store.Store) {
 		rc := &model.RemoteCluster{
 			Name:      "shortlived_remote",
 			SiteURL:   "nowhere.com",
-			CreatorId: model.NewId(),
+			CreatorID: model.NewID(),
 		}
 		rcSaved, err := ss.RemoteCluster().Save(rc)
 		require.NoError(t, err)
 
-		deleted, err := ss.RemoteCluster().Delete(rcSaved.RemoteId)
+		deleted, err := ss.RemoteCluster().Delete(rcSaved.RemoteID)
 		require.NoError(t, err)
 		require.True(t, deleted)
 	})
 
 	t.Run("Delete nonexistent", func(t *testing.T) {
-		deleted, err := ss.RemoteCluster().Delete(model.NewId())
+		deleted, err := ss.RemoteCluster().Delete(model.NewID())
 		require.NoError(t, err)
 		require.False(t, deleted)
 	})
@@ -88,18 +88,18 @@ func testRemoteClusterGet(t *testing.T, ss store.Store) {
 		rc := &model.RemoteCluster{
 			Name:      "shortlived_remote_2",
 			SiteURL:   "nowhere.com",
-			CreatorId: model.NewId(),
+			CreatorID: model.NewID(),
 		}
 		rcSaved, err := ss.RemoteCluster().Save(rc)
 		require.NoError(t, err)
 
-		rcGet, err := ss.RemoteCluster().Get(rcSaved.RemoteId)
+		rcGet, err := ss.RemoteCluster().Get(rcSaved.RemoteID)
 		require.NoError(t, err)
-		require.Equal(t, rcSaved.RemoteId, rcGet.RemoteId)
+		require.Equal(t, rcSaved.RemoteID, rcGet.RemoteID)
 	})
 
 	t.Run("Get not found", func(t *testing.T) {
-		_, err := ss.RemoteCluster().Get(model.NewId())
+		_, err := ss.RemoteCluster().Get(model.NewID())
 		require.Error(t, err)
 	})
 }
@@ -107,16 +107,16 @@ func testRemoteClusterGet(t *testing.T, ss store.Store) {
 func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 	require.NoError(t, clearRemoteClusters(ss))
 
-	userId := model.NewId()
+	userID := model.NewID()
 	now := model.GetMillis()
 	pingLongAgo := model.GetMillis() - (model.RemoteOfflineAfterMillis * 3)
 
 	data := []*model.RemoteCluster{
-		{Name: "offline_remote", CreatorId: userId, SiteURL: "somewhere.com", LastPingAt: pingLongAgo, Topics: " shared incident "},
-		{Name: "some_online_remote", CreatorId: userId, SiteURL: "nowhere.com", LastPingAt: now, Topics: " shared incident "},
-		{Name: "another_online_remote", CreatorId: model.NewId(), SiteURL: "underwhere.com", LastPingAt: now, Topics: ""},
-		{Name: "another_offline_remote", CreatorId: model.NewId(), SiteURL: "knowhere.com", LastPingAt: pingLongAgo, Topics: " shared "},
-		{Name: "brand_new_offline_remote", CreatorId: userId, SiteURL: "", LastPingAt: 0, Topics: " bogus shared stuff "},
+		{Name: "offline_remote", CreatorID: userID, SiteURL: "somewhere.com", LastPingAt: pingLongAgo, Topics: " shared incident "},
+		{Name: "some_online_remote", CreatorID: userID, SiteURL: "nowhere.com", LastPingAt: now, Topics: " shared incident "},
+		{Name: "another_online_remote", CreatorID: model.NewID(), SiteURL: "underwhere.com", LastPingAt: now, Topics: ""},
+		{Name: "another_offline_remote", CreatorID: model.NewID(), SiteURL: "knowhere.com", LastPingAt: pingLongAgo, Topics: " shared "},
+		{Name: "brand_new_offline_remote", CreatorID: userID, SiteURL: "", LastPingAt: 0, Topics: " bogus shared stuff "},
 	}
 
 	idsAll := make([]string, 0)
@@ -128,14 +128,14 @@ func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 		online := item.LastPingAt == now
 		saved, err := ss.RemoteCluster().Save(item)
 		require.NoError(t, err)
-		idsAll = append(idsAll, saved.RemoteId)
+		idsAll = append(idsAll, saved.RemoteID)
 		if online {
-			idsOnline = append(idsOnline, saved.RemoteId)
+			idsOnline = append(idsOnline, saved.RemoteID)
 		} else {
-			idsOffline = append(idsOffline, saved.RemoteId)
+			idsOffline = append(idsOffline, saved.RemoteID)
 		}
 		if strings.Contains(saved.Topics, " shared ") {
-			idsShareTopic = append(idsShareTopic, saved.RemoteId)
+			idsShareTopic = append(idsShareTopic, saved.RemoteID)
 		}
 	}
 
@@ -144,7 +144,7 @@ func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 		remotes, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		// make sure all the test data remotes were returned.
-		ids := getIds(remotes)
+		ids := getIDs(remotes)
 		assert.ElementsMatch(t, ids, idsAll)
 	})
 
@@ -155,7 +155,7 @@ func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 		remotes, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		// make sure all the online remotes were returned.
-		ids := getIds(remotes)
+		ids := getIDs(remotes)
 		assert.ElementsMatch(t, ids, idsOnline)
 	})
 
@@ -166,7 +166,7 @@ func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 		remotes, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		// make sure only correct topic returned
-		ids := getIds(remotes)
+		ids := getIDs(remotes)
 		assert.ElementsMatch(t, ids, idsShareTopic)
 	})
 
@@ -178,7 +178,7 @@ func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 		remotes, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		// make sure only online remotes were returned.
-		ids := getIds(remotes)
+		ids := getIDs(remotes)
 		assert.Subset(t, idsOnline, ids)
 		// make sure correct topic returned
 		assert.Subset(t, idsShareTopic, ids)
@@ -187,14 +187,14 @@ func testRemoteClusterGetAll(t *testing.T, ss store.Store) {
 
 	t.Run("GetAll by Creator", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			CreatorId: userId,
+			CreatorID: userID,
 		}
 		remotes, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		// make sure only correct creator returned
 		assert.Len(t, remotes, 3)
 		for _, rc := range remotes {
-			assert.Equal(t, userId, rc.CreatorId)
+			assert.Equal(t, userID, rc.CreatorID)
 		}
 	})
 
@@ -216,7 +216,7 @@ func testRemoteClusterGetAllInChannel(t *testing.T, ss store.Store) {
 	require.NoError(t, clearRemoteClusters(ss))
 	now := model.GetMillis()
 
-	userId := model.NewId()
+	userID := model.NewID()
 
 	channel1, err := createTestChannel(ss, "channel_1")
 	require.NoError(t, err)
@@ -229,9 +229,9 @@ func testRemoteClusterGetAllInChannel(t *testing.T, ss store.Store) {
 
 	// Create shared channels
 	scData := []*model.SharedChannel{
-		{ChannelId: channel1.Id, TeamId: model.NewId(), Home: true, ShareName: "test_chan_1", CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, TeamId: model.NewId(), Home: true, ShareName: "test_chan_2", CreatorId: model.NewId()},
-		{ChannelId: channel3.Id, TeamId: model.NewId(), Home: true, ShareName: "test_chan_3", CreatorId: model.NewId()},
+		{ChannelID: channel1.ID, TeamID: model.NewID(), Home: true, ShareName: "test_chan_1", CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, TeamID: model.NewID(), Home: true, ShareName: "test_chan_2", CreatorID: model.NewID()},
+		{ChannelID: channel3.ID, TeamID: model.NewID(), Home: true, ShareName: "test_chan_3", CreatorID: model.NewID()},
 	}
 	for _, item := range scData {
 		_, err := ss.SharedChannel().Save(item)
@@ -240,11 +240,11 @@ func testRemoteClusterGetAllInChannel(t *testing.T, ss store.Store) {
 
 	// Create some remote clusters
 	rcData := []*model.RemoteCluster{
-		{Name: "AAAA_Inc", CreatorId: userId, SiteURL: "aaaa.com", RemoteId: model.NewId(), LastPingAt: now},
-		{Name: "BBBB_Inc", CreatorId: userId, SiteURL: "bbbb.com", RemoteId: model.NewId(), LastPingAt: 0},
-		{Name: "CCCC_Inc", CreatorId: userId, SiteURL: "cccc.com", RemoteId: model.NewId(), LastPingAt: now},
-		{Name: "DDDD_Inc", CreatorId: userId, SiteURL: "dddd.com", RemoteId: model.NewId(), LastPingAt: now},
-		{Name: "EEEE_Inc", CreatorId: userId, SiteURL: "eeee.com", RemoteId: model.NewId(), LastPingAt: 0},
+		{Name: "AAAA_Inc", CreatorID: userID, SiteURL: "aaaa.com", RemoteID: model.NewID(), LastPingAt: now},
+		{Name: "BBBB_Inc", CreatorID: userID, SiteURL: "bbbb.com", RemoteID: model.NewID(), LastPingAt: 0},
+		{Name: "CCCC_Inc", CreatorID: userID, SiteURL: "cccc.com", RemoteID: model.NewID(), LastPingAt: now},
+		{Name: "DDDD_Inc", CreatorID: userID, SiteURL: "dddd.com", RemoteID: model.NewID(), LastPingAt: now},
+		{Name: "EEEE_Inc", CreatorID: userID, SiteURL: "eeee.com", RemoteID: model.NewID(), LastPingAt: 0},
 	}
 	for _, item := range rcData {
 		_, err := ss.RemoteCluster().Save(item)
@@ -253,11 +253,11 @@ func testRemoteClusterGetAllInChannel(t *testing.T, ss store.Store) {
 
 	// Create some shared channel remotes
 	scrData := []*model.SharedChannelRemote{
-		{ChannelId: channel1.Id, RemoteId: rcData[0].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel1.Id, RemoteId: rcData[1].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, RemoteId: rcData[2].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, RemoteId: rcData[3].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, RemoteId: rcData[4].RemoteId, CreatorId: model.NewId()},
+		{ChannelID: channel1.ID, RemoteID: rcData[0].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel1.ID, RemoteID: rcData[1].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, RemoteID: rcData[2].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, RemoteID: rcData[3].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, RemoteID: rcData[4].RemoteID, CreatorID: model.NewID()},
 	}
 	for _, item := range scrData {
 		_, err := ss.SharedChannel().SaveRemote(item)
@@ -266,53 +266,53 @@ func testRemoteClusterGetAllInChannel(t *testing.T, ss store.Store) {
 
 	t.Run("Channel 1", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			InChannel: channel1.Id,
+			InChannel: channel1.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 2, "channel 1 should have 2 remote clusters")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[0].RemoteId, rcData[1].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[0].RemoteID, rcData[1].RemoteID}, ids)
 	})
 
 	t.Run("Channel 1 online only", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
 			ExcludeOffline: true,
-			InChannel:      channel1.Id,
+			InChannel:      channel1.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 1, "channel 1 should have 1 online remote clusters")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[0].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[0].RemoteID}, ids)
 	})
 
 	t.Run("Channel 2", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			InChannel: channel2.Id,
+			InChannel: channel2.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 3, "channel 2 should have 3 remote clusters")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[2].RemoteId, rcData[3].RemoteId, rcData[4].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[2].RemoteID, rcData[3].RemoteID, rcData[4].RemoteID}, ids)
 	})
 
 	t.Run("Channel 2 online only", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
 			ExcludeOffline: true,
-			InChannel:      channel2.Id,
+			InChannel:      channel2.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 2, "channel 2 should have 2 online remote clusters")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[2].RemoteId, rcData[3].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[2].RemoteID, rcData[3].RemoteID}, ids)
 	})
 
 	t.Run("Channel 3", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			InChannel: channel3.Id,
+			InChannel: channel3.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
@@ -323,7 +323,7 @@ func testRemoteClusterGetAllInChannel(t *testing.T, ss store.Store) {
 func testRemoteClusterGetAllNotInChannel(t *testing.T, ss store.Store) {
 	require.NoError(t, clearRemoteClusters(ss))
 
-	userId := model.NewId()
+	userID := model.NewID()
 
 	channel1, err := createTestChannel(ss, "channel_1")
 	require.NoError(t, err)
@@ -336,9 +336,9 @@ func testRemoteClusterGetAllNotInChannel(t *testing.T, ss store.Store) {
 
 	// Create shared channels
 	scData := []*model.SharedChannel{
-		{ChannelId: channel1.Id, TeamId: model.NewId(), Home: true, ShareName: "test_chan_1", CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, TeamId: model.NewId(), Home: true, ShareName: "test_chan_2", CreatorId: model.NewId()},
-		{ChannelId: channel3.Id, TeamId: model.NewId(), Home: true, ShareName: "test_chan_3", CreatorId: model.NewId()},
+		{ChannelID: channel1.ID, TeamID: model.NewID(), Home: true, ShareName: "test_chan_1", CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, TeamID: model.NewID(), Home: true, ShareName: "test_chan_2", CreatorID: model.NewID()},
+		{ChannelID: channel3.ID, TeamID: model.NewID(), Home: true, ShareName: "test_chan_3", CreatorID: model.NewID()},
 	}
 	for _, item := range scData {
 		_, err := ss.SharedChannel().Save(item)
@@ -347,11 +347,11 @@ func testRemoteClusterGetAllNotInChannel(t *testing.T, ss store.Store) {
 
 	// Create some remote clusters
 	rcData := []*model.RemoteCluster{
-		{Name: "AAAA_Inc", CreatorId: userId, SiteURL: "aaaa.com", RemoteId: model.NewId()},
-		{Name: "BBBB_Inc", CreatorId: userId, SiteURL: "bbbb.com", RemoteId: model.NewId()},
-		{Name: "CCCC_Inc", CreatorId: userId, SiteURL: "cccc.com", RemoteId: model.NewId()},
-		{Name: "DDDD_Inc", CreatorId: userId, SiteURL: "dddd.com", RemoteId: model.NewId()},
-		{Name: "EEEE_Inc", CreatorId: userId, SiteURL: "eeee.com", RemoteId: model.NewId()},
+		{Name: "AAAA_Inc", CreatorID: userID, SiteURL: "aaaa.com", RemoteID: model.NewID()},
+		{Name: "BBBB_Inc", CreatorID: userID, SiteURL: "bbbb.com", RemoteID: model.NewID()},
+		{Name: "CCCC_Inc", CreatorID: userID, SiteURL: "cccc.com", RemoteID: model.NewID()},
+		{Name: "DDDD_Inc", CreatorID: userID, SiteURL: "dddd.com", RemoteID: model.NewID()},
+		{Name: "EEEE_Inc", CreatorID: userID, SiteURL: "eeee.com", RemoteID: model.NewID()},
 	}
 	for _, item := range rcData {
 		_, err := ss.RemoteCluster().Save(item)
@@ -360,11 +360,11 @@ func testRemoteClusterGetAllNotInChannel(t *testing.T, ss store.Store) {
 
 	// Create some shared channel remotes
 	scrData := []*model.SharedChannelRemote{
-		{ChannelId: channel1.Id, RemoteId: rcData[0].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel1.Id, RemoteId: rcData[1].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, RemoteId: rcData[2].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel2.Id, RemoteId: rcData[3].RemoteId, CreatorId: model.NewId()},
-		{ChannelId: channel3.Id, RemoteId: rcData[4].RemoteId, CreatorId: model.NewId()},
+		{ChannelID: channel1.ID, RemoteID: rcData[0].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel1.ID, RemoteID: rcData[1].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, RemoteID: rcData[2].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel2.ID, RemoteID: rcData[3].RemoteID, CreatorID: model.NewID()},
+		{ChannelID: channel3.ID, RemoteID: rcData[4].RemoteID, CreatorID: model.NewID()},
 	}
 	for _, item := range scrData {
 		_, err := ss.SharedChannel().SaveRemote(item)
@@ -373,54 +373,54 @@ func testRemoteClusterGetAllNotInChannel(t *testing.T, ss store.Store) {
 
 	t.Run("Channel 1", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			NotInChannel: channel1.Id,
+			NotInChannel: channel1.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 3, "channel 1 should have 3 remote clusters that are not already members")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[2].RemoteId, rcData[3].RemoteId, rcData[4].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[2].RemoteID, rcData[3].RemoteID, rcData[4].RemoteID}, ids)
 	})
 
 	t.Run("Channel 2", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			NotInChannel: channel2.Id,
+			NotInChannel: channel2.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 3, "channel 2 should have 3 remote clusters that are not already members")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[0].RemoteId, rcData[1].RemoteId, rcData[4].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[0].RemoteID, rcData[1].RemoteID, rcData[4].RemoteID}, ids)
 	})
 
 	t.Run("Channel 3", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			NotInChannel: channel3.Id,
+			NotInChannel: channel3.ID,
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 4, "channel 3 should have 4 remote clusters that are not already members")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[0].RemoteId, rcData[1].RemoteId, rcData[2].RemoteId, rcData[3].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[0].RemoteID, rcData[1].RemoteID, rcData[2].RemoteID, rcData[3].RemoteID}, ids)
 	})
 
 	t.Run("Channel with no share remotes", func(t *testing.T) {
 		filter := model.RemoteClusterQueryFilter{
-			NotInChannel: model.NewId(),
+			NotInChannel: model.NewID(),
 		}
 		list, err := ss.RemoteCluster().GetAll(filter)
 		require.NoError(t, err)
 		require.Len(t, list, 5, "should have 5 remote clusters that are not already members")
-		ids := getIds(list)
-		require.ElementsMatch(t, []string{rcData[0].RemoteId, rcData[1].RemoteId, rcData[2].RemoteId, rcData[3].RemoteId,
-			rcData[4].RemoteId}, ids)
+		ids := getIDs(list)
+		require.ElementsMatch(t, []string{rcData[0].RemoteID, rcData[1].RemoteID, rcData[2].RemoteID, rcData[3].RemoteID,
+			rcData[4].RemoteID}, ids)
 	})
 }
 
-func getIds(remotes []*model.RemoteCluster) []string {
+func getIDs(remotes []*model.RemoteCluster) []string {
 	ids := make([]string, 0, len(remotes))
 	for _, r := range remotes {
-		ids = append(ids, r.RemoteId)
+		ids = append(ids, r.RemoteID)
 	}
 	return ids
 }
@@ -429,13 +429,13 @@ func testRemoteClusterGetByTopic(t *testing.T, ss store.Store) {
 	require.NoError(t, clearRemoteClusters(ss))
 
 	rcData := []*model.RemoteCluster{
-		{Name: "AAAA_Inc", CreatorId: model.NewId(), SiteURL: "aaaa.com", RemoteId: model.NewId(), Topics: ""},
-		{Name: "BBBB_Inc", CreatorId: model.NewId(), SiteURL: "bbbb.com", RemoteId: model.NewId(), Topics: " share "},
-		{Name: "CCCC_Inc", CreatorId: model.NewId(), SiteURL: "cccc.com", RemoteId: model.NewId(), Topics: " incident share "},
-		{Name: "DDDD_Inc", CreatorId: model.NewId(), SiteURL: "dddd.com", RemoteId: model.NewId(), Topics: " bogus "},
-		{Name: "EEEE_Inc", CreatorId: model.NewId(), SiteURL: "eeee.com", RemoteId: model.NewId(), Topics: " logs share incident "},
-		{Name: "FFFF_Inc", CreatorId: model.NewId(), SiteURL: "ffff.com", RemoteId: model.NewId(), Topics: " bogus incident "},
-		{Name: "GGGG_Inc", CreatorId: model.NewId(), SiteURL: "gggg.com", RemoteId: model.NewId(), Topics: "*"},
+		{Name: "AAAA_Inc", CreatorID: model.NewID(), SiteURL: "aaaa.com", RemoteID: model.NewID(), Topics: ""},
+		{Name: "BBBB_Inc", CreatorID: model.NewID(), SiteURL: "bbbb.com", RemoteID: model.NewID(), Topics: " share "},
+		{Name: "CCCC_Inc", CreatorID: model.NewID(), SiteURL: "cccc.com", RemoteID: model.NewID(), Topics: " incident share "},
+		{Name: "DDDD_Inc", CreatorID: model.NewID(), SiteURL: "dddd.com", RemoteID: model.NewID(), Topics: " bogus "},
+		{Name: "EEEE_Inc", CreatorID: model.NewID(), SiteURL: "eeee.com", RemoteID: model.NewID(), Topics: " logs share incident "},
+		{Name: "FFFF_Inc", CreatorID: model.NewID(), SiteURL: "ffff.com", RemoteID: model.NewID(), Topics: " bogus incident "},
+		{Name: "GGGG_Inc", CreatorID: model.NewID(), SiteURL: "gggg.com", RemoteID: model.NewID(), Topics: "*"},
 	}
 	for _, item := range rcData {
 		_, err := ss.RemoteCluster().Save(item)
@@ -471,14 +471,14 @@ func testRemoteClusterGetByTopic(t *testing.T, ss store.Store) {
 }
 
 func testRemoteClusterUpdateTopics(t *testing.T, ss store.Store) {
-	remoteId := model.NewId()
+	remoteID := model.NewID()
 	rc := &model.RemoteCluster{
 		DisplayName: "Blap Inc",
 		Name:        "blap",
 		SiteURL:     "blap.com",
-		RemoteId:    remoteId,
+		RemoteID:    remoteID,
 		Topics:      "",
-		CreatorId:   model.NewId(),
+		CreatorID:   model.NewID(),
 	}
 
 	_, err := ss.RemoteCluster().Save(rc)
@@ -497,10 +497,10 @@ func testRemoteClusterUpdateTopics(t *testing.T, ss store.Store) {
 	}
 
 	for _, tt := range testData {
-		_, err = ss.RemoteCluster().UpdateTopics(remoteId, tt.topics)
+		_, err = ss.RemoteCluster().UpdateTopics(remoteID, tt.topics)
 		require.NoError(t, err)
 
-		rcUpdated, err := ss.RemoteCluster().Get(remoteId)
+		rcUpdated, err := ss.RemoteCluster().Get(remoteID)
 		require.NoError(t, err)
 
 		require.Equal(t, tt.expected, rcUpdated.Topics)
@@ -514,7 +514,7 @@ func clearRemoteClusters(ss store.Store) error {
 	}
 
 	for _, rc := range list {
-		if _, err := ss.RemoteCluster().Delete(rc.RemoteId); err != nil {
+		if _, err := ss.RemoteCluster().Delete(rc.RemoteID); err != nil {
 			return err
 		}
 	}

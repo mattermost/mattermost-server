@@ -21,21 +21,21 @@ func (api *API) userTyping(req *model.WebSocketRequest) (map[string]interface{},
 	}
 
 	var ok bool
-	var channelId string
-	if channelId, ok = req.Data["channel_id"].(string); !ok || !model.IsValidId(channelId) {
+	var channelID string
+	if channelID, ok = req.Data["channel_id"].(string); !ok || !model.IsValidID(channelID) {
 		return nil, NewInvalidWebSocketParamError(req.Action, "channel_id")
 	}
 
-	if !api.App.SessionHasPermissionToChannel(req.Session, channelId, model.PermissionCreatePost) {
+	if !api.App.SessionHasPermissionToChannel(req.Session, channelID, model.PermissionCreatePost) {
 		return nil, NewInvalidWebSocketParamError(req.Action, "channel_id")
 	}
 
-	var parentId string
-	if parentId, ok = req.Data["parent_id"].(string); !ok {
-		parentId = ""
+	var parentID string
+	if parentID, ok = req.Data["parent_id"].(string); !ok {
+		parentID = ""
 	}
 
-	appErr := api.App.PublishUserTyping(req.Session.UserId, channelId, parentId)
+	appErr := api.App.PublishUserTyping(req.Session.UserID, channelID, parentID)
 
 	return nil, appErr
 }
@@ -53,9 +53,9 @@ func (api *API) userUpdateActiveStatus(req *model.WebSocketRequest) (map[string]
 	}
 
 	if userIsActive {
-		api.App.SetStatusOnline(req.Session.UserId, manual)
+		api.App.SetStatusOnline(req.Session.UserID, manual)
 	} else {
-		api.App.SetStatusAwayIfNeeded(req.Session.UserId, manual)
+		api.App.SetStatusAwayIfNeeded(req.Session.UserID, manual)
 	}
 
 	return nil, nil

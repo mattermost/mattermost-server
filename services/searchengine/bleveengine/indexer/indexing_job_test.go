@@ -23,13 +23,13 @@ func TestBleveIndexer(t *testing.T) {
 
 	t.Run("Call GetOldestEntityCreationTime for the first indexing call", func(t *testing.T) {
 		job := &model.Job{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			CreateAt: model.GetMillis(),
 			Status:   model.JobStatusPending,
 			Type:     model.JobTypeBlevePostIndexing,
 		}
 
-		mockStore.JobStore.On("UpdateStatusOptimistically", job.Id, model.JobStatusPending, model.JobStatusInProgress).Return(true, nil)
+		mockStore.JobStore.On("UpdateStatusOptimistically", job.ID, model.JobStatusPending, model.JobStatusInProgress).Return(true, nil)
 		mockStore.JobStore.On("UpdateOptimistically", job, model.JobStatusInProgress).Return(true, nil)
 		mockStore.PostStore.On("GetOldestEntityCreationTime").Return(int64(1), errors.New("")) // intentionally return error to return from function
 

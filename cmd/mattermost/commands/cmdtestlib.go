@@ -122,7 +122,7 @@ func (h *testHelper) SetConfig(config *model.Config) {
 
 	h.config = config
 
-	if err := ioutil.WriteFile(h.configFilePath, []byte(config.ToJson()), 0600); err != nil {
+	if err := ioutil.WriteFile(h.configFilePath, []byte(config.ToJSON()), 0600); err != nil {
 		panic("failed to write file " + h.configFilePath + ": " + err.Error())
 	}
 }

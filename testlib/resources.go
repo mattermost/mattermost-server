@@ -207,7 +207,7 @@ func setupConfig(configDir string) error {
 	}
 
 	configJSON := path.Join(configDir, "config.json")
-	err = ioutil.WriteFile(configJSON, []byte(config.ToJson()), 0644)
+	err = ioutil.WriteFile(configJSON, []byte(config.ToJSON()), 0644)
 	if err != nil {
 		return errors.Wrapf(err, "failed to write config to %s", configJSON)
 	}

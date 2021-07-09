@@ -26,19 +26,19 @@ func TestPreferenceStore(t *testing.T, ss store.Store) {
 }
 
 func testPreferenceSave(t *testing.T, ss store.Store) {
-	id := model.NewId()
+	id := model.NewID()
 
 	preferences := model.Preferences{
 		{
-			UserId:   id,
+			UserID:   id,
 			Category: model.PreferenceCategoryDirectChannelShow,
-			Name:     model.NewId(),
+			Name:     model.NewID(),
 			Value:    "value1a",
 		},
 		{
-			UserId:   id,
+			UserID:   id,
 			Category: model.PreferenceCategoryDirectChannelShow,
-			Name:     model.NewId(),
+			Name:     model.NewID(),
 			Value:    "value1b",
 		},
 	}
@@ -46,8 +46,8 @@ func testPreferenceSave(t *testing.T, ss store.Store) {
 	require.NoError(t, err, "saving preference returned error")
 
 	for _, preference := range preferences {
-		data, _ := ss.Preference().Get(preference.UserId, preference.Category, preference.Name)
-		require.Equal(t, data.ToJson(), preference.ToJson(), "got incorrect preference after first Save")
+		data, _ := ss.Preference().Get(preference.UserID, preference.Category, preference.Name)
+		require.Equal(t, data.ToJSON(), preference.ToJSON(), "got incorrect preference after first Save")
 	}
 
 	preferences[0].Value = "value2a"
@@ -56,34 +56,34 @@ func testPreferenceSave(t *testing.T, ss store.Store) {
 	require.NoError(t, err, "saving preference returned error")
 
 	for _, preference := range preferences {
-		data, _ := ss.Preference().Get(preference.UserId, preference.Category, preference.Name)
-		require.Equal(t, data.ToJson(), preference.ToJson(), "got incorrect preference after second Save")
+		data, _ := ss.Preference().Get(preference.UserID, preference.Category, preference.Name)
+		require.Equal(t, data.ToJSON(), preference.ToJSON(), "got incorrect preference after second Save")
 	}
 }
 
 func testPreferenceGet(t *testing.T, ss store.Store) {
-	userId := model.NewId()
+	userID := model.NewID()
 	category := model.PreferenceCategoryDirectChannelShow
-	name := model.NewId()
+	name := model.NewID()
 
 	preferences := model.Preferences{
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
 			Name:     name,
 		},
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
-			Name:     model.NewId(),
+			Name:     model.NewID(),
 		},
 		{
-			UserId:   userId,
-			Category: model.NewId(),
+			UserID:   userID,
+			Category: model.NewID(),
 			Name:     name,
 		},
 		{
-			UserId:   model.NewId(),
+			UserID:   model.NewID(),
 			Category: category,
 			Name:     name,
 		},
@@ -92,41 +92,41 @@ func testPreferenceGet(t *testing.T, ss store.Store) {
 	err := ss.Preference().Save(&preferences)
 	require.NoError(t, err)
 
-	data, err := ss.Preference().Get(userId, category, name)
+	data, err := ss.Preference().Get(userID, category, name)
 	require.NoError(t, err)
-	require.Equal(t, preferences[0].ToJson(), data.ToJson(), "got incorrect preference")
+	require.Equal(t, preferences[0].ToJSON(), data.ToJSON(), "got incorrect preference")
 
 	// make sure getting a missing preference fails
-	_, err = ss.Preference().Get(model.NewId(), model.NewId(), model.NewId())
+	_, err = ss.Preference().Get(model.NewID(), model.NewID(), model.NewID())
 	require.Error(t, err, "no error on getting a missing preference")
 }
 
 func testPreferenceGetCategory(t *testing.T, ss store.Store) {
-	userId := model.NewId()
+	userID := model.NewID()
 	category := model.PreferenceCategoryDirectChannelShow
-	name := model.NewId()
+	name := model.NewID()
 
 	preferences := model.Preferences{
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
 			Name:     name,
 		},
 		// same user/category, different name
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
-			Name:     model.NewId(),
+			Name:     model.NewID(),
 		},
 		// same user/name, different category
 		{
-			UserId:   userId,
-			Category: model.NewId(),
+			UserID:   userID,
+			Category: model.NewID(),
 			Name:     name,
 		},
 		// same name/category, different user
 		{
-			UserId:   model.NewId(),
+			UserID:   model.NewID(),
 			Category: category,
 			Name:     name,
 		},
@@ -135,7 +135,7 @@ func testPreferenceGetCategory(t *testing.T, ss store.Store) {
 	err := ss.Preference().Save(&preferences)
 	require.NoError(t, err)
 
-	preferencesByCategory, err := ss.Preference().GetCategory(userId, category)
+	preferencesByCategory, err := ss.Preference().GetCategory(userID, category)
 	require.NoError(t, err)
 	require.Equal(t, 2, len(preferencesByCategory), "got the wrong number of preferences")
 	require.True(
@@ -145,37 +145,37 @@ func testPreferenceGetCategory(t *testing.T, ss store.Store) {
 	)
 
 	// make sure getting a missing preference category doesn't fail
-	preferencesByCategory, err = ss.Preference().GetCategory(model.NewId(), model.NewId())
+	preferencesByCategory, err = ss.Preference().GetCategory(model.NewID(), model.NewID())
 	require.NoError(t, err)
 	require.Equal(t, 0, len(preferencesByCategory), "shouldn't have got any preferences")
 }
 
 func testPreferenceGetAll(t *testing.T, ss store.Store) {
-	userId := model.NewId()
+	userID := model.NewID()
 	category := model.PreferenceCategoryDirectChannelShow
-	name := model.NewId()
+	name := model.NewID()
 
 	preferences := model.Preferences{
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
 			Name:     name,
 		},
 		// same user/category, different name
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
-			Name:     model.NewId(),
+			Name:     model.NewID(),
 		},
 		// same user/name, different category
 		{
-			UserId:   userId,
-			Category: model.NewId(),
+			UserID:   userID,
+			Category: model.NewID(),
 			Name:     name,
 		},
 		// same name/category, different user
 		{
-			UserId:   model.NewId(),
+			UserID:   model.NewID(),
 			Category: category,
 			Name:     name,
 		},
@@ -184,7 +184,7 @@ func testPreferenceGetAll(t *testing.T, ss store.Store) {
 	err := ss.Preference().Save(&preferences)
 	require.NoError(t, err)
 
-	result, err := ss.Preference().GetAll(userId)
+	result, err := ss.Preference().GetAll(userID)
 	require.NoError(t, err)
 	require.Equal(t, 3, len(result), "got the wrong number of preferences")
 
@@ -195,31 +195,31 @@ func testPreferenceGetAll(t *testing.T, ss store.Store) {
 }
 
 func testPreferenceDeleteByUser(t *testing.T, ss store.Store) {
-	userId := model.NewId()
+	userID := model.NewID()
 	category := model.PreferenceCategoryDirectChannelShow
-	name := model.NewId()
+	name := model.NewID()
 
 	preferences := model.Preferences{
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
 			Name:     name,
 		},
 		// same user/category, different name
 		{
-			UserId:   userId,
+			UserID:   userID,
 			Category: category,
-			Name:     model.NewId(),
+			Name:     model.NewID(),
 		},
 		// same user/name, different category
 		{
-			UserId:   userId,
-			Category: model.NewId(),
+			UserID:   userID,
+			Category: model.NewID(),
 			Name:     name,
 		},
 		// same name/category, different user
 		{
-			UserId:   model.NewId(),
+			UserID:   model.NewID(),
 			Category: category,
 			Name:     name,
 		},
@@ -228,80 +228,80 @@ func testPreferenceDeleteByUser(t *testing.T, ss store.Store) {
 	err := ss.Preference().Save(&preferences)
 	require.NoError(t, err)
 
-	err = ss.Preference().PermanentDeleteByUser(userId)
+	err = ss.Preference().PermanentDeleteByUser(userID)
 	require.NoError(t, err)
 }
 
 func testPreferenceDelete(t *testing.T, ss store.Store) {
 	preference := model.Preference{
-		UserId:   model.NewId(),
+		UserID:   model.NewID(),
 		Category: model.PreferenceCategoryDirectChannelShow,
-		Name:     model.NewId(),
+		Name:     model.NewID(),
 		Value:    "value1a",
 	}
 
 	err := ss.Preference().Save(&model.Preferences{preference})
 	require.NoError(t, err)
 
-	preferences, err := ss.Preference().GetAll(preference.UserId)
+	preferences, err := ss.Preference().GetAll(preference.UserID)
 	require.NoError(t, err)
 	assert.Len(t, preferences, 1, "should've returned 1 preference")
 
-	err = ss.Preference().Delete(preference.UserId, preference.Category, preference.Name)
+	err = ss.Preference().Delete(preference.UserID, preference.Category, preference.Name)
 	require.NoError(t, err)
-	preferences, err = ss.Preference().GetAll(preference.UserId)
+	preferences, err = ss.Preference().GetAll(preference.UserID)
 	require.NoError(t, err)
 	assert.Empty(t, preferences, "should've returned no preferences")
 }
 
 func testPreferenceDeleteCategory(t *testing.T, ss store.Store) {
-	category := model.NewId()
-	userId := model.NewId()
+	category := model.NewID()
+	userID := model.NewID()
 
 	preference1 := model.Preference{
-		UserId:   userId,
+		UserID:   userID,
 		Category: category,
-		Name:     model.NewId(),
+		Name:     model.NewID(),
 		Value:    "value1a",
 	}
 
 	preference2 := model.Preference{
-		UserId:   userId,
+		UserID:   userID,
 		Category: category,
-		Name:     model.NewId(),
+		Name:     model.NewID(),
 		Value:    "value1a",
 	}
 
 	err := ss.Preference().Save(&model.Preferences{preference1, preference2})
 	require.NoError(t, err)
 
-	preferences, err := ss.Preference().GetAll(userId)
+	preferences, err := ss.Preference().GetAll(userID)
 	require.NoError(t, err)
 	assert.Len(t, preferences, 2, "should've returned 2 preferences")
 
-	err = ss.Preference().DeleteCategory(userId, category)
+	err = ss.Preference().DeleteCategory(userID, category)
 	require.NoError(t, err)
 
-	preferences, err = ss.Preference().GetAll(userId)
+	preferences, err = ss.Preference().GetAll(userID)
 	require.NoError(t, err)
 	assert.Empty(t, preferences, "should've returned no preferences")
 }
 
 func testPreferenceDeleteCategoryAndName(t *testing.T, ss store.Store) {
-	category := model.NewId()
-	name := model.NewId()
-	userId := model.NewId()
-	userId2 := model.NewId()
+	category := model.NewID()
+	name := model.NewID()
+	userID := model.NewID()
+	userID2 := model.NewID()
 
 	preference1 := model.Preference{
-		UserId:   userId,
+		UserID:   userID,
 		Category: category,
 		Name:     name,
 		Value:    "value1a",
 	}
 
 	preference2 := model.Preference{
-		UserId:   userId2,
+		UserID:   userID2,
 		Category: category,
 		Name:     name,
 		Value:    "value1a",
@@ -310,22 +310,22 @@ func testPreferenceDeleteCategoryAndName(t *testing.T, ss store.Store) {
 	err := ss.Preference().Save(&model.Preferences{preference1, preference2})
 	require.NoError(t, err)
 
-	preferences, err := ss.Preference().GetAll(userId)
+	preferences, err := ss.Preference().GetAll(userID)
 	require.NoError(t, err)
 	assert.Len(t, preferences, 1, "should've returned 1 preference")
 
-	preferences, err = ss.Preference().GetAll(userId2)
+	preferences, err = ss.Preference().GetAll(userID2)
 	require.NoError(t, err)
 	assert.Len(t, preferences, 1, "should've returned 1 preference")
 
 	err = ss.Preference().DeleteCategoryAndName(category, name)
 	require.NoError(t, err)
 
-	preferences, err = ss.Preference().GetAll(userId)
+	preferences, err = ss.Preference().GetAll(userID)
 	require.NoError(t, err)
 	assert.Empty(t, preferences, "should've returned no preference")
 
-	preferences, err = ss.Preference().GetAll(userId2)
+	preferences, err = ss.Preference().GetAll(userID2)
 	require.NoError(t, err)
 	assert.Empty(t, preferences, "should've returned no preference")
 }
@@ -334,47 +334,47 @@ func testPreferenceDeleteOrphanedRows(t *testing.T, ss store.Store) {
 	const limit = 1000
 	team, err := ss.Team().Save(&model.Team{
 		DisplayName: "DisplayName",
-		Name:        "team" + model.NewId(),
+		Name:        "team" + model.NewID(),
 		Email:       MakeEmail(),
 		Type:        model.TeamOpen,
 	})
 	require.NoError(t, err)
 	channel, err := ss.Channel().Save(&model.Channel{
-		TeamId:      team.Id,
+		TeamID:      team.ID,
 		DisplayName: "DisplayName",
-		Name:        "channel" + model.NewId(),
+		Name:        "channel" + model.NewID(),
 		Type:        model.ChannelTypeOpen,
 	}, -1)
 	require.NoError(t, err)
 	category := model.PreferenceCategoryFlaggedPost
-	userId := model.NewId()
+	userID := model.NewID()
 
 	olderPost, err := ss.Post().Save(&model.Post{
-		ChannelId: channel.Id,
-		UserId:    userId,
+		ChannelID: channel.ID,
+		UserID:    userID,
 		Message:   "message",
 		CreateAt:  1000,
 	})
 	require.NoError(t, err)
 	newerPost, err := ss.Post().Save(&model.Post{
-		ChannelId: channel.Id,
-		UserId:    userId,
+		ChannelID: channel.ID,
+		UserID:    userID,
 		Message:   "message",
 		CreateAt:  3000,
 	})
 	require.NoError(t, err)
 
 	preference1 := model.Preference{
-		UserId:   userId,
+		UserID:   userID,
 		Category: category,
-		Name:     olderPost.Id,
+		Name:     olderPost.ID,
 		Value:    "true",
 	}
 
 	preference2 := model.Preference{
-		UserId:   userId,
+		UserID:   userID,
 		Category: category,
-		Name:     newerPost.Id,
+		Name:     newerPost.ID,
 		Value:    "true",
 	}
 
@@ -387,9 +387,9 @@ func testPreferenceDeleteOrphanedRows(t *testing.T, ss store.Store) {
 	_, nErr = ss.Preference().DeleteOrphanedRows(limit)
 	assert.NoError(t, nErr)
 
-	_, nErr = ss.Preference().Get(userId, category, preference1.Name)
+	_, nErr = ss.Preference().Get(userID, category, preference1.Name)
 	assert.Error(t, nErr, "older preference should have been deleted")
 
-	_, nErr = ss.Preference().Get(userId, category, preference2.Name)
+	_, nErr = ss.Preference().Get(userID, category, preference2.Name)
 	assert.NoError(t, nErr, "newer preference should not have been deleted")
 }

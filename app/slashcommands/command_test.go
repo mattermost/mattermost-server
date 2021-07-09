@@ -40,9 +40,9 @@ func TestMoveCommand(t *testing.T) {
 	targetTeam := th.createTeam()
 
 	command := &model.Command{}
-	command.CreatorId = model.NewId()
+	command.CreatorID = model.NewID()
 	command.Method = model.CommandMethodPost
-	command.TeamId = sourceTeam.Id
+	command.TeamID = sourceTeam.ID
 	command.URL = "http://nowhere.com/"
 	command.Trigger = "trigger1"
 
@@ -56,15 +56,15 @@ func TestMoveCommand(t *testing.T) {
 
 	// Move a command and check the team is updated.
 	assert.Nil(t, th.App.MoveCommand(targetTeam, command))
-	retrievedCommand, err := th.App.GetCommand(command.Id)
+	retrievedCommand, err := th.App.GetCommand(command.ID)
 	assert.Nil(t, err)
-	assert.EqualValues(t, targetTeam.Id, retrievedCommand.TeamId)
+	assert.EqualValues(t, targetTeam.ID, retrievedCommand.TeamID)
 
 	// Move it to the team it's already in. Nothing should change.
 	assert.Nil(t, th.App.MoveCommand(targetTeam, command))
-	retrievedCommand, err = th.App.GetCommand(command.Id)
+	retrievedCommand, err = th.App.GetCommand(command.ID)
 	assert.Nil(t, err)
-	assert.EqualValues(t, targetTeam.Id, retrievedCommand.TeamId)
+	assert.EqualValues(t, targetTeam.ID, retrievedCommand.TeamID)
 }
 
 func TestCreateCommandPost(t *testing.T) {
@@ -72,8 +72,8 @@ func TestCreateCommandPost(t *testing.T) {
 	defer th.tearDown()
 
 	post := &model.Post{
-		ChannelId: th.BasicChannel.Id,
-		UserId:    th.BasicUser.Id,
+		ChannelID: th.BasicChannel.ID,
+		UserID:    th.BasicUser.ID,
 		Type:      model.PostTypeSystemGeneric,
 	}
 
@@ -82,9 +82,9 @@ func TestCreateCommandPost(t *testing.T) {
 	}
 
 	skipSlackParsing := false
-	_, err := th.App.CreateCommandPost(th.Context, post, th.BasicTeam.Id, resp, skipSlackParsing)
+	_, err := th.App.CreateCommandPost(th.Context, post, th.BasicTeam.ID, resp, skipSlackParsing)
 	require.NotNil(t, err)
-	require.Equal(t, err.Id, "api.context.invalid_param.app_error")
+	require.Equal(t, err.ID, "api.context.invalid_param.app_error")
 }
 
 func TestExecuteCommand(t *testing.T) {
@@ -103,9 +103,9 @@ func TestExecuteCommand(t *testing.T) {
 		for TestCase, result := range TestCases {
 			args := &model.CommandArgs{
 				Command:   TestCase,
-				TeamId:    th.BasicTeam.Id,
-				ChannelId: th.BasicChannel.Id,
-				UserId:    th.BasicUser.Id,
+				TeamID:    th.BasicTeam.ID,
+				ChannelID: th.BasicChannel.ID,
+				UserID:    th.BasicUser.ID,
 				T:         func(s string, args ...interface{}) string { return s },
 			}
 			resp, err := th.App.ExecuteCommand(th.Context, args)
@@ -122,7 +122,7 @@ func TestExecuteCommand(t *testing.T) {
 			T:       func(s string, args ...interface{}) string { return s },
 		}
 		_, err := th.App.ExecuteCommand(th.Context, argsMissingSlashCharacter)
-		require.Equal(t, "api.command.execute_command.format.app_error", err.Id)
+		require.Equal(t, "api.command.execute_command.format.app_error", err.ID)
 	})
 
 	t.Run("empty", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestExecuteCommand(t *testing.T) {
 			T:       func(s string, args ...interface{}) string { return s },
 		}
 		_, err := th.App.ExecuteCommand(th.Context, argsMissingSlashCharacter)
-		require.Equal(t, "api.command.execute_command.format.app_error", err.Id)
+		require.Equal(t, "api.command.execute_command.format.app_error", err.ID)
 	})
 }
 
@@ -141,11 +141,11 @@ func TestHandleCommandResponsePost(t *testing.T) {
 
 	command := &model.Command{}
 	args := &model.CommandArgs{
-		ChannelId: th.BasicChannel.Id,
-		TeamId:    th.BasicTeam.Id,
-		UserId:    th.BasicUser.Id,
-		RootId:    "",
-		ParentId:  "",
+		ChannelID: th.BasicChannel.ID,
+		TeamID:    th.BasicTeam.ID,
+		UserID:    th.BasicUser.ID,
+		RootID:    "",
+		ParentID:  "",
 	}
 
 	resp := &model.CommandResponse{
@@ -159,10 +159,10 @@ func TestHandleCommandResponsePost(t *testing.T) {
 
 	post, err := th.App.HandleCommandResponsePost(th.Context, command, args, resp, builtIn)
 	assert.Nil(t, err)
-	assert.Equal(t, args.ChannelId, post.ChannelId)
-	assert.Equal(t, args.RootId, post.RootId)
-	assert.Equal(t, args.ParentId, post.ParentId)
-	assert.Equal(t, args.UserId, post.UserId)
+	assert.Equal(t, args.ChannelID, post.ChannelID)
+	assert.Equal(t, args.RootID, post.RootID)
+	assert.Equal(t, args.ParentID, post.ParentID)
+	assert.Equal(t, args.UserID, post.UserID)
 	assert.Equal(t, resp.Type, post.Type)
 	assert.Equal(t, resp.Props, post.GetProps())
 	assert.Equal(t, resp.Text, post.Message)
@@ -180,17 +180,17 @@ func TestHandleCommandResponsePost(t *testing.T) {
 
 	// Channel id is specified by response, it should override the command args value.
 	channel := th.CreateChannel(th.BasicTeam)
-	resp.ChannelId = channel.Id
+	resp.ChannelID = channel.ID
 	th.addUserToChannel(th.BasicUser, channel)
 
 	post, err = th.App.HandleCommandResponsePost(th.Context, command, args, resp, builtIn)
 	assert.Nil(t, err)
-	assert.Equal(t, resp.ChannelId, post.ChannelId)
-	assert.NotEqual(t, args.ChannelId, post.ChannelId)
+	assert.Equal(t, resp.ChannelID, post.ChannelID)
+	assert.NotEqual(t, args.ChannelID, post.ChannelID)
 
 	// Override username config is turned off. No override should occur.
 	*th.App.Config().ServiceSettings.EnablePostUsernameOverride = false
-	resp.ChannelId = ""
+	resp.ChannelID = ""
 	command.Username = "Command username"
 	resp.Username = "Response username"
 
@@ -265,16 +265,16 @@ func TestHandleCommandResponsePost(t *testing.T) {
 	assert.Equal(t, "true", post.GetProp("from_webhook"))
 
 	channel = th.createPrivateChannel(th.BasicTeam)
-	resp.ChannelId = channel.Id
-	args.UserId = th.BasicUser2.Id
+	resp.ChannelID = channel.ID
+	args.UserID = th.BasicUser2.ID
 	post, err = th.App.HandleCommandResponsePost(th.Context, command, args, resp, builtIn)
 
 	require.NotNil(t, err)
-	require.Equal(t, err.Id, "api.command.command_post.forbidden.app_error")
+	require.Equal(t, err.ID, "api.command.command_post.forbidden.app_error")
 
 	// Test that /code text is not converted with the Slack text conversion.
 	command.Trigger = "code"
-	resp.ChannelId = ""
+	resp.ChannelID = ""
 	resp.Text = "<test.com|test website>"
 	resp.Attachments = []*model.SlackAttachment{
 		{
@@ -300,8 +300,8 @@ func TestHandleCommandResponse(t *testing.T) {
 
 	args := &model.CommandArgs{
 		Command:   "/invite username",
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 	}
 
 	resp := &model.CommandResponse{
@@ -313,7 +313,7 @@ func TestHandleCommandResponse(t *testing.T) {
 
 	_, err := th.App.HandleCommandResponse(th.Context, command, args, resp, builtIn)
 	require.NotNil(t, err)
-	require.Equal(t, err.Id, "api.command.execute_command.create_post_failed.app_error")
+	require.Equal(t, err.ID, "api.command.execute_command.create_post_failed.app_error")
 
 	resp = &model.CommandResponse{
 		Text: "message 1",
@@ -337,7 +337,7 @@ func TestHandleCommandResponse(t *testing.T) {
 
 	_, err = th.App.HandleCommandResponse(th.Context, command, args, resp, builtIn)
 	require.NotNil(t, err)
-	require.Equal(t, err.Id, "api.command.execute_command.create_post_failed.app_error")
+	require.Equal(t, err.ID, "api.command.execute_command.create_post_failed.app_error")
 
 	resp = &model.CommandResponse{
 		ExtraResponses: []*model.CommandResponse{
@@ -410,7 +410,7 @@ func TestDoCommandRequest(t *testing.T) {
 
 		_, _, err := th.App.DoCommandRequest(&model.Command{URL: server.URL}, url.Values{})
 		require.NotNil(t, err)
-		require.Equal(t, "api.command.execute_command.failed.app_error", err.Id)
+		require.Equal(t, "api.command.execute_command.failed.app_error", err.ID)
 	})
 
 	t.Run("with a large, invalid json response", func(t *testing.T) {
@@ -423,7 +423,7 @@ func TestDoCommandRequest(t *testing.T) {
 
 		_, _, err := th.App.DoCommandRequest(&model.Command{URL: server.URL}, url.Values{})
 		require.NotNil(t, err)
-		require.Equal(t, "api.command.execute_command.failed.app_error", err.Id)
+		require.Equal(t, "api.command.execute_command.failed.app_error", err.ID)
 	})
 
 	t.Run("with a slow response", func(t *testing.T) {
@@ -441,7 +441,7 @@ func TestDoCommandRequest(t *testing.T) {
 
 		_, _, err := th.App.DoCommandRequest(&model.Command{URL: server.URL}, url.Values{})
 		require.NotNil(t, err)
-		require.Equal(t, "api.command.execute_command.failed.app_error", err.Id)
+		require.Equal(t, "api.command.execute_command.failed.app_error", err.ID)
 		close(done)
 	})
 }
@@ -461,67 +461,67 @@ func TestMentionsToTeamMembers(t *testing.T) {
 	}{
 		{
 			"",
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{},
 		},
 		{
 			"/trigger",
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{},
 		},
 		{
 			"/trigger 0 mentions",
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{},
 		},
 		{
 			fmt.Sprintf("/trigger 1 valid user @%s", th.BasicUser.Username),
-			th.BasicTeam.Id,
-			model.UserMentionMap{th.BasicUser.Username: th.BasicUser.Id},
+			th.BasicTeam.ID,
+			model.UserMentionMap{th.BasicUser.Username: th.BasicUser.ID},
 		},
 		{
 			fmt.Sprintf("/trigger 2 valid users @%s @%s",
 				th.BasicUser.Username, th.BasicUser2.Username,
 			),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{
-				th.BasicUser.Username:  th.BasicUser.Id,
-				th.BasicUser2.Username: th.BasicUser2.Id,
+				th.BasicUser.Username:  th.BasicUser.ID,
+				th.BasicUser2.Username: th.BasicUser2.ID,
 			},
 		},
 		{
 			fmt.Sprintf("/trigger 1 user from another team @%s", otherUser.Username),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{},
 		},
 		{
 			fmt.Sprintf("/trigger 2 valid users + 1 from another team @%s @%s @%s",
 				th.BasicUser.Username, th.BasicUser2.Username, otherUser.Username,
 			),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{
-				th.BasicUser.Username:  th.BasicUser.Id,
-				th.BasicUser2.Username: th.BasicUser2.Id,
+				th.BasicUser.Username:  th.BasicUser.ID,
+				th.BasicUser2.Username: th.BasicUser2.ID,
 			},
 		},
 		{
 			fmt.Sprintf("/trigger a valid channel ~%s", th.BasicChannel.Name),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{},
 		},
 		{
 			fmt.Sprintf("/trigger channel and mentions ~%s @%s",
 				th.BasicChannel.Name, th.BasicUser.Username),
-			th.BasicTeam.Id,
-			model.UserMentionMap{th.BasicUser.Username: th.BasicUser.Id},
+			th.BasicTeam.ID,
+			model.UserMentionMap{th.BasicUser.Username: th.BasicUser.ID},
 		},
 		{
 			fmt.Sprintf("/trigger repeated users @%s @%s @%s",
 				th.BasicUser.Username, th.BasicUser2.Username, th.BasicUser.Username),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.UserMentionMap{
-				th.BasicUser.Username:  th.BasicUser.Id,
-				th.BasicUser2.Username: th.BasicUser2.Id,
+				th.BasicUser.Username:  th.BasicUser.ID,
+				th.BasicUser2.Username: th.BasicUser2.ID,
 			},
 		},
 	}
@@ -546,67 +546,67 @@ func TestMentionsToPublicChannels(t *testing.T) {
 	}{
 		{
 			"",
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{},
 		},
 		{
 			"/trigger",
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{},
 		},
 		{
 			"/trigger 0 mentions",
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{},
 		},
 		{
 			fmt.Sprintf("/trigger 1 public channel ~%s", th.BasicChannel.Name),
-			th.BasicTeam.Id,
-			model.ChannelMentionMap{th.BasicChannel.Name: th.BasicChannel.Id},
+			th.BasicTeam.ID,
+			model.ChannelMentionMap{th.BasicChannel.Name: th.BasicChannel.ID},
 		},
 		{
 			fmt.Sprintf("/trigger 2 public channels ~%s ~%s",
 				th.BasicChannel.Name, otherPublicChannel.Name,
 			),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{
-				th.BasicChannel.Name:    th.BasicChannel.Id,
-				otherPublicChannel.Name: otherPublicChannel.Id,
+				th.BasicChannel.Name:    th.BasicChannel.ID,
+				otherPublicChannel.Name: otherPublicChannel.ID,
 			},
 		},
 		{
 			fmt.Sprintf("/trigger 1 private channel ~%s", privateChannel.Name),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{},
 		},
 		{
 			fmt.Sprintf("/trigger 2 public channel + 1 private ~%s ~%s ~%s",
 				th.BasicChannel.Name, otherPublicChannel.Name, privateChannel.Name,
 			),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{
-				th.BasicChannel.Name:    th.BasicChannel.Id,
-				otherPublicChannel.Name: otherPublicChannel.Id,
+				th.BasicChannel.Name:    th.BasicChannel.ID,
+				otherPublicChannel.Name: otherPublicChannel.ID,
 			},
 		},
 		{
 			fmt.Sprintf("/trigger a valid user @%s", th.BasicUser.Username),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{},
 		},
 		{
 			fmt.Sprintf("/trigger channel and mentions ~%s @%s",
 				th.BasicChannel.Name, th.BasicUser.Username),
-			th.BasicTeam.Id,
-			model.ChannelMentionMap{th.BasicChannel.Name: th.BasicChannel.Id},
+			th.BasicTeam.ID,
+			model.ChannelMentionMap{th.BasicChannel.Name: th.BasicChannel.ID},
 		},
 		{
 			fmt.Sprintf("/trigger repeated channels ~%s ~%s ~%s",
 				th.BasicChannel.Name, otherPublicChannel.Name, th.BasicChannel.Name),
-			th.BasicTeam.Id,
+			th.BasicTeam.ID,
 			model.ChannelMentionMap{
-				th.BasicChannel.Name:    th.BasicChannel.Id,
-				otherPublicChannel.Name: otherPublicChannel.Id,
+				th.BasicChannel.Name:    th.BasicChannel.ID,
+				otherPublicChannel.Name: otherPublicChannel.ID,
 			},
 		},
 	}

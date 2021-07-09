@@ -60,8 +60,8 @@ func (as SqlOAuthStore) createIndexesIfNotExists() {
 }
 
 func (as SqlOAuthStore) SaveApp(app *model.OAuthApp) (*model.OAuthApp, error) {
-	if app.Id != "" {
-		return nil, store.NewErrInvalidInput("OAuthApp", "Id", app.Id)
+	if app.ID != "" {
+		return nil, store.NewErrInvalidInput("OAuthApp", "Id", app.ID)
 	}
 
 	app.PreSave()
@@ -82,24 +82,24 @@ func (as SqlOAuthStore) UpdateApp(app *model.OAuthApp) (*model.OAuthApp, error) 
 		return nil, err
 	}
 
-	oldAppResult, err := as.GetMaster().Get(model.OAuthApp{}, app.Id)
+	oldAppResult, err := as.GetMaster().Get(model.OAuthApp{}, app.ID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get OAuthApp with id=%s", app.Id)
+		return nil, errors.Wrapf(err, "failed to get OAuthApp with id=%s", app.ID)
 	}
 	if oldAppResult == nil {
-		return nil, store.NewErrInvalidInput("OAuthApp", "Id", app.Id)
+		return nil, store.NewErrInvalidInput("OAuthApp", "Id", app.ID)
 	}
 
 	oldApp := oldAppResult.(*model.OAuthApp)
 	app.CreateAt = oldApp.CreateAt
-	app.CreatorId = oldApp.CreatorId
+	app.CreatorID = oldApp.CreatorID
 
 	count, err := as.GetMaster().Update(app)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to update OAuthApp with id=%s", app.Id)
+		return nil, errors.Wrapf(err, "failed to update OAuthApp with id=%s", app.ID)
 	}
 	if count > 1 {
-		return nil, store.NewErrInvalidInput("OAuthApp", "Id", app.Id)
+		return nil, store.NewErrInvalidInput("OAuthApp", "Id", app.ID)
 	}
 	return app, nil
 }
@@ -115,11 +115,11 @@ func (as SqlOAuthStore) GetApp(id string) (*model.OAuthApp, error) {
 	return obj.(*model.OAuthApp), nil
 }
 
-func (as SqlOAuthStore) GetAppByUser(userId string, offset, limit int) ([]*model.OAuthApp, error) {
+func (as SqlOAuthStore) GetAppByUser(userID string, offset, limit int) ([]*model.OAuthApp, error) {
 	var apps []*model.OAuthApp
 
-	if _, err := as.GetReplica().Select(&apps, "SELECT * FROM OAuthApps WHERE CreatorId = :UserId LIMIT :Limit OFFSET :Offset", map[string]interface{}{"UserId": userId, "Offset": offset, "Limit": limit}); err != nil {
-		return nil, errors.Wrapf(err, "failed to find OAuthApps with userId=%s", userId)
+	if _, err := as.GetReplica().Select(&apps, "SELECT * FROM OAuthApps WHERE CreatorId = :UserId LIMIT :Limit OFFSET :Offset", map[string]interface{}{"UserId": userID, "Offset": offset, "Limit": limit}); err != nil {
+		return nil, errors.Wrapf(err, "failed to find OAuthApps with userId=%s", userID)
 	}
 
 	return apps, nil
@@ -135,13 +135,13 @@ func (as SqlOAuthStore) GetApps(offset, limit int) ([]*model.OAuthApp, error) {
 	return apps, nil
 }
 
-func (as SqlOAuthStore) GetAuthorizedApps(userId string, offset, limit int) ([]*model.OAuthApp, error) {
+func (as SqlOAuthStore) GetAuthorizedApps(userID string, offset, limit int) ([]*model.OAuthApp, error) {
 	var apps []*model.OAuthApp
 
 	if _, err := as.GetReplica().Select(&apps,
 		`SELECT o.* FROM OAuthApps AS o INNER JOIN
-			Preferences AS p ON p.Name=o.Id AND p.UserId=:UserId LIMIT :Limit OFFSET :Offset`, map[string]interface{}{"UserId": userId, "Offset": offset, "Limit": limit}); err != nil {
-		return nil, errors.Wrapf(err, "failed to find OAuthApps with userId=%s", userId)
+			Preferences AS p ON p.Name=o.Id AND p.UserId=:UserId LIMIT :Limit OFFSET :Offset`, map[string]interface{}{"UserId": userID, "Offset": offset, "Limit": limit}); err != nil {
+		return nil, errors.Wrapf(err, "failed to find OAuthApps with userId=%s", userID)
 	}
 
 	return apps, nil
@@ -186,13 +186,13 @@ func (as SqlOAuthStore) GetAccessData(token string) (*model.AccessData, error) {
 	return &accessData, nil
 }
 
-func (as SqlOAuthStore) GetAccessDataByUserForApp(userId, clientId string) ([]*model.AccessData, error) {
+func (as SqlOAuthStore) GetAccessDataByUserForApp(userID, clientID string) ([]*model.AccessData, error) {
 	var accessData []*model.AccessData
 
 	if _, err := as.GetReplica().Select(&accessData,
 		"SELECT * FROM OAuthAccessData WHERE UserId = :UserId AND ClientId = :ClientId",
-		map[string]interface{}{"UserId": userId, "ClientId": clientId}); err != nil {
-		return nil, errors.Wrapf(err, "failed to delete OAuthAccessData with userId=%s and clientId=%s", userId, clientId)
+		map[string]interface{}{"UserId": userID, "ClientId": clientID}); err != nil {
+		return nil, errors.Wrapf(err, "failed to delete OAuthAccessData with userId=%s and clientId=%s", userID, clientID)
 	}
 	return accessData, nil
 }
@@ -206,16 +206,16 @@ func (as SqlOAuthStore) GetAccessDataByRefreshToken(token string) (*model.Access
 	return &accessData, nil
 }
 
-func (as SqlOAuthStore) GetPreviousAccessData(userId, clientId string) (*model.AccessData, error) {
+func (as SqlOAuthStore) GetPreviousAccessData(userID, clientID string) (*model.AccessData, error) {
 	accessData := model.AccessData{}
 
 	if err := as.GetReplica().SelectOne(&accessData, "SELECT * FROM OAuthAccessData WHERE ClientId = :ClientId AND UserId = :UserId",
-		map[string]interface{}{"ClientId": clientId, "UserId": userId}); err != nil {
+		map[string]interface{}{"ClientId": clientID, "UserId": userID}); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 
-		return nil, errors.Wrapf(err, "failed to get AccessData with clientId=%s and userId=%s", clientId, userId)
+		return nil, errors.Wrapf(err, "failed to get AccessData with clientId=%s and userId=%s", clientID, userID)
 	}
 	return &accessData, nil
 }
@@ -226,8 +226,8 @@ func (as SqlOAuthStore) UpdateAccessData(accessData *model.AccessData) (*model.A
 	}
 
 	if _, err := as.GetMaster().Exec("UPDATE OAuthAccessData SET Token = :Token, ExpiresAt = :ExpiresAt, RefreshToken = :RefreshToken WHERE ClientId = :ClientId AND UserID = :UserId",
-		map[string]interface{}{"Token": accessData.Token, "ExpiresAt": accessData.ExpiresAt, "RefreshToken": accessData.RefreshToken, "ClientId": accessData.ClientId, "UserId": accessData.UserId}); err != nil {
-		return nil, errors.Wrapf(err, "failed to update OAuthAccessData with userId=%s and clientId=%s", accessData.UserId, accessData.ClientId)
+		map[string]interface{}{"Token": accessData.Token, "ExpiresAt": accessData.ExpiresAt, "RefreshToken": accessData.RefreshToken, "ClientId": accessData.ClientID, "UserId": accessData.UserID}); err != nil {
+		return nil, errors.Wrapf(err, "failed to update OAuthAccessData with userId=%s and clientId=%s", accessData.UserID, accessData.ClientID)
 	}
 	return accessData, nil
 }
@@ -277,23 +277,23 @@ func (as SqlOAuthStore) RemoveAuthData(code string) error {
 	return nil
 }
 
-func (as SqlOAuthStore) PermanentDeleteAuthDataByUser(userId string) error {
-	_, err := as.GetMaster().Exec("DELETE FROM OAuthAccessData WHERE UserId = :UserId", map[string]interface{}{"UserId": userId})
+func (as SqlOAuthStore) PermanentDeleteAuthDataByUser(userID string) error {
+	_, err := as.GetMaster().Exec("DELETE FROM OAuthAccessData WHERE UserId = :UserId", map[string]interface{}{"UserId": userID})
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete OAuthAccessData with userId=%s", userId)
+		return errors.Wrapf(err, "failed to delete OAuthAccessData with userId=%s", userID)
 	}
 	return nil
 }
 
-func (as SqlOAuthStore) deleteApp(transaction *gorp.Transaction, clientId string) error {
-	if _, err := transaction.Exec("DELETE FROM OAuthApps WHERE Id = :Id", map[string]interface{}{"Id": clientId}); err != nil {
-		return errors.Wrapf(err, "failed to delete OAuthApp with id=%s", clientId)
+func (as SqlOAuthStore) deleteApp(transaction *gorp.Transaction, clientID string) error {
+	if _, err := transaction.Exec("DELETE FROM OAuthApps WHERE Id = :Id", map[string]interface{}{"Id": clientID}); err != nil {
+		return errors.Wrapf(err, "failed to delete OAuthApp with id=%s", clientID)
 	}
 
-	return as.deleteOAuthAppSessions(transaction, clientId)
+	return as.deleteOAuthAppSessions(transaction, clientID)
 }
 
-func (as SqlOAuthStore) deleteOAuthAppSessions(transaction *gorp.Transaction, clientId string) error {
+func (as SqlOAuthStore) deleteOAuthAppSessions(transaction *gorp.Transaction, clientID string) error {
 
 	query := ""
 	if as.DriverName() == model.DatabaseDriverPostgres {
@@ -302,29 +302,29 @@ func (as SqlOAuthStore) deleteOAuthAppSessions(transaction *gorp.Transaction, cl
 		query = "DELETE s.* FROM Sessions s INNER JOIN OAuthAccessData o ON o.Token = s.Token WHERE o.ClientId = :Id"
 	}
 
-	if _, err := transaction.Exec(query, map[string]interface{}{"Id": clientId}); err != nil {
-		return errors.Wrapf(err, "failed to delete Session with OAuthAccessData.Id=%s", clientId)
+	if _, err := transaction.Exec(query, map[string]interface{}{"Id": clientID}); err != nil {
+		return errors.Wrapf(err, "failed to delete Session with OAuthAccessData.Id=%s", clientID)
 	}
 
-	return as.deleteOAuthTokens(transaction, clientId)
+	return as.deleteOAuthTokens(transaction, clientID)
 }
 
-func (as SqlOAuthStore) deleteOAuthTokens(transaction *gorp.Transaction, clientId string) error {
-	if _, err := transaction.Exec("DELETE FROM OAuthAccessData WHERE ClientId = :Id", map[string]interface{}{"Id": clientId}); err != nil {
-		return errors.Wrapf(err, "failed to delete OAuthAccessData with id=%s", clientId)
+func (as SqlOAuthStore) deleteOAuthTokens(transaction *gorp.Transaction, clientID string) error {
+	if _, err := transaction.Exec("DELETE FROM OAuthAccessData WHERE ClientId = :Id", map[string]interface{}{"Id": clientID}); err != nil {
+		return errors.Wrapf(err, "failed to delete OAuthAccessData with id=%s", clientID)
 	}
 
-	return as.deleteAppExtras(transaction, clientId)
+	return as.deleteAppExtras(transaction, clientID)
 }
 
-func (as SqlOAuthStore) deleteAppExtras(transaction *gorp.Transaction, clientId string) error {
+func (as SqlOAuthStore) deleteAppExtras(transaction *gorp.Transaction, clientID string) error {
 	if _, err := transaction.Exec(
 		`DELETE FROM
 			Preferences
 		WHERE
 			Category = :Category
-			AND Name = :Name`, map[string]interface{}{"Category": model.PreferenceCategoryAuthorizedOAuthApp, "Name": clientId}); err != nil {
-		return errors.Wrapf(err, "failed to delete Preferences with name=%s", clientId)
+			AND Name = :Name`, map[string]interface{}{"Category": model.PreferenceCategoryAuthorizedOAuthApp, "Name": clientID}); err != nil {
+		return errors.Wrapf(err, "failed to delete Preferences with name=%s", clientID)
 	}
 
 	return nil

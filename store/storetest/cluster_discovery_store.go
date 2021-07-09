@@ -25,7 +25,7 @@ func TestClusterDiscoveryStore(t *testing.T, ss store.Store) {
 func testClusterDiscoveryStore(t *testing.T, ss store.Store) {
 	discovery := &model.ClusterDiscovery{
 		ClusterName: "cluster_name",
-		Hostname:    "hostname" + model.NewId(),
+		Hostname:    "hostname" + model.NewID(),
 		Type:        "test_test",
 	}
 
@@ -39,7 +39,7 @@ func testClusterDiscoveryStore(t *testing.T, ss store.Store) {
 func testClusterDiscoveryStoreDelete(t *testing.T, ss store.Store) {
 	discovery := &model.ClusterDiscovery{
 		ClusterName: "cluster_name",
-		Hostname:    "hostname" + model.NewId(),
+		Hostname:    "hostname" + model.NewID(),
 		Type:        "test_test",
 	}
 
@@ -53,8 +53,8 @@ func testClusterDiscoveryStoreDelete(t *testing.T, ss store.Store) {
 func testClusterDiscoveryStoreLastPing(t *testing.T, ss store.Store) {
 	discovery := &model.ClusterDiscovery{
 		ClusterName: "cluster_name_lastPing",
-		Hostname:    "hostname" + model.NewId(),
-		Type:        "test_test_lastPing" + model.NewId(),
+		Hostname:    "hostname" + model.NewID(),
+		Type:        "test_test_lastPing" + model.NewID(),
 	}
 
 	err := ss.ClusterDiscovery().Save(discovery)
@@ -78,7 +78,7 @@ func testClusterDiscoveryStoreLastPing(t *testing.T, ss store.Store) {
 
 	discovery2 := &model.ClusterDiscovery{
 		ClusterName: "cluster_name_missing",
-		Hostname:    "hostname" + model.NewId(),
+		Hostname:    "hostname" + model.NewID(),
 		Type:        "test_test_missing",
 	}
 
@@ -89,8 +89,8 @@ func testClusterDiscoveryStoreLastPing(t *testing.T, ss store.Store) {
 func testClusterDiscoveryStoreExists(t *testing.T, ss store.Store) {
 	discovery := &model.ClusterDiscovery{
 		ClusterName: "cluster_name_Exists",
-		Hostname:    "hostname" + model.NewId(),
-		Type:        "test_test_Exists" + model.NewId(),
+		Hostname:    "hostname" + model.NewID(),
+		Type:        "test_test_Exists" + model.NewID(),
 	}
 
 	err := ss.ClusterDiscovery().Save(discovery)
@@ -108,7 +108,7 @@ func testClusterDiscoveryStoreExists(t *testing.T, ss store.Store) {
 }
 
 func testClusterDiscoveryGetStore(t *testing.T, ss store.Store) {
-	testType1 := model.NewId()
+	testType1 := model.NewID()
 
 	discovery1 := &model.ClusterDiscovery{
 		ClusterName: "cluster_name",
@@ -133,7 +133,7 @@ func testClusterDiscoveryGetStore(t *testing.T, ss store.Store) {
 	}
 	require.NoError(t, ss.ClusterDiscovery().Save(discovery3))
 
-	testType2 := model.NewId()
+	testType2 := model.NewID()
 
 	discovery4 := &model.ClusterDiscovery{
 		ClusterName: "cluster_name",
@@ -150,7 +150,7 @@ func testClusterDiscoveryGetStore(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 	assert.Len(t, list, 1)
 
-	list, err = ss.ClusterDiscovery().GetAll(model.NewId(), "cluster_name")
+	list, err = ss.ClusterDiscovery().GetAll(model.NewID(), "cluster_name")
 	require.NoError(t, err)
 	assert.Empty(t, list)
 }

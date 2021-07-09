@@ -157,7 +157,7 @@ func (p *HelpersImpl) ShouldProcessMessage(post *model.Post, options ...ShouldPr
 	}
 
 	if botIDBytes != nil {
-		if post.UserId == string(botIDBytes) {
+		if post.UserID == string(botIDBytes) {
 			return false, nil
 		}
 	}
@@ -171,7 +171,7 @@ func (p *HelpersImpl) ShouldProcessMessage(post *model.Post, options ...ShouldPr
 	}
 
 	if !messageProcessOptions.AllowBots {
-		user, appErr := p.API.GetUser(post.UserId)
+		user, appErr := p.API.GetUser(post.UserID)
 		if appErr != nil {
 			return false, errors.Wrap(appErr, "unable to get user")
 		}
@@ -181,16 +181,16 @@ func (p *HelpersImpl) ShouldProcessMessage(post *model.Post, options ...ShouldPr
 		}
 	}
 
-	if len(messageProcessOptions.FilterChannelIDs) != 0 && !utils.StringInSlice(post.ChannelId, messageProcessOptions.FilterChannelIDs) {
+	if len(messageProcessOptions.FilterChannelIDs) != 0 && !utils.StringInSlice(post.ChannelID, messageProcessOptions.FilterChannelIDs) {
 		return false, nil
 	}
 
-	if len(messageProcessOptions.FilterUserIDs) != 0 && !utils.StringInSlice(post.UserId, messageProcessOptions.FilterUserIDs) {
+	if len(messageProcessOptions.FilterUserIDs) != 0 && !utils.StringInSlice(post.UserID, messageProcessOptions.FilterUserIDs) {
 		return false, nil
 	}
 
 	if botIDBytes != nil && messageProcessOptions.OnlyBotDMs {
-		channel, appErr := p.API.GetChannel(post.ChannelId)
+		channel, appErr := p.API.GetChannel(post.ChannelID)
 		if appErr != nil {
 			return false, errors.Wrap(appErr, "unable to get channel")
 		}
@@ -271,13 +271,13 @@ func (p *HelpersImpl) ensureBot(bot *model.Bot) (retBotID string, retErr error) 
 	// Check for an existing bot user with that username. If one exists, then use that.
 	if user, userGetErr := p.API.GetUserByUsername(bot.Username); userGetErr == nil && user != nil {
 		if user.IsBot {
-			if kvSetErr := p.API.KVSet(BotUserKey, []byte(user.Id)); kvSetErr != nil {
-				p.API.LogWarn("Failed to set claimed bot user id.", "userid", user.Id, "err", kvSetErr)
+			if kvSetErr := p.API.KVSet(BotUserKey, []byte(user.ID)); kvSetErr != nil {
+				p.API.LogWarn("Failed to set claimed bot user id.", "userid", user.ID, "err", kvSetErr)
 			}
 		} else {
-			p.API.LogError("Plugin attempted to use an account that already exists. Convert user to a bot account in the CLI by running 'mattermost user convert <username> --bot'. If the user is an existing user account you want to preserve, change its username and restart the Mattermost server, after which the plugin will create a bot account with that name. For more information about bot accounts, see https://mattermost.com/pl/default-bot-accounts", "username", bot.Username, "user_id", user.Id)
+			p.API.LogError("Plugin attempted to use an account that already exists. Convert user to a bot account in the CLI by running 'mattermost user convert <username> --bot'. If the user is an existing user account you want to preserve, change its username and restart the Mattermost server, after which the plugin will create a bot account with that name. For more information about bot accounts, see https://mattermost.com/pl/default-bot-accounts", "username", bot.Username, "user_id", user.ID)
 		}
-		return user.Id, nil
+		return user.ID, nil
 	}
 
 	// Create a new bot user for the plugin
@@ -286,11 +286,11 @@ func (p *HelpersImpl) ensureBot(bot *model.Bot) (retBotID string, retErr error) 
 		return "", errors.Wrap(createBotErr, "failed to create bot")
 	}
 
-	if kvSetErr := p.API.KVSet(BotUserKey, []byte(createdBot.UserId)); kvSetErr != nil {
-		p.API.LogWarn("Failed to set created bot user id.", "userid", createdBot.UserId, "err", kvSetErr)
+	if kvSetErr := p.API.KVSet(BotUserKey, []byte(createdBot.UserID)); kvSetErr != nil {
+		p.API.LogWarn("Failed to set created bot user id.", "userid", createdBot.UserID, "err", kvSetErr)
 	}
 
-	return createdBot.UserId, nil
+	return createdBot.UserID, nil
 }
 
 func (p *HelpersImpl) setBotImages(botID, profileImagePath, iconImagePath string) error {

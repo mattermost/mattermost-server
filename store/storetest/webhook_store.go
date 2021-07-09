@@ -80,11 +80,11 @@ func testWebhookStoreGetIncoming(t *testing.T, ss store.Store) {
 	o1, err = ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err, "unable to save webhook")
 
-	webhook, err := ss.Webhook().GetIncoming(o1.Id, false)
+	webhook, err := ss.Webhook().GetIncoming(o1.ID, false)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	webhook, err = ss.Webhook().GetIncoming(o1.Id, true)
+	webhook, err = ss.Webhook().GetIncoming(o1.ID, true)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
@@ -102,9 +102,9 @@ func testWebhookStoreGetIncoming(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetIncomingList(t *testing.T, ss store.Store) {
 	o1 := &model.IncomingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.UserId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.UserID = model.NewID()
+	o1.TeamID = model.NewID()
 
 	var err error
 	o1, err = ss.Webhook().SaveIncoming(o1)
@@ -115,7 +115,7 @@ func testWebhookStoreGetIncomingList(t *testing.T, ss store.Store) {
 
 	found := false
 	for _, hook := range hooks {
-		if hook.Id == o1.Id {
+		if hook.ID == o1.ID {
 			found = true
 		}
 	}
@@ -128,15 +128,15 @@ func testWebhookStoreGetIncomingList(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetIncomingListByUser(t *testing.T, ss store.Store) {
 	o1 := &model.IncomingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.UserId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.UserID = model.NewID()
+	o1.TeamID = model.NewID()
 
 	o1, err := ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err)
 
 	t.Run("GetIncomingListByUser, known user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetIncomingListByUser(o1.UserId, 0, 100)
+		hooks, err := ss.Webhook().GetIncomingListByUser(o1.UserID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(hooks))
 		require.Equal(t, o1.CreateAt, hooks[0].CreateAt)
@@ -156,7 +156,7 @@ func testWebhookStoreGetIncomingByTeam(t *testing.T, ss store.Store) {
 	o1, err = ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err)
 
-	hooks, err := ss.Webhook().GetIncomingByTeam(o1.TeamId, 0, 100)
+	hooks, err := ss.Webhook().GetIncomingByTeam(o1.TeamID, 0, 100)
 	require.NoError(t, err)
 	require.Equal(t, hooks[0].CreateAt, o1.CreateAt, "invalid returned webhook")
 
@@ -173,25 +173,25 @@ func TestWebhookStoreGetIncomingByTeamByUser(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 
 	o2 := buildIncomingWebhook()
-	o2.TeamId = o1.TeamId //Set both to the same team
+	o2.TeamID = o1.TeamID //Set both to the same team
 	o2, err = ss.Webhook().SaveIncoming(o2)
 	require.NoError(t, err)
 
 	t.Run("GetIncomingByTeamByUser, no user filter", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetIncomingByTeam(o1.TeamId, 0, 100)
+		hooks, err := ss.Webhook().GetIncomingByTeam(o1.TeamID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 2)
 	})
 
 	t.Run("GetIncomingByTeamByUser, known user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetIncomingByTeamByUser(o1.TeamId, o1.UserId, 0, 100)
+		hooks, err := ss.Webhook().GetIncomingByTeamByUser(o1.TeamID, o1.UserID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 1)
 		require.Equal(t, hooks[0].CreateAt, o1.CreateAt)
 	})
 
 	t.Run("GetIncomingByTeamByUser, unknown user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetIncomingByTeamByUser(o2.TeamId, "123465", 0, 100)
+		hooks, err := ss.Webhook().GetIncomingByTeamByUser(o2.TeamID, "123465", 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 0)
 	})
@@ -203,7 +203,7 @@ func testWebhookStoreGetIncomingByChannel(t *testing.T, ss store.Store) {
 	o1, err := ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err, "unable to save webhook")
 
-	webhooks, err := ss.Webhook().GetIncomingByChannel(o1.ChannelId)
+	webhooks, err := ss.Webhook().GetIncomingByChannel(o1.ChannelID)
 	require.NoError(t, err)
 	require.Equal(t, webhooks[0].CreateAt, o1.CreateAt, "invalid returned webhook")
 
@@ -219,14 +219,14 @@ func testWebhookStoreDeleteIncoming(t *testing.T, ss store.Store) {
 	o1, err = ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err, "unable to save webhook")
 
-	webhook, err := ss.Webhook().GetIncoming(o1.Id, true)
+	webhook, err := ss.Webhook().GetIncoming(o1.ID, true)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	err = ss.Webhook().DeleteIncoming(o1.Id, model.GetMillis())
+	err = ss.Webhook().DeleteIncoming(o1.ID, model.GetMillis())
 	require.NoError(t, err)
 
-	webhook, err = ss.Webhook().GetIncoming(o1.Id, true)
+	webhook, err = ss.Webhook().GetIncoming(o1.ID, true)
 	require.Error(t, err)
 }
 
@@ -237,14 +237,14 @@ func testWebhookStoreDeleteIncomingByChannel(t *testing.T, ss store.Store) {
 	o1, err = ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err, "unable to save webhook")
 
-	webhook, err := ss.Webhook().GetIncoming(o1.Id, true)
+	webhook, err := ss.Webhook().GetIncoming(o1.ID, true)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	err = ss.Webhook().PermanentDeleteIncomingByChannel(o1.ChannelId)
+	err = ss.Webhook().PermanentDeleteIncomingByChannel(o1.ChannelID)
 	require.NoError(t, err)
 
-	_, err = ss.Webhook().GetIncoming(o1.Id, true)
+	_, err = ss.Webhook().GetIncoming(o1.ID, true)
 	require.Error(t, err, "Missing id should have failed")
 }
 
@@ -255,31 +255,31 @@ func testWebhookStoreDeleteIncomingByUser(t *testing.T, ss store.Store) {
 	o1, err = ss.Webhook().SaveIncoming(o1)
 	require.NoError(t, err, "unable to save webhook")
 
-	webhook, err := ss.Webhook().GetIncoming(o1.Id, true)
+	webhook, err := ss.Webhook().GetIncoming(o1.ID, true)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	err = ss.Webhook().PermanentDeleteIncomingByUser(o1.UserId)
+	err = ss.Webhook().PermanentDeleteIncomingByUser(o1.UserID)
 	require.NoError(t, err)
 
-	_, err = ss.Webhook().GetIncoming(o1.Id, true)
+	_, err = ss.Webhook().GetIncoming(o1.ID, true)
 	require.Error(t, err, "Missing id should have failed")
 }
 
 func buildIncomingWebhook() *model.IncomingWebhook {
 	o1 := &model.IncomingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.UserId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.UserID = model.NewID()
+	o1.TeamID = model.NewID()
 
 	return o1
 }
 
 func testWebhookStoreSaveOutgoing(t *testing.T, ss store.Store) {
 	o1 := model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 	o1.Username = "test-user-name"
 	o1.IconURL = "http://nowhere.com/icon"
@@ -293,16 +293,16 @@ func testWebhookStoreSaveOutgoing(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetOutgoing(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 	o1.Username = "test-user-name"
 	o1.IconURL = "http://nowhere.com/icon"
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	webhook, err := ss.Webhook().GetOutgoing(o1.Id)
+	webhook, err := ss.Webhook().GetOutgoing(o1.ID)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
@@ -312,16 +312,16 @@ func testWebhookStoreGetOutgoing(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetOutgoingListByUser(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, err := ss.Webhook().SaveOutgoing(o1)
 	require.NoError(t, err)
 
 	t.Run("GetOutgoingListByUser, known user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingListByUser(o1.CreatorId, 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingListByUser(o1.CreatorID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(hooks))
 		require.Equal(t, o1.CreateAt, hooks[0].CreateAt)
@@ -336,17 +336,17 @@ func testWebhookStoreGetOutgoingListByUser(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetOutgoingList(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
 	o2 := &model.OutgoingWebhook{}
-	o2.ChannelId = model.NewId()
-	o2.CreatorId = model.NewId()
-	o2.TeamId = model.NewId()
+	o2.ChannelID = model.NewID()
+	o2.CreatorID = model.NewID()
+	o2.TeamID = model.NewID()
 	o2.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o2, _ = ss.Webhook().SaveOutgoing(o2)
@@ -377,14 +377,14 @@ func testWebhookStoreGetOutgoingList(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetOutgoingByChannel(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	r1, err := ss.Webhook().GetOutgoingByChannel(o1.ChannelId, 0, 100)
+	r1, err := ss.Webhook().GetOutgoingByChannel(o1.ChannelID, 0, 100)
 	require.NoError(t, err)
 	require.Equal(t, r1[0].CreateAt, o1.CreateAt, "invalid returned webhook")
 
@@ -395,38 +395,38 @@ func testWebhookStoreGetOutgoingByChannel(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetOutgoingByChannelByUser(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, err := ss.Webhook().SaveOutgoing(o1)
 	require.NoError(t, err)
 
 	o2 := &model.OutgoingWebhook{}
-	o2.ChannelId = o1.ChannelId
-	o2.CreatorId = model.NewId()
-	o2.TeamId = model.NewId()
+	o2.ChannelID = o1.ChannelID
+	o2.CreatorID = model.NewID()
+	o2.TeamID = model.NewID()
 	o2.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o2, err = ss.Webhook().SaveOutgoing(o2)
 	require.NoError(t, err)
 
 	t.Run("GetOutgoingByChannelByUser, no user filter", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingByChannel(o1.ChannelId, 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingByChannel(o1.ChannelID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 2)
 	})
 
 	t.Run("GetOutgoingByChannelByUser, known user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingByChannelByUser(o1.ChannelId, o1.CreatorId, 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingByChannelByUser(o1.ChannelID, o1.CreatorID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(hooks))
 		require.Equal(t, o1.CreateAt, hooks[0].CreateAt)
 	})
 
 	t.Run("GetOutgoingByChannelByUser, unknown user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingByChannelByUser(o1.ChannelId, "123465", 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingByChannelByUser(o1.ChannelID, "123465", 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(hooks))
 	})
@@ -434,14 +434,14 @@ func testWebhookStoreGetOutgoingByChannelByUser(t *testing.T, ss store.Store) {
 
 func testWebhookStoreGetOutgoingByTeam(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	r1, err := ss.Webhook().GetOutgoingByTeam(o1.TeamId, 0, 100)
+	r1, err := ss.Webhook().GetOutgoingByTeam(o1.TeamID, 0, 100)
 	require.NoError(t, err)
 	require.Equal(t, r1[0].CreateAt, o1.CreateAt, "invalid returned webhook")
 
@@ -454,38 +454,38 @@ func testWebhookStoreGetOutgoingByTeamByUser(t *testing.T, ss store.Store) {
 	var err error
 
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, err = ss.Webhook().SaveOutgoing(o1)
 	require.NoError(t, err)
 
 	o2 := &model.OutgoingWebhook{}
-	o2.ChannelId = model.NewId()
-	o2.CreatorId = model.NewId()
-	o2.TeamId = o1.TeamId
+	o2.ChannelID = model.NewID()
+	o2.CreatorID = model.NewID()
+	o2.TeamID = o1.TeamID
 	o2.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o2, err = ss.Webhook().SaveOutgoing(o2)
 	require.NoError(t, err)
 
 	t.Run("GetOutgoingByTeamByUser, no user filter", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingByTeam(o1.TeamId, 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingByTeam(o1.TeamID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 2)
 	})
 
 	t.Run("GetOutgoingByTeamByUser, known user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingByTeamByUser(o1.TeamId, o1.CreatorId, 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingByTeamByUser(o1.TeamID, o1.CreatorID, 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 1)
 		require.Equal(t, hooks[0].CreateAt, o1.CreateAt)
 	})
 
 	t.Run("GetOutgoingByTeamByUser, unknown user filtered", func(t *testing.T) {
-		hooks, err := ss.Webhook().GetOutgoingByTeamByUser(o2.TeamId, "123465", 0, 100)
+		hooks, err := ss.Webhook().GetOutgoingByTeamByUser(o2.TeamID, "123465", 0, 100)
 		require.NoError(t, err)
 		require.Equal(t, len(hooks), 0)
 	})
@@ -493,76 +493,76 @@ func testWebhookStoreGetOutgoingByTeamByUser(t *testing.T, ss store.Store) {
 
 func testWebhookStoreDeleteOutgoing(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	webhook, err := ss.Webhook().GetOutgoing(o1.Id)
+	webhook, err := ss.Webhook().GetOutgoing(o1.ID)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	err = ss.Webhook().DeleteOutgoing(o1.Id, model.GetMillis())
+	err = ss.Webhook().DeleteOutgoing(o1.ID, model.GetMillis())
 	require.NoError(t, err)
 
-	_, err = ss.Webhook().GetOutgoing(o1.Id)
+	_, err = ss.Webhook().GetOutgoing(o1.ID)
 	require.Error(t, err, "Missing id should have failed")
 }
 
 func testWebhookStoreDeleteOutgoingByChannel(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	webhook, err := ss.Webhook().GetOutgoing(o1.Id)
+	webhook, err := ss.Webhook().GetOutgoing(o1.ID)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	err = ss.Webhook().PermanentDeleteOutgoingByChannel(o1.ChannelId)
+	err = ss.Webhook().PermanentDeleteOutgoingByChannel(o1.ChannelID)
 	require.NoError(t, err)
 
-	_, err = ss.Webhook().GetOutgoing(o1.Id)
+	_, err = ss.Webhook().GetOutgoing(o1.ID)
 	require.Error(t, err, "Missing id should have failed")
 }
 
 func testWebhookStoreDeleteOutgoingByUser(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	webhook, err := ss.Webhook().GetOutgoing(o1.Id)
+	webhook, err := ss.Webhook().GetOutgoing(o1.ID)
 	require.NoError(t, err)
 	require.Equal(t, webhook.CreateAt, o1.CreateAt, "invalid returned webhook")
 
-	err = ss.Webhook().PermanentDeleteOutgoingByUser(o1.CreatorId)
+	err = ss.Webhook().PermanentDeleteOutgoingByUser(o1.CreatorID)
 	require.NoError(t, err)
 
-	_, err = ss.Webhook().GetOutgoing(o1.Id)
+	_, err = ss.Webhook().GetOutgoing(o1.ID)
 	require.Error(t, err, "Missing id should have failed")
 }
 
 func testWebhookStoreUpdateOutgoing(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 	o1.Username = "test-user-name"
 	o1.IconURL = "http://nowhere.com/icon"
 
 	o1, _ = ss.Webhook().SaveOutgoing(o1)
 
-	o1.Token = model.NewId()
+	o1.Token = model.NewID()
 	o1.Username = "another-test-user-name"
 
 	_, err := ss.Webhook().UpdateOutgoing(o1)
@@ -571,9 +571,9 @@ func testWebhookStoreUpdateOutgoing(t *testing.T, ss store.Store) {
 
 func testWebhookStoreCountIncoming(t *testing.T, ss store.Store) {
 	o1 := &model.IncomingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.UserId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.UserID = model.NewID()
+	o1.TeamID = model.NewID()
 
 	_, _ = ss.Webhook().SaveIncoming(o1)
 
@@ -585,9 +585,9 @@ func testWebhookStoreCountIncoming(t *testing.T, ss store.Store) {
 
 func testWebhookStoreCountOutgoing(t *testing.T, ss store.Store) {
 	o1 := &model.OutgoingWebhook{}
-	o1.ChannelId = model.NewId()
-	o1.CreatorId = model.NewId()
-	o1.TeamId = model.NewId()
+	o1.ChannelID = model.NewID()
+	o1.CreatorID = model.NewID()
+	o1.TeamID = model.NewID()
 	o1.CallbackURLs = []string{"http://nowhere.com/"}
 
 	_, err := ss.Webhook().SaveOutgoing(o1)

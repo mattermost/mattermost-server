@@ -42,7 +42,7 @@ func (a *App) CheckForClientSideCert(r *http.Request) (string, string, string) {
 	return pem, subject, email
 }
 
-func (a *App) AuthenticateUserForLogin(c *request.Context, id, loginId, password, mfaToken, cwsToken string, ldapOnly bool) (user *model.User, err *model.AppError) {
+func (a *App) AuthenticateUserForLogin(c *request.Context, id, loginID, password, mfaToken, cwsToken string, ldapOnly bool) (user *model.User, err *model.AppError) {
 	// Do statistics
 	defer func() {
 		if a.Metrics() != nil {
@@ -59,7 +59,7 @@ func (a *App) AuthenticateUserForLogin(c *request.Context, id, loginId, password
 	}
 
 	// Get the MM user we are trying to login
-	if user, err = a.GetUserForLogin(id, loginId); err != nil {
+	if user, err = a.GetUserForLogin(id, loginID); err != nil {
 		return nil, err
 	}
 
@@ -119,7 +119,7 @@ func (a *App) AuthenticateUserForLogin(c *request.Context, id, loginId, password
 	return user, nil
 }
 
-func (a *App) GetUserForLogin(id, loginId string) (*model.User, *model.AppError) {
+func (a *App) GetUserForLogin(id, loginID string) (*model.User, *model.AppError) {
 	enableUsername := *a.Config().EmailSettings.EnableSignInWithUsername
 	enableEmail := *a.Config().EmailSettings.EnableSignInWithEmail
 
@@ -127,7 +127,7 @@ func (a *App) GetUserForLogin(id, loginId string) (*model.User, *model.AppError)
 	if id != "" {
 		user, err := a.GetUser(id)
 		if err != nil {
-			if err.Id != MissingAccountError {
+			if err.ID != MissingAccountError {
 				err.StatusCode = http.StatusInternalServerError
 				return nil, err
 			}
@@ -138,13 +138,13 @@ func (a *App) GetUserForLogin(id, loginId string) (*model.User, *model.AppError)
 	}
 
 	// Try to get the user by username/email
-	if user, err := a.Srv().Store.User().GetForLogin(loginId, enableUsername, enableEmail); err == nil {
+	if user, err := a.Srv().Store.User().GetForLogin(loginID, enableUsername, enableEmail); err == nil {
 		return user, nil
 	}
 
 	// Try to get the user with LDAP if enabled
 	if *a.Config().LdapSettings.Enable && a.Ldap() != nil {
-		if ldapUser, err := a.Ldap().GetUser(loginId); err == nil {
+		if ldapUser, err := a.Ldap().GetUser(loginID); err == nil {
 			if user, err := a.GetUserByAuth(ldapUser.AuthData, model.UserAuthServiceLdap); err == nil {
 				return user, nil
 			}
@@ -169,7 +169,7 @@ func (a *App) DoLogin(c *request.Context, w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	session := &model.Session{UserId: user.Id, Roles: user.GetRawRoles(), DeviceId: deviceID, IsOAuth: false, Props: map[string]string{
+	session := &model.Session{UserID: user.ID, Roles: user.GetRawRoles(), DeviceID: deviceID, IsOAuth: false, Props: map[string]string{
 		model.UserAuthServiceIsMobile: strconv.FormatBool(isMobile),
 		model.UserAuthServiceIsSaml:   strconv.FormatBool(isSaml),
 		model.UserAuthServiceIsOAuth:  strconv.FormatBool(isOAuthUser),
@@ -180,7 +180,7 @@ func (a *App) DoLogin(c *request.Context, w http.ResponseWriter, r *http.Request
 		a.srv.userService.SetSessionExpireInDays(session, *a.Config().ServiceSettings.SessionLengthMobileInDays)
 
 		// A special case where we logout of all other sessions with the same Id
-		if err := a.RevokeSessionsForDeviceId(user.Id, deviceID, ""); err != nil {
+		if err := a.RevokeSessionsForDeviceID(user.ID, deviceID, ""); err != nil {
 			err.StatusCode = http.StatusInternalServerError
 			return err
 		}
@@ -262,7 +262,7 @@ func (a *App) AttachSessionCookies(c *request.Context, w http.ResponseWriter, r 
 
 	userCookie := &http.Cookie{
 		Name:    model.SessionCookieUser,
-		Value:   c.Session().UserId,
+		Value:   c.Session().UserID,
 		Path:    subpath,
 		MaxAge:  maxAge,
 		Expires: expiresAt,

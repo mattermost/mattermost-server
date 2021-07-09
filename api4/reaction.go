@@ -17,23 +17,23 @@ func (api *API) InitReaction() {
 }
 
 func saveReaction(c *Context, w http.ResponseWriter, r *http.Request) {
-	reaction := model.ReactionFromJson(r.Body)
+	reaction := model.ReactionFromJSON(r.Body)
 	if reaction == nil {
 		c.SetInvalidParam("reaction")
 		return
 	}
 
-	if !model.IsValidId(reaction.UserId) || !model.IsValidId(reaction.PostId) || reaction.EmojiName == "" || len(reaction.EmojiName) > model.EmojiNameMaxLength {
+	if !model.IsValidID(reaction.UserID) || !model.IsValidID(reaction.PostID) || reaction.EmojiName == "" || len(reaction.EmojiName) > model.EmojiNameMaxLength {
 		c.Err = model.NewAppError("saveReaction", "api.reaction.save_reaction.invalid.app_error", nil, "", http.StatusBadRequest)
 		return
 	}
 
-	if reaction.UserId != c.AppContext.Session().UserId {
+	if reaction.UserID != c.AppContext.Session().UserID {
 		c.Err = model.NewAppError("saveReaction", "api.reaction.save_reaction.user_id.app_error", nil, "", http.StatusForbidden)
 		return
 	}
 
-	if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), reaction.PostId, model.PermissionAddReaction) {
+	if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), reaction.PostID, model.PermissionAddReaction) {
 		c.SetPermissionError(model.PermissionAddReaction)
 		return
 	}
@@ -44,36 +44,36 @@ func saveReaction(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(reaction.ToJson()))
+	w.Write([]byte(reaction.ToJSON()))
 }
 
 func getReactions(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequirePostId()
+	c.RequirePostID()
 	if c.Err != nil {
 		return
 	}
 
-	if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), c.Params.PostId, model.PermissionReadChannel) {
+	if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), c.Params.PostID, model.PermissionReadChannel) {
 		c.SetPermissionError(model.PermissionReadChannel)
 		return
 	}
 
-	reactions, err := c.App.GetReactionsForPost(c.Params.PostId)
+	reactions, err := c.App.GetReactionsForPost(c.Params.PostID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(model.ReactionsToJson(reactions)))
+	w.Write([]byte(model.ReactionsToJSON(reactions)))
 }
 
 func deleteReaction(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	c.RequirePostId()
+	c.RequirePostID()
 	if c.Err != nil {
 		return
 	}
@@ -83,19 +83,19 @@ func deleteReaction(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), c.Params.PostId, model.PermissionRemoveReaction) {
+	if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), c.Params.PostID, model.PermissionRemoveReaction) {
 		c.SetPermissionError(model.PermissionRemoveReaction)
 		return
 	}
 
-	if c.Params.UserId != c.AppContext.Session().UserId && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionRemoveOthersReactions) {
+	if c.Params.UserID != c.AppContext.Session().UserID && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionRemoveOthersReactions) {
 		c.SetPermissionError(model.PermissionRemoveOthersReactions)
 		return
 	}
 
 	reaction := &model.Reaction{
-		UserId:    c.Params.UserId,
-		PostId:    c.Params.PostId,
+		UserID:    c.Params.UserID,
+		PostID:    c.Params.PostID,
 		EmojiName: c.Params.EmojiName,
 	}
 
@@ -109,18 +109,18 @@ func deleteReaction(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getBulkReactions(c *Context, w http.ResponseWriter, r *http.Request) {
-	postIds := model.ArrayFromJson(r.Body)
-	for _, postId := range postIds {
-		if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), postId, model.PermissionReadChannel) {
+	postIDs := model.ArrayFromJSON(r.Body)
+	for _, postID := range postIDs {
+		if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), postID, model.PermissionReadChannel) {
 			c.SetPermissionError(model.PermissionReadChannel)
 			return
 		}
 	}
-	reactions, err := c.App.GetBulkReactionsForPosts(postIds)
+	reactions, err := c.App.GetBulkReactionsForPosts(postIDs)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(model.MapPostIdToReactionsToJson(reactions)))
+	w.Write([]byte(model.MapPostIDToReactionsToJSON(reactions)))
 }

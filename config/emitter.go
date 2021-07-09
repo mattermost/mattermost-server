@@ -20,7 +20,7 @@ type emitter struct {
 
 // AddListener adds a callback function to invoke when the configuration is modified.
 func (e *emitter) AddListener(listener Listener) string {
-	id := model.NewId()
+	id := model.NewID()
 	e.listeners.Store(id, listener)
 	return id
 }
@@ -46,7 +46,7 @@ type logSrcEmitter struct {
 
 // AddListener adds a callback function to invoke when the configuration is modified.
 func (e *logSrcEmitter) AddListener(listener LogSrcListener) string {
-	id := model.NewId()
+	id := model.NewID()
 	e.listeners.Store(id, listener)
 	return id
 }

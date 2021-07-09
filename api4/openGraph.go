@@ -37,7 +37,7 @@ func getOpenGraphMetadata(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	props := model.StringInterfaceFromJson(r.Body)
+	props := model.StringInterfaceFromJSON(r.Body)
 
 	url := ""
 	ok := false

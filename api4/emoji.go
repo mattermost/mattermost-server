@@ -52,7 +52,7 @@ func createEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer c.LogAuditRec(auditRec)
 
 	// Allow any user with CREATE_EMOJIS permission at Team level to create emojis at system level
-	memberships, err := c.App.GetTeamMembersForUser(c.AppContext.Session().UserId)
+	memberships, err := c.App.GetTeamMembersForUser(c.AppContext.Session().UserID)
 
 	if err != nil {
 		c.Err = err
@@ -62,7 +62,7 @@ func createEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionCreateEmojis) {
 		hasPermission := false
 		for _, membership := range memberships {
-			if c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), membership.TeamId, model.PermissionCreateEmojis) {
+			if c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), membership.TeamID, model.PermissionCreateEmojis) {
 				hasPermission = true
 				break
 			}
@@ -81,7 +81,7 @@ func createEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	emoji := model.EmojiFromJson(strings.NewReader(props["emoji"][0]))
+	emoji := model.EmojiFromJSON(strings.NewReader(props["emoji"][0]))
 	if emoji == nil {
 		c.SetInvalidParam("emoji")
 		return
@@ -89,14 +89,14 @@ func createEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec.AddMeta("emoji", emoji)
 
-	newEmoji, err := c.App.CreateEmoji(c.AppContext.Session().UserId, emoji, m)
+	newEmoji, err := c.App.CreateEmoji(c.AppContext.Session().UserID, emoji, m)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
 	auditRec.Success()
-	w.Write([]byte(newEmoji.ToJson()))
+	w.Write([]byte(newEmoji.ToJSON()))
 }
 
 func getEmojiList(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -117,11 +117,11 @@ func getEmojiList(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.EmojiListToJson(listEmoji)))
+	w.Write([]byte(model.EmojiListToJSON(listEmoji)))
 }
 
 func deleteEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireEmojiId()
+	c.RequireEmojiID()
 	if c.Err != nil {
 		return
 	}
@@ -129,16 +129,16 @@ func deleteEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("deleteEmoji", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	emoji, err := c.App.GetEmoji(c.Params.EmojiId)
+	emoji, err := c.App.GetEmoji(c.Params.EmojiID)
 	if err != nil {
-		auditRec.AddMeta("emoji_id", c.Params.EmojiId)
+		auditRec.AddMeta("emoji_id", c.Params.EmojiID)
 		c.Err = err
 		return
 	}
 	auditRec.AddMeta("emoji", emoji)
 
 	// Allow any user with DELETE_EMOJIS permission at Team level to delete emojis at system level
-	memberships, err := c.App.GetTeamMembersForUser(c.AppContext.Session().UserId)
+	memberships, err := c.App.GetTeamMembersForUser(c.AppContext.Session().UserID)
 
 	if err != nil {
 		c.Err = err
@@ -148,7 +148,7 @@ func deleteEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionDeleteEmojis) {
 		hasPermission := false
 		for _, membership := range memberships {
-			if c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), membership.TeamId, model.PermissionDeleteEmojis) {
+			if c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), membership.TeamID, model.PermissionDeleteEmojis) {
 				hasPermission = true
 				break
 			}
@@ -159,11 +159,11 @@ func deleteEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if c.AppContext.Session().UserId != emoji.CreatorId {
+	if c.AppContext.Session().UserID != emoji.CreatorID {
 		if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionDeleteOthersEmojis) {
 			hasPermission := false
 			for _, membership := range memberships {
-				if c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), membership.TeamId, model.PermissionDeleteOthersEmojis) {
+				if c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), membership.TeamID, model.PermissionDeleteOthersEmojis) {
 					hasPermission = true
 					break
 				}
@@ -188,7 +188,7 @@ func deleteEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireEmojiId()
+	c.RequireEmojiID()
 	if c.Err != nil {
 		return
 	}
@@ -198,13 +198,13 @@ func getEmoji(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	emoji, err := c.App.GetEmoji(c.Params.EmojiId)
+	emoji, err := c.App.GetEmoji(c.Params.EmojiID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(emoji.ToJson()))
+	w.Write([]byte(emoji.ToJSON()))
 }
 
 func getEmojiByName(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -219,11 +219,11 @@ func getEmojiByName(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(emoji.ToJson()))
+	w.Write([]byte(emoji.ToJSON()))
 }
 
 func getEmojiImage(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireEmojiId()
+	c.RequireEmojiID()
 	if c.Err != nil {
 		return
 	}
@@ -233,7 +233,7 @@ func getEmojiImage(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	image, imageType, err := c.App.GetEmojiImage(c.Params.EmojiId)
+	image, imageType, err := c.App.GetEmojiImage(c.Params.EmojiID)
 	if err != nil {
 		c.Err = err
 		return
@@ -245,7 +245,7 @@ func getEmojiImage(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func searchEmojis(c *Context, w http.ResponseWriter, r *http.Request) {
-	emojiSearch := model.EmojiSearchFromJson(r.Body)
+	emojiSearch := model.EmojiSearchFromJSON(r.Body)
 	if emojiSearch == nil {
 		c.SetInvalidParam("term")
 		return
@@ -262,7 +262,7 @@ func searchEmojis(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.EmojiListToJson(emojis)))
+	w.Write([]byte(model.EmojiListToJSON(emojis)))
 }
 
 func autocompleteEmojis(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -279,5 +279,5 @@ func autocompleteEmojis(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.EmojiListToJson(emojis)))
+	w.Write([]byte(model.EmojiListToJSON(emojis)))
 }

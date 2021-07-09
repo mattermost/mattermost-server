@@ -21,28 +21,28 @@ func TestCheckIfRolesGrantPermission(t *testing.T) {
 
 	cases := []struct {
 		roles        []string
-		permissionId string
+		permissionID string
 		shouldGrant  bool
 	}{
-		{[]string{model.SystemAdminRoleId}, model.PermissionManageSystem.Id, true},
-		{[]string{model.SystemAdminRoleId}, "non-existent-permission", false},
-		{[]string{model.ChannelUserRoleId}, model.PermissionReadChannel.Id, true},
-		{[]string{model.ChannelUserRoleId}, model.PermissionManageSystem.Id, false},
-		{[]string{model.SystemAdminRoleId, model.ChannelUserRoleId}, model.PermissionManageSystem.Id, true},
-		{[]string{model.ChannelUserRoleId, model.SystemAdminRoleId}, model.PermissionManageSystem.Id, true},
-		{[]string{model.TeamUserRoleId, model.TeamAdminRoleId}, model.PermissionManageSlashCommands.Id, true},
-		{[]string{model.TeamAdminRoleId, model.TeamUserRoleId}, model.PermissionManageSlashCommands.Id, true},
+		{[]string{model.SystemAdminRoleID}, model.PermissionManageSystem.ID, true},
+		{[]string{model.SystemAdminRoleID}, "non-existent-permission", false},
+		{[]string{model.ChannelUserRoleID}, model.PermissionReadChannel.ID, true},
+		{[]string{model.ChannelUserRoleID}, model.PermissionManageSystem.ID, false},
+		{[]string{model.SystemAdminRoleID, model.ChannelUserRoleID}, model.PermissionManageSystem.ID, true},
+		{[]string{model.ChannelUserRoleID, model.SystemAdminRoleID}, model.PermissionManageSystem.ID, true},
+		{[]string{model.TeamUserRoleID, model.TeamAdminRoleID}, model.PermissionManageSlashCommands.ID, true},
+		{[]string{model.TeamAdminRoleID, model.TeamUserRoleID}, model.PermissionManageSlashCommands.ID, true},
 	}
 
 	for _, testcase := range cases {
-		require.Equal(t, th.App.RolesGrantPermission(testcase.roles, testcase.permissionId), testcase.shouldGrant)
+		require.Equal(t, th.App.RolesGrantPermission(testcase.roles, testcase.permissionID), testcase.shouldGrant)
 	}
 
 }
 
 func TestChannelRolesGrantPermission(t *testing.T) {
 	testPermissionInheritance(t, func(t *testing.T, th *TestHelper, testData permissionInheritanceTestData) {
-		require.Equal(t, testData.shouldHavePermission, th.App.RolesGrantPermission([]string{testData.channelRole.Name}, testData.permission.Id), "row: %+v\n", testData.truthTableRow)
+		require.Equal(t, testData.shouldHavePermission, th.App.RolesGrantPermission([]string{testData.channelRole.Name}, testData.permission.ID), "row: %+v\n", testData.truthTableRow)
 	})
 }
 
@@ -50,17 +50,17 @@ func TestHasPermissionToTeam(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	assert.True(t, th.App.HasPermissionToTeam(th.BasicUser.Id, th.BasicTeam.Id, model.PermissionListTeamChannels))
+	assert.True(t, th.App.HasPermissionToTeam(th.BasicUser.ID, th.BasicTeam.ID, model.PermissionListTeamChannels))
 	th.RemoveUserFromTeam(th.BasicUser, th.BasicTeam)
-	assert.False(t, th.App.HasPermissionToTeam(th.BasicUser.Id, th.BasicTeam.Id, model.PermissionListTeamChannels))
+	assert.False(t, th.App.HasPermissionToTeam(th.BasicUser.ID, th.BasicTeam.ID, model.PermissionListTeamChannels))
 
-	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.Id, th.BasicTeam.Id, model.PermissionListTeamChannels))
+	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.ID, th.BasicTeam.ID, model.PermissionListTeamChannels))
 	th.LinkUserToTeam(th.SystemAdminUser, th.BasicTeam)
-	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.Id, th.BasicTeam.Id, model.PermissionListTeamChannels))
-	th.RemovePermissionFromRole(model.PermissionListTeamChannels.Id, model.TeamUserRoleId)
-	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.Id, th.BasicTeam.Id, model.PermissionListTeamChannels))
+	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.ID, th.BasicTeam.ID, model.PermissionListTeamChannels))
+	th.RemovePermissionFromRole(model.PermissionListTeamChannels.ID, model.TeamUserRoleID)
+	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.ID, th.BasicTeam.ID, model.PermissionListTeamChannels))
 	th.RemoveUserFromTeam(th.SystemAdminUser, th.BasicTeam)
-	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.Id, th.BasicTeam.Id, model.PermissionListTeamChannels))
+	assert.True(t, th.App.HasPermissionToTeam(th.SystemAdminUser.ID, th.BasicTeam.ID, model.PermissionListTeamChannels))
 }
 
 func TestSessionHasPermissionToChannel(t *testing.T) {
@@ -68,11 +68,11 @@ func TestSessionHasPermissionToChannel(t *testing.T) {
 	defer th.TearDown()
 
 	session := model.Session{
-		UserId: th.BasicUser.Id,
+		UserID: th.BasicUser.ID,
 	}
 
 	t.Run("basic user can access basic channel", func(t *testing.T) {
-		assert.True(t, th.App.SessionHasPermissionToChannel(session, th.BasicChannel.Id, model.PermissionAddReaction))
+		assert.True(t, th.App.SessionHasPermissionToChannel(session, th.BasicChannel.ID, model.PermissionAddReaction))
 	})
 
 	t.Run("does not panic if fetching channel causes an error", func(t *testing.T) {
@@ -81,7 +81,7 @@ func TestSessionHasPermissionToChannel(t *testing.T) {
 		mockStore := mocks.Store{}
 		mockChannelStore := mocks.ChannelStore{}
 		mockChannelStore.On("Get", mock.Anything, mock.Anything).Return(nil, fmt.Errorf("arbitrary error"))
-		mockChannelStore.On("GetAllChannelMembersForUser", mock.Anything, mock.Anything, mock.Anything).Return(th.App.Srv().Store.Channel().GetAllChannelMembersForUser(th.BasicUser.Id, false, false))
+		mockChannelStore.On("GetAllChannelMembersForUser", mock.Anything, mock.Anything, mock.Anything).Return(th.App.Srv().Store.Channel().GetAllChannelMembersForUser(th.BasicUser.ID, false, false))
 		mockChannelStore.On("ClearCaches").Return()
 		mockStore.On("Channel").Return(&mockChannelStore)
 		mockStore.On("FileInfo").Return(th.App.Srv().Store.FileInfo())
@@ -97,24 +97,24 @@ func TestSessionHasPermissionToChannel(t *testing.T) {
 
 		// If there's an error returned from the GetChannel call the code should continue to cascade and since there
 		// are no session level permissions in this test case, the permission should be denied.
-		assert.False(t, th.App.SessionHasPermissionToChannel(session, th.BasicUser.Id, model.PermissionAddReaction))
+		assert.False(t, th.App.SessionHasPermissionToChannel(session, th.BasicUser.ID, model.PermissionAddReaction))
 	})
 }
 
 func TestHasPermissionToCategory(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
-	session, err := th.App.CreateSession(&model.Session{UserId: th.BasicUser.Id, Props: model.StringMap{}})
+	session, err := th.App.CreateSession(&model.Session{UserID: th.BasicUser.ID, Props: model.StringMap{}})
 	require.Nil(t, err)
 
-	categories, err := th.App.GetSidebarCategories(th.BasicUser.Id, th.BasicTeam.Id)
+	categories, err := th.App.GetSidebarCategories(th.BasicUser.ID, th.BasicTeam.ID)
 	require.Nil(t, err)
 
 	_, err = th.App.GetSession(session.Token)
 	require.Nil(t, err)
-	require.True(t, th.App.SessionHasPermissionToCategory(*session, th.BasicUser.Id, th.BasicTeam.Id, categories.Order[0]))
+	require.True(t, th.App.SessionHasPermissionToCategory(*session, th.BasicUser.ID, th.BasicTeam.ID, categories.Order[0]))
 
-	categories2, err := th.App.GetSidebarCategories(th.BasicUser2.Id, th.BasicTeam.Id)
+	categories2, err := th.App.GetSidebarCategories(th.BasicUser2.ID, th.BasicTeam.ID)
 	require.Nil(t, err)
-	require.False(t, th.App.SessionHasPermissionToCategory(*session, th.BasicUser.Id, th.BasicTeam.Id, categories2.Order[0]))
+	require.False(t, th.App.SessionHasPermissionToCategory(*session, th.BasicUser.ID, th.BasicTeam.ID, categories2.Order[0]))
 }

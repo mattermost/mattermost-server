@@ -113,7 +113,7 @@ func (b *Busy) notifyServerBusyChange(sbs *model.ServerBusyState) {
 		Event:            model.ClusterEventBusyStateChanged,
 		SendType:         model.ClusterSendReliable,
 		WaitForAllToSend: true,
-		Data:             sbs.ToJson(),
+		Data:             sbs.ToJSON(),
 	}
 	b.cluster.SendClusterMessage(msg)
 }
@@ -134,7 +134,7 @@ func (b *Busy) ClusterEventChanged(sbs *model.ServerBusyState) {
 	}
 }
 
-func (b *Busy) ToJson() string {
+func (b *Busy) ToJSON() string {
 	b.mux.RLock()
 	defer b.mux.RUnlock()
 
@@ -143,5 +143,5 @@ func (b *Busy) ToJson() string {
 		Expires:   b.expires.Unix(),
 		ExpiresTS: b.expires.UTC().Format(TimestampFormat),
 	}
-	return sbs.ToJson()
+	return sbs.ToJSON()
 }

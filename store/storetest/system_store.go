@@ -26,7 +26,7 @@ func TestSystemStore(t *testing.T, ss store.Store) {
 }
 
 func testSystemStore(t *testing.T, ss store.Store) {
-	system := &model.System{Name: model.NewId(), Value: "value"}
+	system := &model.System{Name: model.NewID(), Value: "value"}
 	err := ss.System().Save(system)
 	require.NoError(t, err)
 
@@ -46,7 +46,7 @@ func testSystemStore(t *testing.T, ss store.Store) {
 }
 
 func testSystemStoreSaveOrUpdate(t *testing.T, ss store.Store) {
-	system := &model.System{Name: model.NewId(), Value: "value"}
+	system := &model.System{Name: model.NewID(), Value: "value"}
 
 	err := ss.System().SaveOrUpdate(system)
 	require.NoError(t, err)
@@ -58,7 +58,7 @@ func testSystemStoreSaveOrUpdate(t *testing.T, ss store.Store) {
 }
 
 func testSystemStoreSaveOrUpdateWithWarnMetricHandling(t *testing.T, ss store.Store) {
-	system := &model.System{Name: model.NewId(), Value: "value"}
+	system := &model.System{Name: model.NewID(), Value: "value"}
 
 	err := ss.System().SaveOrUpdateWithWarnMetricHandling(system)
 	require.NoError(t, err)
@@ -93,8 +93,8 @@ func testSystemStoreGetByNameNoEntries(t *testing.T, ss store.Store) {
 }
 
 func testSystemStorePermanentDeleteByName(t *testing.T, ss store.Store) {
-	s1 := &model.System{Name: model.NewId(), Value: "value"}
-	s2 := &model.System{Name: model.NewId(), Value: "value"}
+	s1 := &model.System{Name: model.NewID(), Value: "value"}
+	s2 := &model.System{Name: model.NewID(), Value: "value"}
 
 	err := ss.System().Save(s1)
 	require.NoError(t, err)

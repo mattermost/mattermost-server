@@ -19,15 +19,15 @@ func TestGetJob(t *testing.T) {
 	defer th.TearDown()
 
 	status := &model.Job{
-		Id:     model.NewId(),
-		Status: model.NewId(),
+		ID:     model.NewID(),
+		Status: model.NewID(),
 	}
 	_, err := th.App.Srv().Store.Job().Save(status)
 	require.NoError(t, err)
 
-	defer th.App.Srv().Store.Job().Delete(status.Id)
+	defer th.App.Srv().Store.Job().Delete(status.ID)
 
-	received, appErr := th.App.GetJob(status.Id)
+	received, appErr := th.App.GetJob(status.ID)
 	require.Nil(t, appErr)
 	require.Equal(t, status, received, "incorrect job status received")
 }
@@ -38,17 +38,17 @@ func TestSessionHasPermissionToCreateJob(t *testing.T) {
 
 	jobs := []model.Job{
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     model.JobTypeBlevePostIndexing,
 			CreateAt: 1000,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     model.JobTypeDataRetention,
 			CreateAt: 999,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     model.JobTypeMessageExport,
 			CreateAt: 1001,
 		},
@@ -73,7 +73,7 @@ func TestSessionHasPermissionToCreateJob(t *testing.T) {
 	}
 
 	session := model.Session{
-		Roles: model.SystemUserRoleId + " " + model.SystemAdminRoleId,
+		Roles: model.SystemUserRoleID + " " + model.SystemAdminRoleID,
 	}
 
 	// Check to see if admin has permission to all the jobs
@@ -81,11 +81,11 @@ func TestSessionHasPermissionToCreateJob(t *testing.T) {
 		hasPermission, permissionRequired := th.App.SessionHasPermissionToCreateJob(session, &testCase.Job)
 		assert.Equal(t, true, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 
 	session = model.Session{
-		Roles: model.SystemUserRoleId + " " + model.SystemReadOnlyAdminRoleId,
+		Roles: model.SystemUserRoleID + " " + model.SystemReadOnlyAdminRoleID,
 	}
 
 	// Initially the system read only admin should not have access to create these jobs
@@ -93,13 +93,13 @@ func TestSessionHasPermissionToCreateJob(t *testing.T) {
 		hasPermission, permissionRequired := th.App.SessionHasPermissionToCreateJob(session, &testCase.Job)
 		assert.Equal(t, false, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 
 	ctx := sqlstore.WithMaster(context.Background())
-	role, _ := th.App.GetRoleByName(ctx, model.SystemReadOnlyAdminRoleId)
+	role, _ := th.App.GetRoleByName(ctx, model.SystemReadOnlyAdminRoleID)
 
-	role.Permissions = append(role.Permissions, model.PermissionCreatePostBleveIndexesJob.Id)
+	role.Permissions = append(role.Permissions, model.PermissionCreatePostBleveIndexesJob.ID)
 
 	_, err := th.App.UpdateRole(role)
 	require.Nil(t, err)
@@ -110,11 +110,11 @@ func TestSessionHasPermissionToCreateJob(t *testing.T) {
 		expectedHasPermission := testCase.Job.Type == model.JobTypeBlevePostIndexing
 		assert.Equal(t, expectedHasPermission, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 
-	role.Permissions = append(role.Permissions, model.PermissionCreateDataRetentionJob.Id)
-	role.Permissions = append(role.Permissions, model.PermissionCreateComplianceExportJob.Id)
+	role.Permissions = append(role.Permissions, model.PermissionCreateDataRetentionJob.ID)
+	role.Permissions = append(role.Permissions, model.PermissionCreateComplianceExportJob.ID)
 
 	_, err = th.App.UpdateRole(role)
 	require.Nil(t, err)
@@ -124,7 +124,7 @@ func TestSessionHasPermissionToCreateJob(t *testing.T) {
 		hasPermission, permissionRequired := th.App.SessionHasPermissionToCreateJob(session, &testCase.Job)
 		assert.Equal(t, true, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 }
 
@@ -134,12 +134,12 @@ func TestSessionHasPermissionToReadJob(t *testing.T) {
 
 	jobs := []model.Job{
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     model.JobTypeDataRetention,
 			CreateAt: 999,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     model.JobTypeMessageExport,
 			CreateAt: 1001,
 		},
@@ -159,7 +159,7 @@ func TestSessionHasPermissionToReadJob(t *testing.T) {
 	}
 
 	session := model.Session{
-		Roles: model.SystemUserRoleId + " " + model.SystemAdminRoleId,
+		Roles: model.SystemUserRoleID + " " + model.SystemAdminRoleID,
 	}
 
 	// Check to see if admin has permission to all the jobs
@@ -167,11 +167,11 @@ func TestSessionHasPermissionToReadJob(t *testing.T) {
 		hasPermission, permissionRequired := th.App.SessionHasPermissionToReadJob(session, testCase.Job.Type)
 		assert.Equal(t, true, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 
 	session = model.Session{
-		Roles: model.SystemUserRoleId + " " + model.SystemManagerRoleId,
+		Roles: model.SystemUserRoleID + " " + model.SystemManagerRoleID,
 	}
 
 	// Initially the system manager should not have access to read these jobs
@@ -179,13 +179,13 @@ func TestSessionHasPermissionToReadJob(t *testing.T) {
 		hasPermission, permissionRequired := th.App.SessionHasPermissionToReadJob(session, testCase.Job.Type)
 		assert.Equal(t, false, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 
 	ctx := sqlstore.WithMaster(context.Background())
-	role, _ := th.App.GetRoleByName(ctx, model.SystemManagerRoleId)
+	role, _ := th.App.GetRoleByName(ctx, model.SystemManagerRoleID)
 
-	role.Permissions = append(role.Permissions, model.PermissionReadDataRetentionJob.Id)
+	role.Permissions = append(role.Permissions, model.PermissionReadDataRetentionJob.ID)
 
 	_, err := th.App.UpdateRole(role)
 	require.Nil(t, err)
@@ -196,10 +196,10 @@ func TestSessionHasPermissionToReadJob(t *testing.T) {
 		expectedHasPermission := testCase.Job.Type == model.JobTypeDataRetention
 		assert.Equal(t, expectedHasPermission, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 
-	role.Permissions = append(role.Permissions, model.PermissionReadComplianceExportJob.Id)
+	role.Permissions = append(role.Permissions, model.PermissionReadComplianceExportJob.ID)
 
 	_, err = th.App.UpdateRole(role)
 	require.Nil(t, err)
@@ -209,7 +209,7 @@ func TestSessionHasPermissionToReadJob(t *testing.T) {
 		hasPermission, permissionRequired := th.App.SessionHasPermissionToReadJob(session, testCase.Job.Type)
 		assert.Equal(t, true, hasPermission)
 		require.NotNil(t, permissionRequired)
-		assert.Equal(t, testCase.PermissionRequired.Id, permissionRequired.Id)
+		assert.Equal(t, testCase.PermissionRequired.ID, permissionRequired.ID)
 	}
 }
 
@@ -217,21 +217,21 @@ func TestGetJobByType(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	jobType := model.NewId()
+	jobType := model.NewID()
 
 	statuses := []*model.Job{
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 1000,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 999,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 1001,
 		},
@@ -240,7 +240,7 @@ func TestGetJobByType(t *testing.T) {
 	for _, status := range statuses {
 		_, err := th.App.Srv().Store.Job().Save(status)
 		require.NoError(t, err)
-		defer th.App.Srv().Store.Job().Delete(status.Id)
+		defer th.App.Srv().Store.Job().Delete(status.ID)
 	}
 
 	received, err := th.App.GetJobsByType(jobType, 0, 2)
@@ -259,23 +259,23 @@ func TestGetJobsByTypes(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	jobType := model.NewId()
-	jobType1 := model.NewId()
-	jobType2 := model.NewId()
+	jobType := model.NewID()
+	jobType1 := model.NewID()
+	jobType2 := model.NewID()
 
 	statuses := []*model.Job{
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType,
 			CreateAt: 1000,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType1,
 			CreateAt: 999,
 		},
 		{
-			Id:       model.NewId(),
+			ID:       model.NewID(),
 			Type:     jobType2,
 			CreateAt: 1001,
 		},
@@ -284,7 +284,7 @@ func TestGetJobsByTypes(t *testing.T) {
 	for _, status := range statuses {
 		_, err := th.App.Srv().Store.Job().Save(status)
 		require.NoError(t, err)
-		defer th.App.Srv().Store.Job().Delete(status.Id)
+		defer th.App.Srv().Store.Job().Delete(status.ID)
 	}
 
 	jobTypes := []string{jobType, jobType1, jobType2}

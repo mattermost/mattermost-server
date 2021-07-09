@@ -23,14 +23,14 @@ func fixMention(post *model.Post, mentionMap model.UserMentionMap, user *model.U
 
 	// there may be more than one mention for each user so we have to walk the whole map.
 	for mention, id := range mentionMap {
-		if id == user.Id && strings.Contains(mention, ":") {
+		if id == user.ID && strings.Contains(mention, ":") {
 			post.Message = strings.ReplaceAll(post.Message, "@"+mention, "@"+realUsername)
 		}
 	}
 }
 
 func sanitizeUserForSync(user *model.User) *model.User {
-	user.Password = model.NewId()
+	user.Password = model.NewID()
 	user.AuthData = nil
 	user.AuthService = ""
 	user.Roles = "system_user"
@@ -93,7 +93,7 @@ func mungUsername(username string, remotename string, suffix string, maxLen int)
 
 // mungEmail creates a unique email address using a UID and remote name.
 func mungEmail(remotename string, maxLen int) string {
-	s := fmt.Sprintf("%s@%s", model.NewId(), remotename)
+	s := fmt.Sprintf("%s@%s", model.NewID(), remotename)
 	if len(s) > maxLen {
 		s = s[:maxLen]
 	}

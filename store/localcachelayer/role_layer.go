@@ -80,8 +80,8 @@ func (s LocalCacheRoleStore) GetByNames(names []string) ([]*model.Role, error) {
 	return append(foundRoles, roles...), nil
 }
 
-func (s LocalCacheRoleStore) Delete(roleId string) (*model.Role, error) {
-	role, err := s.RoleStore.Delete(roleId)
+func (s LocalCacheRoleStore) Delete(roleID string) (*model.Role, error) {
+	role, err := s.RoleStore.Delete(roleID)
 
 	if err == nil {
 		s.rootStore.doInvalidateCacheCluster(s.rootStore.roleCache, role.Name)

@@ -40,7 +40,7 @@ type PushNotificationsHub struct {
 
 type PushNotification struct {
 	notificationType   notificationType
-	currentSessionId   string
+	currentSessionID   string
 	userID             string
 	channelID          string
 	post               *model.Post
@@ -58,7 +58,7 @@ func (a *App) sendPushNotificationSync(post *model.Post, user *model.User, chann
 	cfg := a.Config()
 	message, err := utils.StripMarkdown(post.Message)
 	if err != nil {
-		mlog.Warn("Failed parse to markdown", mlog.String("post_id", post.Id), mlog.Err(err))
+		mlog.Warn("Failed parse to markdown", mlog.String("post_id", post.ID), mlog.Err(err))
 	} else {
 		post.Message = message
 	}
@@ -77,10 +77,10 @@ func (a *App) sendPushNotificationSync(post *model.Post, user *model.User, chann
 		return appErr
 	}
 
-	return a.sendPushNotificationToAllSessions(msg, user.Id, "")
+	return a.sendPushNotificationToAllSessions(msg, user.ID, "")
 }
 
-func (a *App) sendPushNotificationToAllSessions(msg *model.PushNotification, userID string, skipSessionId string) *model.AppError {
+func (a *App) sendPushNotificationToAllSessions(msg *model.PushNotification, userID string, skipSessionID string) *model.AppError {
 	sessions, err := a.getMobileAppSessions(userID)
 	if err != nil {
 		return err
@@ -98,36 +98,36 @@ func (a *App) sendPushNotificationToAllSessions(msg *model.PushNotification, use
 
 	for _, session := range sessions {
 		// Don't send notifications to this session if it's expired or we want to skip it
-		if session.IsExpired() || (skipSessionId != "" && skipSessionId == session.Id) {
+		if session.IsExpired() || (skipSessionID != "" && skipSessionID == session.ID) {
 			continue
 		}
 
 		// We made a copy to avoid decoding and parsing all the time
 		tmpMessage := msg.DeepCopy()
-		tmpMessage.SetDeviceIdAndPlatform(session.DeviceId)
-		tmpMessage.AckId = model.NewId()
+		tmpMessage.SetDeviceIDAndPlatform(session.DeviceID)
+		tmpMessage.AckID = model.NewID()
 
 		err := a.sendToPushProxy(tmpMessage, session)
 		if err != nil {
 			a.NotificationsLog().Error("Notification error",
-				mlog.String("ackId", tmpMessage.AckId),
+				mlog.String("ackId", tmpMessage.AckID),
 				mlog.String("type", tmpMessage.Type),
-				mlog.String("userId", session.UserId),
-				mlog.String("postId", tmpMessage.PostId),
-				mlog.String("channelId", tmpMessage.ChannelId),
-				mlog.String("deviceId", tmpMessage.DeviceId),
+				mlog.String("userId", session.UserID),
+				mlog.String("postId", tmpMessage.PostID),
+				mlog.String("channelId", tmpMessage.ChannelID),
+				mlog.String("deviceId", tmpMessage.DeviceID),
 				mlog.String("status", err.Error()),
 			)
 			continue
 		}
 
 		a.NotificationsLog().Info("Notification sent",
-			mlog.String("ackId", tmpMessage.AckId),
+			mlog.String("ackId", tmpMessage.AckID),
 			mlog.String("type", tmpMessage.Type),
-			mlog.String("userId", session.UserId),
-			mlog.String("postId", tmpMessage.PostId),
-			mlog.String("channelId", tmpMessage.ChannelId),
-			mlog.String("deviceId", tmpMessage.DeviceId),
+			mlog.String("userId", session.UserID),
+			mlog.String("postId", tmpMessage.PostID),
+			mlog.String("channelId", tmpMessage.ChannelID),
+			mlog.String("deviceId", tmpMessage.DeviceID),
 			mlog.String("status", model.PushSendSuccess),
 		)
 
@@ -146,7 +146,7 @@ func (a *App) sendPushNotification(notification *PostNotification, user *model.U
 
 	nameFormat := a.GetNotificationNameFormat(user)
 
-	channelName := notification.GetChannelName(nameFormat, user.Id)
+	channelName := notification.GetChannelName(nameFormat, user.ID)
 	senderName := notification.GetSenderName(nameFormat, *cfg.ServiceSettings.EnablePostUsernameOverride)
 
 	select {
@@ -207,11 +207,11 @@ func (a *App) getPushNotificationMessage(contentsConfig, postMessage string, exp
 	return senderName + userLocale("api.post.send_notifications_and_forget.push_general_message")
 }
 
-func (a *App) clearPushNotificationSync(currentSessionId, userID, channelID string) *model.AppError {
+func (a *App) clearPushNotificationSync(currentSessionID, userID, channelID string) *model.AppError {
 	msg := &model.PushNotification{
 		Type:             model.PushTypeClear,
 		Version:          model.PushMessageV2,
-		ChannelId:        channelID,
+		ChannelID:        channelID,
 		ContentAvailable: 1,
 	}
 
@@ -222,14 +222,14 @@ func (a *App) clearPushNotificationSync(currentSessionId, userID, channelID stri
 
 	msg.Badge = int(unreadCount)
 
-	return a.sendPushNotificationToAllSessions(msg, userID, currentSessionId)
+	return a.sendPushNotificationToAllSessions(msg, userID, currentSessionID)
 }
 
-func (a *App) clearPushNotification(currentSessionId, userID, channelID string) {
+func (a *App) clearPushNotification(currentSessionID, userID, channelID string) {
 	select {
 	case a.Srv().PushNotificationsHub.notificationsChan <- PushNotification{
 		notificationType: notificationTypeClear,
-		currentSessionId: currentSessionId,
+		currentSessionID: currentSessionID,
 		userID:           userID,
 		channelID:        channelID,
 	}:
@@ -309,7 +309,7 @@ func (hub *PushNotificationsHub) start() {
 				var err *model.AppError
 				switch notification.notificationType {
 				case notificationTypeClear:
-					err = hub.app.clearPushNotificationSync(notification.currentSessionId, notification.userID, notification.channelID)
+					err = hub.app.clearPushNotificationSync(notification.currentSessionID, notification.userID, notification.channelID)
 				case notificationTypeMessage:
 					err = hub.app.sendPushNotificationSync(
 						notification.post,
@@ -359,18 +359,18 @@ func (s *Server) StopPushNotificationsHubWorkers() {
 }
 
 func (a *App) sendToPushProxy(msg *model.PushNotification, session *model.Session) error {
-	msg.ServerId = a.TelemetryId()
+	msg.ServerID = a.TelemetryID()
 
 	a.NotificationsLog().Info("Notification will be sent",
-		mlog.String("ackId", msg.AckId),
+		mlog.String("ackId", msg.AckID),
 		mlog.String("type", msg.Type),
-		mlog.String("userId", session.UserId),
-		mlog.String("postId", msg.PostId),
+		mlog.String("userId", session.UserID),
+		mlog.String("postId", msg.PostID),
 		mlog.String("status", model.PushSendPrepare),
 	)
 
 	url := strings.TrimRight(*a.Config().EmailSettings.PushNotificationServer, "/") + model.ApiUrlSuffixV1 + "/send_push"
-	request, err := http.NewRequest("POST", url, strings.NewReader(msg.ToJson()))
+	request, err := http.NewRequest("POST", url, strings.NewReader(msg.ToJSON()))
 	if err != nil {
 		return err
 	}
@@ -381,12 +381,12 @@ func (a *App) sendToPushProxy(msg *model.PushNotification, session *model.Sessio
 	}
 	defer resp.Body.Close()
 
-	pushResponse := model.PushResponseFromJson(resp.Body)
+	pushResponse := model.PushResponseFromJSON(resp.Body)
 
 	switch pushResponse[model.PushStatus] {
 	case model.PushStatusRemove:
-		a.AttachDeviceId(session.Id, "", session.ExpiresAt)
-		a.ClearSessionCacheForUser(session.UserId)
+		a.AttachDeviceID(session.ID, "", session.ExpiresAt)
+		a.ClearSessionCacheForUser(session.UserID)
 		return errors.New("Device was reported as removed")
 	case model.PushStatusFail:
 		return errors.New(pushResponse[model.PushStatusErrorMsg])
@@ -400,7 +400,7 @@ func (a *App) SendAckToPushProxy(ack *model.PushNotificationAck) error {
 	}
 
 	a.NotificationsLog().Info("Notification received",
-		mlog.String("ackId", ack.Id),
+		mlog.String("ackId", ack.ID),
 		mlog.String("type", ack.NotificationType),
 		mlog.String("deviceType", ack.ClientPlatform),
 		mlog.Int64("receivedAt", ack.ClientReceivedAt),
@@ -410,7 +410,7 @@ func (a *App) SendAckToPushProxy(ack *model.PushNotificationAck) error {
 	request, err := http.NewRequest(
 		"POST",
 		strings.TrimRight(*a.Config().EmailSettings.PushNotificationServer, "/")+model.ApiUrlSuffixV1+"/ack",
-		strings.NewReader(ack.ToJson()),
+		strings.NewReader(ack.ToJSON()),
 	)
 
 	if err != nil {
@@ -432,7 +432,7 @@ func (a *App) SendAckToPushProxy(ack *model.PushNotificationAck) error {
 }
 
 func (a *App) getMobileAppSessions(userID string) ([]*model.Session, *model.AppError) {
-	sessions, err := a.Srv().Store.Session().GetSessionsWithActiveDeviceIds(userID)
+	sessions, err := a.Srv().Store.Session().GetSessionsWithActiveDeviceIDs(userID)
 	if err != nil {
 		return nil, model.NewAppError("getMobileAppSessions", "app.session.get_sessions.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -442,7 +442,7 @@ func (a *App) getMobileAppSessions(userID string) ([]*model.Session, *model.AppE
 
 func ShouldSendPushNotification(user *model.User, channelNotifyProps model.StringMap, wasMentioned bool, status *model.Status, post *model.Post) bool {
 	return DoesNotifyPropsAllowPushNotification(user, channelNotifyProps, post, wasMentioned) &&
-		DoesStatusAllowPushNotification(user.NotifyProps, status, post.ChannelId)
+		DoesStatusAllowPushNotification(user.NotifyProps, status, post.ChannelID)
 }
 
 func DoesNotifyPropsAllowPushNotification(user *model.User, channelNotifyProps model.StringMap, post *model.Post, wasMentioned bool) bool {
@@ -475,7 +475,7 @@ func DoesNotifyPropsAllowPushNotification(user *model.User, channelNotifyProps m
 	}
 
 	if (userNotify == model.UserNotifyAll || channelNotify == model.ChannelNotifyAll) &&
-		(post.UserId != user.Id || post.GetProp("from_webhook") == "true") {
+		(post.UserID != user.ID || post.GetProp("from_webhook") == "true") {
 		return true
 	}
 
@@ -515,17 +515,17 @@ func (a *App) BuildPushNotificationMessage(contentsConfig string, post *model.Po
 	var msg *model.PushNotification
 
 	notificationInterface := a.Srv().Notification
-	if (notificationInterface == nil || notificationInterface.CheckLicense() != nil) && contentsConfig == model.IdLoadedNotification {
+	if (notificationInterface == nil || notificationInterface.CheckLicense() != nil) && contentsConfig == model.IDLoadedNotification {
 		contentsConfig = model.GenericNotification
 	}
 
-	if contentsConfig == model.IdLoadedNotification {
-		msg = a.buildIdLoadedPushNotificationMessage(post, user)
+	if contentsConfig == model.IDLoadedNotification {
+		msg = a.buildIDLoadedPushNotificationMessage(post, user)
 	} else {
 		msg = a.buildFullPushNotificationMessage(contentsConfig, post, user, channel, channelName, senderName, explicitMention, channelWideMention, replyToThreadType)
 	}
 
-	unreadCount, err := a.Srv().Store.User().GetUnreadCount(user.Id)
+	unreadCount, err := a.Srv().Store.User().GetUnreadCount(user.ID)
 	if err != nil {
 		return nil, model.NewAppError("BuildPushNotificationMessage", "app.user.get_unread_count.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
@@ -534,16 +534,16 @@ func (a *App) BuildPushNotificationMessage(contentsConfig string, post *model.Po
 	return msg, nil
 }
 
-func (a *App) buildIdLoadedPushNotificationMessage(post *model.Post, user *model.User) *model.PushNotification {
+func (a *App) buildIDLoadedPushNotificationMessage(post *model.Post, user *model.User) *model.PushNotification {
 	userLocale := i18n.GetUserTranslations(user.Locale)
 	msg := &model.PushNotification{
-		PostId:     post.Id,
-		ChannelId:  post.ChannelId,
+		PostID:     post.ID,
+		ChannelID:  post.ChannelID,
 		Category:   model.CategoryCanReply,
 		Version:    model.PushMessageV2,
 		Type:       model.PushTypeMessage,
-		IsIdLoaded: true,
-		SenderId:   user.Id,
+		IsIDLoaded: true,
+		SenderID:   user.ID,
 		Message:    userLocale("api.push_notification.id_loaded.default_message"),
 	}
 
@@ -557,12 +557,12 @@ func (a *App) buildFullPushNotificationMessage(contentsConfig string, post *mode
 		Category:   model.CategoryCanReply,
 		Version:    model.PushMessageV2,
 		Type:       model.PushTypeMessage,
-		TeamId:     channel.TeamId,
-		ChannelId:  channel.Id,
-		PostId:     post.Id,
-		RootId:     post.RootId,
-		SenderId:   post.UserId,
-		IsIdLoaded: false,
+		TeamID:     channel.TeamID,
+		ChannelID:  channel.ID,
+		PostID:     post.ID,
+		RootID:     post.RootID,
+		SenderID:   post.UserID,
+		IsIDLoaded: false,
 	}
 
 	cfg := a.Config()
@@ -592,7 +592,7 @@ func (a *App) buildFullPushNotificationMessage(contentsConfig string, post *mode
 	}
 
 	userLocale := i18n.GetUserTranslations(user.Locale)
-	hasFiles := post.FileIds != nil && len(post.FileIds) > 0
+	hasFiles := post.FileIDs != nil && len(post.FileIDs) > 0
 
 	msg.Message = a.getPushNotificationMessage(
 		contentsConfig,

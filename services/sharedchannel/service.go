@@ -45,11 +45,11 @@ type ServerIface interface {
 }
 
 type AppIface interface {
-	SendEphemeralPost(userId string, post *model.Post) *model.Post
-	CreateChannelWithUser(c *request.Context, channel *model.Channel, userId string) (*model.Channel, *model.AppError)
-	GetOrCreateDirectChannel(c *request.Context, userId, otherUserId string, channelOptions ...model.ChannelOption) (*model.Channel, *model.AppError)
+	SendEphemeralPost(userID string, post *model.Post) *model.Post
+	CreateChannelWithUser(c *request.Context, channel *model.Channel, userID string) (*model.Channel, *model.AppError)
+	GetOrCreateDirectChannel(c *request.Context, userID, otherUserID string, channelOptions ...model.ChannelOption) (*model.Channel, *model.AppError)
 	AddUserToChannel(user *model.User, channel *model.Channel, skipTeamMemberIntegrityCheck bool) (*model.ChannelMember, *model.AppError)
-	AddUserToTeamByTeamId(c *request.Context, teamId string, user *model.User) *model.AppError
+	AddUserToTeamByTeamID(c *request.Context, teamID string, user *model.User) *model.AppError
 	PermanentDeleteChannel(channel *model.Channel) *model.AppError
 	CreatePost(c *request.Context, post *model.Post, channel *model.Channel, triggerWebhooks bool, setOnline bool) (savedPost *model.Post, err *model.AppError)
 	UpdatePost(c *request.Context, post *model.Post, safeUpdate bool) (*model.Post, *model.AppError)
@@ -84,13 +84,13 @@ type Service struct {
 	// everything below guarded by `mux`
 	mux                       sync.RWMutex
 	active                    bool
-	leaderListenerId          string
-	connectionStateListenerId string
+	leaderListenerID          string
+	connectionStateListenerID string
 	done                      chan struct{}
 	tasks                     map[string]syncTask
-	syncTopicListenerId       string
-	inviteTopicListenerId     string
-	uploadTopicListenerId     string
+	syncTopicListenerID       string
+	inviteTopicListenerID     string
+	uploadTopicListenerID     string
 	siteURL                   *url.URL
 }
 
@@ -118,11 +118,11 @@ func (scs *Service) Start() error {
 	}
 
 	scs.mux.Lock()
-	scs.leaderListenerId = scs.server.AddClusterLeaderChangedListener(scs.onClusterLeaderChange)
-	scs.syncTopicListenerId = rcs.AddTopicListener(TopicSync, scs.onReceiveSyncMessage)
-	scs.inviteTopicListenerId = rcs.AddTopicListener(TopicChannelInvite, scs.onReceiveChannelInvite)
-	scs.uploadTopicListenerId = rcs.AddTopicListener(TopicUploadCreate, scs.onReceiveUploadCreate)
-	scs.connectionStateListenerId = rcs.AddConnectionStateListener(scs.onConnectionStateChange)
+	scs.leaderListenerID = scs.server.AddClusterLeaderChangedListener(scs.onClusterLeaderChange)
+	scs.syncTopicListenerID = rcs.AddTopicListener(TopicSync, scs.onReceiveSyncMessage)
+	scs.inviteTopicListenerID = rcs.AddTopicListener(TopicChannelInvite, scs.onReceiveChannelInvite)
+	scs.uploadTopicListenerID = rcs.AddTopicListener(TopicUploadCreate, scs.onReceiveUploadCreate)
+	scs.connectionStateListenerID = rcs.AddConnectionStateListener(scs.onConnectionStateChange)
 	scs.mux.Unlock()
 
 	scs.onClusterLeaderChange()
@@ -138,13 +138,13 @@ func (scs *Service) Shutdown() error {
 	}
 
 	scs.mux.Lock()
-	id := scs.leaderListenerId
-	rcs.RemoveTopicListener(scs.syncTopicListenerId)
-	scs.syncTopicListenerId = ""
-	rcs.RemoveTopicListener(scs.inviteTopicListenerId)
-	scs.inviteTopicListenerId = ""
-	rcs.RemoveConnectionStateListener(scs.connectionStateListenerId)
-	scs.connectionStateListenerId = ""
+	id := scs.leaderListenerID
+	rcs.RemoveTopicListener(scs.syncTopicListenerID)
+	scs.syncTopicListenerID = ""
+	rcs.RemoveTopicListener(scs.inviteTopicListenerID)
+	scs.inviteTopicListenerID = ""
+	rcs.RemoveConnectionStateListener(scs.connectionStateListenerID)
+	scs.connectionStateListenerID = ""
 	scs.mux.Unlock()
 
 	scs.server.RemoveClusterLeaderChangedListener(id)
@@ -160,13 +160,13 @@ func (scs *Service) Active() bool {
 	return scs.active
 }
 
-func (scs *Service) sendEphemeralPost(channelId string, userId string, text string) {
+func (scs *Service) sendEphemeralPost(channelID string, userID string, text string) {
 	ephemeral := &model.Post{
-		ChannelId: channelId,
+		ChannelID: channelID,
 		Message:   text,
 		CreateAt:  model.GetMillis(),
 	}
-	scs.app.SendEphemeralPost(userId, ephemeral)
+	scs.app.SendEphemeralPost(userID, ephemeral)
 }
 
 // onClusterLeaderChange is called whenever the cluster leader may have changed.
@@ -211,8 +211,8 @@ func (scs *Service) pause() {
 
 // Makes the remote channel to be read-only(announcement mode, only admins can create posts and reactions).
 func (scs *Service) makeChannelReadOnly(channel *model.Channel) *model.AppError {
-	createPostPermission := model.ChannelModeratedPermissionsMap[model.PermissionCreatePost.Id]
-	createReactionPermission := model.ChannelModeratedPermissionsMap[model.PermissionAddReaction.Id]
+	createPostPermission := model.ChannelModeratedPermissionsMap[model.PermissionCreatePost.ID]
+	createReactionPermission := model.ChannelModeratedPermissionsMap[model.PermissionAddReaction.ID]
 	updateMap := model.ChannelModeratedRolesPatch{
 		Guests:  model.NewBool(false),
 		Members: model.NewBool(false),
@@ -243,7 +243,7 @@ func (scs *Service) onConnectionStateChange(rc *model.RemoteCluster, online bool
 
 	scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceDebug, "Remote cluster connection status changed",
 		mlog.String("remote", rc.DisplayName),
-		mlog.String("remoteId", rc.RemoteId),
+		mlog.String("remoteId", rc.RemoteID),
 		mlog.Bool("online", online),
 	)
 }

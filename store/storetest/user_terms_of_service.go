@@ -22,49 +22,49 @@ func TestUserTermsOfServiceStore(t *testing.T, ss store.Store) {
 
 func testSaveUserTermsOfService(t *testing.T, ss store.Store) {
 	userTermsOfService := &model.UserTermsOfService{
-		UserId:           model.NewId(),
-		TermsOfServiceId: model.NewId(),
+		UserID:           model.NewID(),
+		TermsOfServiceID: model.NewID(),
 	}
 
 	savedUserTermsOfService, err := ss.UserTermsOfService().Save(userTermsOfService)
 	require.NoError(t, err)
-	assert.Equal(t, userTermsOfService.UserId, savedUserTermsOfService.UserId)
-	assert.Equal(t, userTermsOfService.TermsOfServiceId, savedUserTermsOfService.TermsOfServiceId)
+	assert.Equal(t, userTermsOfService.UserID, savedUserTermsOfService.UserID)
+	assert.Equal(t, userTermsOfService.TermsOfServiceID, savedUserTermsOfService.TermsOfServiceID)
 	assert.NotEmpty(t, savedUserTermsOfService.CreateAt)
 }
 
 func testGetByUserTermsOfService(t *testing.T, ss store.Store) {
 	userTermsOfService := &model.UserTermsOfService{
-		UserId:           model.NewId(),
-		TermsOfServiceId: model.NewId(),
+		UserID:           model.NewID(),
+		TermsOfServiceID: model.NewID(),
 	}
 
 	_, err := ss.UserTermsOfService().Save(userTermsOfService)
 	require.NoError(t, err)
 
-	fetchedUserTermsOfService, err := ss.UserTermsOfService().GetByUser(userTermsOfService.UserId)
+	fetchedUserTermsOfService, err := ss.UserTermsOfService().GetByUser(userTermsOfService.UserID)
 	require.NoError(t, err)
-	assert.Equal(t, userTermsOfService.UserId, fetchedUserTermsOfService.UserId)
-	assert.Equal(t, userTermsOfService.TermsOfServiceId, fetchedUserTermsOfService.TermsOfServiceId)
+	assert.Equal(t, userTermsOfService.UserID, fetchedUserTermsOfService.UserID)
+	assert.Equal(t, userTermsOfService.TermsOfServiceID, fetchedUserTermsOfService.TermsOfServiceID)
 	assert.NotEmpty(t, fetchedUserTermsOfService.CreateAt)
 }
 
 func testDeleteUserTermsOfService(t *testing.T, ss store.Store) {
 	userTermsOfService := &model.UserTermsOfService{
-		UserId:           model.NewId(),
-		TermsOfServiceId: model.NewId(),
+		UserID:           model.NewID(),
+		TermsOfServiceID: model.NewID(),
 	}
 
 	_, err := ss.UserTermsOfService().Save(userTermsOfService)
 	require.NoError(t, err)
 
-	_, err = ss.UserTermsOfService().GetByUser(userTermsOfService.UserId)
+	_, err = ss.UserTermsOfService().GetByUser(userTermsOfService.UserID)
 	require.NoError(t, err)
 
-	err = ss.UserTermsOfService().Delete(userTermsOfService.UserId, userTermsOfService.TermsOfServiceId)
+	err = ss.UserTermsOfService().Delete(userTermsOfService.UserID, userTermsOfService.TermsOfServiceID)
 	require.NoError(t, err)
 
-	_, err = ss.UserTermsOfService().GetByUser(userTermsOfService.UserId)
+	_, err = ss.UserTermsOfService().GetByUser(userTermsOfService.UserID)
 	var nfErr *store.ErrNotFound
 	assert.Error(t, err)
 	assert.True(t, errors.As(err, &nfErr))

@@ -173,7 +173,7 @@ func TestStartServerNoS3Bucket(t *testing.T) {
 		server.UpdateConfig(func(cfg *model.Config) {
 			cfg.FileSettings = model.FileSettings{
 				DriverName:              model.NewString(model.ImageDriverS3),
-				AmazonS3AccessKeyId:     model.NewString(model.MinioAccessKey),
+				AmazonS3AccessKeyID:     model.NewString(model.MinioAccessKey),
 				AmazonS3SecretAccessKey: model.NewString(model.MinioSecretKey),
 				AmazonS3Bucket:          model.NewString("nosuchbucket"),
 				AmazonS3Endpoint:        model.NewString(s3Endpoint),
@@ -533,7 +533,7 @@ func TestPanicLog(t *testing.T) {
 	// Creating logger to log to console and temp file
 	logger := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		EnableFile:    true,
 		FileLocation:  tmpfile.Name(),
 		FileLevel:     mlog.LevelInfo,
@@ -702,12 +702,12 @@ func TestAdminAdvisor(t *testing.T) {
 
 	// creating a system user to whole admin advisor will send post
 	user := model.User{
-		Email:       strings.ToLower(model.NewId()) + "success+test@example.com",
+		Email:       strings.ToLower(model.NewID()) + "success+test@example.com",
 		Nickname:    "Darth Vader",
-		Username:    "vader" + model.NewId(),
+		Username:    "vader" + model.NewID(),
 		Password:    "passwd1",
 		AuthService: "",
-		Roles:       model.SystemAdminRoleId,
+		Roles:       model.SystemAdminRoleID,
 	}
 	ruser, err := th.App.CreateUser(th.Context, &user)
 	assert.Nil(t, err, "User should be created")
@@ -720,7 +720,7 @@ func TestAdminAdvisor(t *testing.T) {
 		assert.NotNil(t, bot, "Bot should have been created now")
 		assert.Nil(t, err, "No error should be generated")
 
-		channel, err := th.App.getDirectChannel(bot.Id, ruser.Id)
+		channel, err := th.App.getDirectChannel(bot.ID, ruser.ID)
 		assert.NotNil(t, channel, "DM channel should exist between Admin Advisor and system admin")
 		assert.Nil(t, err, "No error should be generated")
 	})
@@ -735,7 +735,7 @@ func TestAdminAdvisor(t *testing.T) {
 		assert.NotNil(t, bot, "Bot should be already created")
 		assert.Nil(t, err, "No error should be generated")
 
-		channel, err := th.App.getDirectChannel(bot.Id, ruser.Id)
+		channel, err := th.App.getDirectChannel(bot.ID, ruser.ID)
 		assert.NotNil(t, channel, "DM channel should already exist")
 		assert.Nil(t, err, "No error should be generated")
 
@@ -744,11 +744,11 @@ func TestAdminAdvisor(t *testing.T) {
 
 		doCheckAdminSupportStatus(th.App, th.Context)
 
-		channel, err = th.App.getDirectChannel(bot.Id, ruser.Id)
+		channel, err = th.App.getDirectChannel(bot.ID, ruser.ID)
 		assert.NotNil(t, channel, "DM channel should exist between Admin Advisor and system admin")
 		assert.Nil(t, err, "No error should be generated")
 
-		posts, err := th.App.GetPosts(channel.Id, 0, 100)
+		posts, err := th.App.GetPosts(channel.ID, 0, 100)
 		assert.Nil(t, err, "No error should be generated")
 		assert.Equal(t, 0, len(posts.Posts))
 	})

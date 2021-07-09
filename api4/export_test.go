@@ -24,7 +24,7 @@ func TestListExports(t *testing.T) {
 	t.Run("no permissions", func(t *testing.T) {
 		exports, resp := th.Client.ListExports()
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.context.permissions.app_error", resp.Error.Id)
+		require.Equal(t, "api.context.permissions.app_error", resp.Error.ID)
 		require.Nil(t, exports)
 	})
 
@@ -85,7 +85,7 @@ func TestDeleteExport(t *testing.T) {
 	t.Run("no permissions", func(t *testing.T) {
 		ok, resp := th.Client.DeleteExport("export.zip")
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.context.permissions.app_error", resp.Error.Id)
+		require.Equal(t, "api.context.permissions.app_error", resp.Error.ID)
 		require.False(t, ok)
 	})
 
@@ -130,7 +130,7 @@ func TestDownloadExport(t *testing.T) {
 		var buf bytes.Buffer
 		n, resp := th.Client.DownloadExport("export.zip", &buf, 0)
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.context.permissions.app_error", resp.Error.Id)
+		require.Equal(t, "api.context.permissions.app_error", resp.Error.ID)
 		require.Zero(t, n)
 	})
 
@@ -142,7 +142,7 @@ func TestDownloadExport(t *testing.T) {
 		var buf bytes.Buffer
 		n, resp := c.DownloadExport("export.zip", &buf, 0)
 		require.NotNil(t, resp.Error)
-		require.Equal(t, "api.export.export_not_found.app_error", resp.Error.Id)
+		require.Equal(t, "api.export.export_not_found.app_error", resp.Error.ID)
 		require.Zero(t, n)
 	}, "not found")
 

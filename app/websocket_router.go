@@ -55,19 +55,19 @@ func (wr *WebSocketRouter) ServeWebSocket(conn *WebConn, r *model.WebSocketReque
 		}
 		conn.SetSession(session)
 		conn.SetSessionToken(session.Token)
-		conn.UserId = session.UserId
+		conn.UserID = session.UserID
 
 		// TODO: Same logic to reconnect queue as api4/websocket.go
 
 		wr.app.HubRegister(conn)
 
 		wr.app.Srv().Go(func() {
-			wr.app.SetStatusOnline(session.UserId, false)
+			wr.app.SetStatusOnline(session.UserID, false)
 			wr.app.UpdateLastActivityAtIfNeeded(*session)
 		})
 
 		resp := model.NewWebSocketResponse(model.StatusOk, r.Seq, nil)
-		hub := wr.app.GetHubForUserId(conn.UserId)
+		hub := wr.app.GetHubForUserID(conn.UserID)
 		if hub == nil {
 			return
 		}
@@ -100,12 +100,12 @@ func returnWebSocketError(app *App, conn *WebConn, r *model.WebSocketRequest, er
 	logF(
 		"websocket routing error.",
 		mlog.Int64("seq", r.Seq),
-		mlog.String("user_id", conn.UserId),
+		mlog.String("user_id", conn.UserID),
 		mlog.String("system_message", err.SystemMessage(i18n.T)),
 		mlog.Err(err),
 	)
 
-	hub := app.GetHubForUserId(conn.UserId)
+	hub := app.GetHubForUserID(conn.UserID)
 	if hub == nil {
 		return
 	}

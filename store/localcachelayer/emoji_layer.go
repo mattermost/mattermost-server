@@ -15,49 +15,49 @@ import (
 type LocalCacheEmojiStore struct {
 	store.EmojiStore
 	rootStore                *LocalCacheStore
-	emojiByIdMut             sync.Mutex
-	emojiByIdInvalidations   map[string]bool
+	emojiByIDMut             sync.Mutex
+	emojiByIDInvalidations   map[string]bool
 	emojiByNameMut           sync.Mutex
 	emojiByNameInvalidations map[string]bool
 }
 
-func (es *LocalCacheEmojiStore) handleClusterInvalidateEmojiById(msg *model.ClusterMessage) {
+func (es *LocalCacheEmojiStore) handleClusterInvalidateEmojiByID(msg *model.ClusterMessage) {
 	if msg.Data == ClearCacheMessageData {
-		es.rootStore.emojiCacheById.Purge()
+		es.rootStore.emojiCacheByID.Purge()
 	} else {
-		es.emojiByIdMut.Lock()
-		es.emojiByIdInvalidations[msg.Data] = true
-		es.emojiByIdMut.Unlock()
-		es.rootStore.emojiCacheById.Remove(msg.Data)
+		es.emojiByIDMut.Lock()
+		es.emojiByIDInvalidations[msg.Data] = true
+		es.emojiByIDMut.Unlock()
+		es.rootStore.emojiCacheByID.Remove(msg.Data)
 	}
 }
 
-func (es *LocalCacheEmojiStore) handleClusterInvalidateEmojiIdByName(msg *model.ClusterMessage) {
+func (es *LocalCacheEmojiStore) handleClusterInvalidateEmojiIDByName(msg *model.ClusterMessage) {
 	if msg.Data == ClearCacheMessageData {
-		es.rootStore.emojiIdCacheByName.Purge()
+		es.rootStore.emojiIDCacheByName.Purge()
 	} else {
 		es.emojiByNameMut.Lock()
 		es.emojiByNameInvalidations[msg.Data] = true
 		es.emojiByNameMut.Unlock()
-		es.rootStore.emojiIdCacheByName.Remove(msg.Data)
+		es.rootStore.emojiIDCacheByName.Remove(msg.Data)
 	}
 }
 
 func (es *LocalCacheEmojiStore) Get(ctx context.Context, id string, allowFromCache bool) (*model.Emoji, error) {
 	if allowFromCache {
-		if emoji, ok := es.getFromCacheById(id); ok {
+		if emoji, ok := es.getFromCacheByID(id); ok {
 			return emoji, nil
 		}
 	}
 
 	// If it was invalidated, then we need to query master.
-	es.emojiByIdMut.Lock()
-	if es.emojiByIdInvalidations[id] {
+	es.emojiByIDMut.Lock()
+	if es.emojiByIDInvalidations[id] {
 		// And then remove the key from the map.
 		ctx = sqlstore.WithMaster(ctx)
-		delete(es.emojiByIdInvalidations, id)
+		delete(es.emojiByIDInvalidations, id)
 	}
-	es.emojiByIdMut.Unlock()
+	es.emojiByIDMut.Unlock()
 
 	emoji, err := es.EmojiStore.Get(ctx, id, allowFromCache)
 
@@ -69,7 +69,7 @@ func (es *LocalCacheEmojiStore) Get(ctx context.Context, id string, allowFromCac
 }
 
 func (es *LocalCacheEmojiStore) GetByName(ctx context.Context, name string, allowFromCache bool) (*model.Emoji, error) {
-	if id, ok := model.GetSystemEmojiId(name); ok {
+	if id, ok := model.GetSystemEmojiID(name); ok {
 		return es.Get(ctx, id, allowFromCache)
 	}
 
@@ -108,34 +108,34 @@ func (es *LocalCacheEmojiStore) Delete(emoji *model.Emoji, time int64) error {
 }
 
 func (es *LocalCacheEmojiStore) addToCache(emoji *model.Emoji) {
-	es.rootStore.doStandardAddToCache(es.rootStore.emojiCacheById, emoji.Id, emoji)
-	es.rootStore.doStandardAddToCache(es.rootStore.emojiIdCacheByName, emoji.Name, emoji.Id)
+	es.rootStore.doStandardAddToCache(es.rootStore.emojiCacheByID, emoji.ID, emoji)
+	es.rootStore.doStandardAddToCache(es.rootStore.emojiIDCacheByName, emoji.Name, emoji.ID)
 }
 
-func (es *LocalCacheEmojiStore) getFromCacheById(id string) (*model.Emoji, bool) {
+func (es *LocalCacheEmojiStore) getFromCacheByID(id string) (*model.Emoji, bool) {
 	var emoji *model.Emoji
-	if err := es.rootStore.doStandardReadCache(es.rootStore.emojiCacheById, id, &emoji); err == nil {
+	if err := es.rootStore.doStandardReadCache(es.rootStore.emojiCacheByID, id, &emoji); err == nil {
 		return emoji, true
 	}
 	return nil, false
 }
 
 func (es *LocalCacheEmojiStore) getFromCacheByName(name string) (*model.Emoji, bool) {
-	var emojiId string
-	if err := es.rootStore.doStandardReadCache(es.rootStore.emojiIdCacheByName, name, &emojiId); err == nil {
-		return es.getFromCacheById(emojiId)
+	var emojiID string
+	if err := es.rootStore.doStandardReadCache(es.rootStore.emojiIDCacheByName, name, &emojiID); err == nil {
+		return es.getFromCacheByID(emojiID)
 	}
 	return nil, false
 }
 
 func (es *LocalCacheEmojiStore) removeFromCache(emoji *model.Emoji) {
-	es.emojiByIdMut.Lock()
-	es.emojiByIdInvalidations[emoji.Id] = true
-	es.emojiByIdMut.Unlock()
-	es.rootStore.doInvalidateCacheCluster(es.rootStore.emojiCacheById, emoji.Id)
+	es.emojiByIDMut.Lock()
+	es.emojiByIDInvalidations[emoji.ID] = true
+	es.emojiByIDMut.Unlock()
+	es.rootStore.doInvalidateCacheCluster(es.rootStore.emojiCacheByID, emoji.ID)
 
 	es.emojiByNameMut.Lock()
 	es.emojiByNameInvalidations[emoji.Name] = true
 	es.emojiByNameMut.Unlock()
-	es.rootStore.doInvalidateCacheCluster(es.rootStore.emojiIdCacheByName, emoji.Name)
+	es.rootStore.doInvalidateCacheCluster(es.rootStore.emojiIDCacheByName, emoji.Name)
 }

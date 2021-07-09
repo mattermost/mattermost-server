@@ -121,7 +121,7 @@ func (env *Environment) Active() []*model.BundleInfo {
 	activePlugins := []*model.BundleInfo{}
 	env.registeredPlugins.Range(func(key, value interface{}) bool {
 		plugin := value.(registeredPlugin)
-		if env.IsActive(plugin.BundleInfo.Manifest.Id) {
+		if env.IsActive(plugin.BundleInfo.Manifest.ID) {
 			activePlugins = append(activePlugins, plugin.BundleInfo)
 		}
 
@@ -178,10 +178,10 @@ func (env *Environment) Statuses() (model.PluginStatuses, error) {
 			continue
 		}
 
-		pluginState := env.GetPluginState(plugin.Manifest.Id)
+		pluginState := env.GetPluginState(plugin.Manifest.ID)
 
 		status := &model.PluginStatus{
-			PluginId:    plugin.Manifest.Id,
+			PluginID:    plugin.Manifest.ID,
 			PluginPath:  filepath.Dir(plugin.ManifestPath),
 			State:       pluginState,
 			Name:        plugin.Manifest.Name,
@@ -197,14 +197,14 @@ func (env *Environment) Statuses() (model.PluginStatuses, error) {
 
 // GetManifest returns a manifest for a given pluginId.
 // Returns ErrNotFound if plugin is not found.
-func (env *Environment) GetManifest(pluginId string) (*model.Manifest, error) {
+func (env *Environment) GetManifest(pluginID string) (*model.Manifest, error) {
 	plugins, err := env.Available()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get plugin statuses")
 	}
 
 	for _, plugin := range plugins {
-		if plugin.Manifest != nil && plugin.Manifest.Id == pluginId {
+		if plugin.Manifest != nil && plugin.Manifest.ID == pluginID {
 			return plugin.Manifest, nil
 		}
 	}
@@ -224,7 +224,7 @@ func (env *Environment) Activate(id string) (manifest *model.Manifest, activated
 	}
 	var pluginInfo *model.BundleInfo
 	for _, p := range plugins {
-		if p.Manifest != nil && p.Manifest.Id == id {
+		if p.Manifest != nil && p.Manifest.ID == id {
 			if pluginInfo != nil {
 				return nil, false, fmt.Errorf("multiple plugins found: %v", id)
 			}
@@ -315,7 +315,7 @@ func (env *Environment) Deactivate(id string) bool {
 	rp := p.(registeredPlugin)
 	if rp.supervisor != nil {
 		if err := rp.supervisor.Hooks().OnDeactivate(); err != nil {
-			env.logger.Error("Plugin OnDeactivate() error", mlog.String("plugin_id", rp.BundleInfo.Manifest.Id), mlog.Err(err))
+			env.logger.Error("Plugin OnDeactivate() error", mlog.String("plugin_id", rp.BundleInfo.Manifest.ID), mlog.Err(err))
 		}
 		rp.supervisor.Shutdown()
 	}
@@ -340,7 +340,7 @@ func (env *Environment) Shutdown() {
 	env.registeredPlugins.Range(func(key, value interface{}) bool {
 		rp := value.(registeredPlugin)
 
-		if rp.supervisor == nil || !env.IsActive(rp.BundleInfo.Manifest.Id) {
+		if rp.supervisor == nil || !env.IsActive(rp.BundleInfo.Manifest.ID) {
 			return true
 		}
 
@@ -350,7 +350,7 @@ func (env *Environment) Shutdown() {
 		go func() {
 			defer close(done)
 			if err := rp.supervisor.Hooks().OnDeactivate(); err != nil {
-				env.logger.Error("Plugin OnDeactivate() error", mlog.String("plugin_id", rp.BundleInfo.Manifest.Id), mlog.Err(err))
+				env.logger.Error("Plugin OnDeactivate() error", mlog.String("plugin_id", rp.BundleInfo.Manifest.ID), mlog.Err(err))
 			}
 		}()
 
@@ -359,7 +359,7 @@ func (env *Environment) Shutdown() {
 
 			select {
 			case <-time.After(10 * time.Second):
-				env.logger.Warn("Plugin OnDeactivate() failed to complete in 10 seconds", mlog.String("plugin_id", rp.BundleInfo.Manifest.Id))
+				env.logger.Warn("Plugin OnDeactivate() failed to complete in 10 seconds", mlog.String("plugin_id", rp.BundleInfo.Manifest.ID))
 			case <-done:
 			}
 
@@ -386,7 +386,7 @@ func (env *Environment) UnpackWebappBundle(id string) (*model.Manifest, error) {
 	}
 	var manifest *model.Manifest
 	for _, p := range plugins {
-		if p.Manifest != nil && p.Manifest.Id == id {
+		if p.Manifest != nil && p.Manifest.ID == id {
 			if manifest != nil {
 				return nil, fmt.Errorf("multiple plugins found: %v", id)
 			}
@@ -453,13 +453,13 @@ func (env *Environment) HooksForPlugin(id string) (Hooks, error) {
 //
 // If hookRunnerFunc returns false, iteration will not continue. The iteration order among active
 // plugins is not specified.
-func (env *Environment) RunMultiPluginHook(hookRunnerFunc func(hooks Hooks) bool, hookId int) {
+func (env *Environment) RunMultiPluginHook(hookRunnerFunc func(hooks Hooks) bool, hookID int) {
 	startTime := time.Now()
 
 	env.registeredPlugins.Range(func(key, value interface{}) bool {
 		rp := value.(registeredPlugin)
 
-		if rp.supervisor == nil || !rp.supervisor.Implements(hookId) || !env.IsActive(rp.BundleInfo.Manifest.Id) {
+		if rp.supervisor == nil || !rp.supervisor.Implements(hookID) || !env.IsActive(rp.BundleInfo.Manifest.ID) {
 			return true
 		}
 
@@ -468,7 +468,7 @@ func (env *Environment) RunMultiPluginHook(hookRunnerFunc func(hooks Hooks) bool
 
 		if env.metrics != nil {
 			elapsedTime := float64(time.Since(hookStartTime)) / float64(time.Second)
-			env.metrics.ObservePluginMultiHookIterationDuration(rp.BundleInfo.Manifest.Id, elapsedTime)
+			env.metrics.ObservePluginMultiHookIterationDuration(rp.BundleInfo.Manifest.ID, elapsedTime)
 		}
 
 		return result

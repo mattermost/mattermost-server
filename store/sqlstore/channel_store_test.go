@@ -48,8 +48,8 @@ func TestChannelStoreInternalDataTypes(t *testing.T) {
 
 func testNewChannelMemberFromModel(t *testing.T) {
 	m := model.ChannelMember{
-		ChannelId:     model.NewId(),
-		UserId:        model.NewId(),
+		ChannelID:     model.NewID(),
+		UserID:        model.NewID(),
 		Roles:         "channel_user channel_admin custom_role",
 		LastViewedAt:  12345,
 		MsgCount:      2,
@@ -64,8 +64,8 @@ func testNewChannelMemberFromModel(t *testing.T) {
 
 	db := NewChannelMemberFromModel(&m)
 
-	assert.Equal(t, m.ChannelId, db.ChannelId)
-	assert.Equal(t, m.UserId, db.UserId)
+	assert.Equal(t, m.ChannelID, db.ChannelID)
+	assert.Equal(t, m.UserID, db.UserID)
 	assert.Equal(t, m.LastViewedAt, db.LastViewedAt)
 	assert.Equal(t, m.MsgCount, db.MsgCount)
 	assert.Equal(t, m.MentionCount, db.MentionCount)
@@ -85,8 +85,8 @@ func testChannelMemberWithSchemeRolesToModel(t *testing.T) {
 	t.Run("BasicProperties", func(t *testing.T) {
 		// Test all the non-roles properties here.
 		db := channelMemberWithSchemeRoles{
-			ChannelId:                     model.NewId(),
-			UserId:                        model.NewId(),
+			ChannelID:                     model.NewID(),
+			UserID:                        model.NewID(),
 			Roles:                         "custom_role",
 			LastViewedAt:                  12345,
 			MsgCount:                      2,
@@ -106,8 +106,8 @@ func testChannelMemberWithSchemeRolesToModel(t *testing.T) {
 
 		m := db.ToModel()
 
-		assert.Equal(t, db.ChannelId, m.ChannelId)
-		assert.Equal(t, db.UserId, m.UserId)
+		assert.Equal(t, db.ChannelID, m.ChannelID)
+		assert.Equal(t, db.UserID, m.UserID)
 		assert.Equal(t, "custom_role channel_user channel_admin", m.Roles)
 		assert.Equal(t, db.LastViewedAt, m.LastViewedAt)
 		assert.Equal(t, db.MsgCount, m.MsgCount)

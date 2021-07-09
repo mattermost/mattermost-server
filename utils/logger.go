@@ -23,10 +23,10 @@ type fileLocationFunc func(string) string
 func MloggerConfigFromLoggerConfig(s *model.LogSettings, getFileFunc fileLocationFunc) *mlog.LoggerConfiguration {
 	return &mlog.LoggerConfiguration{
 		EnableConsole: *s.EnableConsole,
-		ConsoleJson:   *s.ConsoleJson,
+		ConsoleJSON:   *s.ConsoleJSON,
 		ConsoleLevel:  strings.ToLower(*s.ConsoleLevel),
 		EnableFile:    *s.EnableFile,
-		FileJson:      *s.FileJson,
+		FileJSON:      *s.FileJSON,
 		FileLevel:     strings.ToLower(*s.FileLevel),
 		FileLocation:  getFileFunc(*s.FileLocation),
 		EnableColor:   *s.EnableColor,
@@ -51,11 +51,11 @@ func GetNotificationsLogFileLocation(fileLocation string) string {
 
 func GetLogSettingsFromNotificationsLogSettings(notificationLogSettings *model.NotificationLogSettings) *model.LogSettings {
 	return &model.LogSettings{
-		ConsoleJson:           notificationLogSettings.ConsoleJson,
+		ConsoleJSON:           notificationLogSettings.ConsoleJSON,
 		ConsoleLevel:          notificationLogSettings.ConsoleLevel,
 		EnableConsole:         notificationLogSettings.EnableConsole,
 		EnableFile:            notificationLogSettings.EnableFile,
-		FileJson:              notificationLogSettings.FileJson,
+		FileJSON:              notificationLogSettings.FileJSON,
 		FileLevel:             notificationLogSettings.FileLevel,
 		FileLocation:          notificationLogSettings.FileLocation,
 		AdvancedLoggingConfig: notificationLogSettings.AdvancedLoggingConfig,

@@ -261,7 +261,7 @@ func SetupConfigWithStoreMock(tb testing.TB, updateConfig func(cfg *model.Config
 	th := setupTestHelper(testlib.GetMockStoreForSetupFunctions(), nil, false, false, updateConfig, nil)
 	statusMock := mocks.StatusStore{}
 	statusMock.On("UpdateExpiredDNDStatuses").Return([]*model.Status{}, nil)
-	statusMock.On("Get", "user1").Return(&model.Status{UserId: "user1", Status: model.StatusOnline}, nil)
+	statusMock.On("Get", "user1").Return(&model.Status{UserID: "user1", Status: model.StatusOnline}, nil)
 	statusMock.On("UpdateLastActivityAt", "user1", mock.Anything).Return(nil)
 	statusMock.On("SaveOrUpdate", mock.AnythingOfType("*model.Status")).Return(nil)
 	emptyMockStore := mocks.Store{}
@@ -275,7 +275,7 @@ func SetupWithStoreMock(tb testing.TB) *TestHelper {
 	th := setupTestHelper(testlib.GetMockStoreForSetupFunctions(), nil, false, false, nil, nil)
 	statusMock := mocks.StatusStore{}
 	statusMock.On("UpdateExpiredDNDStatuses").Return([]*model.Status{}, nil)
-	statusMock.On("Get", "user1").Return(&model.Status{UserId: "user1", Status: model.StatusOnline}, nil)
+	statusMock.On("Get", "user1").Return(&model.Status{UserID: "user1", Status: model.StatusOnline}, nil)
 	statusMock.On("UpdateLastActivityAt", "user1", mock.Anything).Return(nil)
 	statusMock.On("SaveOrUpdate", mock.AnythingOfType("*model.Status")).Return(nil)
 	emptyMockStore := mocks.Store{}
@@ -289,7 +289,7 @@ func SetupEnterpriseWithStoreMock(tb testing.TB) *TestHelper {
 	th := setupTestHelper(testlib.GetMockStoreForSetupFunctions(), nil, true, false, nil, nil)
 	statusMock := mocks.StatusStore{}
 	statusMock.On("UpdateExpiredDNDStatuses").Return([]*model.Status{}, nil)
-	statusMock.On("Get", "user1").Return(&model.Status{UserId: "user1", Status: model.StatusOnline}, nil)
+	statusMock.On("Get", "user1").Return(&model.Status{UserID: "user1", Status: model.StatusOnline}, nil)
 	statusMock.On("UpdateLastActivityAt", "user1", mock.Anything).Return(nil)
 	statusMock.On("SaveOrUpdate", mock.AnythingOfType("*model.Status")).Return(nil)
 	emptyMockStore := mocks.Store{}
@@ -361,26 +361,26 @@ func (th *TestHelper) InitLogin() *TestHelper {
 	// create users once and cache them because password hashing is slow
 	initBasicOnce.Do(func() {
 		th.SystemAdminUser = th.CreateUser()
-		th.App.UpdateUserRoles(th.SystemAdminUser.Id, model.SystemUserRoleId+" "+model.SystemAdminRoleId, false)
-		th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.Id)
+		th.App.UpdateUserRoles(th.SystemAdminUser.ID, model.SystemUserRoleID+" "+model.SystemAdminRoleID, false)
+		th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.ID)
 		userCache.SystemAdminUser = th.SystemAdminUser.DeepCopy()
 
 		th.SystemManagerUser = th.CreateUser()
-		th.App.UpdateUserRoles(th.SystemManagerUser.Id, model.SystemUserRoleId+" "+model.SystemManagerRoleId, false)
-		th.SystemManagerUser, _ = th.App.GetUser(th.SystemManagerUser.Id)
+		th.App.UpdateUserRoles(th.SystemManagerUser.ID, model.SystemUserRoleID+" "+model.SystemManagerRoleID, false)
+		th.SystemManagerUser, _ = th.App.GetUser(th.SystemManagerUser.ID)
 		userCache.SystemManagerUser = th.SystemManagerUser.DeepCopy()
 
 		th.TeamAdminUser = th.CreateUser()
-		th.App.UpdateUserRoles(th.TeamAdminUser.Id, model.SystemUserRoleId, false)
-		th.TeamAdminUser, _ = th.App.GetUser(th.TeamAdminUser.Id)
+		th.App.UpdateUserRoles(th.TeamAdminUser.ID, model.SystemUserRoleID, false)
+		th.TeamAdminUser, _ = th.App.GetUser(th.TeamAdminUser.ID)
 		userCache.TeamAdminUser = th.TeamAdminUser.DeepCopy()
 
 		th.BasicUser = th.CreateUser()
-		th.BasicUser, _ = th.App.GetUser(th.BasicUser.Id)
+		th.BasicUser, _ = th.App.GetUser(th.BasicUser.ID)
 		userCache.BasicUser = th.BasicUser.DeepCopy()
 
 		th.BasicUser2 = th.CreateUser()
-		th.BasicUser2, _ = th.App.GetUser(th.BasicUser2.Id)
+		th.BasicUser2, _ = th.App.GetUser(th.BasicUser2.ID)
 		userCache.BasicUser2 = th.BasicUser2.DeepCopy()
 	})
 	// restore cached users
@@ -433,8 +433,8 @@ func (th *TestHelper) InitBasic() *TestHelper {
 	th.App.AddUserToChannel(th.BasicUser2, th.BasicPrivateChannel, false)
 	th.App.AddUserToChannel(th.BasicUser, th.BasicDeletedChannel, false)
 	th.App.AddUserToChannel(th.BasicUser2, th.BasicDeletedChannel, false)
-	th.App.UpdateUserRoles(th.BasicUser.Id, model.SystemUserRoleId, false)
-	th.Client.DeleteChannel(th.BasicDeletedChannel.Id)
+	th.App.UpdateUserRoles(th.BasicUser.ID, model.SystemUserRoleID, false)
+	th.Client.DeleteChannel(th.BasicDeletedChannel.ID)
 	th.LoginBasic()
 	th.Group = th.CreateGroup()
 
@@ -518,7 +518,7 @@ func (th *TestHelper) CreateTeam() *model.Team {
 }
 
 func (th *TestHelper) CreateTeamWithClient(client *model.Client4) *model.Team {
-	id := model.NewId()
+	id := model.NewID()
 	team := &model.Team{
 		DisplayName: "dn_" + id,
 		Name:        GenerateTestTeamName(),
@@ -536,7 +536,7 @@ func (th *TestHelper) CreateTeamWithClient(client *model.Client4) *model.Team {
 }
 
 func (th *TestHelper) CreateUserWithClient(client *model.Client4) *model.User {
-	id := model.NewId()
+	id := model.NewID()
 
 	user := &model.User{
 		Email:     th.GenerateTestEmail(),
@@ -554,7 +554,7 @@ func (th *TestHelper) CreateUserWithClient(client *model.Client4) *model.User {
 	}
 
 	ruser.Password = "Pa$$word11"
-	_, err := th.App.Srv().Store.User().VerifyEmail(ruser.Id, ruser.Email)
+	_, err := th.App.Srv().Store.User().VerifyEmail(ruser.ID, ruser.Email)
 	if err != nil {
 		return nil
 	}
@@ -563,7 +563,7 @@ func (th *TestHelper) CreateUserWithClient(client *model.Client4) *model.User {
 }
 
 func (th *TestHelper) CreateUserWithAuth(authService string) *model.User {
-	id := model.NewId()
+	id := model.NewID()
 	user := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
 		Username:      "un_" + id,
@@ -592,12 +592,12 @@ func (th *TestHelper) SetupLdapConfig() {
 		*cfg.LdapSettings.NicknameAttribute = "cn"
 		*cfg.LdapSettings.EmailAttribute = "mail"
 		*cfg.LdapSettings.UsernameAttribute = "uid"
-		*cfg.LdapSettings.IdAttribute = "cn"
-		*cfg.LdapSettings.LoginIdAttribute = "uid"
+		*cfg.LdapSettings.IDAttribute = "cn"
+		*cfg.LdapSettings.LoginIDAttribute = "uid"
 		*cfg.LdapSettings.SkipCertificateVerification = true
 		*cfg.LdapSettings.GroupFilter = ""
 		*cfg.LdapSettings.GroupDisplayNameAttribute = "cN"
-		*cfg.LdapSettings.GroupIdAttribute = "entRyUuId"
+		*cfg.LdapSettings.GroupIDAttribute = "entRyUuId"
 		*cfg.LdapSettings.MaxPageSize = 0
 	})
 	th.App.Srv().SetLicense(model.NewTestLicense("ldap"))
@@ -608,11 +608,11 @@ func (th *TestHelper) SetupSamlConfig() {
 		*cfg.SamlSettings.Enable = true
 		*cfg.SamlSettings.Verify = false
 		*cfg.SamlSettings.Encrypt = false
-		*cfg.SamlSettings.IdpUrl = "https://does.notmatter.com"
-		*cfg.SamlSettings.IdpDescriptorUrl = "https://localhost/adfs/services/trust"
+		*cfg.SamlSettings.IDpUrl = "https://does.notmatter.com"
+		*cfg.SamlSettings.IDpDescriptorUrl = "https://localhost/adfs/services/trust"
 		*cfg.SamlSettings.AssertionConsumerServiceURL = "https://localhost/login/sso/saml"
 		*cfg.SamlSettings.ServiceProviderIdentifier = "https://localhost/login/sso/saml"
-		*cfg.SamlSettings.IdpCertificateFile = app.SamlIdpCertificateName
+		*cfg.SamlSettings.IDpCertificateFile = app.SamlIDpCertificateName
 		*cfg.SamlSettings.PrivateKeyFile = app.SamlPrivateKeyName
 		*cfg.SamlSettings.PublicCertificateFile = app.SamlPublicCertificateName
 		*cfg.SamlSettings.EmailAttribute = "Email"
@@ -637,17 +637,17 @@ func (th *TestHelper) CreatePrivateChannel() *model.Channel {
 }
 
 func (th *TestHelper) CreateChannelWithClient(client *model.Client4, channelType string) *model.Channel {
-	return th.CreateChannelWithClientAndTeam(client, channelType, th.BasicTeam.Id)
+	return th.CreateChannelWithClientAndTeam(client, channelType, th.BasicTeam.ID)
 }
 
-func (th *TestHelper) CreateChannelWithClientAndTeam(client *model.Client4, channelType string, teamId string) *model.Channel {
-	id := model.NewId()
+func (th *TestHelper) CreateChannelWithClientAndTeam(client *model.Client4, channelType string, teamID string) *model.Channel {
+	id := model.NewID()
 
 	channel := &model.Channel{
 		DisplayName: "dn_" + id,
 		Name:        GenerateTestChannelName(),
 		Type:        channelType,
-		TeamId:      teamId,
+		TeamID:      teamID,
 	}
 
 	utils.DisableDebugLogForTest()
@@ -672,10 +672,10 @@ func (th *TestHelper) CreateMessagePost(message string) *model.Post {
 }
 
 func (th *TestHelper) CreatePostWithClient(client *model.Client4, channel *model.Channel) *model.Post {
-	id := model.NewId()
+	id := model.NewID()
 
 	post := &model.Post{
-		ChannelId: channel.Id,
+		ChannelID: channel.ID,
 		Message:   "message_" + id,
 	}
 
@@ -689,10 +689,10 @@ func (th *TestHelper) CreatePostWithClient(client *model.Client4, channel *model
 }
 
 func (th *TestHelper) CreatePinnedPostWithClient(client *model.Client4, channel *model.Channel) *model.Post {
-	id := model.NewId()
+	id := model.NewID()
 
 	post := &model.Post{
-		ChannelId: channel.Id,
+		ChannelID: channel.ID,
 		Message:   "message_" + id,
 		IsPinned:  true,
 	}
@@ -708,7 +708,7 @@ func (th *TestHelper) CreatePinnedPostWithClient(client *model.Client4, channel 
 
 func (th *TestHelper) CreateMessagePostWithClient(client *model.Client4, channel *model.Channel, message string) *model.Post {
 	post := &model.Post{
-		ChannelId: channel.Id,
+		ChannelID: channel.ID,
 		Message:   message,
 	}
 
@@ -723,8 +723,8 @@ func (th *TestHelper) CreateMessagePostWithClient(client *model.Client4, channel
 
 func (th *TestHelper) CreateMessagePostNoClient(channel *model.Channel, message string, createAtTime int64) *model.Post {
 	post, err := th.App.Srv().Store.Post().Save(&model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: channel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: channel.ID,
 		Message:   message,
 		CreateAt:  createAtTime,
 	})
@@ -740,7 +740,7 @@ func (th *TestHelper) CreateDmChannel(user *model.User) *model.Channel {
 	utils.DisableDebugLogForTest()
 	var err *model.AppError
 	var channel *model.Channel
-	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.Id, user.Id); err != nil {
+	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.ID, user.ID); err != nil {
 		panic(err)
 	}
 	utils.EnableDebugLogForTest()
@@ -849,18 +849,18 @@ func (th *TestHelper) AddUserToChannel(user *model.User, channel *model.Channel)
 
 func (th *TestHelper) GenerateTestEmail() string {
 	if *th.App.Config().EmailSettings.SMTPServer != "localhost" && os.Getenv("CI_INBUCKET_PORT") == "" {
-		return strings.ToLower("success+" + model.NewId() + "@simulator.amazonses.com")
+		return strings.ToLower("success+" + model.NewID() + "@simulator.amazonses.com")
 	}
-	return strings.ToLower(model.NewId() + "@localhost")
+	return strings.ToLower(model.NewID() + "@localhost")
 }
 
 func (th *TestHelper) CreateGroup() *model.Group {
-	id := model.NewId()
+	id := model.NewID()
 	group := &model.Group{
 		Name:        model.NewString("n-" + id),
 		DisplayName: "dn_" + id,
 		Source:      model.GroupSourceLdap,
-		RemoteId:    "ri_" + id,
+		RemoteID:    "ri_" + id,
 	}
 
 	utils.DisableDebugLogForTest()
@@ -928,8 +928,8 @@ func GenerateTestAppName() string {
 	return "fakeoauthapp" + model.NewRandomString(10)
 }
 
-func GenerateTestId() string {
-	return model.NewId()
+func GenerateTestID() string {
+	return model.NewID()
 }
 
 func CheckUserSanitization(t *testing.T, user *model.User) {
@@ -1015,11 +1015,11 @@ func CheckServiceUnavailableStatus(t *testing.T, resp *model.Response) {
 	checkHTTPStatus(t, resp, http.StatusServiceUnavailable, true)
 }
 
-func CheckErrorMessage(t *testing.T, resp *model.Response, errorId string) {
+func CheckErrorMessage(t *testing.T, resp *model.Response, errorID string) {
 	t.Helper()
 
-	require.NotNilf(t, resp.Error, "should have errored with message: %s", errorId)
-	require.Equalf(t, errorId, resp.Error.Id, "incorrect error message, actual: %s, expected: %s", resp.Error.Id, errorId)
+	require.NotNilf(t, resp.Error, "should have errored with message: %s", errorID)
+	require.Equalf(t, errorID, resp.Error.ID, "incorrect error message, actual: %s, expected: %s", resp.Error.ID, errorID)
 }
 
 func CheckStartsWith(t *testing.T, value, prefix, message string) {
@@ -1051,7 +1051,7 @@ func (th *TestHelper) cleanupTestFile(info *model.FileInfo) error {
 	cfg := th.App.Config()
 	if *cfg.FileSettings.DriverName == model.ImageDriverS3 {
 		endpoint := *cfg.FileSettings.AmazonS3Endpoint
-		accessKey := *cfg.FileSettings.AmazonS3AccessKeyId
+		accessKey := *cfg.FileSettings.AmazonS3AccessKeyID
 		secretKey := *cfg.FileSettings.AmazonS3SecretAccessKey
 		secure := *cfg.FileSettings.AmazonS3SSL
 		signV2 := *cfg.FileSettings.AmazonS3SignV2
@@ -1100,7 +1100,7 @@ func (th *TestHelper) cleanupTestFile(info *model.FileInfo) error {
 func (th *TestHelper) MakeUserChannelAdmin(user *model.User, channel *model.Channel) {
 	utils.DisableDebugLogForTest()
 
-	if cm, err := th.App.Srv().Store.Channel().GetMember(context.Background(), channel.Id, user.Id); err == nil {
+	if cm, err := th.App.Srv().Store.Channel().GetMember(context.Background(), channel.ID, user.ID); err == nil {
 		cm.SchemeAdmin = true
 		if _, err = th.App.Srv().Store.Channel().UpdateMember(cm); err != nil {
 			utils.EnableDebugLogForTest()
@@ -1117,7 +1117,7 @@ func (th *TestHelper) MakeUserChannelAdmin(user *model.User, channel *model.Chan
 func (th *TestHelper) UpdateUserToTeamAdmin(user *model.User, team *model.Team) {
 	utils.DisableDebugLogForTest()
 
-	if tm, err := th.App.Srv().Store.Team().GetMember(context.Background(), team.Id, user.Id); err == nil {
+	if tm, err := th.App.Srv().Store.Team().GetMember(context.Background(), team.ID, user.ID); err == nil {
 		tm.SchemeAdmin = true
 		if _, err = th.App.Srv().Store.Team().UpdateMember(tm); err != nil {
 			utils.EnableDebugLogForTest()
@@ -1134,7 +1134,7 @@ func (th *TestHelper) UpdateUserToTeamAdmin(user *model.User, team *model.Team) 
 func (th *TestHelper) UpdateUserToNonTeamAdmin(user *model.User, team *model.Team) {
 	utils.DisableDebugLogForTest()
 
-	if tm, err := th.App.Srv().Store.Team().GetMember(context.Background(), team.Id, user.Id); err == nil {
+	if tm, err := th.App.Srv().Store.Team().GetMember(context.Background(), team.ID, user.ID); err == nil {
 		tm.SchemeAdmin = false
 		if _, err = th.App.Srv().Store.Team().UpdateMember(tm); err != nil {
 			utils.EnableDebugLogForTest()
@@ -1269,8 +1269,8 @@ func (th *TestHelper) SetupChannelScheme() *model.Scheme {
 
 func (th *TestHelper) SetupScheme(scope string) *model.Scheme {
 	scheme, err := th.App.CreateScheme(&model.Scheme{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
 		Scope:       scope,
 	})
 	if err != nil {

@@ -24,7 +24,7 @@ type webSocketHandler struct {
 func (wh webSocketHandler) ServeWebSocket(conn *app.WebConn, r *model.WebSocketRequest) {
 	mlog.Debug("Websocket request", mlog.String("action", r.Action))
 
-	hub := wh.app.GetHubForUserId(conn.UserId)
+	hub := wh.app.GetHubForUserID(conn.UserID)
 	if hub == nil {
 		return
 	}
@@ -36,7 +36,7 @@ func (wh webSocketHandler) ServeWebSocket(conn *app.WebConn, r *model.WebSocketR
 			"websocket session error",
 			mlog.String("action", r.Action),
 			mlog.Int64("seq", r.Seq),
-			mlog.String("user_id", conn.UserId),
+			mlog.String("user_id", conn.UserID),
 			mlog.String("error_message", sessionErr.SystemMessage(i18n.T)),
 			mlog.Err(sessionErr),
 		)
@@ -58,7 +58,7 @@ func (wh webSocketHandler) ServeWebSocket(conn *app.WebConn, r *model.WebSocketR
 			"websocket request handling error",
 			mlog.String("action", r.Action),
 			mlog.Int64("seq", r.Seq),
-			mlog.String("user_id", conn.UserId),
+			mlog.String("user_id", conn.UserID),
 			mlog.String("error_message", err.SystemMessage(i18n.T)),
 			mlog.Err(err),
 		)

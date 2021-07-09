@@ -17,12 +17,12 @@ import (
 
 // postsToAttachments returns the file attachments for a slice of posts that need to be synchronized.
 func (scs *Service) shouldSyncAttachment(fi *model.FileInfo, rc *model.RemoteCluster) bool {
-	sca, err := scs.server.GetStore().SharedChannel().GetAttachment(fi.Id, rc.RemoteId)
+	sca, err := scs.server.GetStore().SharedChannel().GetAttachment(fi.ID, rc.RemoteID)
 	if err != nil {
 		if _, ok := err.(errNotFound); !ok {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "error fetching shared channel attachment",
-				mlog.String("file_id", fi.Id),
-				mlog.String("remote_id", rc.RemoteId),
+				mlog.String("file_id", fi.ID),
+				mlog.String("remote_id", rc.RemoteID),
 				mlog.Err(err),
 			)
 		}
@@ -37,18 +37,18 @@ func (scs *Service) shouldSyncAttachment(fi *model.FileInfo, rc *model.RemoteClu
 func (scs *Service) sendAttachmentForRemote(fi *model.FileInfo, post *model.Post, rc *model.RemoteCluster) error {
 	rcs := scs.server.GetRemoteClusterService()
 	if rcs == nil {
-		return fmt.Errorf("cannot update remote cluster for remote id %s; Remote Cluster Service not enabled", rc.RemoteId)
+		return fmt.Errorf("cannot update remote cluster for remote id %s; Remote Cluster Service not enabled", rc.RemoteID)
 	}
 
 	us := &model.UploadSession{
-		Id:        model.NewId(),
+		ID:        model.NewID(),
 		Type:      model.UploadTypeAttachment,
-		UserId:    post.UserId,
-		ChannelId: post.ChannelId,
+		UserID:    post.UserID,
+		ChannelID: post.ChannelID,
 		Filename:  fi.Name,
 		FileSize:  fi.Size,
-		RemoteId:  rc.RemoteId,
-		ReqFileId: fi.Id,
+		RemoteID:  rc.RemoteID,
+		ReqFileID: fi.ID,
 	}
 
 	payload, err := json.Marshal(us)
@@ -81,13 +81,13 @@ func (scs *Service) sendAttachmentForRemote(fi *model.FileInfo, post *model.Post
 	})
 
 	if err != nil {
-		return fmt.Errorf("error sending create upload session to remote %s for post %s: %w", rc.RemoteId, post.Id, err)
+		return fmt.Errorf("error sending create upload session to remote %s for post %s: %w", rc.RemoteID, post.ID, err)
 	}
 
 	wg.Wait()
 
 	if respErr != nil {
-		return fmt.Errorf("invalid create upload session response for remote %s and post %s: %w", rc.RemoteId, post.Id, respErr)
+		return fmt.Errorf("invalid create upload session response for remote %s and post %s: %w", rc.RemoteID, post.ID, respErr)
 	}
 
 	ctx2, cancel2 := context.WithTimeout(context.Background(), remotecluster.SendFileTimeout)
@@ -101,7 +101,7 @@ func (scs *Service) sendAttachmentForRemote(fi *model.FileInfo, post *model.Post
 		if !resp.IsSuccess() {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "send file failed",
 				mlog.String("remote", rc.DisplayName),
-				mlog.String("uploadId", usResp.Id),
+				mlog.String("uploadId", usResp.ID),
 				mlog.String("err", resp.Err),
 			)
 			return
@@ -112,7 +112,7 @@ func (scs *Service) sendAttachmentForRemote(fi *model.FileInfo, post *model.Post
 		if err2 := json.Unmarshal(resp.Payload, &fi); err2 != nil {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "invalid file info response after send file",
 				mlog.String("remote", rc.DisplayName),
-				mlog.String("uploadId", usResp.Id),
+				mlog.String("uploadId", usResp.ID),
 				mlog.Err(err2),
 			)
 			return
@@ -120,13 +120,13 @@ func (scs *Service) sendAttachmentForRemote(fi *model.FileInfo, post *model.Post
 
 		// save file attachment record in SharedChannelAttachments table
 		sca := &model.SharedChannelAttachment{
-			FileId:   fi.Id,
-			RemoteId: rc.RemoteId,
+			FileID:   fi.ID,
+			RemoteID: rc.RemoteID,
 		}
 		if _, err2 := scs.server.GetStore().SharedChannel().UpsertAttachment(sca); err2 != nil {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "error saving SharedChannelAttachment",
 				mlog.String("remote", rc.DisplayName),
-				mlog.String("uploadId", usResp.Id),
+				mlog.String("uploadId", usResp.ID),
 				mlog.Err(err2),
 			)
 			return
@@ -134,7 +134,7 @@ func (scs *Service) sendAttachmentForRemote(fi *model.FileInfo, post *model.Post
 
 		scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceDebug, "send file successful",
 			mlog.String("remote", rc.DisplayName),
-			mlog.String("uploadId", usResp.Id),
+			mlog.String("uploadId", usResp.ID),
 		)
 	})
 }
@@ -149,11 +149,11 @@ func (scs *Service) onReceiveUploadCreate(msg model.RemoteClusterMsg, rc *model.
 	}
 
 	// make sure channel is shared for the remote sender
-	if _, err := scs.server.GetStore().SharedChannel().GetRemoteByIds(us.ChannelId, rc.RemoteId); err != nil {
+	if _, err := scs.server.GetStore().SharedChannel().GetRemoteByIDs(us.ChannelID, rc.RemoteID); err != nil {
 		return fmt.Errorf("could not validate upload session for remote: %w", err)
 	}
 
-	us.RemoteId = rc.RemoteId // don't let remotes try to impersonate each other
+	us.RemoteID = rc.RemoteID // don't let remotes try to impersonate each other
 
 	// create upload session.
 	usSaved, appErr := scs.app.CreateUploadSession(&us)

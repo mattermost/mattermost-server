@@ -32,7 +32,7 @@ func getMockCacheProvider() cache.Provider {
 func getMockStore() *mocks.Store {
 	mockStore := mocks.Store{}
 
-	fakeReaction := model.Reaction{PostId: "123"}
+	fakeReaction := model.Reaction{PostID: "123"}
 	mockReactionsStore := mocks.ReactionStore{}
 	mockReactionsStore.On("Save", &fakeReaction).Return(&model.Reaction{}, nil)
 	mockReactionsStore.On("Delete", &fakeReaction).Return(&model.Reaction{}, nil)
@@ -40,7 +40,7 @@ func getMockStore() *mocks.Store {
 	mockReactionsStore.On("GetForPost", "123", true).Return([]*model.Reaction{&fakeReaction}, nil)
 	mockStore.On("Reaction").Return(&mockReactionsStore)
 
-	fakeRole := model.Role{Id: "123", Name: "role-name"}
+	fakeRole := model.Role{ID: "123", Name: "role-name"}
 	mockRolesStore := mocks.RoleStore{}
 	mockRolesStore.On("Save", &fakeRole).Return(&model.Role{}, nil)
 	mockRolesStore.On("Delete", "123").Return(&fakeRole, nil)
@@ -49,7 +49,7 @@ func getMockStore() *mocks.Store {
 	mockRolesStore.On("PermanentDeleteAll").Return(nil)
 	mockStore.On("Role").Return(&mockRolesStore)
 
-	fakeScheme := model.Scheme{Id: "123", Name: "scheme-name"}
+	fakeScheme := model.Scheme{ID: "123", Name: "scheme-name"}
 	mockSchemesStore := mocks.SchemeStore{}
 	mockSchemesStore.On("Save", &fakeScheme).Return(&model.Scheme{}, nil)
 	mockSchemesStore.On("Delete", "123").Return(&model.Scheme{}, nil)
@@ -57,20 +57,20 @@ func getMockStore() *mocks.Store {
 	mockSchemesStore.On("PermanentDeleteAll").Return(nil)
 	mockStore.On("Scheme").Return(&mockSchemesStore)
 
-	fakeFileInfo := model.FileInfo{PostId: "123"}
+	fakeFileInfo := model.FileInfo{PostID: "123"}
 	mockFileInfoStore := mocks.FileInfoStore{}
 	mockFileInfoStore.On("GetForPost", "123", true, true, false).Return([]*model.FileInfo{&fakeFileInfo}, nil)
 	mockFileInfoStore.On("GetForPost", "123", true, true, true).Return([]*model.FileInfo{&fakeFileInfo}, nil)
 	mockStore.On("FileInfo").Return(&mockFileInfoStore)
 
-	fakeWebhook := model.IncomingWebhook{Id: "123"}
+	fakeWebhook := model.IncomingWebhook{ID: "123"}
 	mockWebhookStore := mocks.WebhookStore{}
 	mockWebhookStore.On("GetIncoming", "123", true).Return(&fakeWebhook, nil)
 	mockWebhookStore.On("GetIncoming", "123", false).Return(&fakeWebhook, nil)
 	mockStore.On("Webhook").Return(&mockWebhookStore)
 
-	fakeEmoji := model.Emoji{Id: "123", Name: "name123"}
-	ctxEmoji := model.Emoji{Id: "master", Name: "name123"}
+	fakeEmoji := model.Emoji{ID: "123", Name: "name123"}
+	ctxEmoji := model.Emoji{ID: "master", Name: "name123"}
 	mockEmojiStore := mocks.EmojiStore{}
 	mockEmojiStore.On("Get", mock.Anything, "123", true).Return(&fakeEmoji, nil)
 	mockEmojiStore.On("Get", mock.Anything, "123", false).Return(&fakeEmoji, nil)
@@ -86,16 +86,16 @@ func getMockStore() *mocks.Store {
 
 	mockCount := int64(10)
 	mockGuestCount := int64(12)
-	channelId := "channel1"
-	fakeChannelId := model.Channel{Id: channelId}
+	channelID := "channel1"
+	fakeChannelID := model.Channel{ID: channelID}
 	mockChannelStore := mocks.ChannelStore{}
 	mockChannelStore.On("ClearCaches").Return()
 	mockChannelStore.On("GetMemberCount", "id", true).Return(mockCount, nil)
 	mockChannelStore.On("GetMemberCount", "id", false).Return(mockCount, nil)
 	mockChannelStore.On("GetGuestCount", "id", true).Return(mockGuestCount, nil)
 	mockChannelStore.On("GetGuestCount", "id", false).Return(mockGuestCount, nil)
-	mockChannelStore.On("Get", channelId, true).Return(&fakeChannelId, nil)
-	mockChannelStore.On("Get", channelId, false).Return(&fakeChannelId, nil)
+	mockChannelStore.On("Get", channelID, true).Return(&fakeChannelID, nil)
+	mockChannelStore.On("Get", channelID, false).Return(&fakeChannelID, nil)
 	mockStore.On("Channel").Return(&mockChannelStore)
 
 	mockPinnedPostsCount := int64(10)
@@ -103,14 +103,14 @@ func getMockStore() *mocks.Store {
 	mockChannelStore.On("GetPinnedPostCount", "id", false).Return(mockPinnedPostsCount, nil)
 
 	fakePosts := &model.PostList{}
-	fakeOptions := model.GetPostsOptions{ChannelId: "123", PerPage: 30}
+	fakeOptions := model.GetPostsOptions{ChannelID: "123", PerPage: 30}
 	mockPostStore := mocks.PostStore{}
 	mockPostStore.On("GetPosts", fakeOptions, true).Return(fakePosts, nil)
 	mockPostStore.On("GetPosts", fakeOptions, false).Return(fakePosts, nil)
 	mockPostStore.On("InvalidateLastPostTimeCache", "12360")
 
 	mockPostStoreOptions := model.GetPostsSinceOptions{
-		ChannelId:        "channelId",
+		ChannelID:        "channelId",
 		Time:             1,
 		SkipFetchThreads: false,
 	}
@@ -124,7 +124,7 @@ func getMockStore() *mocks.Store {
 	mockPostStore.On("GetPostsSince", mockPostStoreOptions, false).Return(model.NewPostList(), nil)
 	mockStore.On("Post").Return(&mockPostStore)
 
-	fakeTermsOfService := model.TermsOfService{Id: "123", CreateAt: 11111, UserId: "321", Text: "Terms of service test"}
+	fakeTermsOfService := model.TermsOfService{ID: "123", CreateAt: 11111, UserID: "321", Text: "Terms of service test"}
 	mockTermsOfServiceStore := mocks.TermsOfServiceStore{}
 	mockTermsOfServiceStore.On("InvalidateTermsOfService", "123")
 	mockTermsOfServiceStore.On("Save", &fakeTermsOfService).Return(&fakeTermsOfService, nil)
@@ -135,16 +135,16 @@ func getMockStore() *mocks.Store {
 	mockStore.On("TermsOfService").Return(&mockTermsOfServiceStore)
 
 	fakeUser := []*model.User{{
-		Id:          "123",
+		ID:          "123",
 		AuthData:    model.NewString("authData"),
 		AuthService: "authService",
 	}}
 	mockUserStore := mocks.UserStore{}
-	mockUserStore.On("GetProfileByIds", mock.Anything, []string{"123"}, &store.UserGetByIdsOpts{}, true).Return(fakeUser, nil)
-	mockUserStore.On("GetProfileByIds", mock.Anything, []string{"123"}, &store.UserGetByIdsOpts{}, false).Return(fakeUser, nil)
+	mockUserStore.On("GetProfileByIds", mock.Anything, []string{"123"}, &store.UserGetByIDsOpts{}, true).Return(fakeUser, nil)
+	mockUserStore.On("GetProfileByIds", mock.Anything, []string{"123"}, &store.UserGetByIDsOpts{}, false).Return(fakeUser, nil)
 
 	fakeProfilesInChannelMap := map[string]*model.User{
-		"456": {Id: "456"},
+		"456": {ID: "456"},
 	}
 	mockUserStore.On("GetAllProfilesInChannel", mock.Anything, "123", true).Return(fakeProfilesInChannelMap, nil)
 	mockUserStore.On("GetAllProfilesInChannel", mock.Anything, "123", false).Return(fakeProfilesInChannelMap, nil)
@@ -153,7 +153,7 @@ func getMockStore() *mocks.Store {
 	users := []*model.User{
 		fakeUser[0],
 		{
-			Id:          "456",
+			ID:          "456",
 			AuthData:    model.NewString("authData"),
 			AuthService: "authService",
 		},
@@ -162,10 +162,10 @@ func getMockStore() *mocks.Store {
 	mockUserStore.On("GetMany", mock.Anything, []string{"123"}).Return(users[0:1], nil)
 	mockStore.On("User").Return(&mockUserStore)
 
-	fakeUserTeamIds := []string{"1", "2", "3"}
+	fakeUserTeamIDs := []string{"1", "2", "3"}
 	mockTeamStore := mocks.TeamStore{}
-	mockTeamStore.On("GetUserTeamIds", "123", true).Return(fakeUserTeamIds, nil)
-	mockTeamStore.On("GetUserTeamIds", "123", false).Return(fakeUserTeamIds, nil)
+	mockTeamStore.On("GetUserTeamIds", "123", true).Return(fakeUserTeamIDs, nil)
+	mockTeamStore.On("GetUserTeamIds", "123", false).Return(fakeUserTeamIDs, nil)
 	mockStore.On("Team").Return(&mockTeamStore)
 
 	return &mockStore

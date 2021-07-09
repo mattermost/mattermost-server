@@ -44,14 +44,14 @@ func (s LocalCachePostStore) ClearCaches() {
 	}
 }
 
-func (s LocalCachePostStore) InvalidateLastPostTimeCache(channelId string) {
-	s.rootStore.doInvalidateCacheCluster(s.rootStore.lastPostTimeCache, channelId)
+func (s LocalCachePostStore) InvalidateLastPostTimeCache(channelID string) {
+	s.rootStore.doInvalidateCacheCluster(s.rootStore.lastPostTimeCache, channelID)
 
 	// Keys are "{channelid}{limit}" and caching only occurs on limits of 30 and 60
-	s.rootStore.doInvalidateCacheCluster(s.rootStore.postLastPostsCache, channelId+"30")
-	s.rootStore.doInvalidateCacheCluster(s.rootStore.postLastPostsCache, channelId+"60")
+	s.rootStore.doInvalidateCacheCluster(s.rootStore.postLastPostsCache, channelID+"30")
+	s.rootStore.doInvalidateCacheCluster(s.rootStore.postLastPostsCache, channelID+"60")
 
-	s.PostStore.InvalidateLastPostTimeCache(channelId)
+	s.PostStore.InvalidateLastPostTimeCache(channelID)
 
 	if s.rootStore.metrics != nil {
 		s.rootStore.metrics.IncrementMemCacheInvalidationCounter("Last Post Time - Remove by Channel Id")
@@ -59,21 +59,21 @@ func (s LocalCachePostStore) InvalidateLastPostTimeCache(channelId string) {
 	}
 }
 
-func (s LocalCachePostStore) GetEtag(channelId string, allowFromCache, collapsedThreads bool) string {
+func (s LocalCachePostStore) GetEtag(channelID string, allowFromCache, collapsedThreads bool) string {
 	if allowFromCache {
 		var lastTime int64
-		if err := s.rootStore.doStandardReadCache(s.rootStore.lastPostTimeCache, channelId, &lastTime); err == nil {
+		if err := s.rootStore.doStandardReadCache(s.rootStore.lastPostTimeCache, channelID, &lastTime); err == nil {
 			return fmt.Sprintf("%v.%v", model.CurrentVersion, lastTime)
 		}
 	}
 
-	result := s.PostStore.GetEtag(channelId, allowFromCache, collapsedThreads)
+	result := s.PostStore.GetEtag(channelID, allowFromCache, collapsedThreads)
 
 	splittedResult := strings.Split(result, ".")
 
 	lastTime, _ := strconv.ParseInt((splittedResult[len(splittedResult)-1]), 10, 64)
 
-	s.rootStore.doStandardAddToCache(s.rootStore.lastPostTimeCache, channelId, lastTime)
+	s.rootStore.doStandardAddToCache(s.rootStore.lastPostTimeCache, channelID, lastTime)
 
 	return result
 }
@@ -83,7 +83,7 @@ func (s LocalCachePostStore) GetPostsSince(options model.GetPostsSinceOptions, a
 		// If the last post in the channel's time is less than or equal to the time we are getting posts since,
 		// we can safely return no posts.
 		var lastTime int64
-		if err := s.rootStore.doStandardReadCache(s.rootStore.lastPostTimeCache, options.ChannelId, &lastTime); err == nil && lastTime <= options.Time {
+		if err := s.rootStore.doStandardReadCache(s.rootStore.lastPostTimeCache, options.ChannelID, &lastTime); err == nil && lastTime <= options.Time {
 			list := model.NewPostList()
 			return list, nil
 		}
@@ -98,7 +98,7 @@ func (s LocalCachePostStore) GetPostsSince(options model.GetPostsSinceOptions, a
 				latestUpdate = p.UpdateAt
 			}
 		}
-		s.rootStore.doStandardAddToCache(s.rootStore.lastPostTimeCache, options.ChannelId, latestUpdate)
+		s.rootStore.doStandardAddToCache(s.rootStore.lastPostTimeCache, options.ChannelID, latestUpdate)
 	}
 
 	return list, err
@@ -113,7 +113,7 @@ func (s LocalCachePostStore) GetPosts(options model.GetPostsOptions, allowFromCa
 	// Caching only occurs on limits of 30 and 60, the common limits requested by MM clients
 	if offset == 0 && (options.PerPage == 60 || options.PerPage == 30) {
 		var cacheItem *model.PostList
-		if err := s.rootStore.doStandardReadCache(s.rootStore.postLastPostsCache, fmt.Sprintf("%s%v", options.ChannelId, options.PerPage), &cacheItem); err == nil {
+		if err := s.rootStore.doStandardReadCache(s.rootStore.postLastPostsCache, fmt.Sprintf("%s%v", options.ChannelID, options.PerPage), &cacheItem); err == nil {
 			return cacheItem, nil
 		}
 	}
@@ -125,7 +125,7 @@ func (s LocalCachePostStore) GetPosts(options model.GetPostsOptions, allowFromCa
 
 	// Caching only occurs on limits of 30 and 60, the common limits requested by MM clients
 	if offset == 0 && (options.PerPage == 60 || options.PerPage == 30) {
-		s.rootStore.doStandardAddToCache(s.rootStore.postLastPostsCache, fmt.Sprintf("%s%v", options.ChannelId, options.PerPage), list)
+		s.rootStore.doStandardAddToCache(s.rootStore.postLastPostsCache, fmt.Sprintf("%s%v", options.ChannelID, options.PerPage), list)
 	}
 
 	return list, err

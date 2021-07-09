@@ -79,12 +79,12 @@ func (s *SqlReactionStore) Delete(reaction *model.Reaction) (*model.Reaction, er
 }
 
 // GetForPost returns all reactions associated with `postId` that are not deleted.
-func (s *SqlReactionStore) GetForPost(postId string, allowFromCache bool) ([]*model.Reaction, error) {
+func (s *SqlReactionStore) GetForPost(postID string, allowFromCache bool) ([]*model.Reaction, error) {
 	queryString, args, err := s.getQueryBuilder().
 		Select("UserId", "PostId", "EmojiName", "CreateAt", "COALESCE(UpdateAt, CreateAt) As UpdateAt",
 			"COALESCE(DeleteAt, 0) As DeleteAt", "RemoteId").
 		From("Reactions").
-		Where(sq.Eq{"PostId": postId}).
+		Where(sq.Eq{"PostId": postID}).
 		Where(sq.Eq{"COALESCE(DeleteAt, 0)": 0}).
 		OrderBy("CreateAt").
 		ToSql()
@@ -95,22 +95,22 @@ func (s *SqlReactionStore) GetForPost(postId string, allowFromCache bool) ([]*mo
 
 	var reactions []*model.Reaction
 	if _, err := s.GetReplica().Select(&reactions, queryString, args...); err != nil {
-		return nil, errors.Wrapf(err, "failed to get Reactions with postId=%s", postId)
+		return nil, errors.Wrapf(err, "failed to get Reactions with postId=%s", postID)
 	}
 	return reactions, nil
 }
 
 // GetForPostSince returns all reactions associated with `postId` updated after `since`.
-func (s *SqlReactionStore) GetForPostSince(postId string, since int64, excludeRemoteId string, inclDeleted bool) ([]*model.Reaction, error) {
+func (s *SqlReactionStore) GetForPostSince(postID string, since int64, excludeRemoteID string, inclDeleted bool) ([]*model.Reaction, error) {
 	query := s.getQueryBuilder().
 		Select("UserId", "PostId", "EmojiName", "CreateAt", "COALESCE(UpdateAt, CreateAt) As UpdateAt",
 			"COALESCE(DeleteAt, 0) As DeleteAt", "RemoteId").
 		From("Reactions").
-		Where(sq.Eq{"PostId": postId}).
+		Where(sq.Eq{"PostId": postID}).
 		Where(sq.Gt{"UpdateAt": since})
 
-	if excludeRemoteId != "" {
-		query = query.Where(sq.NotEq{"COALESCE(RemoteId, '')": excludeRemoteId})
+	if excludeRemoteID != "" {
+		query = query.Where(sq.NotEq{"COALESCE(RemoteId, '')": excludeRemoteID})
 	}
 
 	if !inclDeleted {
@@ -131,8 +131,8 @@ func (s *SqlReactionStore) GetForPostSince(postId string, since int64, excludeRe
 	return reactions, nil
 }
 
-func (s *SqlReactionStore) BulkGetForPosts(postIds []string) ([]*model.Reaction, error) {
-	keys, params := MapStringsToQueryParams(postIds, "postId")
+func (s *SqlReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction, error) {
+	keys, params := MapStringsToQueryParams(postIDs, "postId")
 	var reactions []*model.Reaction
 
 	if _, err := s.GetReplica().Select(&reactions,
@@ -196,12 +196,12 @@ func (s *SqlReactionStore) DeleteAllWithEmojiName(emojiName string) error {
 		reaction := reaction
 		_, err := s.GetMaster().Exec(UpdatePostHasReactionsOnDeleteQuery,
 			map[string]interface{}{
-				"PostId":   reaction.PostId,
+				"PostId":   reaction.PostID,
 				"UpdateAt": model.GetMillis(),
 			})
 		if err != nil {
 			mlog.Warn("Unable to update Post.HasReactions while removing reactions",
-				mlog.String("post_id", reaction.PostId),
+				mlog.String("post_id", reaction.PostID),
 				mlog.Err(err))
 		}
 	}
@@ -252,12 +252,12 @@ func (s *SqlReactionStore) PermanentDeleteBatch(endTime int64, limit int64) (int
 
 func (s *SqlReactionStore) saveReactionAndUpdatePost(transaction *gorp.Transaction, reaction *model.Reaction) error {
 	params := map[string]interface{}{
-		"UserId":    reaction.UserId,
-		"PostId":    reaction.PostId,
+		"UserId":    reaction.UserID,
+		"PostId":    reaction.PostID,
 		"EmojiName": reaction.EmojiName,
 		"CreateAt":  reaction.CreateAt,
 		"UpdateAt":  reaction.UpdateAt,
-		"RemoteId":  reaction.RemoteId,
+		"RemoteId":  reaction.RemoteID,
 	}
 
 	if s.DriverName() == model.DatabaseDriverMysql {
@@ -283,18 +283,18 @@ func (s *SqlReactionStore) saveReactionAndUpdatePost(transaction *gorp.Transacti
 			return err
 		}
 	}
-	return updatePostForReactionsOnInsert(transaction, reaction.PostId)
+	return updatePostForReactionsOnInsert(transaction, reaction.PostID)
 }
 
 func deleteReactionAndUpdatePost(transaction *gorp.Transaction, reaction *model.Reaction) error {
 	params := map[string]interface{}{
-		"UserId":    reaction.UserId,
-		"PostId":    reaction.PostId,
+		"UserId":    reaction.UserID,
+		"PostId":    reaction.PostID,
 		"EmojiName": reaction.EmojiName,
 		"CreateAt":  reaction.CreateAt,
 		"UpdateAt":  reaction.UpdateAt,
 		"DeleteAt":  reaction.UpdateAt, // DeleteAt = UpdateAt
-		"RemoteId":  reaction.RemoteId,
+		"RemoteId":  reaction.RemoteID,
 	}
 
 	if _, err := transaction.Exec(
@@ -309,7 +309,7 @@ func deleteReactionAndUpdatePost(transaction *gorp.Transaction, reaction *model.
 		return err
 	}
 
-	return updatePostForReactionsOnDelete(transaction, reaction.PostId)
+	return updatePostForReactionsOnDelete(transaction, reaction.PostID)
 }
 
 const (
@@ -322,13 +322,13 @@ const (
 			Id = :PostId`
 )
 
-func updatePostForReactionsOnDelete(transaction *gorp.Transaction, postId string) error {
+func updatePostForReactionsOnDelete(transaction *gorp.Transaction, postID string) error {
 	updateAt := model.GetMillis()
-	_, err := transaction.Exec(UpdatePostHasReactionsOnDeleteQuery, map[string]interface{}{"PostId": postId, "UpdateAt": updateAt})
+	_, err := transaction.Exec(UpdatePostHasReactionsOnDeleteQuery, map[string]interface{}{"PostId": postID, "UpdateAt": updateAt})
 	return err
 }
 
-func updatePostForReactionsOnInsert(transaction *gorp.Transaction, postId string) error {
+func updatePostForReactionsOnInsert(transaction *gorp.Transaction, postID string) error {
 	_, err := transaction.Exec(
 		`UPDATE
 			Posts
@@ -337,7 +337,7 @@ func updatePostForReactionsOnInsert(transaction *gorp.Transaction, postId string
 			UpdateAt = :UpdateAt
 		WHERE
 			Id = :PostId`,
-		map[string]interface{}{"PostId": postId, "UpdateAt": model.GetMillis()})
+		map[string]interface{}{"PostId": postID, "UpdateAt": model.GetMillis()})
 
 	return err
 }

@@ -115,7 +115,7 @@ func TestCreateCommand(t *testing.T) {
 		t.Run(testCase.Description, func(t *testing.T) {
 			actual, _ := th.RunCommandWithOutput(t, testCase.Args...)
 
-			cmds, response := th.SystemAdminClient.ListCommands(team.Id, true)
+			cmds, response := th.SystemAdminClient.ListCommands(team.ID, true)
 
 			require.Nil(t, response.Error, "Failed to list commands")
 
@@ -139,15 +139,15 @@ func TestShowCommand(t *testing.T) {
 	team := th.BasicTeam
 	user := th.BasicUser
 	th.LinkUserToTeam(user, team)
-	trigger := "trigger_" + model.NewId()
-	displayName := "dn_" + model.NewId()
+	trigger := "trigger_" + model.NewID()
+	displayName := "dn_" + model.NewID()
 
 	c := &model.Command{
 		DisplayName: displayName,
 		Method:      "G",
-		TeamId:      team.Id,
+		TeamID:      team.ID,
 		Username:    user.Username,
-		CreatorId:   user.Id,
+		CreatorID:   user.ID,
 		URL:         url,
 		Trigger:     trigger,
 	}
@@ -155,13 +155,13 @@ func TestShowCommand(t *testing.T) {
 	t.Run("existing command", func(t *testing.T) {
 		command, err := th.App.CreateCommand(c)
 		require.Nil(t, err)
-		commands, err := th.App.ListTeamCommands(team.Id)
+		commands, err := th.App.ListTeamCommands(team.ID)
 		require.Nil(t, err)
 		assert.Equal(t, len(commands), 1)
 
-		output := th.CheckCommand(t, "command", "show", command.Id)
-		assert.Contains(t, output, command.Id)
-		assert.Contains(t, output, command.TeamId)
+		output := th.CheckCommand(t, "command", "show", command.ID)
+		assert.Contains(t, output, command.ID)
+		assert.Contains(t, output, command.TeamID)
 		assert.Contains(t, output, trigger)
 		assert.Contains(t, output, displayName)
 		assert.Contains(t, output, user.Username)
@@ -188,24 +188,24 @@ func TestDeleteCommand(t *testing.T) {
 	th.LinkUserToTeam(user, team)
 
 	c := &model.Command{
-		DisplayName: "dn_" + model.NewId(),
+		DisplayName: "dn_" + model.NewID(),
 		Method:      "G",
-		TeamId:      team.Id,
+		TeamID:      team.ID,
 		Username:    user.Username,
-		CreatorId:   user.Id,
+		CreatorID:   user.ID,
 		URL:         url,
-		Trigger:     "trigger_" + model.NewId(),
+		Trigger:     "trigger_" + model.NewID(),
 	}
 
 	t.Run("existing command", func(t *testing.T) {
 		command, err := th.App.CreateCommand(c)
 		require.Nil(t, err)
-		commands, err := th.App.ListTeamCommands(team.Id)
+		commands, err := th.App.ListTeamCommands(team.ID)
 		require.Nil(t, err)
 		assert.Equal(t, len(commands), 1)
 
-		th.CheckCommand(t, "command", "delete", command.Id)
-		commands, err = th.App.ListTeamCommands(team.Id)
+		th.CheckCommand(t, "command", "delete", command.ID)
+		commands, err = th.App.ListTeamCommands(team.ID)
 		require.Nil(t, err)
 		assert.Equal(t, len(commands), 0)
 	})
@@ -232,41 +232,41 @@ func TestModifyCommand(t *testing.T) {
 	// create test command to modify
 	url := "http://localhost:8000/test-command"
 	th.LinkUserToTeam(user, team)
-	trigger := "trigger_" + model.NewId()
-	displayName := "dn_" + model.NewId()
+	trigger := "trigger_" + model.NewID()
+	displayName := "dn_" + model.NewID()
 
 	c := &model.Command{
 		DisplayName: displayName,
 		Method:      "G",
-		TeamId:      team.Id,
+		TeamID:      team.ID,
 		Username:    user.Username,
-		CreatorId:   user.Id,
+		CreatorID:   user.ID,
 		URL:         url,
 		Trigger:     trigger,
 	}
 
 	command, err := th.App.CreateCommand(c)
 	require.Nil(t, err)
-	commands, err := th.App.ListTeamCommands(team.Id)
+	commands, err := th.App.ListTeamCommands(team.ID)
 	require.Nil(t, err)
 	assert.Equal(t, len(commands), 1)
 
 	t.Run("command not specified", func(t *testing.T) {
-		args := []string{"command", "", command.Id, "--trigger-word", "sometrigger"}
+		args := []string{"command", "", command.ID, "--trigger-word", "sometrigger"}
 		output, _ := th.RunCommandWithOutput(t, args...)
 		assert.Contains(t, output, "Error: unknown flag: --trigger-word")
 	})
 
 	t.Run("modify command unchanged", func(t *testing.T) {
-		args := []string{"command", "modify", command.Id}
+		args := []string{"command", "modify", command.ID}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.DisplayName, command.DisplayName)
 		assert.Equal(t, cmd.Method, command.Method)
-		assert.Equal(t, cmd.TeamId, command.TeamId)
+		assert.Equal(t, cmd.TeamID, command.TeamID)
 		assert.Equal(t, cmd.Username, command.Username)
-		assert.Equal(t, cmd.CreatorId, command.CreatorId)
+		assert.Equal(t, cmd.CreatorID, command.CreatorID)
 		assert.Equal(t, cmd.URL, command.URL)
 		assert.Equal(t, cmd.Trigger, command.Trigger)
 		assert.Equal(t, cmd.AutoComplete, command.AutoComplete)
@@ -276,7 +276,7 @@ func TestModifyCommand(t *testing.T) {
 	})
 
 	t.Run("misspelled flag", func(t *testing.T) {
-		args := []string{"command", "", command.Id, "--trigger-wor", "sometrigger"}
+		args := []string{"command", "", command.ID, "--trigger-wor", "sometrigger"}
 		output, _ := th.RunCommandWithOutput(t, args...)
 		assert.Contains(t, output, "Error: unknown flag:")
 	})
@@ -285,9 +285,9 @@ func TestModifyCommand(t *testing.T) {
 		testName := "multitrigger"
 		testURL := "http://localhost:8000/test-modify"
 		testDescription := "multiple field test"
-		args := []string{"command", "modify", command.Id, "--trigger-word", testName, "--url", testURL, "--description", testDescription}
+		args := []string{"command", "modify", command.ID, "--trigger-word", testName, "--url", testURL, "--description", testDescription}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.Trigger, testName)
 		assert.Equal(t, cmd.URL, testURL)
@@ -296,50 +296,50 @@ func TestModifyCommand(t *testing.T) {
 
 	t.Run("displayname nil error", func(t *testing.T) {
 		testVal := "newName"
-		args := []string{"command", "modify", command.Id, "--title", testVal}
+		args := []string{"command", "modify", command.ID, "--title", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.DisplayName, testVal)
 	})
 
 	t.Run("description nil error", func(t *testing.T) {
 		testVal := "test description"
-		args := []string{"command", "modify", command.Id, "--description", testVal}
+		args := []string{"command", "modify", command.ID, "--description", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.Description, testVal)
 	})
 
 	t.Run("trigger nil error", func(t *testing.T) {
 		testVal := "testtrigger"
-		args := []string{"command", "modify", command.Id, "--trigger-word", testVal}
+		args := []string{"command", "modify", command.ID, "--trigger-word", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.Trigger, testVal)
 	})
 
 	t.Run("trigger with space", func(t *testing.T) {
 		testVal := "bad trigger"
-		args := []string{"command", "modify", command.Id, "--trigger-word", testVal}
+		args := []string{"command", "modify", command.ID, "--trigger-word", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
 		assert.Contains(t, output, "Error: a trigger word must not contain spaces")
 	})
 
 	t.Run("trigger with leading /", func(t *testing.T) {
 		testVal := "/bad-trigger"
-		args := []string{"command", "modify", command.Id, "--trigger-word", testVal}
+		args := []string{"command", "modify", command.ID, "--trigger-word", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
 		assert.Contains(t, output, "Error: a trigger word cannot begin with a /")
 	})
 
 	t.Run("blank trigger", func(t *testing.T) {
-		cmd_unmodified, _ := th.App.GetCommand(command.Id)
-		args := []string{"command", "modify", command.Id, "--trigger-word", ""}
+		cmd_unmodified, _ := th.App.GetCommand(command.ID)
+		args := []string{"command", "modify", command.ID, "--trigger-word", ""}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd_modified, _ := th.App.GetCommand(command.Id)
+		cmd_modified, _ := th.App.GetCommand(command.ID)
 
 		// assert trigger remains unchanged
 		assert.Contains(t, output, "PASS")
@@ -349,18 +349,18 @@ func TestModifyCommand(t *testing.T) {
 	//url case
 	t.Run("url nil error", func(t *testing.T) {
 		testVal := "http://localhost:8000/modify-command"
-		args := []string{"command", "modify", command.Id, "--url", testVal}
+		args := []string{"command", "modify", command.ID, "--url", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.URL, testVal)
 	})
 
 	t.Run("blank url", func(t *testing.T) {
-		cmd_unmodified, _ := th.App.GetCommand(command.Id)
-		args := []string{"command", "modify", command.Id, "--url", ""}
+		cmd_unmodified, _ := th.App.GetCommand(command.ID)
+		args := []string{"command", "modify", command.ID, "--url", ""}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd_modified, _ := th.App.GetCommand(command.Id)
+		cmd_modified, _ := th.App.GetCommand(command.ID)
 
 		//assert URL remains unchanged
 		assert.Contains(t, output, "PASS")
@@ -369,75 +369,75 @@ func TestModifyCommand(t *testing.T) {
 
 	t.Run("icon url nil error", func(t *testing.T) {
 		testVal := "http://localhost:8000/testicon.png"
-		args := []string{"command", "modify", command.Id, "--icon", testVal}
+		args := []string{"command", "modify", command.ID, "--icon", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.IconURL, testVal)
 	})
 
 	t.Run("creator nil error", func(t *testing.T) {
 		testVal := adminUser
-		args := []string{"command", "modify", command.Id, "--creator", testVal.Username}
+		args := []string{"command", "modify", command.ID, "--creator", testVal.Username}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
-		assert.Equal(t, cmd.CreatorId, testVal.Id)
+		assert.Equal(t, cmd.CreatorID, testVal.ID)
 	})
 
 	t.Run("creator not found", func(t *testing.T) {
 		testVal := "fakeuser"
-		args := []string{"command", "modify", command.Id, "--creator", testVal}
+		args := []string{"command", "modify", command.ID, "--creator", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
 		assert.Contains(t, output, "unable to find user")
 	})
 
 	t.Run("creator not admin user", func(t *testing.T) {
 		testVal := user.Username
-		args := []string{"command", "modify", command.Id, "--creator", testVal}
+		args := []string{"command", "modify", command.ID, "--creator", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
 		assert.Contains(t, output, "the creator must be a user who has permissions to manage slash commands")
 	})
 
 	t.Run("response username nil error", func(t *testing.T) {
 		testVal := "response-test"
-		args := []string{"command", "modify", command.Id, "--response-username", testVal}
+		args := []string{"command", "modify", command.ID, "--response-username", testVal}
 		output, _ := th.RunCommandWithOutput(t, args...)
-		cmd, _ := th.App.GetCommand(command.Id)
+		cmd, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output, "PASS")
 		assert.Equal(t, cmd.Username, testVal)
 	})
 
 	t.Run("post set and unset", func(t *testing.T) {
-		args_set := []string{"command", "modify", command.Id, "--post", ""}
-		args_unset := []string{"command", "modify", command.Id, "", ""}
+		args_set := []string{"command", "modify", command.ID, "--post", ""}
+		args_unset := []string{"command", "modify", command.ID, "", ""}
 
 		// set post and check
 		output_set, _ := th.RunCommandWithOutput(t, args_set...)
-		cmd_set, _ := th.App.GetCommand(command.Id)
+		cmd_set, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output_set, "PASS")
 		assert.Equal(t, cmd_set.Method, "P")
 
 		// unset post and check
 		output_unset, _ := th.RunCommandWithOutput(t, args_unset...)
-		cmd_unset, _ := th.App.GetCommand(command.Id)
+		cmd_unset, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output_unset, "PASS")
 		assert.Equal(t, cmd_unset.Method, "G")
 	})
 
 	t.Run("autocomplete set and unset", func(t *testing.T) {
-		args_set := []string{"command", "modify", command.Id, "--autocomplete", ""}
-		args_unset := []string{"command", "modify", command.Id, "", ""}
+		args_set := []string{"command", "modify", command.ID, "--autocomplete", ""}
+		args_unset := []string{"command", "modify", command.ID, "", ""}
 
 		// set autocomplete and check
 		output_set, _ := th.RunCommandWithOutput(t, args_set...)
-		cmd_set, _ := th.App.GetCommand(command.Id)
+		cmd_set, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output_set, "PASS")
 		assert.Equal(t, cmd_set.AutoComplete, true)
 
 		// unset autocomplete and check
 		output_unset, _ := th.RunCommandWithOutput(t, args_unset...)
-		cmd_unset, _ := th.App.GetCommand(command.Id)
+		cmd_unset, _ := th.App.GetCommand(command.ID)
 		assert.Contains(t, output_unset, "PASS")
 		assert.Equal(t, cmd_unset.AutoComplete, false)
 	})

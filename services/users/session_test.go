@@ -22,15 +22,15 @@ func TestCache(t *testing.T) {
 	defer th.TearDown()
 
 	session := &model.Session{
-		Id:     model.NewId(),
-		Token:  model.NewId(),
-		UserId: model.NewId(),
+		ID:     model.NewID(),
+		Token:  model.NewID(),
+		UserID: model.NewID(),
 	}
 
 	session2 := &model.Session{
-		Id:     model.NewId(),
-		Token:  model.NewId(),
-		UserId: model.NewId(),
+		ID:     model.NewID(),
+		Token:  model.NewID(),
+		UserID: model.NewID(),
 	}
 
 	th.service.sessionCache.SetWithExpiry(session.Token, session, 5*time.Minute)
@@ -40,7 +40,7 @@ func TestCache(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, keys)
 
-	th.service.ClearUserSessionCache(session.UserId)
+	th.service.ClearUserSessionCache(session.UserID)
 
 	rkeys, err := th.service.sessionCache.Keys()
 	require.NoError(t, err)
@@ -109,9 +109,9 @@ func TestOAuthRevokeAccessToken(t *testing.T) {
 
 	session := &model.Session{}
 	session.CreateAt = model.GetMillis()
-	session.UserId = model.NewId()
-	session.Token = model.NewId()
-	session.Roles = model.SystemUserRoleId
+	session.UserID = model.NewID()
+	session.Token = model.NewID()
+	session.Roles = model.SystemUserRoleID
 	th.service.SetSessionExpireInDays(session, 1)
 
 	session, _ = th.service.CreateSession(session)
@@ -120,9 +120,9 @@ func TestOAuthRevokeAccessToken(t *testing.T) {
 
 	accessData := &model.AccessData{}
 	accessData.Token = session.Token
-	accessData.UserId = session.UserId
-	accessData.RedirectUri = "http://example.com"
-	accessData.ClientId = model.NewId()
+	accessData.UserID = session.UserID
+	accessData.RedirectURI = "http://example.com"
+	accessData.ClientID = model.NewID()
 	accessData.ExpiresAt = session.ExpiresAt
 
 	_, nErr := th.service.oAuthStore.SaveAccessData(accessData)

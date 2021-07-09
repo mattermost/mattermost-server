@@ -35,7 +35,7 @@ func TestLocalFileBackendTestSuite(t *testing.T) {
 	// The global logger will be stomped by apps initializing but that's fine for testing. Ideally this won't happen.
 	mlog.InitGlobalLogger(mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		ConsoleLevel:  "error",
 		EnableFile:    false,
 	}))
@@ -76,7 +76,7 @@ func runBackendTest(t *testing.T, encrypt bool) {
 	suite.Run(t, &FileBackendTestSuite{
 		settings: FileBackendSettings{
 			DriverName:              driverS3,
-			AmazonS3AccessKeyId:     "minioaccesskey",
+			AmazonS3AccessKeyID:     "minioaccesskey",
 			AmazonS3SecretAccessKey: "miniosecretkey",
 			AmazonS3Bucket:          "mattermost-test",
 			AmazonS3Region:          "",
@@ -435,7 +435,7 @@ func (s *FileBackendTestSuite) TestFileModTime() {
 func BenchmarkS3WriteFile(b *testing.B) {
 	settings := FileBackendSettings{
 		DriverName:              driverS3,
-		AmazonS3AccessKeyId:     "minioaccesskey",
+		AmazonS3AccessKeyID:     "minioaccesskey",
 		AmazonS3SecretAccessKey: "miniosecretkey",
 		AmazonS3Bucket:          "mattermost-test",
 		AmazonS3Region:          "",

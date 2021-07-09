@@ -14,7 +14,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/utils/jsonutils"
 )
 
-func TestHumanizeJsonError(t *testing.T) {
+func TestHumanizeJSONError(t *testing.T) {
 	t.Parallel()
 
 	type testType struct{}

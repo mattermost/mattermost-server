@@ -76,14 +76,14 @@ func (rcs *Service) pingEmitter(pingChan <-chan *model.RemoteCluster, done <-cha
 			if err := rcs.pingRemote(rc); err != nil {
 				rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceWarn, "Remote cluster ping failed",
 					mlog.String("remote", rc.DisplayName),
-					mlog.String("remoteId", rc.RemoteId),
+					mlog.String("remoteId", rc.RemoteID),
 					mlog.Err(err),
 				)
 			}
 
 			if online != rc.IsOnline() {
 				if metrics := rcs.server.GetMetrics(); metrics != nil {
-					metrics.IncrementRemoteClusterConnStateChangeCounter(rc.RemoteId, rc.IsOnline())
+					metrics.IncrementRemoteClusterConnStateChangeCounter(rc.RemoteID, rc.IsOnline())
 				}
 				rcs.fireConnectionStateChgEvent(rc)
 			}
@@ -113,10 +113,10 @@ func (rcs *Service) pingRemote(rc *model.RemoteCluster) error {
 		return err
 	}
 
-	if err := rcs.server.GetStore().RemoteCluster().SetLastPingAt(rc.RemoteId); err != nil {
+	if err := rcs.server.GetStore().RemoteCluster().SetLastPingAt(rc.RemoteID); err != nil {
 		rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceError, "Failed to update LastPingAt for remote cluster",
 			mlog.String("remote", rc.DisplayName),
-			mlog.String("remoteId", rc.RemoteId),
+			mlog.String("remoteId", rc.RemoteID),
 			mlog.Err(err),
 		)
 	}
@@ -125,16 +125,16 @@ func (rcs *Service) pingRemote(rc *model.RemoteCluster) error {
 	if metrics := rcs.server.GetMetrics(); metrics != nil {
 		sentAt := time.Unix(0, ping.SentAt*int64(time.Millisecond))
 		elapsed := time.Since(sentAt).Seconds()
-		metrics.ObserveRemoteClusterPingDuration(rc.RemoteId, elapsed)
+		metrics.ObserveRemoteClusterPingDuration(rc.RemoteID, elapsed)
 
 		// we approximate clock skew between remotes.
 		skew := elapsed/2 - float64(ping.RecvAt-ping.SentAt)/1000
-		metrics.ObserveRemoteClusterClockSkew(rc.RemoteId, skew)
+		metrics.ObserveRemoteClusterClockSkew(rc.RemoteID, skew)
 	}
 
 	rcs.server.GetLogger().Log(mlog.LvlRemoteClusterServiceDebug, "Remote cluster ping",
 		mlog.String("remote", rc.DisplayName),
-		mlog.String("remoteId", rc.RemoteId),
+		mlog.String("remoteId", rc.RemoteID),
 		mlog.Int64("SentAt", ping.SentAt),
 		mlog.Int64("RecvAt", ping.RecvAt),
 		mlog.Int64("Diff", ping.RecvAt-ping.SentAt),
@@ -154,7 +154,7 @@ func makePingFrame(rc *model.RemoteCluster) (*model.RemoteClusterFrame, error) {
 	msg := model.NewRemoteClusterMsg(PingTopic, pingRaw)
 
 	frame := &model.RemoteClusterFrame{
-		RemoteId: rc.RemoteId,
+		RemoteID: rc.RemoteID,
 		Msg:      msg,
 	}
 	return frame, nil

@@ -1087,7 +1087,7 @@ func (s *OpenTracingLayerChannelStore) GetChannelsBatchForIndexing(startTime int
 	return result, err
 }
 
-func (s *OpenTracingLayerChannelStore) GetChannelsByIds(channelIds []string, includeDeleted bool) ([]*model.Channel, error) {
+func (s *OpenTracingLayerChannelStore) GetChannelsByIDs(channelIDs []string, includeDeleted bool) ([]*model.Channel, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.GetChannelsByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -1096,7 +1096,7 @@ func (s *OpenTracingLayerChannelStore) GetChannelsByIds(channelIds []string, inc
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.GetChannelsByIds(channelIds, includeDeleted)
+	result, err := s.ChannelStore.GetChannelsByIDs(channelIDs, includeDeleted)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -1316,7 +1316,7 @@ func (s *OpenTracingLayerChannelStore) GetMembers(channelID string, offset int, 
 	return result, err
 }
 
-func (s *OpenTracingLayerChannelStore) GetMembersByChannelIds(channelIds []string, userID string) (*model.ChannelMembers, error) {
+func (s *OpenTracingLayerChannelStore) GetMembersByChannelIDs(channelIDs []string, userID string) (*model.ChannelMembers, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.GetMembersByChannelIds")
 	s.Root.Store.SetContext(newCtx)
@@ -1325,7 +1325,7 @@ func (s *OpenTracingLayerChannelStore) GetMembersByChannelIds(channelIds []strin
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.GetMembersByChannelIds(channelIds, userID)
+	result, err := s.ChannelStore.GetMembersByChannelIDs(channelIDs, userID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -1334,7 +1334,7 @@ func (s *OpenTracingLayerChannelStore) GetMembersByChannelIds(channelIds []strin
 	return result, err
 }
 
-func (s *OpenTracingLayerChannelStore) GetMembersByIds(channelID string, userIds []string) (*model.ChannelMembers, error) {
+func (s *OpenTracingLayerChannelStore) GetMembersByIDs(channelID string, userIDs []string) (*model.ChannelMembers, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.GetMembersByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -1343,7 +1343,7 @@ func (s *OpenTracingLayerChannelStore) GetMembersByIds(channelID string, userIds
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.GetMembersByIds(channelID, userIds)
+	result, err := s.ChannelStore.GetMembersByIDs(channelID, userIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -1460,7 +1460,7 @@ func (s *OpenTracingLayerChannelStore) GetPrivateChannelsForTeam(teamID string, 
 	return result, err
 }
 
-func (s *OpenTracingLayerChannelStore) GetPublicChannelsByIdsForTeam(teamID string, channelIds []string) (*model.ChannelList, error) {
+func (s *OpenTracingLayerChannelStore) GetPublicChannelsByIDsForTeam(teamID string, channelIDs []string) (*model.ChannelList, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.GetPublicChannelsByIdsForTeam")
 	s.Root.Store.SetContext(newCtx)
@@ -1469,7 +1469,7 @@ func (s *OpenTracingLayerChannelStore) GetPublicChannelsByIdsForTeam(teamID stri
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.GetPublicChannelsByIdsForTeam(teamID, channelIds)
+	result, err := s.ChannelStore.GetPublicChannelsByIDsForTeam(teamID, channelIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -1870,7 +1870,7 @@ func (s *OpenTracingLayerChannelStore) RemoveMember(channelID string, userID str
 	return err
 }
 
-func (s *OpenTracingLayerChannelStore) RemoveMembers(channelID string, userIds []string) error {
+func (s *OpenTracingLayerChannelStore) RemoveMembers(channelID string, userIDs []string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.RemoveMembers")
 	s.Root.Store.SetContext(newCtx)
@@ -1879,7 +1879,7 @@ func (s *OpenTracingLayerChannelStore) RemoveMembers(channelID string, userIds [
 	}()
 
 	defer span.Finish()
-	err := s.ChannelStore.RemoveMembers(channelID, userIds)
+	err := s.ChannelStore.RemoveMembers(channelID, userIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -2122,7 +2122,7 @@ func (s *OpenTracingLayerChannelStore) SetDeleteAt(channelID string, deleteAt in
 	return err
 }
 
-func (s *OpenTracingLayerChannelStore) SetShared(channelId string, shared bool) error {
+func (s *OpenTracingLayerChannelStore) SetShared(channelID string, shared bool) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.SetShared")
 	s.Root.Store.SetContext(newCtx)
@@ -2131,7 +2131,7 @@ func (s *OpenTracingLayerChannelStore) SetShared(channelId string, shared bool) 
 	}()
 
 	defer span.Finish()
-	err := s.ChannelStore.SetShared(channelId, shared)
+	err := s.ChannelStore.SetShared(channelID, shared)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -2158,7 +2158,7 @@ func (s *OpenTracingLayerChannelStore) Update(channel *model.Channel) (*model.Ch
 	return result, err
 }
 
-func (s *OpenTracingLayerChannelStore) UpdateLastViewedAt(channelIds []string, userID string, updateThreads bool) (map[string]int64, error) {
+func (s *OpenTracingLayerChannelStore) UpdateLastViewedAt(channelIDs []string, userID string, updateThreads bool) (map[string]int64, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.UpdateLastViewedAt")
 	s.Root.Store.SetContext(newCtx)
@@ -2167,7 +2167,7 @@ func (s *OpenTracingLayerChannelStore) UpdateLastViewedAt(channelIds []string, u
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.UpdateLastViewedAt(channelIds, userID, updateThreads)
+	result, err := s.ChannelStore.UpdateLastViewedAt(channelIDs, userID, updateThreads)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -2320,7 +2320,7 @@ func (s *OpenTracingLayerChannelStore) UpdateSidebarChannelsByPreferences(prefer
 	return err
 }
 
-func (s *OpenTracingLayerChannelStore) UserBelongsToChannels(userID string, channelIds []string) (bool, error) {
+func (s *OpenTracingLayerChannelStore) UserBelongsToChannels(userID string, channelIDs []string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.UserBelongsToChannels")
 	s.Root.Store.SetContext(newCtx)
@@ -2329,7 +2329,7 @@ func (s *OpenTracingLayerChannelStore) UserBelongsToChannels(userID string, chan
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.UserBelongsToChannels(userID, channelIds)
+	result, err := s.ChannelStore.UserBelongsToChannels(userID, channelIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -3102,7 +3102,7 @@ func (s *OpenTracingLayerFileInfoStore) Get(id string) (*model.FileInfo, error) 
 	return result, err
 }
 
-func (s *OpenTracingLayerFileInfoStore) GetByIds(ids []string) ([]*model.FileInfo, error) {
+func (s *OpenTracingLayerFileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "FileInfoStore.GetByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -3111,7 +3111,7 @@ func (s *OpenTracingLayerFileInfoStore) GetByIds(ids []string) ([]*model.FileInf
 	}()
 
 	defer span.Finish()
-	result, err := s.FileInfoStore.GetByIds(ids)
+	result, err := s.FileInfoStore.GetByIDs(ids)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -3655,7 +3655,7 @@ func (s *OpenTracingLayerGroupStore) GetAllBySource(groupSource model.GroupSourc
 	return result, err
 }
 
-func (s *OpenTracingLayerGroupStore) GetAllGroupSyncablesByGroupId(groupID string, syncableType model.GroupSyncableType) ([]*model.GroupSyncable, error) {
+func (s *OpenTracingLayerGroupStore) GetAllGroupSyncablesByGroupID(groupID string, syncableType model.GroupSyncableType) ([]*model.GroupSyncable, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "GroupStore.GetAllGroupSyncablesByGroupId")
 	s.Root.Store.SetContext(newCtx)
@@ -3664,7 +3664,7 @@ func (s *OpenTracingLayerGroupStore) GetAllGroupSyncablesByGroupId(groupID strin
 	}()
 
 	defer span.Finish()
-	result, err := s.GroupStore.GetAllGroupSyncablesByGroupId(groupID, syncableType)
+	result, err := s.GroupStore.GetAllGroupSyncablesByGroupID(groupID, syncableType)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -4555,7 +4555,7 @@ func (s *OpenTracingLayerOAuthStore) GetAccessDataByRefreshToken(token string) (
 	return result, err
 }
 
-func (s *OpenTracingLayerOAuthStore) GetAccessDataByUserForApp(userID string, clientId string) ([]*model.AccessData, error) {
+func (s *OpenTracingLayerOAuthStore) GetAccessDataByUserForApp(userID string, clientID string) ([]*model.AccessData, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "OAuthStore.GetAccessDataByUserForApp")
 	s.Root.Store.SetContext(newCtx)
@@ -4564,7 +4564,7 @@ func (s *OpenTracingLayerOAuthStore) GetAccessDataByUserForApp(userID string, cl
 	}()
 
 	defer span.Finish()
-	result, err := s.OAuthStore.GetAccessDataByUserForApp(userID, clientId)
+	result, err := s.OAuthStore.GetAccessDataByUserForApp(userID, clientID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -4663,7 +4663,7 @@ func (s *OpenTracingLayerOAuthStore) GetAuthorizedApps(userID string, offset int
 	return result, err
 }
 
-func (s *OpenTracingLayerOAuthStore) GetPreviousAccessData(userID string, clientId string) (*model.AccessData, error) {
+func (s *OpenTracingLayerOAuthStore) GetPreviousAccessData(userID string, clientID string) (*model.AccessData, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "OAuthStore.GetPreviousAccessData")
 	s.Root.Store.SetContext(newCtx)
@@ -4672,7 +4672,7 @@ func (s *OpenTracingLayerOAuthStore) GetPreviousAccessData(userID string, client
 	}()
 
 	defer span.Finish()
-	result, err := s.OAuthStore.GetPreviousAccessData(userID, clientId)
+	result, err := s.OAuthStore.GetPreviousAccessData(userID, clientID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -5304,7 +5304,7 @@ func (s *OpenTracingLayerPostStore) GetPostAfterTime(channelID string, time int6
 	return result, err
 }
 
-func (s *OpenTracingLayerPostStore) GetPostIdAfterTime(channelID string, time int64, collapsedThreads bool) (string, error) {
+func (s *OpenTracingLayerPostStore) GetPostIDAfterTime(channelID string, time int64, collapsedThreads bool) (string, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "PostStore.GetPostIdAfterTime")
 	s.Root.Store.SetContext(newCtx)
@@ -5313,7 +5313,7 @@ func (s *OpenTracingLayerPostStore) GetPostIdAfterTime(channelID string, time in
 	}()
 
 	defer span.Finish()
-	result, err := s.PostStore.GetPostIdAfterTime(channelID, time, collapsedThreads)
+	result, err := s.PostStore.GetPostIDAfterTime(channelID, time, collapsedThreads)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -5322,7 +5322,7 @@ func (s *OpenTracingLayerPostStore) GetPostIdAfterTime(channelID string, time in
 	return result, err
 }
 
-func (s *OpenTracingLayerPostStore) GetPostIdBeforeTime(channelID string, time int64, collapsedThreads bool) (string, error) {
+func (s *OpenTracingLayerPostStore) GetPostIDBeforeTime(channelID string, time int64, collapsedThreads bool) (string, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "PostStore.GetPostIdBeforeTime")
 	s.Root.Store.SetContext(newCtx)
@@ -5331,7 +5331,7 @@ func (s *OpenTracingLayerPostStore) GetPostIdBeforeTime(channelID string, time i
 	}()
 
 	defer span.Finish()
-	result, err := s.PostStore.GetPostIdBeforeTime(channelID, time, collapsedThreads)
+	result, err := s.PostStore.GetPostIDBeforeTime(channelID, time, collapsedThreads)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -5412,7 +5412,7 @@ func (s *OpenTracingLayerPostStore) GetPostsBefore(options model.GetPostsOptions
 	return result, err
 }
 
-func (s *OpenTracingLayerPostStore) GetPostsByIds(postIds []string) ([]*model.Post, error) {
+func (s *OpenTracingLayerPostStore) GetPostsByIDs(postIDs []string) ([]*model.Post, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "PostStore.GetPostsByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -5421,7 +5421,7 @@ func (s *OpenTracingLayerPostStore) GetPostsByIds(postIds []string) ([]*model.Po
 	}()
 
 	defer span.Finish()
-	result, err := s.PostStore.GetPostsByIds(postIds)
+	result, err := s.PostStore.GetPostsByIDs(postIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -5520,7 +5520,7 @@ func (s *OpenTracingLayerPostStore) GetSingle(id string, inclDeleted bool) (*mod
 	return result, err
 }
 
-func (s *OpenTracingLayerPostStore) HasAutoResponsePostByUserSince(options model.GetPostsSinceOptions, userId string) (bool, error) {
+func (s *OpenTracingLayerPostStore) HasAutoResponsePostByUserSince(options model.GetPostsSinceOptions, userID string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "PostStore.HasAutoResponsePostByUserSince")
 	s.Root.Store.SetContext(newCtx)
@@ -5529,7 +5529,7 @@ func (s *OpenTracingLayerPostStore) HasAutoResponsePostByUserSince(options model
 	}()
 
 	defer span.Finish()
-	result, err := s.PostStore.HasAutoResponsePostByUserSince(options, userId)
+	result, err := s.PostStore.HasAutoResponsePostByUserSince(options, userID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6001,7 +6001,7 @@ func (s *OpenTracingLayerProductNoticesStore) View(userID string, notices []stri
 	return err
 }
 
-func (s *OpenTracingLayerReactionStore) BulkGetForPosts(postIds []string) ([]*model.Reaction, error) {
+func (s *OpenTracingLayerReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ReactionStore.BulkGetForPosts")
 	s.Root.Store.SetContext(newCtx)
@@ -6010,7 +6010,7 @@ func (s *OpenTracingLayerReactionStore) BulkGetForPosts(postIds []string) ([]*mo
 	}()
 
 	defer span.Finish()
-	result, err := s.ReactionStore.BulkGetForPosts(postIds)
+	result, err := s.ReactionStore.BulkGetForPosts(postIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6091,7 +6091,7 @@ func (s *OpenTracingLayerReactionStore) GetForPost(postID string, allowFromCache
 	return result, err
 }
 
-func (s *OpenTracingLayerReactionStore) GetForPostSince(postId string, since int64, excludeRemoteId string, inclDeleted bool) ([]*model.Reaction, error) {
+func (s *OpenTracingLayerReactionStore) GetForPostSince(postID string, since int64, excludeRemoteID string, inclDeleted bool) ([]*model.Reaction, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ReactionStore.GetForPostSince")
 	s.Root.Store.SetContext(newCtx)
@@ -6100,7 +6100,7 @@ func (s *OpenTracingLayerReactionStore) GetForPostSince(postId string, since int
 	}()
 
 	defer span.Finish()
-	result, err := s.ReactionStore.GetForPostSince(postId, since, excludeRemoteId, inclDeleted)
+	result, err := s.ReactionStore.GetForPostSince(postID, since, excludeRemoteID, inclDeleted)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6145,7 +6145,7 @@ func (s *OpenTracingLayerReactionStore) Save(reaction *model.Reaction) (*model.R
 	return result, err
 }
 
-func (s *OpenTracingLayerRemoteClusterStore) Delete(remoteClusterId string) (bool, error) {
+func (s *OpenTracingLayerRemoteClusterStore) Delete(remoteClusterID string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RemoteClusterStore.Delete")
 	s.Root.Store.SetContext(newCtx)
@@ -6154,7 +6154,7 @@ func (s *OpenTracingLayerRemoteClusterStore) Delete(remoteClusterId string) (boo
 	}()
 
 	defer span.Finish()
-	result, err := s.RemoteClusterStore.Delete(remoteClusterId)
+	result, err := s.RemoteClusterStore.Delete(remoteClusterID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6163,7 +6163,7 @@ func (s *OpenTracingLayerRemoteClusterStore) Delete(remoteClusterId string) (boo
 	return result, err
 }
 
-func (s *OpenTracingLayerRemoteClusterStore) Get(remoteClusterId string) (*model.RemoteCluster, error) {
+func (s *OpenTracingLayerRemoteClusterStore) Get(remoteClusterID string) (*model.RemoteCluster, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RemoteClusterStore.Get")
 	s.Root.Store.SetContext(newCtx)
@@ -6172,7 +6172,7 @@ func (s *OpenTracingLayerRemoteClusterStore) Get(remoteClusterId string) (*model
 	}()
 
 	defer span.Finish()
-	result, err := s.RemoteClusterStore.Get(remoteClusterId)
+	result, err := s.RemoteClusterStore.Get(remoteClusterID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6217,7 +6217,7 @@ func (s *OpenTracingLayerRemoteClusterStore) Save(rc *model.RemoteCluster) (*mod
 	return result, err
 }
 
-func (s *OpenTracingLayerRemoteClusterStore) SetLastPingAt(remoteClusterId string) error {
+func (s *OpenTracingLayerRemoteClusterStore) SetLastPingAt(remoteClusterID string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RemoteClusterStore.SetLastPingAt")
 	s.Root.Store.SetContext(newCtx)
@@ -6226,7 +6226,7 @@ func (s *OpenTracingLayerRemoteClusterStore) SetLastPingAt(remoteClusterId strin
 	}()
 
 	defer span.Finish()
-	err := s.RemoteClusterStore.SetLastPingAt(remoteClusterId)
+	err := s.RemoteClusterStore.SetLastPingAt(remoteClusterID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6253,7 +6253,7 @@ func (s *OpenTracingLayerRemoteClusterStore) Update(rc *model.RemoteCluster) (*m
 	return result, err
 }
 
-func (s *OpenTracingLayerRemoteClusterStore) UpdateTopics(remoteClusterId string, topics string) (*model.RemoteCluster, error) {
+func (s *OpenTracingLayerRemoteClusterStore) UpdateTopics(remoteClusterID string, topics string) (*model.RemoteCluster, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RemoteClusterStore.UpdateTopics")
 	s.Root.Store.SetContext(newCtx)
@@ -6262,7 +6262,7 @@ func (s *OpenTracingLayerRemoteClusterStore) UpdateTopics(remoteClusterId string
 	}()
 
 	defer span.Finish()
-	result, err := s.RemoteClusterStore.UpdateTopics(remoteClusterId, topics)
+	result, err := s.RemoteClusterStore.UpdateTopics(remoteClusterID, topics)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6271,7 +6271,7 @@ func (s *OpenTracingLayerRemoteClusterStore) UpdateTopics(remoteClusterId string
 	return result, err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) AddChannels(policyId string, channelIds []string) error {
+func (s *OpenTracingLayerRetentionPolicyStore) AddChannels(policyID string, channelIDs []string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.AddChannels")
 	s.Root.Store.SetContext(newCtx)
@@ -6280,7 +6280,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) AddChannels(policyId string, chan
 	}()
 
 	defer span.Finish()
-	err := s.RetentionPolicyStore.AddChannels(policyId, channelIds)
+	err := s.RetentionPolicyStore.AddChannels(policyID, channelIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6289,7 +6289,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) AddChannels(policyId string, chan
 	return err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) AddTeams(policyId string, teamIds []string) error {
+func (s *OpenTracingLayerRetentionPolicyStore) AddTeams(policyID string, teamIDs []string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.AddTeams")
 	s.Root.Store.SetContext(newCtx)
@@ -6298,7 +6298,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) AddTeams(policyId string, teamIds
 	}()
 
 	defer span.Finish()
-	err := s.RetentionPolicyStore.AddTeams(policyId, teamIds)
+	err := s.RetentionPolicyStore.AddTeams(policyID, teamIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6415,7 +6415,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetChannelPoliciesForUser(userID 
 	return result, err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) GetChannels(policyId string, offset int, limit int) (model.ChannelListWithTeamData, error) {
+func (s *OpenTracingLayerRetentionPolicyStore) GetChannels(policyID string, offset int, limit int) (model.ChannelListWithTeamData, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.GetChannels")
 	s.Root.Store.SetContext(newCtx)
@@ -6424,7 +6424,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetChannels(policyId string, offs
 	}()
 
 	defer span.Finish()
-	result, err := s.RetentionPolicyStore.GetChannels(policyId, offset, limit)
+	result, err := s.RetentionPolicyStore.GetChannels(policyID, offset, limit)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6433,7 +6433,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetChannels(policyId string, offs
 	return result, err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) GetChannelsCount(policyId string) (int64, error) {
+func (s *OpenTracingLayerRetentionPolicyStore) GetChannelsCount(policyID string) (int64, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.GetChannelsCount")
 	s.Root.Store.SetContext(newCtx)
@@ -6442,7 +6442,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetChannelsCount(policyId string)
 	}()
 
 	defer span.Finish()
-	result, err := s.RetentionPolicyStore.GetChannelsCount(policyId)
+	result, err := s.RetentionPolicyStore.GetChannelsCount(policyID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6505,7 +6505,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetTeamPoliciesForUser(userID str
 	return result, err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) GetTeams(policyId string, offset int, limit int) ([]*model.Team, error) {
+func (s *OpenTracingLayerRetentionPolicyStore) GetTeams(policyID string, offset int, limit int) ([]*model.Team, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.GetTeams")
 	s.Root.Store.SetContext(newCtx)
@@ -6514,7 +6514,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetTeams(policyId string, offset 
 	}()
 
 	defer span.Finish()
-	result, err := s.RetentionPolicyStore.GetTeams(policyId, offset, limit)
+	result, err := s.RetentionPolicyStore.GetTeams(policyID, offset, limit)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6523,7 +6523,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetTeams(policyId string, offset 
 	return result, err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) GetTeamsCount(policyId string) (int64, error) {
+func (s *OpenTracingLayerRetentionPolicyStore) GetTeamsCount(policyID string) (int64, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.GetTeamsCount")
 	s.Root.Store.SetContext(newCtx)
@@ -6532,7 +6532,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) GetTeamsCount(policyId string) (i
 	}()
 
 	defer span.Finish()
-	result, err := s.RetentionPolicyStore.GetTeamsCount(policyId)
+	result, err := s.RetentionPolicyStore.GetTeamsCount(policyID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6559,7 +6559,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) Patch(patch *model.RetentionPolic
 	return result, err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) RemoveChannels(policyId string, channelIds []string) error {
+func (s *OpenTracingLayerRetentionPolicyStore) RemoveChannels(policyID string, channelIDs []string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.RemoveChannels")
 	s.Root.Store.SetContext(newCtx)
@@ -6568,7 +6568,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) RemoveChannels(policyId string, c
 	}()
 
 	defer span.Finish()
-	err := s.RetentionPolicyStore.RemoveChannels(policyId, channelIds)
+	err := s.RetentionPolicyStore.RemoveChannels(policyID, channelIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -6577,7 +6577,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) RemoveChannels(policyId string, c
 	return err
 }
 
-func (s *OpenTracingLayerRetentionPolicyStore) RemoveTeams(policyId string, teamIds []string) error {
+func (s *OpenTracingLayerRetentionPolicyStore) RemoveTeams(policyID string, teamIDs []string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "RetentionPolicyStore.RemoveTeams")
 	s.Root.Store.SetContext(newCtx)
@@ -6586,7 +6586,7 @@ func (s *OpenTracingLayerRetentionPolicyStore) RemoveTeams(policyId string, team
 	}()
 
 	defer span.Finish()
-	err := s.RetentionPolicyStore.RemoveTeams(policyId, teamIds)
+	err := s.RetentionPolicyStore.RemoveTeams(policyID, teamIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7022,7 +7022,7 @@ func (s *OpenTracingLayerSessionStore) GetSessionsExpired(thresholdMillis int64,
 	return result, err
 }
 
-func (s *OpenTracingLayerSessionStore) GetSessionsWithActiveDeviceIds(userID string) ([]*model.Session, error) {
+func (s *OpenTracingLayerSessionStore) GetSessionsWithActiveDeviceIDs(userID string) ([]*model.Session, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SessionStore.GetSessionsWithActiveDeviceIds")
 	s.Root.Store.SetContext(newCtx)
@@ -7031,7 +7031,7 @@ func (s *OpenTracingLayerSessionStore) GetSessionsWithActiveDeviceIds(userID str
 	}()
 
 	defer span.Finish()
-	result, err := s.SessionStore.GetSessionsWithActiveDeviceIds(userID)
+	result, err := s.SessionStore.GetSessionsWithActiveDeviceIDs(userID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7112,7 +7112,7 @@ func (s *OpenTracingLayerSessionStore) Save(session *model.Session) (*model.Sess
 	return result, err
 }
 
-func (s *OpenTracingLayerSessionStore) UpdateDeviceId(id string, deviceID string, expiresAt int64) (string, error) {
+func (s *OpenTracingLayerSessionStore) UpdateDeviceID(id string, deviceID string, expiresAt int64) (string, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SessionStore.UpdateDeviceId")
 	s.Root.Store.SetContext(newCtx)
@@ -7121,7 +7121,7 @@ func (s *OpenTracingLayerSessionStore) UpdateDeviceId(id string, deviceID string
 	}()
 
 	defer span.Finish()
-	result, err := s.SessionStore.UpdateDeviceId(id, deviceID, expiresAt)
+	result, err := s.SessionStore.UpdateDeviceID(id, deviceID, expiresAt)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7220,7 +7220,7 @@ func (s *OpenTracingLayerSessionStore) UpdateRoles(userID string, roles string) 
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) Delete(channelId string) (bool, error) {
+func (s *OpenTracingLayerSharedChannelStore) Delete(channelID string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.Delete")
 	s.Root.Store.SetContext(newCtx)
@@ -7229,7 +7229,7 @@ func (s *OpenTracingLayerSharedChannelStore) Delete(channelId string) (bool, err
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.Delete(channelId)
+	result, err := s.SharedChannelStore.Delete(channelID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7238,7 +7238,7 @@ func (s *OpenTracingLayerSharedChannelStore) Delete(channelId string) (bool, err
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) DeleteRemote(remoteId string) (bool, error) {
+func (s *OpenTracingLayerSharedChannelStore) DeleteRemote(remoteID string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.DeleteRemote")
 	s.Root.Store.SetContext(newCtx)
@@ -7247,7 +7247,7 @@ func (s *OpenTracingLayerSharedChannelStore) DeleteRemote(remoteId string) (bool
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.DeleteRemote(remoteId)
+	result, err := s.SharedChannelStore.DeleteRemote(remoteID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7256,7 +7256,7 @@ func (s *OpenTracingLayerSharedChannelStore) DeleteRemote(remoteId string) (bool
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) Get(channelId string) (*model.SharedChannel, error) {
+func (s *OpenTracingLayerSharedChannelStore) Get(channelID string) (*model.SharedChannel, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.Get")
 	s.Root.Store.SetContext(newCtx)
@@ -7265,7 +7265,7 @@ func (s *OpenTracingLayerSharedChannelStore) Get(channelId string) (*model.Share
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.Get(channelId)
+	result, err := s.SharedChannelStore.Get(channelID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7310,7 +7310,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetAllCount(opts model.SharedChanne
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) GetAttachment(fileId string, remoteId string) (*model.SharedChannelAttachment, error) {
+func (s *OpenTracingLayerSharedChannelStore) GetAttachment(fileID string, remoteID string) (*model.SharedChannelAttachment, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.GetAttachment")
 	s.Root.Store.SetContext(newCtx)
@@ -7319,7 +7319,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetAttachment(fileId string, remote
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.GetAttachment(fileId, remoteId)
+	result, err := s.SharedChannelStore.GetAttachment(fileID, remoteID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7346,7 +7346,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetRemote(id string) (*model.Shared
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) GetRemoteByIds(channelId string, remoteId string) (*model.SharedChannelRemote, error) {
+func (s *OpenTracingLayerSharedChannelStore) GetRemoteByIDs(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.GetRemoteByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -7355,7 +7355,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetRemoteByIds(channelId string, re
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.GetRemoteByIds(channelId, remoteId)
+	result, err := s.SharedChannelStore.GetRemoteByIDs(channelID, remoteID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7364,7 +7364,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetRemoteByIds(channelId string, re
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) GetRemoteForUser(remoteId string, userId string) (*model.RemoteCluster, error) {
+func (s *OpenTracingLayerSharedChannelStore) GetRemoteForUser(remoteID string, userID string) (*model.RemoteCluster, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.GetRemoteForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -7373,7 +7373,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetRemoteForUser(remoteId string, u
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.GetRemoteForUser(remoteId, userId)
+	result, err := s.SharedChannelStore.GetRemoteForUser(remoteID, userID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7400,7 +7400,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetRemotes(opts model.SharedChannel
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) GetRemotesStatus(channelId string) ([]*model.SharedChannelRemoteStatus, error) {
+func (s *OpenTracingLayerSharedChannelStore) GetRemotesStatus(channelID string) ([]*model.SharedChannelRemoteStatus, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.GetRemotesStatus")
 	s.Root.Store.SetContext(newCtx)
@@ -7409,7 +7409,7 @@ func (s *OpenTracingLayerSharedChannelStore) GetRemotesStatus(channelId string) 
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.GetRemotesStatus(channelId)
+	result, err := s.SharedChannelStore.GetRemotesStatus(channelID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7490,7 +7490,7 @@ func (s *OpenTracingLayerSharedChannelStore) HasChannel(channelID string) (bool,
 	return result, err
 }
 
-func (s *OpenTracingLayerSharedChannelStore) HasRemote(channelID string, remoteId string) (bool, error) {
+func (s *OpenTracingLayerSharedChannelStore) HasRemote(channelID string, remoteID string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "SharedChannelStore.HasRemote")
 	s.Root.Store.SetContext(newCtx)
@@ -7499,7 +7499,7 @@ func (s *OpenTracingLayerSharedChannelStore) HasRemote(channelID string, remoteI
 	}()
 
 	defer span.Finish()
-	result, err := s.SharedChannelStore.HasRemote(channelID, remoteId)
+	result, err := s.SharedChannelStore.HasRemote(channelID, remoteID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -7706,7 +7706,7 @@ func (s *OpenTracingLayerStatusStore) Get(userID string) (*model.Status, error) 
 	return result, err
 }
 
-func (s *OpenTracingLayerStatusStore) GetByIds(userIds []string) ([]*model.Status, error) {
+func (s *OpenTracingLayerStatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "StatusStore.GetByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -7715,7 +7715,7 @@ func (s *OpenTracingLayerStatusStore) GetByIds(userIds []string) ([]*model.Statu
 	}()
 
 	defer span.Finish()
-	result, err := s.StatusStore.GetByIds(userIds)
+	result, err := s.StatusStore.GetByIDs(userIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8151,7 +8151,7 @@ func (s *OpenTracingLayerTeamStore) GetAllTeamListing() ([]*model.Team, error) {
 	return result, err
 }
 
-func (s *OpenTracingLayerTeamStore) GetByInviteId(inviteID string) (*model.Team, error) {
+func (s *OpenTracingLayerTeamStore) GetByInviteID(inviteID string) (*model.Team, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.GetByInviteId")
 	s.Root.Store.SetContext(newCtx)
@@ -8160,7 +8160,7 @@ func (s *OpenTracingLayerTeamStore) GetByInviteId(inviteID string) (*model.Team,
 	}()
 
 	defer span.Finish()
-	result, err := s.TeamStore.GetByInviteId(inviteID)
+	result, err := s.TeamStore.GetByInviteID(inviteID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8295,7 +8295,7 @@ func (s *OpenTracingLayerTeamStore) GetMembers(teamID string, offset int, limit 
 	return result, err
 }
 
-func (s *OpenTracingLayerTeamStore) GetMembersByIds(teamID string, userIds []string, restrictions *model.ViewUsersRestrictions) ([]*model.TeamMember, error) {
+func (s *OpenTracingLayerTeamStore) GetMembersByIDs(teamID string, userIDs []string, restrictions *model.ViewUsersRestrictions) ([]*model.TeamMember, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.GetMembersByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -8304,7 +8304,7 @@ func (s *OpenTracingLayerTeamStore) GetMembersByIds(teamID string, userIds []str
 	}()
 
 	defer span.Finish()
-	result, err := s.TeamStore.GetMembersByIds(teamID, userIds, restrictions)
+	result, err := s.TeamStore.GetMembersByIDs(teamID, userIDs, restrictions)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8349,7 +8349,7 @@ func (s *OpenTracingLayerTeamStore) GetTeamsByScheme(schemeID string, offset int
 	return result, err
 }
 
-func (s *OpenTracingLayerTeamStore) GetTeamsByUserId(userID string) ([]*model.Team, error) {
+func (s *OpenTracingLayerTeamStore) GetTeamsByUserID(userID string) ([]*model.Team, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.GetTeamsByUserId")
 	s.Root.Store.SetContext(newCtx)
@@ -8358,7 +8358,7 @@ func (s *OpenTracingLayerTeamStore) GetTeamsByUserId(userID string) ([]*model.Te
 	}()
 
 	defer span.Finish()
-	result, err := s.TeamStore.GetTeamsByUserId(userID)
+	result, err := s.TeamStore.GetTeamsByUserID(userID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8421,7 +8421,7 @@ func (s *OpenTracingLayerTeamStore) GetTotalMemberCount(teamID string, restricti
 	return result, err
 }
 
-func (s *OpenTracingLayerTeamStore) GetUserTeamIds(userID string, allowFromCache bool) ([]string, error) {
+func (s *OpenTracingLayerTeamStore) GetUserTeamIDs(userID string, allowFromCache bool) ([]string, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.GetUserTeamIds")
 	s.Root.Store.SetContext(newCtx)
@@ -8430,7 +8430,7 @@ func (s *OpenTracingLayerTeamStore) GetUserTeamIds(userID string, allowFromCache
 	}()
 
 	defer span.Finish()
-	result, err := s.TeamStore.GetUserTeamIds(userID, allowFromCache)
+	result, err := s.TeamStore.GetUserTeamIDs(userID, allowFromCache)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8457,7 +8457,7 @@ func (s *OpenTracingLayerTeamStore) GroupSyncedTeamCount() (int64, error) {
 	return result, err
 }
 
-func (s *OpenTracingLayerTeamStore) InvalidateAllTeamIdsForUser(userID string) {
+func (s *OpenTracingLayerTeamStore) InvalidateAllTeamIDsForUser(userID string) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.InvalidateAllTeamIdsForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -8466,7 +8466,7 @@ func (s *OpenTracingLayerTeamStore) InvalidateAllTeamIdsForUser(userID string) {
 	}()
 
 	defer span.Finish()
-	s.TeamStore.InvalidateAllTeamIdsForUser(userID)
+	s.TeamStore.InvalidateAllTeamIDsForUser(userID)
 
 }
 
@@ -8560,7 +8560,7 @@ func (s *OpenTracingLayerTeamStore) RemoveMember(teamID string, userID string) e
 	return err
 }
 
-func (s *OpenTracingLayerTeamStore) RemoveMembers(teamID string, userIds []string) error {
+func (s *OpenTracingLayerTeamStore) RemoveMembers(teamID string, userIDs []string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.RemoveMembers")
 	s.Root.Store.SetContext(newCtx)
@@ -8569,7 +8569,7 @@ func (s *OpenTracingLayerTeamStore) RemoveMembers(teamID string, userIds []strin
 	}()
 
 	defer span.Finish()
-	err := s.TeamStore.RemoveMembers(teamID, userIds)
+	err := s.TeamStore.RemoveMembers(teamID, userIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8812,7 +8812,7 @@ func (s *OpenTracingLayerTeamStore) UpdateMultipleMembers(members []*model.TeamM
 	return result, err
 }
 
-func (s *OpenTracingLayerTeamStore) UserBelongsToTeams(userID string, teamIds []string) (bool, error) {
+func (s *OpenTracingLayerTeamStore) UserBelongsToTeams(userID string, teamIDs []string) (bool, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "TeamStore.UserBelongsToTeams")
 	s.Root.Store.SetContext(newCtx)
@@ -8821,7 +8821,7 @@ func (s *OpenTracingLayerTeamStore) UserBelongsToTeams(userID string, teamIds []
 	}()
 
 	defer span.Finish()
-	result, err := s.TeamStore.UserBelongsToTeams(userID, teamIds)
+	result, err := s.TeamStore.UserBelongsToTeams(userID, teamIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8884,7 +8884,7 @@ func (s *OpenTracingLayerTermsOfServiceStore) Save(termsOfService *model.TermsOf
 	return result, err
 }
 
-func (s *OpenTracingLayerThreadStore) CollectThreadsWithNewerReplies(userId string, channelIds []string, timestamp int64) ([]string, error) {
+func (s *OpenTracingLayerThreadStore) CollectThreadsWithNewerReplies(userID string, channelIDs []string, timestamp int64) ([]string, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ThreadStore.CollectThreadsWithNewerReplies")
 	s.Root.Store.SetContext(newCtx)
@@ -8893,7 +8893,7 @@ func (s *OpenTracingLayerThreadStore) CollectThreadsWithNewerReplies(userId stri
 	}()
 
 	defer span.Finish()
-	result, err := s.ThreadStore.CollectThreadsWithNewerReplies(userId, channelIds, timestamp)
+	result, err := s.ThreadStore.CollectThreadsWithNewerReplies(userID, channelIDs, timestamp)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8920,7 +8920,7 @@ func (s *OpenTracingLayerThreadStore) Delete(postID string) error {
 	return err
 }
 
-func (s *OpenTracingLayerThreadStore) DeleteMembershipForUser(userId string, postID string) error {
+func (s *OpenTracingLayerThreadStore) DeleteMembershipForUser(userID string, postID string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ThreadStore.DeleteMembershipForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -8929,7 +8929,7 @@ func (s *OpenTracingLayerThreadStore) DeleteMembershipForUser(userId string, pos
 	}()
 
 	defer span.Finish()
-	err := s.ThreadStore.DeleteMembershipForUser(userId, postID)
+	err := s.ThreadStore.DeleteMembershipForUser(userID, postID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8974,7 +8974,7 @@ func (s *OpenTracingLayerThreadStore) Get(id string) (*model.Thread, error) {
 	return result, err
 }
 
-func (s *OpenTracingLayerThreadStore) GetMembershipForUser(userId string, postID string) (*model.ThreadMembership, error) {
+func (s *OpenTracingLayerThreadStore) GetMembershipForUser(userID string, postID string) (*model.ThreadMembership, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ThreadStore.GetMembershipForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -8983,7 +8983,7 @@ func (s *OpenTracingLayerThreadStore) GetMembershipForUser(userId string, postID
 	}()
 
 	defer span.Finish()
-	result, err := s.ThreadStore.GetMembershipForUser(userId, postID)
+	result, err := s.ThreadStore.GetMembershipForUser(userID, postID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -8992,7 +8992,7 @@ func (s *OpenTracingLayerThreadStore) GetMembershipForUser(userId string, postID
 	return result, err
 }
 
-func (s *OpenTracingLayerThreadStore) GetMembershipsForUser(userId string, teamID string) ([]*model.ThreadMembership, error) {
+func (s *OpenTracingLayerThreadStore) GetMembershipsForUser(userID string, teamID string) ([]*model.ThreadMembership, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ThreadStore.GetMembershipsForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -9001,7 +9001,7 @@ func (s *OpenTracingLayerThreadStore) GetMembershipsForUser(userId string, teamI
 	}()
 
 	defer span.Finish()
-	result, err := s.ThreadStore.GetMembershipsForUser(userId, teamID)
+	result, err := s.ThreadStore.GetMembershipsForUser(userID, teamID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -9064,7 +9064,7 @@ func (s *OpenTracingLayerThreadStore) GetThreadForUser(teamID string, threadMemb
 	return result, err
 }
 
-func (s *OpenTracingLayerThreadStore) GetThreadsForUser(userId string, teamID string, opts model.GetUserThreadsOpts) (*model.Threads, error) {
+func (s *OpenTracingLayerThreadStore) GetThreadsForUser(userID string, teamID string, opts model.GetUserThreadsOpts) (*model.Threads, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ThreadStore.GetThreadsForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -9073,7 +9073,7 @@ func (s *OpenTracingLayerThreadStore) GetThreadsForUser(userId string, teamID st
 	}()
 
 	defer span.Finish()
-	result, err := s.ThreadStore.GetThreadsForUser(userId, teamID, opts)
+	result, err := s.ThreadStore.GetThreadsForUser(userID, teamID, opts)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -9280,7 +9280,7 @@ func (s *OpenTracingLayerThreadStore) UpdateMembership(membership *model.ThreadM
 	return result, err
 }
 
-func (s *OpenTracingLayerThreadStore) UpdateUnreadsByChannel(userId string, changedThreads []string, timestamp int64, updateViewedTimestamp bool) error {
+func (s *OpenTracingLayerThreadStore) UpdateUnreadsByChannel(userID string, changedThreads []string, timestamp int64, updateViewedTimestamp bool) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ThreadStore.UpdateUnreadsByChannel")
 	s.Root.Store.SetContext(newCtx)
@@ -9289,7 +9289,7 @@ func (s *OpenTracingLayerThreadStore) UpdateUnreadsByChannel(userId string, chan
 	}()
 
 	defer span.Finish()
-	err := s.ThreadStore.UpdateUnreadsByChannel(userId, changedThreads, timestamp, updateViewedTimestamp)
+	err := s.ThreadStore.UpdateUnreadsByChannel(userID, changedThreads, timestamp, updateViewedTimestamp)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -10011,7 +10011,7 @@ func (s *OpenTracingLayerUserStore) GetNewUsersForTeam(teamID string, offset int
 	return result, err
 }
 
-func (s *OpenTracingLayerUserStore) GetProfileByGroupChannelIdsForUser(userID string, channelIds []string) (map[string][]*model.User, error) {
+func (s *OpenTracingLayerUserStore) GetProfileByGroupChannelIDsForUser(userID string, channelIDs []string) (map[string][]*model.User, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "UserStore.GetProfileByGroupChannelIdsForUser")
 	s.Root.Store.SetContext(newCtx)
@@ -10020,7 +10020,7 @@ func (s *OpenTracingLayerUserStore) GetProfileByGroupChannelIdsForUser(userID st
 	}()
 
 	defer span.Finish()
-	result, err := s.UserStore.GetProfileByGroupChannelIdsForUser(userID, channelIds)
+	result, err := s.UserStore.GetProfileByGroupChannelIDsForUser(userID, channelIDs)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -10029,7 +10029,7 @@ func (s *OpenTracingLayerUserStore) GetProfileByGroupChannelIdsForUser(userID st
 	return result, err
 }
 
-func (s *OpenTracingLayerUserStore) GetProfileByIds(ctx context.Context, userIds []string, options *store.UserGetByIdsOpts, allowFromCache bool) ([]*model.User, error) {
+func (s *OpenTracingLayerUserStore) GetProfileByIDs(ctx context.Context, userIDs []string, options *store.UserGetByIDsOpts, allowFromCache bool) ([]*model.User, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "UserStore.GetProfileByIds")
 	s.Root.Store.SetContext(newCtx)
@@ -10038,7 +10038,7 @@ func (s *OpenTracingLayerUserStore) GetProfileByIds(ctx context.Context, userIds
 	}()
 
 	defer span.Finish()
-	result, err := s.UserStore.GetProfileByIds(ctx, userIds, options, allowFromCache)
+	result, err := s.UserStore.GetProfileByIDs(ctx, userIDs, options, allowFromCache)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -10119,7 +10119,7 @@ func (s *OpenTracingLayerUserStore) GetProfilesInChannelByStatus(options *model.
 	return result, err
 }
 
-func (s *OpenTracingLayerUserStore) GetProfilesNotInChannel(teamID string, channelId string, groupConstrained bool, offset int, limit int, viewRestrictions *model.ViewUsersRestrictions) ([]*model.User, error) {
+func (s *OpenTracingLayerUserStore) GetProfilesNotInChannel(teamID string, channelID string, groupConstrained bool, offset int, limit int, viewRestrictions *model.ViewUsersRestrictions) ([]*model.User, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "UserStore.GetProfilesNotInChannel")
 	s.Root.Store.SetContext(newCtx)
@@ -10128,7 +10128,7 @@ func (s *OpenTracingLayerUserStore) GetProfilesNotInChannel(teamID string, chann
 	}()
 
 	defer span.Finish()
-	result, err := s.UserStore.GetProfilesNotInChannel(teamID, channelId, groupConstrained, offset, limit, viewRestrictions)
+	result, err := s.UserStore.GetProfilesNotInChannel(teamID, channelID, groupConstrained, offset, limit, viewRestrictions)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)
@@ -10878,7 +10878,7 @@ func (s *OpenTracingLayerUserAccessTokenStore) UpdateTokenEnable(tokenID string)
 	return err
 }
 
-func (s *OpenTracingLayerUserTermsOfServiceStore) Delete(userID string, termsOfServiceId string) error {
+func (s *OpenTracingLayerUserTermsOfServiceStore) Delete(userID string, termsOfServiceID string) error {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "UserTermsOfServiceStore.Delete")
 	s.Root.Store.SetContext(newCtx)
@@ -10887,7 +10887,7 @@ func (s *OpenTracingLayerUserTermsOfServiceStore) Delete(userID string, termsOfS
 	}()
 
 	defer span.Finish()
-	err := s.UserTermsOfServiceStore.Delete(userID, termsOfServiceId)
+	err := s.UserTermsOfServiceStore.Delete(userID, termsOfServiceID)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)

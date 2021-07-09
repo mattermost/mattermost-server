@@ -35,7 +35,7 @@ func (*DndProvider) GetCommand(a *app.App, T i18n.TranslateFunc) *model.Command 
 }
 
 func (*DndProvider) DoCommand(a *app.App, c *request.Context, args *model.CommandArgs, message string) *model.CommandResponse {
-	a.SetStatusDoNotDisturb(args.UserId)
+	a.SetStatusDoNotDisturb(args.UserID)
 
 	return &model.CommandResponse{ResponseType: model.CommandResponseTypeEphemeral, Text: args.T("api.command_dnd.success")}
 }

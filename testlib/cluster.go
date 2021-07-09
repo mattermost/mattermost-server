@@ -28,7 +28,7 @@ func (c *FakeClusterInterface) HealthScore() int {
 	return 0
 }
 
-func (c *FakeClusterInterface) GetClusterId() string { return "" }
+func (c *FakeClusterInterface) GetClusterID() string { return "" }
 
 func (c *FakeClusterInterface) IsLeader() bool { return false }
 

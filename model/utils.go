@@ -409,7 +409,7 @@ var reservedName = []string{
 	"signup",
 }
 
-func IsValidChannelIDentifier(s string) bool {
+func IsValidChannelIdentifier(s string) bool {
 
 	if !IsValidAlphaNumHyphenUnderscore(s, true) {
 		return false

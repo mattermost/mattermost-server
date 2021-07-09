@@ -24,8 +24,8 @@ const (
 )
 
 type Store interface {
-	UpdateMfaActive(userId string, active bool) error
-	UpdateMfaSecret(userId, secret string) error
+	UpdateMfaActive(userID string, active bool) error
+	UpdateMfaSecret(userID, secret string) error
 }
 
 type MFA struct {
@@ -107,12 +107,12 @@ func (m *MFA) Activate(userMfaSecret, userID string, token string) error {
 }
 
 // Deactivate set the mfa as deactive, remove the mfa secret, store it with the StoreActive and StoreSecret functions provided
-func (m *MFA) Deactivate(userId string) error {
-	if err := m.store.UpdateMfaActive(userId, false); err != nil {
+func (m *MFA) Deactivate(userID string) error {
+	if err := m.store.UpdateMfaActive(userID, false); err != nil {
 		return errors.Wrap(err, "unable to store mfa active")
 	}
 
-	if err := m.store.UpdateMfaSecret(userId, ""); err != nil {
+	if err := m.store.UpdateMfaSecret(userID, ""); err != nil {
 		return errors.Wrap(err, "unable to store mfa secret")
 	}
 

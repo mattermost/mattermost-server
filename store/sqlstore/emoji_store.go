@@ -109,10 +109,10 @@ func (es SqlEmojiStore) Delete(emoji *model.Emoji, time int64) error {
 			UpdateAt = :UpdateAt
 		WHERE
 			Id = :Id
-			AND DeleteAt = 0`, map[string]interface{}{"DeleteAt": time, "UpdateAt": time, "Id": emoji.Id}); err != nil {
+			AND DeleteAt = 0`, map[string]interface{}{"DeleteAt": time, "UpdateAt": time, "Id": emoji.ID}); err != nil {
 		return errors.Wrap(err, "could not delete emoji")
 	} else if rows, _ := sqlResult.RowsAffected(); rows == 0 {
-		return store.NewErrNotFound("Emoji", emoji.Id)
+		return store.NewErrNotFound("Emoji", emoji.ID)
 	}
 
 	return nil

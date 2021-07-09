@@ -12,14 +12,14 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-func (a *App) checkChannelNotShared(channelId string) error {
+func (a *App) checkChannelNotShared(channelID string) error {
 	// check that channel exists.
-	if _, err := a.GetChannel(channelId); err != nil {
+	if _, err := a.GetChannel(channelID); err != nil {
 		return fmt.Errorf("cannot share this channel: %w", err)
 	}
 
 	// Check channel is not already shared.
-	if _, err := a.GetSharedChannel(channelId); err == nil {
+	if _, err := a.GetSharedChannel(channelID); err == nil {
 		var errNotFound *store.ErrNotFound
 		if errors.As(err, &errNotFound) {
 			return errors.New("channel is already shared.")
@@ -29,8 +29,8 @@ func (a *App) checkChannelNotShared(channelId string) error {
 	return nil
 }
 
-func (a *App) checkChannelIsShared(channelId string) error {
-	if _, err := a.GetSharedChannel(channelId); err != nil {
+func (a *App) checkChannelIsShared(channelID string) error {
+	if _, err := a.GetSharedChannel(channelID); err != nil {
 		var errNotFound *store.ErrNotFound
 		if errors.As(err, &errNotFound) {
 			return errors.New("channel is not shared.")
@@ -40,8 +40,8 @@ func (a *App) checkChannelIsShared(channelId string) error {
 	return nil
 }
 
-func (a *App) CheckCanInviteToSharedChannel(channelId string) error {
-	sc, err := a.GetSharedChannel(channelId)
+func (a *App) CheckCanInviteToSharedChannel(channelID string) error {
+	sc, err := a.GetSharedChannel(channelID)
 	if err != nil {
 		var errNotFound *store.ErrNotFound
 		if errors.As(err, &errNotFound) {
@@ -59,7 +59,7 @@ func (a *App) CheckCanInviteToSharedChannel(channelId string) error {
 // SharedChannels
 
 func (a *App) SaveSharedChannel(sc *model.SharedChannel) (*model.SharedChannel, error) {
-	if err := a.checkChannelNotShared(sc.ChannelId); err != nil {
+	if err := a.checkChannelNotShared(sc.ChannelID); err != nil {
 		return nil, err
 	}
 	return a.Srv().Store.SharedChannel().Save(sc)
@@ -96,7 +96,7 @@ func (a *App) DeleteSharedChannel(channelID string) (bool, error) {
 // SharedChannelRemotes
 
 func (a *App) SaveSharedChannelRemote(remote *model.SharedChannelRemote) (*model.SharedChannelRemote, error) {
-	if err := a.checkChannelIsShared(remote.ChannelId); err != nil {
+	if err := a.checkChannelIsShared(remote.ChannelID); err != nil {
 		return nil, err
 	}
 	return a.Srv().Store.SharedChannel().SaveRemote(remote)
@@ -106,8 +106,8 @@ func (a *App) GetSharedChannelRemote(id string) (*model.SharedChannelRemote, err
 	return a.Srv().Store.SharedChannel().GetRemote(id)
 }
 
-func (a *App) GetSharedChannelRemoteByIds(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
-	return a.Srv().Store.SharedChannel().GetRemoteByIds(channelID, remoteID)
+func (a *App) GetSharedChannelRemoteByIDs(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
+	return a.Srv().Store.SharedChannel().GetRemoteByIDs(channelID, remoteID)
 }
 
 func (a *App) GetSharedChannelRemotes(opts model.SharedChannelRemoteFilterOpts) ([]*model.SharedChannelRemote, error) {

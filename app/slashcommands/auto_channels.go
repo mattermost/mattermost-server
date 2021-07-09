@@ -46,11 +46,11 @@ func (cfg *AutoChannelCreator) createRandomChannel(c *request.Context) (*model.C
 	name := utils.RandomName(cfg.NameLen, cfg.NameCharset)
 
 	channel := &model.Channel{
-		TeamId:      cfg.team.Id,
+		TeamID:      cfg.team.ID,
 		DisplayName: displayName,
 		Name:        name,
 		Type:        cfg.ChannelType,
-		CreatorId:   cfg.userID,
+		CreatorID:   cfg.userID,
 	}
 
 	channel, err := cfg.a.CreateChannel(c, channel, true)

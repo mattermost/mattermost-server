@@ -19,67 +19,67 @@ func (api *API) InitPreference() {
 }
 
 func getPreferences(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	preferences, err := c.App.GetPreferencesForUser(c.Params.UserId)
+	preferences, err := c.App.GetPreferencesForUser(c.Params.UserID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(preferences.ToJson()))
+	w.Write([]byte(preferences.ToJSON()))
 }
 
 func getPreferencesByCategory(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId().RequireCategory()
+	c.RequireUserID().RequireCategory()
 	if c.Err != nil {
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	preferences, err := c.App.GetPreferenceByCategoryForUser(c.Params.UserId, c.Params.Category)
+	preferences, err := c.App.GetPreferenceByCategoryForUser(c.Params.UserID, c.Params.Category)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(preferences.ToJson()))
+	w.Write([]byte(preferences.ToJSON()))
 }
 
 func getPreferenceByCategoryAndName(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId().RequireCategory().RequirePreferenceName()
+	c.RequireUserID().RequireCategory().RequirePreferenceName()
 	if c.Err != nil {
 		return
 	}
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	preferences, err := c.App.GetPreferenceByCategoryAndNameForUser(c.Params.UserId, c.Params.Category, c.Params.PreferenceName)
+	preferences, err := c.App.GetPreferenceByCategoryAndNameForUser(c.Params.UserID, c.Params.Category, c.Params.PreferenceName)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Write([]byte(preferences.ToJson()))
+	w.Write([]byte(preferences.ToJSON()))
 }
 
 func updatePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
@@ -87,12 +87,12 @@ func updatePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("updatePreferences", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	preferences, err := model.PreferencesFromJson(r.Body)
+	preferences, err := model.PreferencesFromJSON(r.Body)
 	if err != nil {
 		c.SetInvalidParam("preferences")
 		return
@@ -108,7 +108,7 @@ func updatePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), post.ChannelId, model.PermissionReadChannel) {
+			if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), post.ChannelID, model.PermissionReadChannel) {
 				c.SetPermissionError(model.PermissionReadChannel)
 				return
 			}
@@ -117,7 +117,7 @@ func updatePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
 		sanitizedPreferences = append(sanitizedPreferences, pref)
 	}
 
-	if err := c.App.UpdatePreferences(c.Params.UserId, sanitizedPreferences); err != nil {
+	if err := c.App.UpdatePreferences(c.Params.UserID, sanitizedPreferences); err != nil {
 		c.Err = err
 		return
 	}
@@ -127,7 +127,7 @@ func updatePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func deletePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
@@ -135,18 +135,18 @@ func deletePreferences(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("deletePreferences", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 
-	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
+	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserID) {
 		c.SetPermissionError(model.PermissionEditOtherUsers)
 		return
 	}
 
-	preferences, err := model.PreferencesFromJson(r.Body)
+	preferences, err := model.PreferencesFromJSON(r.Body)
 	if err != nil {
 		c.SetInvalidParam("preferences")
 		return
 	}
 
-	if err := c.App.DeletePreferences(c.Params.UserId, preferences); err != nil {
+	if err := c.App.DeletePreferences(c.Params.UserID, preferences); err != nil {
 		c.Err = err
 		return
 	}

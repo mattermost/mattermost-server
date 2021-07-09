@@ -40,9 +40,9 @@ func (c *Context) LogAuditRecWithLevel(rec *audit.Record, level mlog.LogLevel) {
 		return
 	}
 	if c.Err != nil {
-		rec.AddMeta("err", c.Err.Id)
+		rec.AddMeta("err", c.Err.ID)
 		rec.AddMeta("code", c.Err.StatusCode)
-		if c.Err.Id == "api.context.permissions.app_error" {
+		if c.Err.ID == "api.context.permissions.app_error" {
 			level = app.LevelPerms
 		}
 		rec.Fail()
@@ -56,11 +56,11 @@ func (c *Context) MakeAuditRecord(event string, initialStatus string) *audit.Rec
 		APIPath:   c.AppContext.Path(),
 		Event:     event,
 		Status:    initialStatus,
-		UserID:    c.AppContext.Session().UserId,
-		SessionID: c.AppContext.Session().Id,
+		UserID:    c.AppContext.Session().UserID,
+		SessionID: c.AppContext.Session().ID,
 		Client:    c.AppContext.UserAgent(),
-		IPAddress: c.AppContext.IpAddress(),
-		Meta:      audit.Meta{audit.KeyClusterID: c.App.GetClusterId()},
+		IPAddress: c.AppContext.IDAddress(),
+		Meta:      audit.Meta{audit.KeyClusterID: c.App.GetClusterID()},
 	}
 	rec.AddMetaTypeConverter(model.AuditModelTypeConv)
 
@@ -68,19 +68,19 @@ func (c *Context) MakeAuditRecord(event string, initialStatus string) *audit.Rec
 }
 
 func (c *Context) LogAudit(extraInfo string) {
-	audit := &model.Audit{UserId: c.AppContext.Session().UserId, IpAddress: c.AppContext.IpAddress(), Action: c.AppContext.Path(), ExtraInfo: extraInfo, SessionId: c.AppContext.Session().Id}
+	audit := &model.Audit{UserID: c.AppContext.Session().UserID, IDAddress: c.AppContext.IDAddress(), Action: c.AppContext.Path(), ExtraInfo: extraInfo, SessionID: c.AppContext.Session().ID}
 	if err := c.App.Srv().Store.Audit().Save(audit); err != nil {
 		appErr := model.NewAppError("LogAudit", "app.audit.save.saving.app_error", nil, err.Error(), http.StatusInternalServerError)
 		c.LogErrorByCode(appErr)
 	}
 }
 
-func (c *Context) LogAuditWithUserId(userId, extraInfo string) {
-	if c.AppContext.Session().UserId != "" {
-		extraInfo = strings.TrimSpace(extraInfo + " session_user=" + c.AppContext.Session().UserId)
+func (c *Context) LogAuditWithUserID(userID, extraInfo string) {
+	if c.AppContext.Session().UserID != "" {
+		extraInfo = strings.TrimSpace(extraInfo + " session_user=" + c.AppContext.Session().UserID)
 	}
 
-	audit := &model.Audit{UserId: userId, IpAddress: c.AppContext.IpAddress(), Action: c.AppContext.Path(), ExtraInfo: extraInfo, SessionId: c.AppContext.Session().Id}
+	audit := &model.Audit{UserID: userID, IDAddress: c.AppContext.IDAddress(), Action: c.AppContext.Path(), ExtraInfo: extraInfo, SessionID: c.AppContext.Session().ID}
 	if err := c.App.Srv().Store.Audit().Save(audit); err != nil {
 		appErr := model.NewAppError("LogAuditWithUserId", "app.audit.save.saving.app_error", nil, err.Error(), http.StatusInternalServerError)
 		c.LogErrorByCode(appErr)
@@ -97,7 +97,7 @@ func (c *Context) LogErrorByCode(err *model.AppError) {
 	}
 	switch {
 	case (code >= http.StatusBadRequest && code < http.StatusInternalServerError) ||
-		err.Id == "web.check_browser_compatibility.app_error":
+		err.ID == "web.check_browser_compatibility.app_error":
 		c.Logger.Debug(msg, fields...)
 	case code == http.StatusNotImplemented:
 		c.Logger.Info(msg, fields...)
@@ -119,7 +119,7 @@ func (c *Context) SessionRequired() {
 		return
 	}
 
-	if c.AppContext.Session().UserId == "" {
+	if c.AppContext.Session().UserID == "" {
 		c.Err = model.NewAppError("", "api.context.session_expired.app_error", nil, "UserRequired", http.StatusUnauthorized)
 		return
 	}
@@ -150,7 +150,7 @@ func (c *Context) MfaRequired() {
 		return
 	}
 
-	user, err := c.App.GetUser(c.AppContext.Session().UserId)
+	user, err := c.App.GetUser(c.AppContext.Session().UserID)
 	if err != nil {
 		c.Err = model.NewAppError("MfaRequired", "api.context.get_user.app_error", nil, err.Error(), http.StatusUnauthorized)
 		return
@@ -217,8 +217,8 @@ func (c *Context) SetServerBusyError() {
 	c.Err = NewServerBusyError()
 }
 
-func (c *Context) SetInvalidRemoteIdError(id string) {
-	c.Err = NewInvalidRemoteIdError(id)
+func (c *Context) SetInvalidRemoteIDError(id string) {
+	c.Err = NewInvalidRemoteIDError(id)
 }
 
 func (c *Context) SetInvalidRemoteClusterTokenError() {
@@ -266,7 +266,7 @@ func NewServerBusyError() *model.AppError {
 	return err
 }
 
-func NewInvalidRemoteIdError(parameter string) *model.AppError {
+func NewInvalidRemoteIDError(parameter string) *model.AppError {
 	err := model.NewAppError("Context", "api.context.remote_id_invalid.app_error", map[string]interface{}{"RemoteId": parameter}, "", http.StatusBadRequest)
 	return err
 }
@@ -293,71 +293,71 @@ func (c *Context) GetSiteURLHeader() string {
 	return c.siteURLHeader
 }
 
-func (c *Context) RequireUserId() *Context {
+func (c *Context) RequireUserID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if c.Params.UserId == model.Me {
-		c.Params.UserId = c.AppContext.Session().UserId
+	if c.Params.UserID == model.Me {
+		c.Params.UserID = c.AppContext.Session().UserID
 	}
 
-	if !model.IsValidId(c.Params.UserId) {
+	if !model.IsValidID(c.Params.UserID) {
 		c.SetInvalidUrlParam("user_id")
 	}
 	return c
 }
 
-func (c *Context) RequireTeamId() *Context {
+func (c *Context) RequireTeamID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.TeamId) {
+	if !model.IsValidID(c.Params.TeamID) {
 		c.SetInvalidUrlParam("team_id")
 	}
 	return c
 }
 
-func (c *Context) RequireCategoryId() *Context {
+func (c *Context) RequireCategoryID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidCategoryId(c.Params.CategoryId) {
+	if !model.IsValidCategoryID(c.Params.CategoryID) {
 		c.SetInvalidUrlParam("category_id")
 	}
 	return c
 }
 
-func (c *Context) RequireInviteId() *Context {
+func (c *Context) RequireInviteID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if c.Params.InviteId == "" {
+	if c.Params.InviteID == "" {
 		c.SetInvalidUrlParam("invite_id")
 	}
 	return c
 }
 
-func (c *Context) RequireTokenId() *Context {
+func (c *Context) RequireTokenID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.TokenId) {
+	if !model.IsValidID(c.Params.TokenID) {
 		c.SetInvalidUrlParam("token_id")
 	}
 	return c
 }
 
-func (c *Context) RequireThreadId() *Context {
+func (c *Context) RequireThreadID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.ThreadId) {
+	if !model.IsValidID(c.Params.ThreadID) {
 		c.SetInvalidUrlParam("thread_id")
 	}
 	return c
@@ -374,12 +374,12 @@ func (c *Context) RequireTimestamp() *Context {
 	return c
 }
 
-func (c *Context) RequireChannelId() *Context {
+func (c *Context) RequireChannelID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.ChannelId) {
+	if !model.IsValidID(c.Params.ChannelID) {
 		c.SetInvalidUrlParam("channel_id")
 	}
 	return c
@@ -397,57 +397,57 @@ func (c *Context) RequireUsername() *Context {
 	return c
 }
 
-func (c *Context) RequirePostId() *Context {
+func (c *Context) RequirePostID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.PostId) {
+	if !model.IsValidID(c.Params.PostID) {
 		c.SetInvalidUrlParam("post_id")
 	}
 	return c
 }
 
-func (c *Context) RequirePolicyId() *Context {
+func (c *Context) RequirePolicyID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.PolicyId) {
+	if !model.IsValidID(c.Params.PolicyID) {
 		c.SetInvalidUrlParam("policy_id")
 	}
 	return c
 }
 
-func (c *Context) RequireAppId() *Context {
+func (c *Context) RequireAppID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.AppId) {
+	if !model.IsValidID(c.Params.AppID) {
 		c.SetInvalidUrlParam("app_id")
 	}
 	return c
 }
 
-func (c *Context) RequireFileId() *Context {
+func (c *Context) RequireFileID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.FileId) {
+	if !model.IsValidID(c.Params.FileID) {
 		c.SetInvalidUrlParam("file_id")
 	}
 
 	return c
 }
 
-func (c *Context) RequireUploadId() *Context {
+func (c *Context) RequireUploadID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.UploadId) {
+	if !model.IsValidID(c.Params.UploadID) {
 		c.SetInvalidUrlParam("upload_id")
 	}
 
@@ -466,35 +466,35 @@ func (c *Context) RequireFilename() *Context {
 	return c
 }
 
-func (c *Context) RequirePluginId() *Context {
+func (c *Context) RequirePluginID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if c.Params.PluginId == "" {
+	if c.Params.PluginID == "" {
 		c.SetInvalidUrlParam("plugin_id")
 	}
 
 	return c
 }
 
-func (c *Context) RequireReportId() *Context {
+func (c *Context) RequireReportID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.ReportId) {
+	if !model.IsValidID(c.Params.ReportID) {
 		c.SetInvalidUrlParam("report_id")
 	}
 	return c
 }
 
-func (c *Context) RequireEmojiId() *Context {
+func (c *Context) RequireEmojiID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.EmojiId) {
+	if !model.IsValidID(c.Params.EmojiID) {
 		c.SetInvalidUrlParam("emoji_id")
 	}
 	return c
@@ -586,35 +586,35 @@ func (c *Context) RequireEmojiName() *Context {
 	return c
 }
 
-func (c *Context) RequireHookId() *Context {
+func (c *Context) RequireHookID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.HookId) {
+	if !model.IsValidID(c.Params.HookID) {
 		c.SetInvalidUrlParam("hook_id")
 	}
 
 	return c
 }
 
-func (c *Context) RequireCommandId() *Context {
+func (c *Context) RequireCommandID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.CommandId) {
+	if !model.IsValidID(c.Params.CommandID) {
 		c.SetInvalidUrlParam("command_id")
 	}
 	return c
 }
 
-func (c *Context) RequireJobId() *Context {
+func (c *Context) RequireJobID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.JobId) {
+	if !model.IsValidID(c.Params.JobID) {
 		c.SetInvalidUrlParam("job_id")
 	}
 	return c
@@ -631,23 +631,23 @@ func (c *Context) RequireJobType() *Context {
 	return c
 }
 
-func (c *Context) RequireRoleId() *Context {
+func (c *Context) RequireRoleID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.RoleId) {
+	if !model.IsValidID(c.Params.RoleID) {
 		c.SetInvalidUrlParam("role_id")
 	}
 	return c
 }
 
-func (c *Context) RequireSchemeId() *Context {
+func (c *Context) RequireSchemeID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.SchemeId) {
+	if !model.IsValidID(c.Params.SchemeID) {
 		c.SetInvalidUrlParam("scheme_id")
 	}
 	return c
@@ -665,34 +665,34 @@ func (c *Context) RequireRoleName() *Context {
 	return c
 }
 
-func (c *Context) RequireGroupId() *Context {
+func (c *Context) RequireGroupID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.GroupId) {
+	if !model.IsValidID(c.Params.GroupID) {
 		c.SetInvalidUrlParam("group_id")
 	}
 	return c
 }
 
-func (c *Context) RequireRemoteId() *Context {
+func (c *Context) RequireRemoteID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if c.Params.RemoteId == "" {
+	if c.Params.RemoteID == "" {
 		c.SetInvalidUrlParam("remote_id")
 	}
 	return c
 }
 
-func (c *Context) RequireSyncableId() *Context {
+func (c *Context) RequireSyncableID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.SyncableId) {
+	if !model.IsValidID(c.Params.SyncableID) {
 		c.SetInvalidUrlParam("syncable_id")
 	}
 	return c
@@ -709,23 +709,23 @@ func (c *Context) RequireSyncableType() *Context {
 	return c
 }
 
-func (c *Context) RequireBotUserId() *Context {
+func (c *Context) RequireBotUserID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if !model.IsValidId(c.Params.BotUserId) {
+	if !model.IsValidID(c.Params.BotUserID) {
 		c.SetInvalidUrlParam("bot_user_id")
 	}
 	return c
 }
 
-func (c *Context) RequireInvoiceId() *Context {
+func (c *Context) RequireInvoiceID() *Context {
 	if c.Err != nil {
 		return c
 	}
 
-	if len(c.Params.InvoiceId) != 27 {
+	if len(c.Params.InvoiceID) != 27 {
 		c.SetInvalidUrlParam("invoice_id")
 	}
 
@@ -733,5 +733,5 @@ func (c *Context) RequireInvoiceId() *Context {
 }
 
 func (c *Context) GetRemoteID(r *http.Request) string {
-	return r.Header.Get(model.HeaderRemoteclusterId)
+	return r.Header.Get(model.HeaderRemoteclusterID)
 }

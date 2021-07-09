@@ -17,9 +17,9 @@ import (
 
 // bot is a subset of the model.Bot type, omitting the model.User fields.
 type bot struct {
-	UserId         string `json:"user_id"`
+	UserID         string `json:"user_id"`
 	Description    string `json:"description"`
-	OwnerId        string `json:"owner_id"`
+	OwnerID        string `json:"owner_id"`
 	LastIconUpdate int64  `json:"last_icon_update"`
 	CreateAt       int64  `json:"create_at"`
 	UpdateAt       int64  `json:"update_at"`
@@ -28,9 +28,9 @@ type bot struct {
 
 func botFromModel(b *model.Bot) *bot {
 	return &bot{
-		UserId:         b.UserId,
+		UserID:         b.UserID,
 		Description:    b.Description,
-		OwnerId:        b.OwnerId,
+		OwnerID:        b.OwnerID,
 		LastIconUpdate: b.LastIconUpdate,
 		CreateAt:       b.CreateAt,
 		UpdateAt:       b.UpdateAt,
@@ -57,7 +57,7 @@ func newSqlBotStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) st
 		table := db.AddTableWithName(bot{}, "Bots").SetKeys(false, "UserId")
 		table.ColMap("UserId").SetMaxSize(26)
 		table.ColMap("Description").SetMaxSize(1024)
-		table.ColMap("OwnerId").SetMaxSize(model.BotCreatorIdMaxRunes)
+		table.ColMap("OwnerId").SetMaxSize(model.BotCreatorIDMaxRunes)
 	}
 
 	return us
@@ -67,7 +67,7 @@ func (us SqlBotStore) createIndexesIfNotExists() {
 }
 
 // Get fetches the given bot in the database.
-func (us SqlBotStore) Get(botUserId string, includeDeleted bool) (*model.Bot, error) {
+func (us SqlBotStore) Get(botUserID string, includeDeleted bool) (*model.Bot, error) {
 	var excludeDeletedSql = "AND b.DeleteAt = 0"
 	if includeDeleted {
 		excludeDeletedSql = ""
@@ -94,10 +94,10 @@ func (us SqlBotStore) Get(botUserId string, includeDeleted bool) (*model.Bot, er
 	`
 
 	var bot *model.Bot
-	if err := us.GetReplica().SelectOne(&bot, query, map[string]interface{}{"user_id": botUserId}); err == sql.ErrNoRows {
-		return nil, store.NewErrNotFound("Bot", botUserId)
+	if err := us.GetReplica().SelectOne(&bot, query, map[string]interface{}{"user_id": botUserID}); err == sql.ErrNoRows {
+		return nil, store.NewErrNotFound("Bot", botUserID)
 	} else if err != nil {
-		return nil, errors.Wrapf(err, "selectone: user_id=%s", botUserId)
+		return nil, errors.Wrapf(err, "selectone: user_id=%s", botUserID)
 	}
 
 	return bot, nil
@@ -117,9 +117,9 @@ func (us SqlBotStore) GetAll(options *model.BotGetOptions) ([]*model.Bot, error)
 	if !options.IncludeDeleted {
 		conditions = append(conditions, "b.DeleteAt = 0")
 	}
-	if options.OwnerId != "" {
+	if options.OwnerID != "" {
 		conditions = append(conditions, "b.OwnerId = :creator_id")
-		params["creator_id"] = options.OwnerId
+		params["creator_id"] = options.OwnerID
 	}
 	if options.OnlyOrphaned {
 		additionalJoin = "JOIN Users o ON (o.Id = b.OwnerId)"
@@ -175,7 +175,7 @@ func (us SqlBotStore) Save(bot *model.Bot) (*model.Bot, error) {
 	}
 
 	if err := us.GetMaster().Insert(botFromModel(bot)); err != nil {
-		return nil, errors.Wrapf(err, "insert: user_id=%s", bot.UserId)
+		return nil, errors.Wrapf(err, "insert: user_id=%s", bot.UserID)
 	}
 
 	return bot, nil
@@ -191,22 +191,22 @@ func (us SqlBotStore) Update(bot *model.Bot) (*model.Bot, error) {
 		return nil, err
 	}
 
-	oldBot, err := us.Get(bot.UserId, true)
+	oldBot, err := us.Get(bot.UserID, true)
 	if err != nil {
 		return nil, err
 	}
 
 	oldBot.Description = bot.Description
-	oldBot.OwnerId = bot.OwnerId
+	oldBot.OwnerID = bot.OwnerID
 	oldBot.LastIconUpdate = bot.LastIconUpdate
 	oldBot.UpdateAt = bot.UpdateAt
 	oldBot.DeleteAt = bot.DeleteAt
 	bot = oldBot
 
 	if count, err := us.GetMaster().Update(botFromModel(bot)); err != nil {
-		return nil, errors.Wrapf(err, "update: user_id=%s", bot.UserId)
+		return nil, errors.Wrapf(err, "update: user_id=%s", bot.UserID)
 	} else if count > 1 {
-		return nil, fmt.Errorf("unexpected count while updating bot: count=%d, userId=%s", count, bot.UserId)
+		return nil, fmt.Errorf("unexpected count while updating bot: count=%d, userId=%s", count, bot.UserID)
 	}
 
 	return bot, nil
@@ -214,10 +214,10 @@ func (us SqlBotStore) Update(bot *model.Bot) (*model.Bot, error) {
 
 // PermanentDelete removes the bot from the database altogether.
 // If the corresponding user is to be deleted, it must be done via the user store.
-func (us SqlBotStore) PermanentDelete(botUserId string) error {
+func (us SqlBotStore) PermanentDelete(botUserID string) error {
 	query := "DELETE FROM Bots WHERE UserId = :user_id"
-	if _, err := us.GetMaster().Exec(query, map[string]interface{}{"user_id": botUserId}); err != nil {
-		return store.NewErrInvalidInput("Bot", "UserId", botUserId)
+	if _, err := us.GetMaster().Exec(query, map[string]interface{}{"user_id": botUserID}); err != nil {
+		return store.NewErrInvalidInput("Bot", "UserId", botUserID)
 	}
 	return nil
 }

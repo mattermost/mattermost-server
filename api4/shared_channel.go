@@ -16,7 +16,7 @@ func (api *API) InitSharedChannels() {
 }
 
 func getSharedChannels(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireTeamId()
+	c.RequireTeamID()
 	if c.Err != nil {
 		return
 	}
@@ -28,7 +28,7 @@ func getSharedChannels(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	opts := model.SharedChannelFilterOpts{
-		TeamId: c.Params.TeamId,
+		TeamID: c.Params.TeamID,
 	}
 
 	channels, appErr := c.App.GetSharedChannels(c.Params.Page, c.Params.PerPage, opts)
@@ -46,7 +46,7 @@ func getSharedChannels(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getRemoteClusterInfo(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireRemoteId()
+	c.RequireRemoteID()
 	if c.Err != nil {
 		return
 	}
@@ -59,7 +59,7 @@ func getRemoteClusterInfo(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	// GetRemoteClusterForUser will only return a remote if the user is a member of at
 	// least one channel shared by the remote. All other cases return error.
-	rc, appErr := c.App.GetRemoteClusterForUser(c.Params.RemoteId, c.AppContext.Session().UserId)
+	rc, appErr := c.App.GetRemoteClusterForUser(c.Params.RemoteID, c.AppContext.Session().UserID)
 	if appErr != nil {
 		c.Err = appErr
 		return

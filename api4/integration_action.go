@@ -18,12 +18,12 @@ func (api *API) InitAction() {
 }
 
 func doPostAction(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequirePostId()
+	c.RequirePostID()
 	if c.Err != nil {
 		return
 	}
 
-	actionRequest := model.DoPostActionRequestFromJson(r.Body)
+	actionRequest := model.DoPostActionRequestFromJSON(r.Body)
 	if actionRequest == nil {
 		actionRequest = &model.DoPostActionRequest{}
 	}
@@ -41,12 +41,12 @@ func doPostAction(c *Context, w http.ResponseWriter, r *http.Request) {
 			c.Err = model.NewAppError("DoPostAction", "api.post.do_action.action_integration.app_error", nil, "err="+err.Error(), http.StatusBadRequest)
 			return
 		}
-		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), cookie.ChannelId, model.PermissionReadChannel) {
+		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), cookie.ChannelID, model.PermissionReadChannel) {
 			c.SetPermissionError(model.PermissionReadChannel)
 			return
 		}
 	} else {
-		if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), c.Params.PostId, model.PermissionReadChannel) {
+		if !c.App.SessionHasPermissionToChannelByPost(*c.AppContext.Session(), c.Params.PostID, model.PermissionReadChannel) {
 			c.SetPermissionError(model.PermissionReadChannel)
 			return
 		}
@@ -55,7 +55,7 @@ func doPostAction(c *Context, w http.ResponseWriter, r *http.Request) {
 	var appErr *model.AppError
 	resp := &model.PostActionAPIResponse{Status: "OK"}
 
-	resp.TriggerId, appErr = c.App.DoPostActionWithCookie(c.AppContext, c.Params.PostId, c.Params.ActionId, c.AppContext.Session().UserId,
+	resp.TriggerID, appErr = c.App.DoPostActionWithCookie(c.AppContext, c.Params.PostID, c.Params.ActionID, c.AppContext.Session().UserID,
 		actionRequest.SelectedOption, cookie)
 	if appErr != nil {
 		c.Err = appErr
@@ -101,14 +101,14 @@ func submitDialog(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	submit.UserId = c.AppContext.Session().UserId
+	submit.UserID = c.AppContext.Session().UserID
 
-	if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), submit.ChannelId, model.PermissionReadChannel) {
+	if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), submit.ChannelID, model.PermissionReadChannel) {
 		c.SetPermissionError(model.PermissionReadChannel)
 		return
 	}
 
-	if !c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), submit.TeamId, model.PermissionViewTeam) {
+	if !c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), submit.TeamID, model.PermissionViewTeam) {
 		c.SetPermissionError(model.PermissionViewTeam)
 		return
 	}

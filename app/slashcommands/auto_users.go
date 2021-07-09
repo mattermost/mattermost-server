@@ -55,11 +55,11 @@ func CreateBasicUser(a *app.App, client *model.Client4) *model.AppError {
 	if resp.Error != nil {
 		return resp.Error
 	}
-	_, err := a.Srv().Store.User().VerifyEmail(ruser.Id, ruser.Email)
+	_, err := a.Srv().Store.User().VerifyEmail(ruser.ID, ruser.Email)
 	if err != nil {
 		return model.NewAppError("CreateBasicUser", "app.user.verify_email.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
-	if _, nErr := a.Srv().Store.Team().SaveMember(&model.TeamMember{TeamId: basicteam.Id, UserId: ruser.Id}, *a.Config().TeamSettings.MaxUsersPerTeam); nErr != nil {
+	if _, nErr := a.Srv().Store.Team().SaveMember(&model.TeamMember{TeamID: basicteam.ID, UserID: ruser.ID}, *a.Config().TeamSettings.MaxUsersPerTeam); nErr != nil {
 		var appErr *model.AppError
 		var conflictErr *store.ErrConflict
 		var limitExceededErr *store.ErrLimitExceeded
@@ -82,10 +82,10 @@ func (cfg *AutoUserCreator) createRandomUser(c *request.Context) (*model.User, e
 	var userEmail string
 	var userName string
 	if cfg.Fuzzy {
-		userEmail = "success+" + model.NewId() + "@simulator.amazonses.com"
+		userEmail = "success+" + model.NewID() + "@simulator.amazonses.com"
 		userName = utils.FuzzName()
 	} else {
-		userEmail = "success+" + model.NewId() + "@simulator.amazonses.com"
+		userEmail = "success+" + model.NewID() + "@simulator.amazonses.com"
 		userName = utils.RandomName(cfg.NameLength, cfg.NameCharset)
 	}
 
@@ -94,18 +94,18 @@ func (cfg *AutoUserCreator) createRandomUser(c *request.Context) (*model.User, e
 		Nickname: userName,
 		Password: UserPassword}
 
-	ruser, appErr := cfg.app.CreateUserWithInviteId(c, user, cfg.team.InviteId, "")
+	ruser, appErr := cfg.app.CreateUserWithInviteID(c, user, cfg.team.InviteID, "")
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	status := &model.Status{UserId: ruser.Id, Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	status := &model.Status{UserID: ruser.ID, Status: model.StatusOnline, Manual: false, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
 	if err := cfg.app.Srv().Store.Status().SaveOrUpdate(status); err != nil {
 		return nil, err
 	}
 
 	// We need to cheat to verify the user's email
-	_, err := cfg.app.Srv().Store.User().VerifyEmail(ruser.Id, ruser.Email)
+	_, err := cfg.app.Srv().Store.User().VerifyEmail(ruser.ID, ruser.Email)
 	if err != nil {
 		return nil, err
 	}

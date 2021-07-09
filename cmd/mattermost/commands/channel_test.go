@@ -41,16 +41,16 @@ func TestRemoveChannel(t *testing.T) {
 
 	t.Run("should remove user from channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		isMember, _ := th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
+		isMember, _ := th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.ID, []string{channel.ID})
 		assert.True(t, isMember)
 
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		isMember, _ = th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
+		isMember, _ = th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.ID, []string{channel.ID})
 		assert.False(t, isMember)
 	})
 
 	t.Run("should not fail removing non member user from channel", func(t *testing.T) {
-		isMember, _ := th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
+		isMember, _ := th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.ID, []string{channel.ID})
 		assert.False(t, isMember)
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
 	})
@@ -62,22 +62,22 @@ func TestRemoveChannel(t *testing.T) {
 	t.Run("should remove all users from channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser.Email)
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		count, _ := th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		count, _ := th.App.Srv().Store.Channel().GetMemberCount(channel.ID, false)
 		assert.Equal(t, count, int64(2))
 
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, "--all-users")
-		count, _ = th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		count, _ = th.App.Srv().Store.Channel().GetMemberCount(channel.ID, false)
 		assert.Equal(t, count, int64(0))
 	})
 
 	t.Run("should remove multiple users from channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser.Email)
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		count, _ := th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		count, _ := th.App.Srv().Store.Channel().GetMemberCount(channel.ID, false)
 		assert.Equal(t, count, int64(2))
 
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, th.BasicUser.Email, th.BasicUser2.Email)
-		count, _ = th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		count, _ = th.App.Srv().Store.Channel().GetMemberCount(channel.ID, false)
 		assert.Equal(t, count, int64(0))
 	})
 }
@@ -113,7 +113,7 @@ func TestListChannels(t *testing.T) {
 	defer th.TearDown()
 
 	channel := th.CreatePublicChannel()
-	th.Client.Must(th.Client.DeleteChannel(channel.Id))
+	th.Client.Must(th.Client.DeleteChannel(channel.ID))
 	privateChannel := th.CreatePrivateChannel()
 
 	output := th.CheckCommand(t, "channel", "list", th.BasicTeam.Name)
@@ -124,7 +124,7 @@ func TestListChannels(t *testing.T) {
 
 	require.True(t, strings.Contains(output, privateChannel.Name+" (private)"), "should have private channel")
 
-	th.Client.Must(th.Client.DeleteChannel(privateChannel.Id))
+	th.Client.Must(th.Client.DeleteChannel(privateChannel.ID))
 
 	output = th.CheckCommand(t, "channel", "list", th.BasicTeam.Name)
 
@@ -136,7 +136,7 @@ func TestRestoreChannel(t *testing.T) {
 	defer th.TearDown()
 
 	channel := th.CreatePublicChannel()
-	th.Client.Must(th.Client.DeleteChannel(channel.Id))
+	th.Client.Must(th.Client.DeleteChannel(channel.ID))
 
 	th.CheckCommand(t, "channel", "restore", th.BasicTeam.Name+":"+channel.Name)
 
@@ -148,13 +148,13 @@ func TestCreateChannel(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	commonName := "name" + id
 	team, _ := th.App.Srv().Store.Team().GetByName(th.BasicTeam.Name)
 
 	t.Run("should create public channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "create", "--display_name", commonName, "--team", th.BasicTeam.Name, "--name", commonName)
-		channel, _ := th.App.Srv().Store.Channel().GetByName(team.Id, commonName, false)
+		channel, _ := th.App.Srv().Store.Channel().GetByName(team.ID, commonName, false)
 		assert.Equal(t, commonName, channel.Name)
 		assert.Equal(t, model.ChannelTypeOpen, channel.Type)
 	})
@@ -162,7 +162,7 @@ func TestCreateChannel(t *testing.T) {
 	t.Run("should create private channel", func(t *testing.T) {
 		name := commonName + "-private"
 		th.CheckCommand(t, "channel", "create", "--display_name", name, "--team", th.BasicTeam.Name, "--name", name, "--private")
-		channel, _ := th.App.Srv().Store.Channel().GetByName(team.Id, name, false)
+		channel, _ := th.App.Srv().Store.Channel().GetByName(team.ID, name, false)
 		assert.Equal(t, name, channel.Name)
 		assert.Equal(t, model.ChannelTypePrivate, channel.Type)
 	})
@@ -170,7 +170,7 @@ func TestCreateChannel(t *testing.T) {
 	t.Run("should create channel with header and purpose", func(t *testing.T) {
 		name := commonName + "-withhp"
 		th.CheckCommand(t, "channel", "create", "--display_name", name, "--team", th.BasicTeam.Name, "--name", name, "--header", "this is a header", "--purpose", "this is the purpose")
-		channel, _ := th.App.Srv().Store.Channel().GetByName(team.Id, name, false)
+		channel, _ := th.App.Srv().Store.Channel().GetByName(team.ID, name, false)
 		assert.Equal(t, name, channel.Name)
 		assert.Equal(t, model.ChannelTypeOpen, channel.Type)
 		assert.Equal(t, "this is a header", channel.Header)
@@ -216,7 +216,7 @@ func TestRenameChannel(t *testing.T) {
 	th.CheckCommand(t, "channel", "rename", th.BasicTeam.Name+":"+channel.Name, "newchannelname10", "--display_name", "New Display Name")
 
 	// Get the channel from the DB
-	updatedChannel, _ := th.App.GetChannel(channel.Id)
+	updatedChannel, _ := th.App.GetChannel(channel.ID)
 	assert.Equal(t, "newchannelname10", updatedChannel.Name)
 	assert.Equal(t, "New Display Name", updatedChannel.DisplayName)
 }
@@ -229,8 +229,8 @@ func Test_searchChannelCmdF(t *testing.T) {
 	channel2 := th.CreatePublicChannel()
 	channel3 := th.CreatePrivateChannel()
 	channel4 := th.CreatePrivateChannel()
-	th.Client.DeleteChannel(channel2.Id)
-	th.Client.DeleteChannel(channel4.Id)
+	th.Client.DeleteChannel(channel2.ID)
+	th.Client.DeleteChannel(channel4.ID)
 
 	tests := []struct {
 		Name     string
@@ -240,7 +240,7 @@ func Test_searchChannelCmdF(t *testing.T) {
 		{
 			"Success find Channel in any team",
 			[]string{"channel", "search", channel.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.Id),
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.ID),
 		},
 		{
 			"Failed find Channel in any team",
@@ -249,58 +249,58 @@ func Test_searchChannelCmdF(t *testing.T) {
 		},
 		{
 			"Success find Channel with param team ID",
-			[]string{"channel", "search", "--team", channel.TeamId, channel.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.Id),
+			[]string{"channel", "search", "--team", channel.TeamID, channel.Name},
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.ID),
 		},
 		{
 			"Failed find Channel with param team ID",
-			[]string{"channel", "search", "--team", channel.TeamId, channel.Name + "404"},
-			fmt.Sprintf("Channel %s is not found in team %s", channel.Name+"404", channel.TeamId),
+			[]string{"channel", "search", "--team", channel.TeamID, channel.Name + "404"},
+			fmt.Sprintf("Channel %s is not found in team %s", channel.Name+"404", channel.TeamID),
 		},
 		{
 			"Success find archived Channel in any team",
 			[]string{"channel", "search", channel2.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived)", channel2.Name, channel2.DisplayName, channel2.Id),
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived)", channel2.Name, channel2.DisplayName, channel2.ID),
 		},
 		{
 			"Success find archived Channel with param team ID",
-			[]string{"channel", "search", "--team", channel2.TeamId, channel2.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived)", channel2.Name, channel2.DisplayName, channel2.Id),
+			[]string{"channel", "search", "--team", channel2.TeamID, channel2.Name},
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived)", channel2.Name, channel2.DisplayName, channel2.ID),
 		},
 		{
 			"Success find private Channel in any team",
 			[]string{"channel", "search", channel3.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (private)", channel3.Name, channel3.DisplayName, channel3.Id),
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (private)", channel3.Name, channel3.DisplayName, channel3.ID),
 		},
 		{
 			"Success find private Channel with param team ID",
-			[]string{"channel", "search", "--team", channel3.TeamId, channel3.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (private)", channel3.Name, channel3.DisplayName, channel3.Id),
+			[]string{"channel", "search", "--team", channel3.TeamID, channel3.Name},
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (private)", channel3.Name, channel3.DisplayName, channel3.ID),
 		},
 		{
 			"Success find both archived and private Channel in any team",
 			[]string{"channel", "search", channel4.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived) (private)", channel4.Name, channel4.DisplayName, channel4.Id),
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived) (private)", channel4.Name, channel4.DisplayName, channel4.ID),
 		},
 		{
 			"Success find both archived and private Channel with param team ID",
-			[]string{"channel", "search", "--team", channel4.TeamId, channel4.Name},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived) (private)", channel4.Name, channel4.DisplayName, channel4.Id),
+			[]string{"channel", "search", "--team", channel4.TeamID, channel4.Name},
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s (archived) (private)", channel4.Name, channel4.DisplayName, channel4.ID),
 		},
 		{
 			"Failed find team",
-			[]string{"channel", "search", "--team", channel.TeamId + "404", channel.Name},
-			fmt.Sprintf("Team %s is not found", channel.TeamId+"404"),
+			[]string{"channel", "search", "--team", channel.TeamID + "404", channel.Name},
+			fmt.Sprintf("Team %s is not found", channel.TeamID+"404"),
 		},
 		{
 			"Success find Channel with param team ID",
-			[]string{"channel", "search", channel.Name, "--team", channel.TeamId},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.Id),
+			[]string{"channel", "search", channel.Name, "--team", channel.TeamID},
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.ID),
 		},
 		{
 			"Success find Channel with param team ID",
-			[]string{"channel", "search", channel.Name, "--team=" + channel.TeamId},
-			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.Id),
+			[]string{"channel", "search", channel.Name, "--team=" + channel.TeamID},
+			fmt.Sprintf("Channel Name: %s, Display Name: %s, Channel ID: %s", channel.Name, channel.DisplayName, channel.ID),
 		},
 	}
 
@@ -319,7 +319,7 @@ func TestModifyChannel(t *testing.T) {
 	channel2 := th.CreatePrivateChannel()
 
 	th.CheckCommand(t, "channel", "modify", "--public", th.BasicTeam.Name+":"+channel1.Name, "--username", th.BasicUser2.Email)
-	res, err := th.App.Srv().Store.Channel().Get(channel1.Id, false)
+	res, err := th.App.Srv().Store.Channel().Get(channel1.ID, false)
 	require.NoError(t, err)
 	assert.Equal(t, model.ChannelTypeOpen, res.Type)
 
@@ -330,7 +330,7 @@ func TestModifyChannel(t *testing.T) {
 	pchannel2 := th.CreatePublicChannel()
 
 	th.CheckCommand(t, "channel", "modify", "--private", th.BasicTeam.Name+":"+pchannel1.Name, "--username", th.BasicUser2.Email)
-	res, err = th.App.Srv().Store.Channel().Get(pchannel1.Id, false)
+	res, err = th.App.Srv().Store.Channel().Get(pchannel1.ID, false)
 	require.NoError(t, err)
 	assert.Equal(t, model.ChannelTypePrivate, res.Type)
 

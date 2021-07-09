@@ -164,7 +164,7 @@ func SetupWithStoreMock(tb testing.TB) *TestHelper {
 	th := setupTestHelper(mockStore, false, false, tb)
 	statusMock := mocks.StatusStore{}
 	statusMock.On("UpdateExpiredDNDStatuses").Return([]*model.Status{}, nil)
-	statusMock.On("Get", "user1").Return(&model.Status{UserId: "user1", Status: model.StatusOnline}, nil)
+	statusMock.On("Get", "user1").Return(&model.Status{UserID: "user1", Status: model.StatusOnline}, nil)
 	statusMock.On("UpdateLastActivityAt", "user1", mock.Anything).Return(nil)
 	statusMock.On("SaveOrUpdate", mock.AnythingOfType("*model.Status")).Return(nil)
 	emptyMockStore := mocks.Store{}
@@ -179,7 +179,7 @@ func SetupEnterpriseWithStoreMock(tb testing.TB) *TestHelper {
 	th := setupTestHelper(mockStore, true, false, tb)
 	statusMock := mocks.StatusStore{}
 	statusMock.On("UpdateExpiredDNDStatuses").Return([]*model.Status{}, nil)
-	statusMock.On("Get", "user1").Return(&model.Status{UserId: "user1", Status: model.StatusOnline}, nil)
+	statusMock.On("Get", "user1").Return(&model.Status{UserID: "user1", Status: model.StatusOnline}, nil)
 	statusMock.On("UpdateLastActivityAt", "user1", mock.Anything).Return(nil)
 	statusMock.On("SaveOrUpdate", mock.AnythingOfType("*model.Status")).Return(nil)
 	emptyMockStore := mocks.Store{}
@@ -200,16 +200,16 @@ func (th *TestHelper) InitBasic() *TestHelper {
 	// create users once and cache them because password hashing is slow
 	initBasicOnce.Do(func() {
 		th.SystemAdminUser = th.CreateUser()
-		th.App.UpdateUserRoles(th.SystemAdminUser.Id, model.SystemUserRoleId+" "+model.SystemAdminRoleId, false)
-		th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.Id)
+		th.App.UpdateUserRoles(th.SystemAdminUser.ID, model.SystemUserRoleID+" "+model.SystemAdminRoleID, false)
+		th.SystemAdminUser, _ = th.App.GetUser(th.SystemAdminUser.ID)
 		userCache.SystemAdminUser = th.SystemAdminUser.DeepCopy()
 
 		th.BasicUser = th.CreateUser()
-		th.BasicUser, _ = th.App.GetUser(th.BasicUser.Id)
+		th.BasicUser, _ = th.App.GetUser(th.BasicUser.ID)
 		userCache.BasicUser = th.BasicUser.DeepCopy()
 
 		th.BasicUser2 = th.CreateUser()
-		th.BasicUser2, _ = th.App.GetUser(th.BasicUser2.Id)
+		th.BasicUser2, _ = th.App.GetUser(th.BasicUser2.ID)
 		userCache.BasicUser2 = th.BasicUser2.DeepCopy()
 	})
 	// restore cached users
@@ -228,11 +228,11 @@ func (th *TestHelper) InitBasic() *TestHelper {
 }
 
 func (*TestHelper) MakeEmail() string {
-	return "success_" + model.NewId() + "@simulator.amazonses.com"
+	return "success_" + model.NewID() + "@simulator.amazonses.com"
 }
 
 func (th *TestHelper) CreateTeam() *model.Team {
-	id := model.NewId()
+	id := model.NewID()
 	team := &model.Team{
 		DisplayName: "dn_" + id,
 		Name:        "name" + id,
@@ -258,7 +258,7 @@ func (th *TestHelper) CreateGuest() *model.User {
 }
 
 func (th *TestHelper) CreateUserOrGuest(guest bool) *model.User {
-	id := model.NewId()
+	id := model.NewID()
 
 	user := &model.User{
 		Email:         "success+" + id + "@simulator.amazonses.com",
@@ -284,13 +284,13 @@ func (th *TestHelper) CreateUserOrGuest(guest bool) *model.User {
 }
 
 func (th *TestHelper) CreateBot() *model.Bot {
-	id := model.NewId()
+	id := model.NewID()
 
 	bot := &model.Bot{
 		Username:    "bot" + id,
 		DisplayName: "a bot",
 		Description: "bot",
-		OwnerId:     th.BasicUser.Id,
+		OwnerID:     th.BasicUser.ID,
 	}
 
 	bot, err := th.App.CreateBot(th.Context, bot)
@@ -317,14 +317,14 @@ func (th *TestHelper) CreatePrivateChannel(team *model.Team) *model.Channel {
 }
 
 func (th *TestHelper) createChannel(team *model.Team, channelType string, options ...ChannelOption) *model.Channel {
-	id := model.NewId()
+	id := model.NewID()
 
 	channel := &model.Channel{
 		DisplayName: "dn_" + id,
 		Name:        "name_" + id,
 		Type:        channelType,
-		TeamId:      team.Id,
-		CreatorId:   th.BasicUser.Id,
+		TeamID:      team.ID,
+		CreatorID:   th.BasicUser.ID,
 	}
 
 	for _, option := range options {
@@ -338,16 +338,16 @@ func (th *TestHelper) createChannel(team *model.Team, channelType string, option
 	}
 
 	if channel.IsShared() {
-		id := model.NewId()
+		id := model.NewID()
 		_, err := th.App.SaveSharedChannel(&model.SharedChannel{
-			ChannelId:        channel.Id,
-			TeamId:           channel.TeamId,
+			ChannelID:        channel.ID,
+			TeamID:           channel.TeamID,
 			Home:             false,
 			ReadOnly:         false,
 			ShareName:        "shared-" + id,
 			ShareDisplayName: "shared-" + id,
-			CreatorId:        th.BasicUser.Id,
-			RemoteId:         model.NewId(),
+			CreatorID:        th.BasicUser.ID,
+			RemoteID:         model.NewID(),
 		})
 		if err != nil {
 			panic(err)
@@ -361,7 +361,7 @@ func (th *TestHelper) CreateDmChannel(user *model.User) *model.Channel {
 	utils.DisableDebugLogForTest()
 	var err *model.AppError
 	var channel *model.Channel
-	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.Id, user.Id); err != nil {
+	if channel, err = th.App.GetOrCreateDirectChannel(th.Context, th.BasicUser.ID, user.ID); err != nil {
 		panic(err)
 	}
 	utils.EnableDebugLogForTest()
@@ -372,7 +372,7 @@ func (th *TestHelper) CreateGroupChannel(user1 *model.User, user2 *model.User) *
 	utils.DisableDebugLogForTest()
 	var err *model.AppError
 	var channel *model.Channel
-	if channel, err = th.App.CreateGroupChannel([]string{th.BasicUser.Id, user1.Id, user2.Id}, th.BasicUser.Id); err != nil {
+	if channel, err = th.App.CreateGroupChannel([]string{th.BasicUser.ID, user1.ID, user2.ID}, th.BasicUser.ID); err != nil {
 		panic(err)
 	}
 	utils.EnableDebugLogForTest()
@@ -380,11 +380,11 @@ func (th *TestHelper) CreateGroupChannel(user1 *model.User, user2 *model.User) *
 }
 
 func (th *TestHelper) CreatePost(channel *model.Channel) *model.Post {
-	id := model.NewId()
+	id := model.NewID()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: channel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: channel.ID,
 		Message:   "message_" + id,
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -400,8 +400,8 @@ func (th *TestHelper) CreatePost(channel *model.Channel) *model.Post {
 
 func (th *TestHelper) CreateMessagePost(channel *model.Channel, message string) *model.Post {
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: channel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: channel.ID,
 		Message:   message,
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -429,7 +429,7 @@ func (th *TestHelper) LinkUserToTeam(user *model.User, team *model.Team) {
 func (th *TestHelper) RemoveUserFromTeam(user *model.User, team *model.Team) {
 	utils.DisableDebugLogForTest()
 
-	err := th.App.RemoveUserFromTeam(th.Context, team.Id, user.Id, "")
+	err := th.App.RemoveUserFromTeam(th.Context, team.ID, user.ID, "")
 	if err != nil {
 		panic(err)
 	}
@@ -460,7 +460,7 @@ func (th *TestHelper) CreateScheme() (*model.Scheme, []*model.Role) {
 
 	scheme, err := th.App.CreateScheme(&model.Scheme{
 		DisplayName: "Test Scheme Display Name",
-		Name:        model.NewId(),
+		Name:        model.NewID(),
 		Description: "Test scheme description",
 		Scope:       model.SchemeScopeTeam,
 	})
@@ -492,13 +492,13 @@ func (th *TestHelper) CreateScheme() (*model.Scheme, []*model.Role) {
 }
 
 func (th *TestHelper) CreateGroup() *model.Group {
-	id := model.NewId()
+	id := model.NewID()
 	group := &model.Group{
 		DisplayName: "dn_" + id,
 		Name:        model.NewString("name" + id),
 		Source:      model.GroupSourceLdap,
 		Description: "description_" + id,
-		RemoteId:    model.NewId(),
+		RemoteID:    model.NewID(),
 	}
 
 	utils.DisableDebugLogForTest()
@@ -514,7 +514,7 @@ func (th *TestHelper) CreateEmoji() *model.Emoji {
 	utils.DisableDebugLogForTest()
 
 	emoji, err := th.App.Srv().Store.Emoji().Save(&model.Emoji{
-		CreatorId: th.BasicUser.Id,
+		CreatorID: th.BasicUser.ID,
 		Name:      model.NewRandomString(10),
 	})
 	if err != nil {
@@ -530,8 +530,8 @@ func (th *TestHelper) AddReactionToPost(post *model.Post, user *model.User, emoj
 	utils.DisableDebugLogForTest()
 
 	reaction, err := th.App.SaveReactionForPost(th.Context, &model.Reaction{
-		UserId:    user.Id,
-		PostId:    post.Id,
+		UserID:    user.ID,
+		PostID:    post.ID,
 		EmojiName: emojiName,
 	})
 	if err != nil {
@@ -637,8 +637,8 @@ func (th *TestHelper) CheckChannelsCount(t *testing.T, expected int64) {
 
 func (th *TestHelper) SetupTeamScheme() *model.Scheme {
 	scheme, err := th.App.CreateScheme(&model.Scheme{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
 		Scope:       model.SchemeScopeTeam,
 	})
 	if err != nil {
@@ -649,8 +649,8 @@ func (th *TestHelper) SetupTeamScheme() *model.Scheme {
 
 func (th *TestHelper) SetupChannelScheme() *model.Scheme {
 	scheme, err := th.App.CreateScheme(&model.Scheme{
-		Name:        model.NewId(),
-		DisplayName: model.NewId(),
+		Name:        model.NewID(),
+		DisplayName: model.NewID(),
 		Scope:       model.SchemeScopeChannel,
 	})
 	if err != nil {
@@ -661,7 +661,7 @@ func (th *TestHelper) SetupChannelScheme() *model.Scheme {
 
 func (th *TestHelper) SetupPluginAPI() *PluginAPI {
 	manifest := &model.Manifest{
-		Id: "pluginid",
+		ID: "pluginid",
 	}
 
 	return NewPluginAPI(th.App, th.Context, manifest)
@@ -729,14 +729,14 @@ func (th *TestHelper) AddPermissionToRole(permission string, roleName string) {
 // This function is copy of storetest/NewTestId
 // NewTestId is used for testing as a replacement for model.NewId(). It is a [A-Z0-9] string 26
 // characters long. It replaces every odd character with a digit.
-func NewTestId() string {
-	newId := []byte(model.NewId())
+func NewTestID() string {
+	newID := []byte(model.NewID())
 
-	for i := 1; i < len(newId); i = i + 2 {
-		newId[i] = 48 + newId[i-1]%10
+	for i := 1; i < len(newID); i = i + 2 {
+		newID[i] = 48 + newID[i-1]%10
 	}
 
-	return string(newId)
+	return string(newID)
 }
 
 func (th *TestHelper) NewPluginAPI(manifest *model.Manifest) plugin.API {

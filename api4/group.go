@@ -62,7 +62,7 @@ func (api *API) InitGroup() {
 
 	// GET /api/v4/users/:user_id/groups?page=0&per_page=100
 	api.BaseRoutes.Users.Handle("/{user_id:[A-Za-z0-9]+}/groups",
-		api.ApiSessionRequired(getGroupsByUserId)).Methods("GET")
+		api.ApiSessionRequired(getGroupsByUserID)).Methods("GET")
 
 	// GET /api/v4/channels/:channel_id/groups?page=0&per_page=100
 	api.BaseRoutes.Channels.Handle("/{channel_id:[A-Za-z0-9]+}/groups",
@@ -78,7 +78,7 @@ func (api *API) InitGroup() {
 }
 
 func getGroup(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
@@ -93,7 +93,7 @@ func getGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := c.App.GetGroup(c.Params.GroupId)
+	group, err := c.App.GetGroup(c.Params.GroupID)
 	if err != nil {
 		c.Err = err
 		return
@@ -109,12 +109,12 @@ func getGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func patchGroup(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
 
-	groupPatch := model.GroupPatchFromJson(r.Body)
+	groupPatch := model.GroupPatchFromJSON(r.Body)
 	if groupPatch == nil {
 		c.SetInvalidParam("group")
 		return
@@ -133,7 +133,7 @@ func patchGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := c.App.GetGroup(c.Params.GroupId)
+	group, err := c.App.GetGroup(c.Params.GroupID)
 	if err != nil {
 		c.Err = err
 		return
@@ -187,16 +187,16 @@ func patchGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func linkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
 
-	c.RequireSyncableId()
+	c.RequireSyncableID()
 	if c.Err != nil {
 		return
 	}
-	syncableID := c.Params.SyncableId
+	syncableID := c.Params.SyncableID
 
 	c.RequireSyncableType()
 	if c.Err != nil {
@@ -212,7 +212,7 @@ func linkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("linkGroupSyncable", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("group_id", c.Params.GroupId)
+	auditRec.AddMeta("group_id", c.Params.GroupID)
 	auditRec.AddMeta("syncable_id", syncableID)
 	auditRec.AddMeta("syncable_type", syncableType)
 
@@ -235,8 +235,8 @@ func linkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	groupSyncable := &model.GroupSyncable{
-		GroupId:    c.Params.GroupId,
-		SyncableId: syncableID,
+		GroupID:    c.Params.GroupID,
+		SyncableID: syncableID,
 		Type:       syncableType,
 	}
 	groupSyncable.Patch(patch)
@@ -262,16 +262,16 @@ func linkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
 
-	c.RequireSyncableId()
+	c.RequireSyncableID()
 	if c.Err != nil {
 		return
 	}
-	syncableID := c.Params.SyncableId
+	syncableID := c.Params.SyncableID
 
 	c.RequireSyncableType()
 	if c.Err != nil {
@@ -289,7 +289,7 @@ func getGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupSyncable, err := c.App.GetGroupSyncable(c.Params.GroupId, syncableID, syncableType)
+	groupSyncable, err := c.App.GetGroupSyncable(c.Params.GroupID, syncableID, syncableType)
 	if err != nil {
 		c.Err = err
 		return
@@ -305,7 +305,7 @@ func getGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroupSyncables(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
@@ -326,7 +326,7 @@ func getGroupSyncables(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupSyncables, err := c.App.GetGroupSyncables(c.Params.GroupId, syncableType)
+	groupSyncables, err := c.App.GetGroupSyncables(c.Params.GroupID, syncableType)
 	if err != nil {
 		c.Err = err
 		return
@@ -342,16 +342,16 @@ func getGroupSyncables(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func patchGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
 
-	c.RequireSyncableId()
+	c.RequireSyncableID()
 	if c.Err != nil {
 		return
 	}
-	syncableID := c.Params.SyncableId
+	syncableID := c.Params.SyncableID
 
 	c.RequireSyncableType()
 	if c.Err != nil {
@@ -367,7 +367,7 @@ func patchGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("patchGroupSyncable", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("group_id", c.Params.GroupId)
+	auditRec.AddMeta("group_id", c.Params.GroupID)
 	auditRec.AddMeta("old_syncable_id", syncableID)
 	auditRec.AddMeta("old_syncable_type", syncableType)
 
@@ -390,7 +390,7 @@ func patchGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupSyncable, appErr := c.App.GetGroupSyncable(c.Params.GroupId, syncableID, syncableType)
+	groupSyncable, appErr := c.App.GetGroupSyncable(c.Params.GroupID, syncableID, syncableType)
 	if appErr != nil {
 		c.Err = appErr
 		return
@@ -404,7 +404,7 @@ func patchGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditRec.AddMeta("new_syncable_id", groupSyncable.SyncableId)
+	auditRec.AddMeta("new_syncable_id", groupSyncable.SyncableID)
 	auditRec.AddMeta("new_syncable_type", groupSyncable.Type)
 
 	c.App.Srv().Go(func() {
@@ -421,16 +421,16 @@ func patchGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func unlinkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
 
-	c.RequireSyncableId()
+	c.RequireSyncableID()
 	if c.Err != nil {
 		return
 	}
-	syncableID := c.Params.SyncableId
+	syncableID := c.Params.SyncableID
 
 	c.RequireSyncableType()
 	if c.Err != nil {
@@ -440,7 +440,7 @@ func unlinkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("unlinkGroupSyncable", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("group_id", c.Params.GroupId)
+	auditRec.AddMeta("group_id", c.Params.GroupID)
 	auditRec.AddMeta("syncable_id", syncableID)
 	auditRec.AddMeta("syncable_type", syncableType)
 
@@ -455,7 +455,7 @@ func unlinkGroupSyncable(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = c.App.DeleteGroupSyncable(c.Params.GroupId, syncableID, syncableType)
+	_, err = c.App.DeleteGroupSyncable(c.Params.GroupID, syncableID, syncableType)
 	if err != nil {
 		c.Err = err
 		return
@@ -498,7 +498,7 @@ func verifyLinkUnlinkPermission(c *Context, syncableType model.GroupSyncableType
 }
 
 func getGroupMembers(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
@@ -513,7 +513,7 @@ func getGroupMembers(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	members, count, err := c.App.GetGroupMemberUsersPage(c.Params.GroupId, c.Params.Page, c.Params.PerPage)
+	members, count, err := c.App.GetGroupMemberUsersPage(c.Params.GroupID, c.Params.Page, c.Params.PerPage)
 	if err != nil {
 		c.Err = err
 		return
@@ -535,7 +535,7 @@ func getGroupMembers(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroupStats(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireGroupId()
+	c.RequireGroupID()
 	if c.Err != nil {
 		return
 	}
@@ -550,7 +550,7 @@ func getGroupStats(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID := c.Params.GroupId
+	groupID := c.Params.GroupID
 	count, err := c.App.GetGroupMemberCount(groupID)
 	if err != nil {
 		c.Err = err
@@ -569,13 +569,13 @@ func getGroupStats(c *Context, w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func getGroupsByUserId(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireUserId()
+func getGroupsByUserID(c *Context, w http.ResponseWriter, r *http.Request) {
+	c.RequireUserID()
 	if c.Err != nil {
 		return
 	}
 
-	if c.AppContext.Session().UserId != c.Params.UserId && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem) {
+	if c.AppContext.Session().UserID != c.Params.UserID && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem) {
 		c.SetPermissionError(model.PermissionManageSystem)
 		return
 	}
@@ -585,7 +585,7 @@ func getGroupsByUserId(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groups, err := c.App.GetGroupsByUserId(c.Params.UserId)
+	groups, err := c.App.GetGroupsByUserID(c.Params.UserID)
 	if err != nil {
 		c.Err = err
 		return
@@ -601,7 +601,7 @@ func getGroupsByUserId(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroupsByChannel(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireChannelId()
+	c.RequireChannelID()
 	if c.Err != nil {
 		return
 	}
@@ -611,7 +611,7 @@ func getGroupsByChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channel, err := c.App.GetChannel(c.Params.ChannelId)
+	channel, err := c.App.GetChannel(c.Params.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
@@ -622,7 +622,7 @@ func getGroupsByChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	} else {
 		permission = model.PermissionReadPublicChannelGroups
 	}
-	if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), c.Params.ChannelId, permission) {
+	if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), c.Params.ChannelID, permission) {
 		c.SetPermissionError(permission)
 		return
 	}
@@ -636,7 +636,7 @@ func getGroupsByChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 		opts.PageOpts = &model.PageOpts{Page: c.Params.Page, PerPage: c.Params.PerPage}
 	}
 
-	groups, totalCount, err := c.App.GetGroupsByChannel(c.Params.ChannelId, opts)
+	groups, totalCount, err := c.App.GetGroupsByChannel(c.Params.ChannelID, opts)
 	if err != nil {
 		c.Err = err
 		return
@@ -659,7 +659,7 @@ func getGroupsByChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroupsByTeam(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireTeamId()
+	c.RequireTeamID()
 	if c.Err != nil {
 		return
 	}
@@ -678,7 +678,7 @@ func getGroupsByTeam(c *Context, w http.ResponseWriter, r *http.Request) {
 		opts.PageOpts = &model.PageOpts{Page: c.Params.Page, PerPage: c.Params.PerPage}
 	}
 
-	groups, totalCount, err := c.App.GetGroupsByTeam(c.Params.TeamId, opts)
+	groups, totalCount, err := c.App.GetGroupsByTeam(c.Params.TeamID, opts)
 	if err != nil {
 		c.Err = err
 		return
@@ -701,7 +701,7 @@ func getGroupsByTeam(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroupsAssociatedToChannelsByTeam(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireTeamId()
+	c.RequireTeamID()
 	if c.Err != nil {
 		return
 	}
@@ -720,7 +720,7 @@ func getGroupsAssociatedToChannelsByTeam(c *Context, w http.ResponseWriter, r *h
 		opts.PageOpts = &model.PageOpts{Page: c.Params.Page, PerPage: c.Params.PerPage}
 	}
 
-	groupsAssociatedByChannelID, err := c.App.GetGroupsAssociatedToChannelsByTeam(c.Params.TeamId, opts)
+	groupsAssociatedByChannelID, err := c.App.GetGroupsAssociatedToChannelsByTeam(c.Params.TeamID, opts)
 	if err != nil {
 		c.Err = err
 		return
@@ -747,11 +747,11 @@ func getGroups(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 	var teamID, channelID string
 
-	if id := c.Params.NotAssociatedToTeam; model.IsValidId(id) {
+	if id := c.Params.NotAssociatedToTeam; model.IsValidID(id) {
 		teamID = id
 	}
 
-	if id := c.Params.NotAssociatedToChannel; model.IsValidId(id) {
+	if id := c.Params.NotAssociatedToChannel; model.IsValidID(id) {
 		channelID = id
 	}
 

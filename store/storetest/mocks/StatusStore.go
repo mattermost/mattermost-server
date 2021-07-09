@@ -38,12 +38,12 @@ func (_m *StatusStore) Get(userID string) (*model.Status, error) {
 }
 
 // GetByIds provides a mock function with given fields: userIds
-func (_m *StatusStore) GetByIds(userIds []string) ([]*model.Status, error) {
-	ret := _m.Called(userIds)
+func (_m *StatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
+	ret := _m.Called(userIDs)
 
 	var r0 []*model.Status
 	if rf, ok := ret.Get(0).(func([]string) []*model.Status); ok {
-		r0 = rf(userIds)
+		r0 = rf(userIDs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.Status)
@@ -52,7 +52,7 @@ func (_m *StatusStore) GetByIds(userIds []string) ([]*model.Status, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func([]string) error); ok {
-		r1 = rf(userIds)
+		r1 = rf(userIDs)
 	} else {
 		r1 = ret.Error(1)
 	}

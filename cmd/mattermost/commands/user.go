@@ -390,7 +390,7 @@ func userCreateCmdF(command *cobra.Command, args []string) error {
 		}
 	}
 
-	CommandPrettyPrintln("id: " + ruser.Id)
+	CommandPrettyPrintln("id: " + ruser.ID)
 	CommandPrettyPrintln("username: " + ruser.Username)
 	CommandPrettyPrintln("nickname: " + ruser.Nickname)
 	CommandPrettyPrintln("position: " + ruser.Position)
@@ -421,7 +421,7 @@ func usersToBots(args []string, a *app.App) {
 			continue
 		}
 
-		CommandPrettyPrintln(fmt.Sprintf("User %s is converted to bot successfully", bot.UserId))
+		CommandPrettyPrintln(fmt.Sprintf("User %s is converted to bot successfully", bot.UserID))
 
 		auditRec := a.MakeAuditRecord("userToBot", audit.Success)
 		auditRec.AddMeta("user", user)
@@ -498,7 +498,7 @@ func botToUser(command *cobra.Command, args []string, a *app.App) error {
 		return errors.New("Unable to find bot.")
 	}
 
-	_, appErr := a.GetBot(user.Id, false)
+	_, appErr := a.GetBot(user.ID, false)
 	if appErr != nil {
 		return fmt.Errorf("Unable to find bot. Error: %s", appErr.Error())
 	}
@@ -524,21 +524,21 @@ func botToUser(command *cobra.Command, args []string, a *app.App) error {
 	}
 
 	systemAdmin, _ := command.Flags().GetBool("system_admin")
-	if systemAdmin && !user.IsInRole(model.SystemAdminRoleId) {
+	if systemAdmin && !user.IsInRole(model.SystemAdminRoleID) {
 		if _, appErr = a.UpdateUserRoles(
-			user.Id,
-			fmt.Sprintf("%s %s", user.Roles, model.SystemAdminRoleId),
+			user.ID,
+			fmt.Sprintf("%s %s", user.Roles, model.SystemAdminRoleID),
 			false); appErr != nil {
 			return fmt.Errorf("Unable to make user system admin. Error: %s" + appErr.Error())
 		}
 	}
 
-	err = a.Srv().Store.Bot().PermanentDelete(user.Id)
+	err = a.Srv().Store.Bot().PermanentDelete(user.ID)
 	if err != nil {
 		return fmt.Errorf("Unable to delete bot. Error: %v", err)
 	}
 
-	CommandPrettyPrintln("id: " + user.Id)
+	CommandPrettyPrintln("id: " + user.ID)
 	CommandPrettyPrintln("username: " + user.Username)
 	CommandPrettyPrintln("email: " + user.Email)
 	CommandPrettyPrintln("nickname: " + user.Nickname)
@@ -627,7 +627,7 @@ func inviteUser(a *app.App, email string, team *model.Team, teamArg string) erro
 		return fmt.Errorf("Email invites are disabled.")
 	}
 
-	err := a.Srv().EmailService.SendInviteEmails(team, "Administrator", "Mattermost CLI "+model.NewId(), invites, *a.Config().ServiceSettings.SiteURL)
+	err := a.Srv().EmailService.SendInviteEmails(team, "Administrator", "Mattermost CLI "+model.NewID(), invites, *a.Config().ServiceSettings.SiteURL)
 	if err != nil {
 		return err
 	}
@@ -658,7 +658,7 @@ func resetUserPasswordCmdF(command *cobra.Command, args []string) error {
 	}
 	password := args[1]
 
-	if err := a.Srv().Store.User().UpdatePassword(user.Id, model.HashPassword(password)); err != nil {
+	if err := a.Srv().Store.User().UpdatePassword(user.ID, model.HashPassword(password)); err != nil {
 		return err
 	}
 
@@ -726,7 +726,7 @@ func resetUserMfaCmdF(command *cobra.Command, args []string) error {
 			return errors.New("Unable to find user '" + args[i] + "'")
 		}
 
-		if err := a.DeactivateMfa(user.Id); err != nil {
+		if err := a.DeactivateMfa(user.ID); err != nil {
 			return err
 		}
 
@@ -773,7 +773,7 @@ func deleteUserCmdF(command *cobra.Command, args []string) error {
 		}
 
 		if user.IsBot {
-			if err := a.PermanentDeleteBot(user.Id); err != nil {
+			if err := a.PermanentDeleteBot(user.ID); err != nil {
 				return err
 			}
 		} else {
@@ -959,7 +959,7 @@ func verifyUserCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find user '" + args[i] + "'")
 			continue
 		}
-		if _, err := a.Srv().Store.User().VerifyEmail(user.Id, user.Email); err != nil {
+		if _, err := a.Srv().Store.User().VerifyEmail(user.ID, user.Email); err != nil {
 			CommandPrintErrorln("Unable to verify '" + args[i] + "' email. Error: " + err.Error())
 		}
 	}
@@ -989,7 +989,7 @@ func searchUserCmdF(command *cobra.Command, args []string) error {
 			continue
 		}
 
-		CommandPrettyPrintln("id: " + user.Id)
+		CommandPrettyPrintln("id: " + user.ID)
 		CommandPrettyPrintln("username: " + user.Username)
 		CommandPrettyPrintln("nickname: " + user.Nickname)
 		CommandPrettyPrintln("position: " + user.Position)

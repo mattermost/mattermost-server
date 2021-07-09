@@ -101,7 +101,7 @@ func generateSupportPacket(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	// We do this incase we get concurrent requests, we will always have a unique directory.
 	// This is to avoid the situation where we try to write to the same directory while we are trying to delete it (further down)
-	outputDirectoryToUse := OutputDirectory + "_" + model.NewId()
+	outputDirectoryToUse := OutputDirectory + "_" + model.NewID()
 	err := c.App.CreateZipFileAndAddFiles(fileStorageBackend, fileDatas, outputZipFilename, outputDirectoryToUse)
 	if err != nil {
 		c.Err = model.NewAppError("Api4.generateSupportPacket", "api.unable_to_create_zip_file", nil, err.Error(), http.StatusForbidden)
@@ -186,11 +186,11 @@ func getSystemPing(c *Context, w http.ResponseWriter, r *http.Request) {
 	if s[model.STATUS] != model.StatusOk {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	w.Write([]byte(model.MapToJson(s)))
+	w.Write([]byte(model.MapToJSON(s)))
 }
 
 func testEmail(c *Context, w http.ResponseWriter, r *http.Request) {
-	cfg := model.ConfigFromJson(r.Body)
+	cfg := model.ConfigFromJSON(r.Body)
 	if cfg == nil {
 		cfg = c.App.Config()
 	}
@@ -205,7 +205,7 @@ func testEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := c.App.TestEmail(c.AppContext.Session().UserId, cfg)
+	err := c.App.TestEmail(c.AppContext.Session().UserID, cfg)
 	if err != nil {
 		c.Err = err
 		return
@@ -225,7 +225,7 @@ func testSiteURL(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	props := model.MapFromJson(r.Body)
+	props := model.MapFromJSON(r.Body)
 	siteURL := props["site_url"]
 	if siteURL == "" {
 		c.SetInvalidParam("site_url")
@@ -260,7 +260,7 @@ func getAudits(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("page", c.Params.Page)
 	auditRec.AddMeta("audits_per_page", c.Params.LogsPerPage)
 
-	w.Write([]byte(audits.ToJson()))
+	w.Write([]byte(audits.ToJSON()))
 }
 
 func databaseRecycle(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -332,14 +332,14 @@ func getLogs(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("page", c.Params.Page)
 	auditRec.AddMeta("logs_per_page", c.Params.LogsPerPage)
 
-	w.Write([]byte(model.ArrayToJson(lines)))
+	w.Write([]byte(model.ArrayToJSON(lines)))
 }
 
 func postLog(c *Context, w http.ResponseWriter, r *http.Request) {
 	forceToDebug := false
 
 	if !*c.App.Config().ServiceSettings.EnableDeveloper {
-		if c.AppContext.Session().UserId == "" {
+		if c.AppContext.Session().UserID == "" {
 			c.Err = model.NewAppError("postLog", "api.context.permissions.app_error", nil, "", http.StatusForbidden)
 			return
 		}
@@ -349,7 +349,7 @@ func postLog(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	m := model.MapFromJson(r.Body)
+	m := model.MapFromJSON(r.Body)
 	lvl := m["level"]
 	msg := m["message"]
 
@@ -370,12 +370,12 @@ func postLog(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	m["message"] = msg
-	w.Write([]byte(model.MapToJson(m)))
+	w.Write([]byte(model.MapToJSON(m)))
 }
 
 func getAnalytics(c *Context, w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
-	teamId := r.URL.Query().Get("team_id")
+	teamID := r.URL.Query().Get("team_id")
 
 	if name == "" {
 		name = "standard"
@@ -386,7 +386,7 @@ func getAnalytics(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := c.App.GetAnalytics(name, teamId)
+	rows, err := c.App.GetAnalytics(name, teamID)
 	if err != nil {
 		c.Err = err
 		return
@@ -397,7 +397,7 @@ func getAnalytics(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(rows.ToJson()))
+	w.Write([]byte(rows.ToJSON()))
 }
 
 func getSupportedTimezones(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -416,7 +416,7 @@ func getSupportedTimezones(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func testS3(c *Context, w http.ResponseWriter, r *http.Request) {
-	cfg := model.ConfigFromJson(r.Body)
+	cfg := model.ConfigFromJSON(r.Body)
 	if cfg == nil {
 		cfg = c.App.Config()
 	}
@@ -455,7 +455,7 @@ func getRedirectLocation(c *Context, w http.ResponseWriter, r *http.Request) {
 	m["location"] = ""
 
 	if !*c.App.Config().ServiceSettings.EnableLinkPreviews {
-		w.Write([]byte(model.MapToJson(m)))
+		w.Write([]byte(model.MapToJSON(m)))
 		return
 	}
 
@@ -468,7 +468,7 @@ func getRedirectLocation(c *Context, w http.ResponseWriter, r *http.Request) {
 	var location string
 	if err := redirectLocationDataCache.Get(url, &location); err == nil {
 		m["location"] = location
-		w.Write([]byte(model.MapToJson(m)))
+		w.Write([]byte(model.MapToJSON(m)))
 		return
 	}
 
@@ -482,7 +482,7 @@ func getRedirectLocation(c *Context, w http.ResponseWriter, r *http.Request) {
 		// Cache failures to prevent retries.
 		redirectLocationDataCache.SetWithExpiry(url, "", 1*time.Hour)
 		// Always return a success status and a JSON string to limit information returned to client.
-		w.Write([]byte(model.MapToJson(m)))
+		w.Write([]byte(model.MapToJSON(m)))
 		return
 	}
 	defer func() {
@@ -494,11 +494,11 @@ func getRedirectLocation(c *Context, w http.ResponseWriter, r *http.Request) {
 	redirectLocationDataCache.SetWithExpiry(url, location, 1*time.Hour)
 	m["location"] = location
 
-	w.Write([]byte(model.MapToJson(m)))
+	w.Write([]byte(model.MapToJSON(m)))
 }
 
 func pushNotificationAck(c *Context, w http.ResponseWriter, r *http.Request) {
-	ack, err := model.PushNotificationAckFromJson(r.Body)
+	ack, err := model.PushNotificationAckFromJSON(r.Body)
 	if err != nil {
 		c.Err = model.NewAppError("pushNotificationAck",
 			"api.push_notifications_ack.message.parse.app_error",
@@ -515,13 +515,13 @@ func pushNotificationAck(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = c.App.SendAckToPushProxy(ack)
-	if ack.IsIdLoaded {
+	if ack.IsIDLoaded {
 		if err != nil {
 			// Log the error only, then continue to fetch notification message
 			c.App.NotificationsLog().Error("Notification ack not sent to push proxy",
-				mlog.String("ackId", ack.Id),
+				mlog.String("ackId", ack.ID),
 				mlog.String("type", ack.NotificationType),
-				mlog.String("postId", ack.PostId),
+				mlog.String("postId", ack.PostID),
 				mlog.String("status", err.Error()),
 			)
 		}
@@ -533,13 +533,13 @@ func pushNotificationAck(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		msg, appError := notificationInterface.GetNotificationMessage(ack, c.AppContext.Session().UserId)
+		msg, appError := notificationInterface.GetNotificationMessage(ack, c.AppContext.Session().UserID)
 		if appError != nil {
 			c.Err = model.NewAppError("pushNotificationAck", "api.push_notification.id_loaded.fetch.app_error", nil, appError.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		w.Write([]byte(msg.ToJson()))
+		w.Write([]byte(msg.ToJSON()))
 
 		return
 	} else if err != nil {
@@ -600,7 +600,7 @@ func getServerBusyExpires(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.SetPermissionError(model.PermissionManageSystem)
 		return
 	}
-	w.Write([]byte(c.App.Srv().Busy.ToJson()))
+	w.Write([]byte(c.App.Srv().Busy.ToJSON()))
 }
 
 func upgradeToEnterprise(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -684,7 +684,7 @@ func upgradeToEnterpriseStatus(c *Context, w http.ResponseWriter, r *http.Reques
 		s = map[string]interface{}{"percentage": percentage, "error": nil}
 	}
 
-	w.Write([]byte(model.StringInterfaceToJson(s)))
+	w.Write([]byte(model.StringInterfaceToJSON(s)))
 }
 
 func restart(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -723,7 +723,7 @@ func getWarnMetricsStatus(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.MapWarnMetricStatusToJson(status)))
+	w.Write([]byte(model.MapWarnMetricStatusToJSON(status)))
 }
 
 func sendWarnMetricAckEmail(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -742,19 +742,19 @@ func sendWarnMetricAckEmail(c *Context, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, appErr := c.App.GetUser(c.AppContext.Session().UserId)
+	user, appErr := c.App.GetUser(c.AppContext.Session().UserID)
 	if appErr != nil {
 		c.Err = appErr
 		return
 	}
 
-	ack := model.SendWarnMetricAckFromJson(r.Body)
+	ack := model.SendWarnMetricAckFromJSON(r.Body)
 	if ack == nil {
 		c.SetInvalidParam("ack")
 		return
 	}
 
-	appErr = c.App.NotifyAndSetWarnMetricAck(c.Params.WarnMetricId, user, ack.ForceAck, false)
+	appErr = c.App.NotifyAndSetWarnMetricAck(c.Params.WarnMetricID, user, ack.ForceAck, false)
 	if appErr != nil {
 		c.Err = appErr
 	}
@@ -784,7 +784,7 @@ func requestTrialLicenseAndAckWarnMetric(c *Context, w http.ResponseWriter, r *h
 		return
 	}
 
-	if err := c.App.RequestLicenseAndAckWarnMetric(c.AppContext, c.Params.WarnMetricId, false); err != nil {
+	if err := c.App.RequestLicenseAndAckWarnMetric(c.AppContext, c.Params.WarnMetricID, false); err != nil {
 		c.Err = err
 		return
 	}
@@ -794,7 +794,7 @@ func requestTrialLicenseAndAckWarnMetric(c *Context, w http.ResponseWriter, r *h
 }
 
 func getProductNotices(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireTeamId()
+	c.RequireTeamID()
 	if c.Err != nil {
 		return
 	}
@@ -807,7 +807,7 @@ func getProductNotices(c *Context, w http.ResponseWriter, r *http.Request) {
 	clientVersion := r.URL.Query().Get("clientVersion")
 	locale := r.URL.Query().Get("locale")
 
-	notices, err := c.App.GetProductNotices(c.AppContext, c.AppContext.Session().UserId, c.Params.TeamId, client, clientVersion, locale)
+	notices, err := c.App.GetProductNotices(c.AppContext, c.AppContext.Session().UserID, c.Params.TeamID, client, clientVersion, locale)
 
 	if err != nil {
 		c.Err = err
@@ -822,8 +822,8 @@ func updateViewedProductNotices(c *Context, w http.ResponseWriter, r *http.Reque
 	defer c.LogAuditRec(auditRec)
 	c.LogAudit("attempt")
 
-	ids := model.ArrayFromJson(r.Body)
-	err := c.App.UpdateViewedProductNotices(c.AppContext.Session().UserId, ids)
+	ids := model.ArrayFromJSON(r.Body)
+	err := c.App.UpdateViewedProductNotices(c.AppContext.Session().UserID, ids)
 	if err != nil {
 		c.Err = err
 		return

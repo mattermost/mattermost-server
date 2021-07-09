@@ -40,7 +40,7 @@ func (ms *mockServer) SetUser(user *model.User) {
 func (ms *mockServer) Config() *model.Config                                  { return nil }
 func (ms *mockServer) GetMetrics() einterfaces.MetricsInterface               { return nil }
 func (ms *mockServer) IsLeader() bool                                         { return true }
-func (ms *mockServer) AddClusterLeaderChangedListener(listener func()) string { return model.NewId() }
+func (ms *mockServer) AddClusterLeaderChangedListener(listener func()) string { return model.NewID() }
 func (ms *mockServer) RemoveClusterLeaderChangedListener(id string)           {}
 func (ms *mockServer) GetLogger() mlog.LoggerIFace {
 	return ms.logger
@@ -49,14 +49,14 @@ func (ms *mockServer) GetStore() store.Store {
 	anyQueryFilter := mock.MatchedBy(func(filter model.RemoteClusterQueryFilter) bool {
 		return true
 	})
-	anyUserId := mock.AnythingOfType("string")
+	anyUserID := mock.AnythingOfType("string")
 
 	remoteClusterStoreMock := &mocks.RemoteClusterStore{}
 	remoteClusterStoreMock.On("GetByTopic", "share").Return(ms.remotes, nil)
 	remoteClusterStoreMock.On("GetAll", anyQueryFilter).Return(ms.remotes, nil)
 
 	userStoreMock := &mocks.UserStore{}
-	userStoreMock.On("Get", context.Background(), anyUserId).Return(ms.user, nil)
+	userStoreMock.On("Get", context.Background(), anyUserID).Return(ms.user, nil)
 
 	storeMock := &mocks.Store{}
 	storeMock.On("RemoteCluster").Return(remoteClusterStoreMock)

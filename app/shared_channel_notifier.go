@@ -60,7 +60,7 @@ func isEligibleForEvents(syncService SharedChannelServiceIFace, event *model.Web
 
 func eventHasChannel(event *model.WebSocketEvent) bool {
 	return event.GetBroadcast() != nil &&
-		event.GetBroadcast().ChannelId != ""
+		event.GetBroadcast().ChannelID != ""
 }
 
 func syncServiceEnabled(syncService SharedChannelServiceIFace) bool {
@@ -69,20 +69,20 @@ func syncServiceEnabled(syncService SharedChannelServiceIFace) bool {
 }
 
 func handleContentSync(s *Server, syncService SharedChannelServiceIFace, event *model.WebSocketEvent) error {
-	channel, err := findChannel(s, event.GetBroadcast().ChannelId)
+	channel, err := findChannel(s, event.GetBroadcast().ChannelID)
 	if err != nil {
 		return err
 	}
 
 	if channel != nil && channel.IsShared() {
-		syncService.NotifyChannelChanged(channel.Id)
+		syncService.NotifyChannelChanged(channel.ID)
 	}
 
 	return nil
 }
 
 func handleInvitation(s *Server, syncService SharedChannelServiceIFace, event *model.WebSocketEvent) error {
-	channel, err := findChannel(s, event.GetBroadcast().ChannelId)
+	channel, err := findChannel(s, event.GetBroadcast().ChannelID)
 	if err != nil {
 		return err
 	}
@@ -112,12 +112,12 @@ func handleInvitation(s *Server, syncService SharedChannelServiceIFace, event *m
 		return nil
 	}
 
-	rc, err := s.Store.RemoteCluster().Get(*participant.RemoteId)
+	rc, err := s.Store.RemoteCluster().Get(*participant.RemoteID)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("couldn't find remote cluster %s, for creating shared channel invitation for a DM", *participant.RemoteId))
+		return errors.Wrap(err, fmt.Sprintf("couldn't find remote cluster %s, for creating shared channel invitation for a DM", *participant.RemoteID))
 	}
 
-	return syncService.SendChannelInvite(channel, creator.Id, rc, sharedchannel.WithDirectParticipantID(creator.Id), sharedchannel.WithDirectParticipantID(participant.Id))
+	return syncService.SendChannelInvite(channel, creator.ID, rc, sharedchannel.WithDirectParticipantID(creator.ID), sharedchannel.WithDirectParticipantID(participant.ID))
 }
 
 func getUserFromEvent(s *Server, event *model.WebSocketEvent, key string) (*model.User, error) {
@@ -134,8 +134,8 @@ func getUserFromEvent(s *Server, event *model.WebSocketEvent, key string) (*mode
 	return user, nil
 }
 
-func findChannel(server *Server, channelId string) (*model.Channel, error) {
-	channel, err := server.Store.Channel().Get(channelId, true)
+func findChannel(server *Server, channelID string) (*model.Channel, error) {
+	channel, err := server.Store.Channel().Get(channelID, true)
 	if err != nil {
 		return nil, errors.Wrap(err, "received websocket message that is eligible for shared channel sync but channel does not exist")
 	}

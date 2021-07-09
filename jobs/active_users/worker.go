@@ -83,7 +83,7 @@ func (worker *Worker) DoJob(job *model.Job) {
 	if claimed, err := worker.jobServer.ClaimJob(job); err != nil {
 		mlog.Warn("Worker experienced an error while trying to claim job",
 			mlog.String("worker", worker.name),
-			mlog.String("job_id", job.Id),
+			mlog.String("job_id", job.ID),
 			mlog.String("error", err.Error()))
 		return
 	} else if !claimed {
@@ -93,7 +93,7 @@ func (worker *Worker) DoJob(job *model.Job) {
 	count, err := worker.app.Srv().Store.User().Count(model.UserCountOptions{IncludeDeleted: false})
 
 	if err != nil {
-		mlog.Error("Worker: Failed to get active user count", mlog.String("worker", worker.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to get active user count", mlog.String("worker", worker.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 		worker.setJobError(job, model.NewAppError("DoJob", "app.user.get_total_users_count.app_error", nil, err.Error(), http.StatusInternalServerError))
 		return
 	}
@@ -102,19 +102,19 @@ func (worker *Worker) DoJob(job *model.Job) {
 		worker.app.Metrics().ObserveEnabledUsers(count)
 	}
 
-	mlog.Info("Worker: Job is complete", mlog.String("worker", worker.name), mlog.String("job_id", job.Id))
+	mlog.Info("Worker: Job is complete", mlog.String("worker", worker.name), mlog.String("job_id", job.ID))
 	worker.setJobSuccess(job)
 }
 
 func (worker *Worker) setJobSuccess(job *model.Job) {
 	if err := worker.app.Srv().Jobs.SetJobSuccess(job); err != nil {
-		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", worker.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", worker.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 		worker.setJobError(job, err)
 	}
 }
 
 func (worker *Worker) setJobError(job *model.Job, appError *model.AppError) {
 	if err := worker.app.Srv().Jobs.SetJobError(job, appError); err != nil {
-		mlog.Error("Worker: Failed to set job error", mlog.String("worker", worker.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set job error", mlog.String("worker", worker.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 	}
 }

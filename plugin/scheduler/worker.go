@@ -66,7 +66,7 @@ func (worker *Worker) DoJob(job *model.Job) {
 	if claimed, err := worker.jobServer.ClaimJob(job); err != nil {
 		mlog.Info("Worker experienced an error while trying to claim job",
 			mlog.String("worker", worker.name),
-			mlog.String("job_id", job.Id),
+			mlog.String("job_id", job.ID),
 			mlog.String("error", err.Error()))
 		return
 	} else if !claimed {
@@ -74,24 +74,24 @@ func (worker *Worker) DoJob(job *model.Job) {
 	}
 
 	if err := worker.app.DeleteAllExpiredPluginKeys(); err != nil {
-		mlog.Error("Worker: Failed to delete expired keys", mlog.String("worker", worker.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to delete expired keys", mlog.String("worker", worker.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 		worker.setJobError(job, err)
 		return
 	}
 
-	mlog.Info("Worker: Job is complete", mlog.String("worker", worker.name), mlog.String("job_id", job.Id))
+	mlog.Info("Worker: Job is complete", mlog.String("worker", worker.name), mlog.String("job_id", job.ID))
 	worker.setJobSuccess(job)
 }
 
 func (worker *Worker) setJobSuccess(job *model.Job) {
 	if err := worker.app.Srv().Jobs.SetJobSuccess(job); err != nil {
-		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", worker.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set success for job", mlog.String("worker", worker.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 		worker.setJobError(job, err)
 	}
 }
 
 func (worker *Worker) setJobError(job *model.Job, appError *model.AppError) {
 	if err := worker.app.Srv().Jobs.SetJobError(job, appError); err != nil {
-		mlog.Error("Worker: Failed to set job error", mlog.String("worker", worker.name), mlog.String("job_id", job.Id), mlog.String("error", err.Error()))
+		mlog.Error("Worker: Failed to set job error", mlog.String("worker", worker.name), mlog.String("job_id", job.ID), mlog.String("error", err.Error()))
 	}
 }

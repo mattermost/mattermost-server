@@ -16,7 +16,7 @@ func (api *API) InitElasticsearch() {
 }
 
 func testElasticsearch(c *Context, w http.ResponseWriter, r *http.Request) {
-	cfg := model.ConfigFromJson(r.Body)
+	cfg := model.ConfigFromJSON(r.Body)
 	if cfg == nil {
 		cfg = c.App.Config()
 	}

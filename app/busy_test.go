@@ -100,11 +100,11 @@ func TestBusyRace(t *testing.T) {
 func compareBusyState(t *testing.T, busy1 *Busy, busy2 *Busy) bool {
 	t.Helper()
 	if busy1.IsBusy() != busy2.IsBusy() {
-		t.Logf("busy1:%s;  busy2:%s\n", busy1.ToJson(), busy2.ToJson())
+		t.Logf("busy1:%s;  busy2:%s\n", busy1.ToJSON(), busy2.ToJSON())
 		return false
 	}
 	if busy1.Expires().Unix() != busy2.Expires().Unix() {
-		t.Logf("busy1:%s;  busy2:%s\n", busy1.ToJson(), busy2.ToJson())
+		t.Logf("busy1:%s;  busy2:%s\n", busy1.ToJSON(), busy2.ToJSON())
 		return false
 	}
 	return true
@@ -116,7 +116,7 @@ type ClusterMock struct {
 }
 
 func (c *ClusterMock) SendClusterMessage(msg *model.ClusterMessage) {
-	sbs := model.ServerBusyStateFromJson(strings.NewReader(msg.Data))
+	sbs := model.ServerBusyStateFromJSON(strings.NewReader(msg.Data))
 	c.Busy.ClusterEventChanged(sbs)
 }
 
@@ -128,7 +128,7 @@ func (c *ClusterMock) StartInterNodeCommunication() {}
 func (c *ClusterMock) StopInterNodeCommunication()  {}
 func (c *ClusterMock) RegisterClusterMessageHandler(event string, crm einterfaces.ClusterMessageHandler) {
 }
-func (c *ClusterMock) GetClusterId() string                                       { return "cluster_mock" }
+func (c *ClusterMock) GetClusterID() string                                       { return "cluster_mock" }
 func (c *ClusterMock) IsLeader() bool                                             { return false }
 func (c *ClusterMock) GetMyClusterInfo() *model.ClusterInfo                       { return nil }
 func (c *ClusterMock) GetClusterInfos() []*model.ClusterInfo                      { return nil }

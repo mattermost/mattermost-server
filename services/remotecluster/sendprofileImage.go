@@ -19,7 +19,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
 )
 
-type SendProfileImageResultFunc func(userId string, rc *model.RemoteCluster, resp *Response, err error)
+type SendProfileImageResultFunc func(userID string, rc *model.RemoteCluster, resp *Response, err error)
 
 type sendProfileImageTask struct {
 	rc       *model.RemoteCluster
@@ -49,7 +49,7 @@ func (rcs *Service) SendProfileImage(ctx context.Context, userID string, rc *mod
 		provider: provider,
 		f:        f,
 	}
-	return rcs.enqueueTask(ctx, rc.RemoteId, task)
+	return rcs.enqueueTask(ctx, rc.RemoteID, task)
 }
 
 // sendProfileImage is called when a sendProfileImageTask is popped from the send channel.
@@ -87,17 +87,17 @@ func (rcs *Service) sendProfileImageToRemote(timeout time.Duration, task sendPro
 
 	user, err := rcs.server.GetStore().User().Get(context.Background(), task.userID)
 	if err != nil {
-		return fmt.Errorf("error fetching user while sending profile image to remote %s: %w", task.rc.RemoteId, err)
+		return fmt.Errorf("error fetching user while sending profile image to remote %s: %w", task.rc.RemoteID, err)
 	}
 
 	img, _, appErr := task.provider.GetProfileImage(user) // get Reader for the file
 	if appErr != nil {
-		return fmt.Errorf("error fetching profile image for user (%s) while sending to remote %s: %w", task.userID, task.rc.RemoteId, appErr)
+		return fmt.Errorf("error fetching profile image for user (%s) while sending to remote %s: %w", task.userID, task.rc.RemoteID, appErr)
 	}
 
 	u, err := url.Parse(task.rc.SiteURL)
 	if err != nil {
-		return fmt.Errorf("invalid siteURL while sending file to remote %s: %w", task.rc.RemoteId, err)
+		return fmt.Errorf("invalid siteURL while sending file to remote %s: %w", task.rc.RemoteID, err)
 	}
 	u.Path = path.Join(u.Path, model.ApiUrlSuffix, "remotecluster", task.userID, "image")
 
@@ -122,7 +122,7 @@ func (rcs *Service) sendProfileImageToRemote(timeout time.Duration, task sendPro
 		return err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set(model.HeaderRemoteclusterId, task.rc.RemoteId)
+	req.Header.Set(model.HeaderRemoteclusterID, task.rc.RemoteID)
 	req.Header.Set(model.HeaderRemoteclusterToken, task.rc.RemoteToken)
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

@@ -25,7 +25,7 @@ func TestGenerateSecret(t *testing.T) {
 
 	t.Run("fail on store action fail", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaSecret", userID, mock.AnythingOfType("string")).Return(func(userId string, secret string) error {
+		storeMock.On("UpdateMfaSecret", userID, mock.AnythingOfType("string")).Return(func(userID string, secret string) error {
 			return errors.New("failed to update mfa secret")
 		})
 
@@ -36,7 +36,7 @@ func TestGenerateSecret(t *testing.T) {
 
 	t.Run("Successful generate secret", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaSecret", userID, mock.AnythingOfType("string")).Return(func(userId string, secret string) error {
+		storeMock.On("UpdateMfaSecret", userID, mock.AnythingOfType("string")).Return(func(userID string, secret string) error {
 			return nil
 		})
 
@@ -88,7 +88,7 @@ func TestActivate(t *testing.T) {
 
 	t.Run("fail on store action fail", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaActive", userID, true).Return(func(userId string, active bool) error {
+		storeMock.On("UpdateMfaActive", userID, true).Return(func(userID string, active bool) error {
 			return errors.New("failed to update mfa active")
 		})
 
@@ -99,7 +99,7 @@ func TestActivate(t *testing.T) {
 
 	t.Run("Successful activate", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaActive", userID, true).Return(func(userId string, active bool) error {
+		storeMock.On("UpdateMfaActive", userID, true).Return(func(userID string, active bool) error {
 			return nil
 		})
 
@@ -113,10 +113,10 @@ func TestDeactivate(t *testing.T) {
 
 	t.Run("fail on store UpdateMfaActive action fail", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaActive", userID, false).Return(func(userId string, active bool) error {
+		storeMock.On("UpdateMfaActive", userID, false).Return(func(userID string, active bool) error {
 			return errors.New("failed to update mfa active")
 		})
-		storeMock.On("UpdateMfaSecret", userID, "").Return(func(userId string, secret string) error {
+		storeMock.On("UpdateMfaSecret", userID, "").Return(func(userID string, secret string) error {
 			return errors.New("failed to update mfa secret")
 		})
 
@@ -127,10 +127,10 @@ func TestDeactivate(t *testing.T) {
 
 	t.Run("fail on store UpdateMfaSecret action fail", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaActive", userID, false).Return(func(userId string, active bool) error {
+		storeMock.On("UpdateMfaActive", userID, false).Return(func(userID string, active bool) error {
 			return nil
 		})
-		storeMock.On("UpdateMfaSecret", userID, "").Return(func(userId string, secret string) error {
+		storeMock.On("UpdateMfaSecret", userID, "").Return(func(userID string, secret string) error {
 			return errors.New("failed to update mfa secret")
 		})
 
@@ -141,10 +141,10 @@ func TestDeactivate(t *testing.T) {
 
 	t.Run("Successful deactivate", func(t *testing.T) {
 		storeMock := mocks.UserStore{}
-		storeMock.On("UpdateMfaActive", userID, false).Return(func(userId string, active bool) error {
+		storeMock.On("UpdateMfaActive", userID, false).Return(func(userID string, active bool) error {
 			return nil
 		})
-		storeMock.On("UpdateMfaSecret", userID, "").Return(func(userId string, secret string) error {
+		storeMock.On("UpdateMfaSecret", userID, "").Return(func(userID string, secret string) error {
 			return nil
 		})
 

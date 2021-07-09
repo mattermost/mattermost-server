@@ -16,15 +16,15 @@ func TestCreateUserWithTeam(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	email := "success+" + id + "@simulator.amazonses.com"
 	username := "name" + id
 
 	th.CheckCommand(t, "user", "create", "--email", email, "--password", "mypassword1", "--username", username)
 
-	th.CheckCommand(t, "team", "add", th.BasicTeam.Id, email)
+	th.CheckCommand(t, "team", "add", th.BasicTeam.ID, email)
 
-	profiles := th.SystemAdminClient.Must(th.SystemAdminClient.GetUsersInTeam(th.BasicTeam.Id, 0, 1000, "")).([]*model.User)
+	profiles := th.SystemAdminClient.Must(th.SystemAdminClient.GetUsersInTeam(th.BasicTeam.ID, 0, 1000, "")).([]*model.User)
 
 	found := false
 
@@ -42,7 +42,7 @@ func TestCreateUserWithoutTeam(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	id := model.NewId()
+	id := model.NewID()
 	email := "success+" + id + "@simulator.amazonses.com"
 	username := "name" + id
 
@@ -80,7 +80,7 @@ func TestChangeUserEmail(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	newEmail := model.NewId() + "@mattermost-test.com"
+	newEmail := model.NewID() + "@mattermost-test.com"
 
 	th.CheckCommand(t, "user", "email", th.BasicUser.Username, newEmail)
 	_, err := th.App.Srv().Store.User().GetByEmail(th.BasicUser.Email)
@@ -116,25 +116,25 @@ func TestDeleteUserBotUser(t *testing.T) {
 	defer th.TearDown()
 
 	th.CheckCommand(t, "user", "delete", th.BasicUser.Username, "--confirm")
-	_, err := th.App.Srv().Store.User().Get(context.Background(), th.BasicUser.Id)
+	_, err := th.App.Srv().Store.User().Get(context.Background(), th.BasicUser.ID)
 	require.Error(t, err)
 
 	// Make a bot
 	bot := &model.Bot{
 		Username:    "bottodelete",
 		Description: "Delete me!",
-		OwnerId:     model.NewId(),
+		OwnerID:     model.NewID(),
 	}
 	user, err := th.App.Srv().Store.User().Save(model.UserFromBot(bot))
 	require.NoError(t, err)
-	bot.UserId = user.Id
+	bot.UserID = user.ID
 	bot, nErr := th.App.Srv().Store.Bot().Save(bot)
 	require.NoError(t, nErr)
 
 	th.CheckCommand(t, "user", "delete", bot.Username, "--confirm")
-	_, err = th.App.Srv().Store.User().Get(context.Background(), user.Id)
+	_, err = th.App.Srv().Store.User().Get(context.Background(), user.ID)
 	require.Error(t, err)
-	_, nErr = th.App.Srv().Store.Bot().Get(user.Id, true)
+	_, nErr = th.App.Srv().Store.Bot().Get(user.ID, true)
 	require.Error(t, nErr)
 }
 
@@ -155,7 +155,7 @@ func TestConvertUser(t *testing.T) {
 
 	t.Run("Convert to bot from username", func(t *testing.T) {
 		th.CheckCommand(t, "user", "convert", th.BasicUser.Username, "anotherinvaliduser", "--bot")
-		_, err := th.App.Srv().Store.Bot().Get(th.BasicUser.Id, false)
+		_, err := th.App.Srv().Store.Bot().Get(th.BasicUser.ID, false)
 		require.NoError(t, err)
 	})
 
@@ -175,13 +175,13 @@ func TestConvertUser(t *testing.T) {
 		err := th.RunCommand(t, "user", "convert", th.BasicUser.Username, "--user",
 			"--password", "password")
 		require.NoError(t, err)
-		_, err = th.App.Srv().Store.Bot().Get(th.BasicUser.Id, false)
+		_, err = th.App.Srv().Store.Bot().Get(th.BasicUser.ID, false)
 		require.Error(t, err)
 	})
 
 	t.Run("Convert to bot from email", func(t *testing.T) {
 		th.CheckCommand(t, "user", "convert", th.BasicUser2.Email, "--bot")
-		_, err := th.App.Srv().Store.Bot().Get(th.BasicUser2.Id, false)
+		_, err := th.App.Srv().Store.Bot().Get(th.BasicUser2.ID, false)
 		require.NoError(t, err)
 	})
 
@@ -197,10 +197,10 @@ func TestConvertUser(t *testing.T) {
 			"--system_admin")
 		require.NoError(t, err)
 
-		_, err = th.App.Srv().Store.Bot().Get(th.BasicUser2.Id, false)
+		_, err = th.App.Srv().Store.Bot().Get(th.BasicUser2.ID, false)
 		require.Error(t, err)
 
-		user, appErr := th.App.Srv().Store.User().Get(context.Background(), th.BasicUser2.Id)
+		user, appErr := th.App.Srv().Store.User().Get(context.Background(), th.BasicUser2.ID)
 		require.NoError(t, appErr)
 		require.Equal(t, "newusername", user.Username)
 		require.Equal(t, "valid@email.com", user.Email)

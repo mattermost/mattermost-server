@@ -92,7 +92,7 @@ func (rl *RateLimiter) RateLimitWriter(key string, w http.ResponseWriter) bool {
 	return limited
 }
 
-func (rl *RateLimiter) UserIdRateLimit(userID string, w http.ResponseWriter) bool {
+func (rl *RateLimiter) UserIDRateLimit(userID string, w http.ResponseWriter) bool {
 	if rl.useAuth {
 		return rl.RateLimitWriter(userID, w)
 	}

@@ -22,33 +22,33 @@ func (s *LocalCacheSchemeStore) handleClusterInvalidateScheme(msg *model.Cluster
 }
 
 func (s LocalCacheSchemeStore) Save(scheme *model.Scheme) (*model.Scheme, error) {
-	if scheme.Id != "" {
-		defer s.rootStore.doInvalidateCacheCluster(s.rootStore.schemeCache, scheme.Id)
+	if scheme.ID != "" {
+		defer s.rootStore.doInvalidateCacheCluster(s.rootStore.schemeCache, scheme.ID)
 	}
 	return s.SchemeStore.Save(scheme)
 }
 
-func (s LocalCacheSchemeStore) Get(schemeId string) (*model.Scheme, error) {
+func (s LocalCacheSchemeStore) Get(schemeID string) (*model.Scheme, error) {
 	var scheme *model.Scheme
-	if err := s.rootStore.doStandardReadCache(s.rootStore.schemeCache, schemeId, &scheme); err == nil {
+	if err := s.rootStore.doStandardReadCache(s.rootStore.schemeCache, schemeID, &scheme); err == nil {
 		return scheme, nil
 	}
 
-	scheme, err := s.SchemeStore.Get(schemeId)
+	scheme, err := s.SchemeStore.Get(schemeID)
 	if err != nil {
 		return nil, err
 	}
 
-	s.rootStore.doStandardAddToCache(s.rootStore.schemeCache, schemeId, scheme)
+	s.rootStore.doStandardAddToCache(s.rootStore.schemeCache, schemeID, scheme)
 
 	return scheme, nil
 }
 
-func (s LocalCacheSchemeStore) Delete(schemeId string) (*model.Scheme, error) {
-	defer s.rootStore.doInvalidateCacheCluster(s.rootStore.schemeCache, schemeId)
+func (s LocalCacheSchemeStore) Delete(schemeID string) (*model.Scheme, error) {
+	defer s.rootStore.doInvalidateCacheCluster(s.rootStore.schemeCache, schemeID)
 	defer s.rootStore.doClearCacheCluster(s.rootStore.roleCache)
 	defer s.rootStore.doClearCacheCluster(s.rootStore.rolePermissionsCache)
-	return s.SchemeStore.Delete(schemeId)
+	return s.SchemeStore.Delete(schemeID)
 }
 
 func (s LocalCacheSchemeStore) PermanentDeleteAll() error {

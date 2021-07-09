@@ -33,7 +33,7 @@ type testPayload struct {
 }
 
 func TestBroadcastMsg(t *testing.T) {
-	msgId := model.NewId()
+	msgID := model.NewID()
 	disablePing = true
 
 	t.Run("No error", func(t *testing.T) {
@@ -63,8 +63,8 @@ func TestBroadcastMsg(t *testing.T) {
 			if len(frame.Msg.Payload) == 0 {
 				merr.Append(fmt.Errorf("webrequest missing Msg.Payload"))
 			}
-			if msgId != frame.Msg.Id {
-				merr.Append(fmt.Errorf("webrequest msgId expected %s, got %s", msgId, frame.Msg.Id))
+			if msgID != frame.Msg.ID {
+				merr.Append(fmt.Errorf("webrequest msgId expected %s, got %s", msgID, frame.Msg.ID))
 				return
 			}
 
@@ -94,7 +94,7 @@ func TestBroadcastMsg(t *testing.T) {
 		wg := &sync.WaitGroup{}
 		wg.Add(NumRemotes)
 
-		msg := makeRemoteClusterMsg(msgId, NoteContent)
+		msg := makeRemoteClusterMsg(msgID, NoteContent)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 		defer cancel()
@@ -106,8 +106,8 @@ func TestBroadcastMsg(t *testing.T) {
 			if err != nil {
 				merr.Append(err)
 			}
-			if msgId != msg.Id {
-				merr.Append(fmt.Errorf("result callback msgId expected %s, got %s", msgId, msg.Id))
+			if msgID != msg.ID {
+				merr.Append(fmt.Errorf("result callback msgId expected %s, got %s", msgID, msg.ID))
 			}
 
 			var note testPayload
@@ -148,7 +148,7 @@ func TestBroadcastMsg(t *testing.T) {
 		require.NoError(t, err)
 		defer service.Shutdown()
 
-		msg := makeRemoteClusterMsg(msgId, NoteContent)
+		msg := makeRemoteClusterMsg(msgID, NoteContent)
 		var countCallbacks int32
 		var countErrors int32
 		wg := &sync.WaitGroup{}
@@ -181,14 +181,14 @@ func makeRemoteClusters(num int, siteURL string) []*model.RemoteCluster {
 
 func makeRemoteCluster(name string, siteURL string, topics string) *model.RemoteCluster {
 	return &model.RemoteCluster{
-		RemoteId:   model.NewId(),
+		RemoteID:   model.NewID(),
 		Name:       name,
 		SiteURL:    siteURL,
-		Token:      model.NewId(),
+		Token:      model.NewID(),
 		Topics:     topics,
 		CreateAt:   model.GetMillis(),
 		LastPingAt: model.GetMillis(),
-		CreatorId:  model.NewId(),
+		CreatorID:  model.NewID(),
 	}
 }
 
@@ -197,7 +197,7 @@ func makeRemoteClusterMsg(id string, note string) model.RemoteClusterMsg {
 	raw, _ := json.Marshal(payload)
 
 	return model.RemoteClusterMsg{
-		Id:       id,
+		ID:       id,
 		Topic:    TestTopic,
 		CreateAt: model.GetMillis(),
 		Payload:  raw}

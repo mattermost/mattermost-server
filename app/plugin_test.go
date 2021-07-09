@@ -68,7 +68,7 @@ func TestPluginKeyValueStore(t *testing.T) {
 	// Verify behaviour for the old approach that involved storing the hashed keys.
 	hashedKey2 := getHashedKey("key2")
 	kv := &model.PluginKeyValue{
-		PluginId: pluginID,
+		PluginID: pluginID,
 		Key:      hashedKey2,
 		Value:    []byte("test"),
 		ExpireAt: 0,
@@ -402,7 +402,7 @@ func TestHandlePluginRequest(t *testing.T) {
 	})
 
 	token, err := th.App.CreateUserAccessToken(&model.UserAccessToken{
-		UserId: th.BasicUser.Id,
+		UserID: th.BasicUser.ID,
 	})
 	require.Nil(t, err)
 
@@ -418,7 +418,7 @@ func TestHandlePluginRequest(t *testing.T) {
 	r.Header.Add("Authorization", "Bearer "+token.Token)
 	assertions = func(r *http.Request) {
 		assert.Equal(t, "/bar", r.URL.Path)
-		assert.Equal(t, th.BasicUser.Id, r.Header.Get("Mattermost-User-Id"))
+		assert.Equal(t, th.BasicUser.ID, r.Header.Get("Mattermost-User-Id"))
 	}
 	router.ServeHTTP(nil, r)
 
@@ -426,7 +426,7 @@ func TestHandlePluginRequest(t *testing.T) {
 	assertions = func(r *http.Request) {
 		assert.Equal(t, "/bar", r.URL.Path)
 		assert.Equal(t, "a=b&c=d", r.URL.RawQuery)
-		assert.Equal(t, th.BasicUser.Id, r.Header.Get("Mattermost-User-Id"))
+		assert.Equal(t, th.BasicUser.ID, r.Header.Get("Mattermost-User-Id"))
 	}
 	router.ServeHTTP(nil, r)
 
@@ -494,7 +494,7 @@ func TestPluginSync(t *testing.T) {
 
 				s3Endpoint := fmt.Sprintf("%s:%s", s3Host, s3Port)
 				cfg.FileSettings.DriverName = model.NewString(model.ImageDriverS3)
-				cfg.FileSettings.AmazonS3AccessKeyId = model.NewString(model.MinioAccessKey)
+				cfg.FileSettings.AmazonS3AccessKeyID = model.NewString(model.MinioAccessKey)
 				cfg.FileSettings.AmazonS3SecretAccessKey = model.NewString(model.MinioSecretKey)
 				cfg.FileSettings.AmazonS3Bucket = model.NewString(model.MinioBucket)
 				cfg.FileSettings.AmazonS3PathPrefix = model.NewString("")
@@ -537,7 +537,7 @@ func TestPluginSync(t *testing.T) {
 				pluginStatus, err := env.Statuses()
 				require.NoError(t, err)
 				require.Len(t, pluginStatus, 1)
-				require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+				require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 			})
 
 			t.Run("bundle removed from the file store", func(t *testing.T) {
@@ -616,7 +616,7 @@ func TestPluginSync(t *testing.T) {
 				pluginStatus, err := env.Statuses()
 				require.NoError(t, err)
 				require.Len(t, pluginStatus, 1)
-				require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+				require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 
 				appErr = th.App.DeletePublicKey("pub_key")
 				checkNoError(t, appErr)
@@ -659,7 +659,7 @@ func TestSyncPluginsActiveState(t *testing.T) {
 	pluginStatus, err := env.Statuses()
 	require.NoError(t, err)
 	require.Len(t, pluginStatus, 1)
-	require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+	require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 	require.Equal(t, pluginStatus[0].State, model.PluginStateNotRunning)
 
 	// Enable plugin by setting setting config. This implicitly calls SyncPluginsActiveState through a config listener.
@@ -671,7 +671,7 @@ func TestSyncPluginsActiveState(t *testing.T) {
 	pluginStatus, err = env.Statuses()
 	require.NoError(t, err)
 	require.Len(t, pluginStatus, 1)
-	require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+	require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 	require.Equal(t, pluginStatus[0].State, model.PluginStateRunning)
 
 	// Disable plugin by setting config. This implicitly calls SyncPluginsActiveState through a config listener.
@@ -683,7 +683,7 @@ func TestSyncPluginsActiveState(t *testing.T) {
 	pluginStatus, err = env.Statuses()
 	require.NoError(t, err)
 	require.Len(t, pluginStatus, 1)
-	require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+	require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 	require.Equal(t, pluginStatus[0].State, model.PluginStateNotRunning)
 }
 
@@ -717,8 +717,8 @@ func TestPluginPanicLogs(t *testing.T) {
 		}, th.App, th.NewPluginAPI)
 
 		post := &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "message_",
 			CreateAt:  model.GetMillis() - 10000,
 		}
@@ -757,11 +757,11 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		manifest, appErr := th.App.installPluginLocally(bytes.NewReader(pluginBytes), nil, installPluginLocallyAlways)
 		require.Nil(t, appErr)
-		require.Equal(t, "testplugin", manifest.Id)
+		require.Equal(t, "testplugin", manifest.ID)
 
 		env := th.App.GetPluginsEnvironment()
 
-		activatedManifest, activated, err := env.Activate(manifest.Id)
+		activatedManifest, activated, err := env.Activate(manifest.ID)
 		require.NoError(t, err)
 		require.True(t, activated)
 		require.Equal(t, manifest, activatedManifest)
@@ -774,13 +774,13 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		plugins := th.App.Srv().processPrepackagedPlugins(prepackagedPluginsDir)
 		require.Len(t, plugins, 1)
-		require.Equal(t, plugins[0].Manifest.Id, "testplugin")
+		require.Equal(t, plugins[0].Manifest.ID, "testplugin")
 		require.Empty(t, plugins[0].Signature, 0)
 
 		pluginStatus, err := env.Statuses()
 		require.NoError(t, err)
 		require.Len(t, pluginStatus, 1)
-		require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+		require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 
 		appErr = th.App.RemovePlugin("testplugin")
 		checkNoError(t, appErr)
@@ -801,7 +801,7 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		plugins := th.App.Srv().processPrepackagedPlugins(prepackagedPluginsDir)
 		require.Len(t, plugins, 1)
-		require.Equal(t, plugins[0].Manifest.Id, "testplugin")
+		require.Equal(t, plugins[0].Manifest.ID, "testplugin")
 		require.Empty(t, plugins[0].Signature, 0)
 
 		pluginStatus, err := env.Statuses()
@@ -834,9 +834,9 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		plugins := th.App.Srv().processPrepackagedPlugins(prepackagedPluginsDir)
 		require.Len(t, plugins, 2)
-		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[0].Manifest.Id)
+		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[0].Manifest.ID)
 		require.NotEmpty(t, plugins[0].Signature)
-		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[1].Manifest.Id)
+		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[1].Manifest.ID)
 		require.NotEmpty(t, plugins[1].Signature)
 
 		pluginStatus, err := env.Statuses()
@@ -865,9 +865,9 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		manifest, appErr := th.App.installPluginLocally(bytes.NewReader(pluginBytes), nil, installPluginLocallyAlways)
 		require.Nil(t, appErr)
-		require.Equal(t, "testplugin", manifest.Id)
+		require.Equal(t, "testplugin", manifest.ID)
 
-		activatedManifest, activated, err := env.Activate(manifest.Id)
+		activatedManifest, activated, err := env.Activate(manifest.ID)
 		require.NoError(t, err)
 		require.True(t, activated)
 		require.Equal(t, manifest, activatedManifest)
@@ -883,15 +883,15 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		plugins := th.App.Srv().processPrepackagedPlugins(prepackagedPluginsDir)
 		require.Len(t, plugins, 2)
-		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[0].Manifest.Id)
+		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[0].Manifest.ID)
 		require.NotEmpty(t, plugins[0].Signature)
-		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[1].Manifest.Id)
+		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[1].Manifest.ID)
 		require.NotEmpty(t, plugins[1].Signature)
 
 		pluginStatus, err := env.Statuses()
 		require.NoError(t, err)
 		require.Len(t, pluginStatus, 1)
-		require.Equal(t, pluginStatus[0].PluginId, "testplugin")
+		require.Equal(t, pluginStatus[0].PluginID, "testplugin")
 
 		appErr = th.App.RemovePlugin("testplugin")
 		checkNoError(t, appErr)
@@ -920,9 +920,9 @@ func TestProcessPrepackagedPlugins(t *testing.T) {
 
 		plugins := th.App.Srv().processPrepackagedPlugins(prepackagedPluginsDir)
 		require.Len(t, plugins, 2)
-		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[0].Manifest.Id)
+		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[0].Manifest.ID)
 		require.NotEmpty(t, plugins[0].Signature)
-		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[1].Manifest.Id)
+		require.Contains(t, []string{"testplugin", "testplugin2"}, plugins[1].Manifest.ID)
 		require.NotEmpty(t, plugins[1].Signature)
 
 		pluginStatus, err := env.Statuses()

@@ -41,7 +41,7 @@ func TestService_sendProfileImageToRemote(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			resp := make(map[string]string)
 			resp[model.STATUS] = model.StatusFail
-			w.Write([]byte(model.MapToJson(resp)))
+			w.Write([]byte(model.MapToJSON(resp)))
 			return
 		}
 
@@ -52,7 +52,7 @@ func TestService_sendProfileImageToRemote(t *testing.T) {
 			}
 			resp := make(map[string]string)
 			resp[model.STATUS] = *s
-			w.Write([]byte(model.MapToJson(resp)))
+			w.Write([]byte(model.MapToJSON(resp)))
 		}(&status)
 
 		if err := r.ParseMultipartForm(1024 * 1024); err != nil {
@@ -95,8 +95,8 @@ func TestService_sendProfileImageToRemote(t *testing.T) {
 	rc := makeRemoteCluster("remote_test_profile_image", ts.URL, TestTopics)
 
 	user := &model.User{
-		Id:       model.NewId(),
-		RemoteId: model.NewString(rc.RemoteId),
+		ID:       model.NewID(),
+		RemoteID: model.NewString(rc.RemoteID),
 	}
 
 	provider := testImageProvider{}
@@ -113,15 +113,15 @@ func TestService_sendProfileImageToRemote(t *testing.T) {
 	t.Run("Server response 200", func(t *testing.T) {
 		shouldError.set(false)
 
-		resultFunc := func(userId string, rc *model.RemoteCluster, resp *Response, err error) {
-			assert.Equal(t, user.Id, userId, "user ids should match")
+		resultFunc := func(userID string, rc *model.RemoteCluster, resp *Response, err error) {
+			assert.Equal(t, user.ID, userID, "user ids should match")
 			assert.NoError(t, err)
 			assert.True(t, resp.IsSuccess())
 		}
 
 		task := sendProfileImageTask{
 			rc:       rc,
-			userID:   user.Id,
+			userID:   user.ID,
 			provider: provider,
 			f:        resultFunc,
 		}
@@ -133,14 +133,14 @@ func TestService_sendProfileImageToRemote(t *testing.T) {
 	t.Run("Server response 500", func(t *testing.T) {
 		shouldError.set(true)
 
-		resultFunc := func(userId string, rc *model.RemoteCluster, resp *Response, err error) {
-			assert.Equal(t, user.Id, userId, "user ids should match")
+		resultFunc := func(userID string, rc *model.RemoteCluster, resp *Response, err error) {
+			assert.Equal(t, user.ID, userID, "user ids should match")
 			assert.False(t, resp.IsSuccess())
 		}
 
 		task := sendProfileImageTask{
 			rc:       rc,
-			userID:   user.Id,
+			userID:   user.ID,
 			provider: provider,
 			f:        resultFunc,
 		}

@@ -14,7 +14,7 @@ import (
 func (a *App) CreateTermsOfService(text, userID string) (*model.TermsOfService, *model.AppError) {
 	termsOfService := &model.TermsOfService{
 		Text:   text,
-		UserId: userID,
+		UserID: userID,
 	}
 
 	if _, appErr := a.GetUser(userID); appErr != nil {
@@ -27,11 +27,11 @@ func (a *App) CreateTermsOfService(text, userID string) (*model.TermsOfService, 
 		var appErr *model.AppError
 		switch {
 		case errors.As(err, &invErr):
-			return nil, model.NewAppError("CreateTermsOfService", "app.terms_of_service.create.existing.app_error", nil, "id="+termsOfService.Id, http.StatusBadRequest)
+			return nil, model.NewAppError("CreateTermsOfService", "app.terms_of_service.create.existing.app_error", nil, "id="+termsOfService.ID, http.StatusBadRequest)
 		case errors.As(err, &appErr):
 			return nil, appErr
 		default:
-			return nil, model.NewAppError("CreateTermsOfService", "app.terms_of_service.create.app_error", nil, "terms_of_service_id="+termsOfService.Id+",err="+err.Error(), http.StatusInternalServerError)
+			return nil, model.NewAppError("CreateTermsOfService", "app.terms_of_service.create.app_error", nil, "terms_of_service_id="+termsOfService.ID+",err="+err.Error(), http.StatusInternalServerError)
 		}
 	}
 

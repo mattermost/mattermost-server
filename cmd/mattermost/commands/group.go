@@ -133,7 +133,7 @@ func channelGroupEnableCmdF(command *cobra.Command, args []string) error {
 		return errors.New("Channel '" + args[0] + "' is not private. It cannot be group-constrained")
 	}
 
-	groups, _, appErr := a.GetGroupsByChannel(channel.Id, model.GroupSearchOpts{})
+	groups, _, appErr := a.GetGroupsByChannel(channel.ID, model.GroupSearchOpts{})
 	if appErr != nil {
 		return appErr
 	}
@@ -211,7 +211,7 @@ func channelGroupListCmdF(command *cobra.Command, args []string) error {
 		return errors.New("Unable to find channel '" + args[0] + "'")
 	}
 
-	groups, _, appErr := a.GetGroupsByChannel(channel.Id, model.GroupSearchOpts{})
+	groups, _, appErr := a.GetGroupsByChannel(channel.ID, model.GroupSearchOpts{})
 	if appErr != nil {
 		return appErr
 	}
@@ -235,7 +235,7 @@ func teamGroupEnableCmdF(command *cobra.Command, args []string) error {
 		return errors.New("Unable to find team '" + args[0] + "'")
 	}
 
-	groups, _, appErr := a.GetGroupsByTeam(team.Id, model.GroupSearchOpts{})
+	groups, _, appErr := a.GetGroupsByTeam(team.ID, model.GroupSearchOpts{})
 	if appErr != nil {
 		return appErr
 	}
@@ -313,7 +313,7 @@ func teamGroupListCmdF(command *cobra.Command, args []string) error {
 		return errors.New("Unable to find team '" + args[0] + "'")
 	}
 
-	groups, _, appErr := a.GetGroupsByTeam(team.Id, model.GroupSearchOpts{})
+	groups, _, appErr := a.GetGroupsByTeam(team.ID, model.GroupSearchOpts{})
 	if appErr != nil {
 		return appErr
 	}

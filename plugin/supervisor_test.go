@@ -37,7 +37,7 @@ func testSupervisorInvalidExecutablePath(t *testing.T) {
 	bundle := model.BundleInfoForPath(dir)
 	log := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		ConsoleLevel:  "error",
 		EnableFile:    false,
 	})
@@ -56,7 +56,7 @@ func testSupervisorNonExistentExecutablePath(t *testing.T) {
 	bundle := model.BundleInfoForPath(dir)
 	log := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		ConsoleLevel:  "error",
 		EnableFile:    false,
 	})
@@ -86,7 +86,7 @@ func testSupervisorStartTimeout(t *testing.T) {
 	bundle := model.BundleInfoForPath(dir)
 	log := mlog.NewLogger(&mlog.LoggerConfiguration{
 		EnableConsole: true,
-		ConsoleJson:   true,
+		ConsoleJSON:   true,
 		ConsoleLevel:  "error",
 		EnableFile:    false,
 	})

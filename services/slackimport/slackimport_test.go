@@ -38,8 +38,8 @@ func TestSlackConvertChannelName(t *testing.T) {
 
 func TestSlackConvertUserMentions(t *testing.T) {
 	users := []slackUser{
-		{Id: "U00000A0A", Username: "firstuser"},
-		{Id: "U00000B1B", Username: "seconduser"},
+		{ID: "U00000A0A", Username: "firstuser"},
+		{ID: "U00000B1B", Username: "seconduser"},
 	}
 
 	posts := map[string][]slackPost{
@@ -81,8 +81,8 @@ func TestSlackConvertUserMentions(t *testing.T) {
 
 func TestSlackConvertChannelMentions(t *testing.T) {
 	channels := []slackChannel{
-		{Id: "C000AA00A", Name: "one"},
-		{Id: "C000BB11B", Name: "two"},
+		{ID: "C000AA00A", Name: "one"},
+		{ID: "C000BB11B", Name: "two"},
 	}
 
 	posts := map[string][]slackPost{
@@ -315,11 +315,11 @@ in this~.`,
 
 func TestOldImportChannel(t *testing.T) {
 	u1 := &model.User{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		Username: "test-user-1",
 	}
 	u2 := &model.User{
-		Id:       model.NewId(),
+		ID:       model.NewID(),
 		Username: "test-user-2",
 	}
 	store := &mocks.Store{}
@@ -333,11 +333,11 @@ func TestOldImportChannel(t *testing.T) {
 			Name: "test-channel",
 		}
 		users := map[string]*model.User{
-			u2.Id: u2,
+			u2.ID: u2,
 		}
 		sCh := slackChannel{
-			Id:      "someid",
-			Members: []string{u1.Id, "randomID"},
+			ID:      "someid",
+			Members: []string{u1.ID, "randomID"},
 			Creator: "randomID2",
 		}
 
@@ -353,11 +353,11 @@ func TestOldImportChannel(t *testing.T) {
 			Name: "test-channel",
 		}
 		users := map[string]*model.User{
-			u1.Id: u1,
+			u1.ID: u1,
 		}
 		sCh := slackChannel{
-			Id:      "someid",
-			Members: []string{u1.Id},
+			ID:      "someid",
+			Members: []string{u1.ID},
 			Creator: "randomID2",
 		}
 
@@ -373,11 +373,11 @@ func TestOldImportChannel(t *testing.T) {
 			Name: "test-channel",
 		}
 		users := map[string]*model.User{
-			u1.Id: u1,
+			u1.ID: u1,
 		}
 		sCh := slackChannel{
-			Id:      "someid",
-			Members: []string{u1.Id},
+			ID:      "someid",
+			Members: []string{u1.ID},
 			Creator: "randomID2",
 		}
 		actions := Actions{}

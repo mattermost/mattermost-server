@@ -45,17 +45,17 @@ func (mrcs *mockRemoteClusterService) Active() bool {
 }
 
 func (mrcs *mockRemoteClusterService) AddTopicListener(topic string, listener remotecluster.TopicListener) string {
-	return model.NewId()
+	return model.NewID()
 }
 
-func (mrcs *mockRemoteClusterService) RemoveTopicListener(listenerId string) {
+func (mrcs *mockRemoteClusterService) RemoveTopicListener(listenerID string) {
 }
 
 func (mrcs *mockRemoteClusterService) AddConnectionStateListener(listener remotecluster.ConnectionStateListener) string {
-	return model.NewId()
+	return model.NewID()
 }
 
-func (mrcs *mockRemoteClusterService) RemoveConnectionStateListener(listenerId string) {
+func (mrcs *mockRemoteClusterService) RemoveConnectionStateListener(listenerID string) {
 }
 
 func (mrcs *mockRemoteClusterService) SendMsg(ctx context.Context, msg model.RemoteClusterMsg, rc *model.RemoteCluster, f remotecluster.SendMsgResultFunc) error {
@@ -66,7 +66,7 @@ func (mrcs *mockRemoteClusterService) SendFile(ctx context.Context, us *model.Up
 	return nil
 }
 
-func (mrcs *mockRemoteClusterService) AcceptInvitation(invite *model.RemoteClusterInvite, name string, displayName string, creatorId string, teamId string, siteURL string) (*model.RemoteCluster, error) {
+func (mrcs *mockRemoteClusterService) AcceptInvitation(invite *model.RemoteClusterInvite, name string, displayName string, creatorID string, teamID string, siteURL string) (*model.RemoteCluster, error) {
 	return nil, nil
 }
 

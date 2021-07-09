@@ -700,9 +700,9 @@ func upgradeDatabaseToVersion511(sqlStore *SqlStore) {
 			mlog.Error("Error fetching Teams without InviteID", mlog.Err(err))
 		} else {
 			for _, team := range teams {
-				team.InviteId = model.NewId()
+				team.InviteID = model.NewID()
 				if _, err := sqlStore.Team().Update(team); err != nil {
-					mlog.Error("Error updating Team InviteIDs", mlog.String("team_id", team.Id), mlog.Err(err))
+					mlog.Error("Error updating Team InviteIDs", mlog.String("team_id", team.ID), mlog.Err(err))
 				}
 			}
 		}
@@ -986,7 +986,7 @@ func upgradeDatabaseToVersion531(sqlStore *SqlStore) {
 const RemoteClusterSiteURLUniqueIndex = "remote_clusters_site_url_unique"
 
 func hasMissingMigrationsVersion532(sqlStore *SqlStore) bool {
-	scIdInfo, err := sqlStore.GetColumnInfo("Posts", "FileIds")
+	scIDInfo, err := sqlStore.GetColumnInfo("Posts", "FileIds")
 	if err != nil {
 		mlog.Error("Error getting column info for migration check",
 			mlog.String("table", "Posts"),
@@ -997,7 +997,7 @@ func hasMissingMigrationsVersion532(sqlStore *SqlStore) bool {
 	}
 
 	if sqlStore.DriverName() == model.DatabaseDriverPostgres {
-		if !sqlStore.IsVarchar(scIdInfo.DataType) || scIdInfo.CharMaximumLength != 300 {
+		if !sqlStore.IsVarchar(scIDInfo.DataType) || scIDInfo.CharMaximumLength != 300 {
 			return true
 		}
 	}

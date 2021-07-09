@@ -29,16 +29,16 @@ func TestPostActionInvalidURL(t *testing.T) {
 	})
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		request := model.PostActionIntegrationRequestFromJson(r.Body)
+		request := model.PostActionIntegrationRequestFromJSON(r.Body)
 		assert.NotNil(t, request)
 	}))
 	defer ts.Close()
 
 	interactivePost := model.Post{
 		Message:       "Interactive post",
-		ChannelId:     th.BasicChannel.Id,
-		PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-		UserId:        th.BasicUser.Id,
+		ChannelID:     th.BasicChannel.ID,
+		PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+		UserID:        th.BasicUser.ID,
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{
 				{
@@ -62,9 +62,9 @@ func TestPostActionInvalidURL(t *testing.T) {
 	attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 	require.True(t, ok)
 	require.NotEmpty(t, attachments[0].Actions)
-	require.NotEmpty(t, attachments[0].Actions[0].Id)
+	require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-	_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+	_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 	require.NotNil(t, err)
 	require.True(t, strings.Contains(err.Error(), "missing protocol scheme"))
 }
@@ -102,21 +102,21 @@ func TestPostAction(t *testing.T) {
 			})
 
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				request := model.PostActionIntegrationRequestFromJson(r.Body)
+				request := model.PostActionIntegrationRequestFromJSON(r.Body)
 				assert.NotNil(t, request)
 
-				assert.Equal(t, request.UserId, th.BasicUser.Id)
+				assert.Equal(t, request.UserID, th.BasicUser.ID)
 				assert.Equal(t, request.UserName, th.BasicUser.Username)
-				assert.Equal(t, request.ChannelId, channel.Id)
+				assert.Equal(t, request.ChannelID, channel.ID)
 				assert.Equal(t, request.ChannelName, channel.Name)
 				if channel.Type == model.ChannelTypeDirect || channel.Type == model.ChannelTypeGroup {
-					assert.Empty(t, request.TeamId)
+					assert.Empty(t, request.TeamID)
 					assert.Empty(t, request.TeamName)
 				} else {
-					assert.Equal(t, request.TeamId, th.BasicTeam.Id)
+					assert.Equal(t, request.TeamID, th.BasicTeam.ID)
 					assert.Equal(t, request.TeamName, th.BasicTeam.Name)
 				}
-				assert.True(t, request.TriggerId != "")
+				assert.True(t, request.TriggerID != "")
 				if request.Type == model.PostActionTypeSelect {
 					assert.Equal(t, request.DataSource, "some_source")
 					assert.Equal(t, request.Context["selected_option"], "selected")
@@ -131,9 +131,9 @@ func TestPostAction(t *testing.T) {
 
 			interactivePost := model.Post{
 				Message:       "Interactive post",
-				ChannelId:     channel.Id,
-				PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-				UserId:        th.BasicUser.Id,
+				ChannelID:     channel.ID,
+				PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+				UserID:        th.BasicUser.ID,
 				Props: model.StringInterface{
 					"attachments": []*model.SlackAttachment{
 						{
@@ -164,13 +164,13 @@ func TestPostAction(t *testing.T) {
 			require.True(t, ok)
 
 			require.NotEmpty(t, attachments[0].Actions)
-			require.NotEmpty(t, attachments[0].Actions[0].Id)
+			require.NotEmpty(t, attachments[0].Actions[0].ID)
 
 			menuPost := model.Post{
 				Message:       "Interactive post",
-				ChannelId:     channel.Id,
-				PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-				UserId:        th.BasicUser.Id,
+				ChannelID:     channel.ID,
+				PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+				UserID:        th.BasicUser.ID,
 				Props: model.StringInterface{
 					"attachments": []*model.SlackAttachment{
 						{
@@ -201,34 +201,34 @@ func TestPostAction(t *testing.T) {
 			require.True(t, ok)
 
 			require.NotEmpty(t, attachments2[0].Actions)
-			require.NotEmpty(t, attachments2[0].Actions[0].Id)
+			require.NotEmpty(t, attachments2[0].Actions[0].ID)
 
-			clientTriggerId, err := th.App.DoPostAction(th.Context, post.Id, "notavalidid", th.BasicUser.Id, "")
+			clientTriggerID, err := th.App.DoPostAction(th.Context, post.ID, "notavalidid", th.BasicUser.ID, "")
 			require.NotNil(t, err)
 			assert.Equal(t, http.StatusNotFound, err.StatusCode)
-			assert.True(t, clientTriggerId == "")
+			assert.True(t, clientTriggerID == "")
 
-			clientTriggerId, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+			clientTriggerID, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 			require.Nil(t, err)
-			assert.True(t, len(clientTriggerId) == 26)
+			assert.True(t, len(clientTriggerID) == 26)
 
-			clientTriggerId, err = th.App.DoPostAction(th.Context, post2.Id, attachments2[0].Actions[0].Id, th.BasicUser.Id, "selected")
+			clientTriggerID, err = th.App.DoPostAction(th.Context, post2.ID, attachments2[0].Actions[0].ID, th.BasicUser.ID, "selected")
 			require.Nil(t, err)
-			assert.True(t, len(clientTriggerId) == 26)
+			assert.True(t, len(clientTriggerID) == 26)
 
 			th.App.UpdateConfig(func(cfg *model.Config) {
 				*cfg.ServiceSettings.AllowedUntrustedInternalConnections = ""
 			})
 
-			_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+			_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 			require.NotNil(t, err)
 			require.True(t, strings.Contains(err.Error(), "address forbidden"))
 
 			interactivePostPlugin := model.Post{
 				Message:       "Interactive post",
-				ChannelId:     channel.Id,
-				PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-				UserId:        th.BasicUser.Id,
+				ChannelID:     channel.ID,
+				PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+				UserID:        th.BasicUser.ID,
 				Props: model.StringInterface{
 					"attachments": []*model.SlackAttachment{
 						{
@@ -258,7 +258,7 @@ func TestPostAction(t *testing.T) {
 			attachmentsPlugin, ok := postplugin.GetProp("attachments").([]*model.SlackAttachment)
 			require.True(t, ok)
 
-			_, err = th.App.DoPostAction(th.Context, postplugin.Id, attachmentsPlugin[0].Actions[0].Id, th.BasicUser.Id, "")
+			_, err = th.App.DoPostAction(th.Context, postplugin.ID, attachmentsPlugin[0].Actions[0].ID, th.BasicUser.ID, "")
 			require.Nil(t, err)
 
 			th.App.UpdateConfig(func(cfg *model.Config) {
@@ -267,9 +267,9 @@ func TestPostAction(t *testing.T) {
 
 			interactivePostSiteURL := model.Post{
 				Message:       "Interactive post",
-				ChannelId:     channel.Id,
-				PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-				UserId:        th.BasicUser.Id,
+				ChannelID:     channel.ID,
+				PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+				UserID:        th.BasicUser.ID,
 				Props: model.StringInterface{
 					"attachments": []*model.SlackAttachment{
 						{
@@ -299,7 +299,7 @@ func TestPostAction(t *testing.T) {
 			attachmentsSiteURL, ok := postSiteURL.GetProp("attachments").([]*model.SlackAttachment)
 			require.True(t, ok)
 
-			_, err = th.App.DoPostAction(th.Context, postSiteURL.Id, attachmentsSiteURL[0].Actions[0].Id, th.BasicUser.Id, "")
+			_, err = th.App.DoPostAction(th.Context, postSiteURL.ID, attachmentsSiteURL[0].Actions[0].ID, th.BasicUser.ID, "")
 			require.NotNil(t, err)
 			require.False(t, strings.Contains(err.Error(), "address forbidden"))
 
@@ -309,9 +309,9 @@ func TestPostAction(t *testing.T) {
 
 			interactivePostSubpath := model.Post{
 				Message:       "Interactive post",
-				ChannelId:     channel.Id,
-				PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-				UserId:        th.BasicUser.Id,
+				ChannelID:     channel.ID,
+				PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+				UserID:        th.BasicUser.ID,
 				Props: model.StringInterface{
 					"attachments": []*model.SlackAttachment{
 						{
@@ -341,7 +341,7 @@ func TestPostAction(t *testing.T) {
 			attachmentsSubpath, ok := postSubpath.GetProp("attachments").([]*model.SlackAttachment)
 			require.True(t, ok)
 
-			_, err = th.App.DoPostAction(th.Context, postSubpath.Id, attachmentsSubpath[0].Actions[0].Id, th.BasicUser.Id, "")
+			_, err = th.App.DoPostAction(th.Context, postSubpath.ID, attachmentsSubpath[0].Actions[0].ID, th.BasicUser.ID, "")
 			require.Nil(t, err)
 
 		})
@@ -357,7 +357,7 @@ func TestPostActionProps(t *testing.T) {
 	})
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		request := model.PostActionIntegrationRequestFromJson(r.Body)
+		request := model.PostActionIntegrationRequestFromJSON(r.Body)
 		assert.NotNil(t, request)
 
 		fmt.Fprintf(w, `{
@@ -379,9 +379,9 @@ func TestPostActionProps(t *testing.T) {
 
 	interactivePost := model.Post{
 		Message:       "Interactive post",
-		ChannelId:     th.BasicChannel.Id,
-		PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-		UserId:        th.BasicUser.Id,
+		ChannelID:     th.BasicChannel.ID,
+		PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+		UserID:        th.BasicUser.ID,
 		HasReactions:  false,
 		IsPinned:      true,
 		Props: model.StringInterface{
@@ -415,11 +415,11 @@ func TestPostActionProps(t *testing.T) {
 	attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 	require.True(t, ok)
 
-	clientTriggerId, err := th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+	clientTriggerID, err := th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 	require.Nil(t, err)
-	assert.True(t, len(clientTriggerId) == 26)
+	assert.True(t, len(clientTriggerID) == 26)
 
-	newPost, nErr := th.App.Srv().Store.Post().GetSingle(post.Id, false)
+	newPost, nErr := th.App.Srv().Store.Post().GetSingle(post.ID, false)
 	require.NoError(t, nErr)
 
 	assert.True(t, newPost.IsPinned)
@@ -440,10 +440,10 @@ func TestSubmitInteractiveDialog(t *testing.T) {
 	})
 
 	submit := model.SubmitDialogRequest{
-		UserId:     th.BasicUser.Id,
-		ChannelId:  th.BasicChannel.Id,
-		TeamId:     th.BasicTeam.Id,
-		CallbackId: "someid",
+		UserID:     th.BasicUser.ID,
+		ChannelID:  th.BasicChannel.ID,
+		TeamID:     th.BasicTeam.ID,
+		CallbackID: "someid",
 		State:      "somestate",
 		Submission: map[string]interface{}{
 			"name1": "value1",
@@ -457,10 +457,10 @@ func TestSubmitInteractiveDialog(t *testing.T) {
 		assert.NotNil(t, request)
 
 		assert.Equal(t, request.URL, "")
-		assert.Equal(t, request.UserId, submit.UserId)
-		assert.Equal(t, request.ChannelId, submit.ChannelId)
-		assert.Equal(t, request.TeamId, submit.TeamId)
-		assert.Equal(t, request.CallbackId, submit.CallbackId)
+		assert.Equal(t, request.UserID, submit.UserID)
+		assert.Equal(t, request.ChannelID, submit.ChannelID)
+		assert.Equal(t, request.TeamID, submit.TeamID)
+		assert.Equal(t, request.CallbackID, submit.CallbackID)
 		assert.Equal(t, request.State, submit.State)
 		val, ok := request.Submission["name1"].(string)
 		require.True(t, ok)
@@ -553,7 +553,7 @@ func TestPostActionRelativeURL(t *testing.T) {
 	defer th.TearDown()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		request := model.PostActionIntegrationRequestFromJson(r.Body)
+		request := model.PostActionIntegrationRequestFromJSON(r.Body)
 		assert.NotNil(t, request)
 		fmt.Fprintf(w, `{"post": {"message": "updated"}, "ephemeral_text": "foo"}`)
 	}))
@@ -567,9 +567,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -593,9 +593,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.NotNil(t, err)
 	})
 
@@ -607,9 +607,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -633,9 +633,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.NotNil(t, err)
 	})
 
@@ -647,9 +647,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -673,9 +673,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.NotNil(t, err)
 
 	})
@@ -688,9 +688,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -714,9 +714,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.NotNil(t, err)
 	})
 
@@ -728,9 +728,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -754,9 +754,9 @@ func TestPostActionRelativeURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.NotNil(t, err)
 	})
 }
@@ -802,9 +802,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -828,9 +828,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.NotNil(t, err)
 	})
 
@@ -842,9 +842,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -868,9 +868,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.Nil(t, err)
 	})
 
@@ -882,9 +882,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -908,9 +908,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.Nil(t, err)
 	})
 
@@ -922,9 +922,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 
 		interactivePost := model.Post{
 			Message:       "Interactive post",
-			ChannelId:     th.BasicChannel.Id,
-			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
-			UserId:        th.BasicUser.Id,
+			ChannelID:     th.BasicChannel.ID,
+			PendingPostID: model.NewID() + ":" + fmt.Sprint(model.GetMillis()),
+			UserID:        th.BasicUser.ID,
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
@@ -948,9 +948,9 @@ func TestPostActionRelativePluginURL(t *testing.T) {
 		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
 		require.True(t, ok)
 		require.NotEmpty(t, attachments[0].Actions)
-		require.NotEmpty(t, attachments[0].Actions[0].Id)
+		require.NotEmpty(t, attachments[0].Actions[0].ID)
 
-		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		_, err = th.App.DoPostAction(th.Context, post.ID, attachments[0].Actions[0].ID, th.BasicUser.ID, "")
 		require.Nil(t, err)
 	})
 }

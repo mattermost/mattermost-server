@@ -21,12 +21,12 @@ func (s *LocalCacheFileInfoStore) handleClusterInvalidateFileInfo(msg *model.Clu
 	s.rootStore.fileInfoCache.Remove(msg.Data)
 }
 
-func (s LocalCacheFileInfoStore) GetForPost(postId string, readFromMaster, includeDeleted, allowFromCache bool) ([]*model.FileInfo, error) {
+func (s LocalCacheFileInfoStore) GetForPost(postID string, readFromMaster, includeDeleted, allowFromCache bool) ([]*model.FileInfo, error) {
 	if !allowFromCache {
-		return s.FileInfoStore.GetForPost(postId, readFromMaster, includeDeleted, allowFromCache)
+		return s.FileInfoStore.GetForPost(postID, readFromMaster, includeDeleted, allowFromCache)
 	}
 
-	cacheKey := postId
+	cacheKey := postID
 	if includeDeleted {
 		cacheKey += "_deleted"
 	}
@@ -36,7 +36,7 @@ func (s LocalCacheFileInfoStore) GetForPost(postId string, readFromMaster, inclu
 		return fileInfo, nil
 	}
 
-	fileInfos, err := s.FileInfoStore.GetForPost(postId, readFromMaster, includeDeleted, allowFromCache)
+	fileInfos, err := s.FileInfoStore.GetForPost(postID, readFromMaster, includeDeleted, allowFromCache)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func (s LocalCacheFileInfoStore) ClearCaches() {
 	}
 }
 
-func (s LocalCacheFileInfoStore) InvalidateFileInfosForPostCache(postId string, deleted bool) {
-	cacheKey := postId
+func (s LocalCacheFileInfoStore) InvalidateFileInfosForPostCache(postID string, deleted bool) {
+	cacheKey := postID
 	if deleted {
 		cacheKey += "_deleted"
 	}

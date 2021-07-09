@@ -172,7 +172,7 @@ func (s SqlComplianceStore) ComplianceExport(job *model.Compliance, cursor model
 			cursor.ChannelsQueryCompleted = true
 		} else {
 			cursor.LastChannelsQueryPostCreateAt = channelPosts[len(channelPosts)-1].PostCreateAt
-			cursor.LastChannelsQueryPostID = channelPosts[len(channelPosts)-1].PostId
+			cursor.LastChannelsQueryPostID = channelPosts[len(channelPosts)-1].PostID
 		}
 	}
 
@@ -235,7 +235,7 @@ func (s SqlComplianceStore) ComplianceExport(job *model.Compliance, cursor model
 			cursor.DirectMessagesQueryCompleted = true
 		} else {
 			cursor.LastDirectMessagesQueryPostCreateAt = directMessagePosts[len(directMessagePosts)-1].PostCreateAt
-			cursor.LastDirectMessagesQueryPostID = directMessagePosts[len(directMessagePosts)-1].PostId
+			cursor.LastDirectMessagesQueryPostID = directMessagePosts[len(directMessagePosts)-1].PostID
 		}
 	}
 
@@ -245,7 +245,7 @@ func (s SqlComplianceStore) ComplianceExport(job *model.Compliance, cursor model
 func (s SqlComplianceStore) MessageExport(cursor model.MessageExportCursor, limit int) ([]*model.MessageExport, model.MessageExportCursor, error) {
 	props := map[string]interface{}{
 		"LastPostUpdateAt": cursor.LastPostUpdateAt,
-		"LastPostId":       cursor.LastPostId,
+		"LastPostId":       cursor.LastPostID,
 		"Limit":            limit,
 	}
 	query :=
@@ -297,7 +297,7 @@ func (s SqlComplianceStore) MessageExport(cursor model.MessageExportCursor, limi
 	}
 	if len(cposts) > 0 {
 		cursor.LastPostUpdateAt = *cposts[len(cposts)-1].PostUpdateAt
-		cursor.LastPostId = *cposts[len(cposts)-1].PostId
+		cursor.LastPostID = *cposts[len(cposts)-1].PostID
 	}
 	return cposts, cursor, nil
 }

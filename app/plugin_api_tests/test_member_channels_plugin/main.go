@@ -28,7 +28,7 @@ func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model
 		return nil, err.Error() + "failed to get channel members"
 	} else if len(channelMembers) != 3 {
 		return nil, "Invalid number of channel members"
-	} else if channelMembers[0].UserId != p.configuration.BasicUserID {
+	} else if channelMembers[0].UserID != p.configuration.BasicUserID {
 		return nil, "Invalid user id returned"
 	}
 

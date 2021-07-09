@@ -54,7 +54,7 @@ func (l *LicenseValidatorImpl) LicenseFromBytes(licenseBytes []byte) (*model.Lic
 		return nil, model.NewAppError("LicenseFromBytes", model.InvalidLicenseError, nil, "", http.StatusBadRequest)
 	}
 
-	license := model.LicenseFromJson(strings.NewReader(licenseStr))
+	license := model.LicenseFromJSON(strings.NewReader(licenseStr))
 	return license, nil
 }
 
@@ -119,7 +119,7 @@ func GetAndValidateLicenseFileFromDisk(location string) (*model.License, []byte)
 		mlog.Error("Found license key at %v but it appears to be invalid.", mlog.String("filename", fileName))
 		return nil, nil
 	}
-	return model.LicenseFromJson(strings.NewReader(licenseStr)), licenseBytes
+	return model.LicenseFromJSON(strings.NewReader(licenseStr)), licenseBytes
 }
 
 func GetLicenseFileFromDisk(fileName string) []byte {
@@ -153,7 +153,7 @@ func GetClientLicense(l *model.License) map[string]string {
 	props["IsLicensed"] = strconv.FormatBool(l != nil)
 
 	if l != nil {
-		props["Id"] = l.Id
+		props["Id"] = l.ID
 		props["SkuName"] = l.SkuName
 		props["SkuShortName"] = l.SkuShortName
 		props["Users"] = strconv.Itoa(*l.Features.Users)
@@ -165,7 +165,7 @@ func GetClientLicense(l *model.License) map[string]string {
 		props["Metrics"] = strconv.FormatBool(*l.Features.Metrics)
 		props["GoogleOAuth"] = strconv.FormatBool(*l.Features.GoogleOAuth)
 		props["Office365OAuth"] = strconv.FormatBool(*l.Features.Office365OAuth)
-		props["OpenId"] = strconv.FormatBool(*l.Features.OpenId)
+		props["OpenId"] = strconv.FormatBool(*l.Features.OpenID)
 		props["Compliance"] = strconv.FormatBool(*l.Features.Compliance)
 		props["MHPNS"] = strconv.FormatBool(*l.Features.MHPNS)
 		props["Announcement"] = strconv.FormatBool(*l.Features.Announcement)

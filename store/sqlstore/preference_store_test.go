@@ -19,33 +19,33 @@ func TestPreferenceStore(t *testing.T) {
 
 func TestDeleteUnusedFeatures(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		userId1 := model.NewId()
-		userId2 := model.NewId()
+		userID1 := model.NewID()
+		userID2 := model.NewID()
 		category := model.PreferenceCategoryAdvancedSettings
 		feature1 := "feature1"
 		feature2 := "feature2"
 
 		features := model.Preferences{
 			{
-				UserId:   userId1,
+				UserID:   userID1,
 				Category: category,
 				Name:     store.FeatureTogglePrefix + feature1,
 				Value:    "true",
 			},
 			{
-				UserId:   userId2,
+				UserID:   userID2,
 				Category: category,
 				Name:     store.FeatureTogglePrefix + feature1,
 				Value:    "false",
 			},
 			{
-				UserId:   userId1,
+				UserID:   userID1,
 				Category: category,
 				Name:     store.FeatureTogglePrefix + feature2,
 				Value:    "false",
 			},
 			{
-				UserId:   userId2,
+				UserID:   userID2,
 				Category: category,
 				Name:     store.FeatureTogglePrefix + feature2,
 				Value:    "true",

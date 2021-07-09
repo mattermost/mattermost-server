@@ -12,16 +12,16 @@ import (
 )
 
 // AcceptInvitation is called when accepting an invitation to connect with a remote cluster.
-func (rcs *Service) AcceptInvitation(invite *model.RemoteClusterInvite, name string, displayName, creatorId string, teamId string, siteURL string) (*model.RemoteCluster, error) {
+func (rcs *Service) AcceptInvitation(invite *model.RemoteClusterInvite, name string, displayName, creatorID string, teamID string, siteURL string) (*model.RemoteCluster, error) {
 	rc := &model.RemoteCluster{
-		RemoteId:     invite.RemoteId,
-		RemoteTeamId: invite.RemoteTeamId,
+		RemoteID:     invite.RemoteID,
+		RemoteTeamID: invite.RemoteTeamID,
 		Name:         name,
 		DisplayName:  displayName,
-		Token:        model.NewId(),
+		Token:        model.NewID(),
 		RemoteToken:  invite.Token,
 		SiteURL:      invite.SiteURL,
-		CreatorId:    creatorId,
+		CreatorID:    creatorID,
 	}
 
 	rcSaved, err := rcs.server.GetStore().RemoteCluster().Save(rc)
@@ -30,7 +30,7 @@ func (rcs *Service) AcceptInvitation(invite *model.RemoteClusterInvite, name str
 	}
 
 	// confirm the invitation with the originating site
-	frame, err := makeConfirmFrame(rcSaved, teamId, siteURL)
+	frame, err := makeConfirmFrame(rcSaved, teamID, siteURL)
 	if err != nil {
 		return nil, err
 	}
@@ -39,19 +39,19 @@ func (rcs *Service) AcceptInvitation(invite *model.RemoteClusterInvite, name str
 
 	resp, err := rcs.sendFrameToRemote(PingTimeout, rc, frame, url)
 	if err != nil {
-		rcs.server.GetStore().RemoteCluster().Delete(rcSaved.RemoteId)
+		rcs.server.GetStore().RemoteCluster().Delete(rcSaved.RemoteID)
 		return nil, err
 	}
 
 	var response Response
 	err = json.Unmarshal(resp, &response)
 	if err != nil {
-		rcs.server.GetStore().RemoteCluster().Delete(rcSaved.RemoteId)
+		rcs.server.GetStore().RemoteCluster().Delete(rcSaved.RemoteID)
 		return nil, fmt.Errorf("invalid response from remote server: %w", err)
 	}
 
 	if !response.IsSuccess() {
-		rcs.server.GetStore().RemoteCluster().Delete(rcSaved.RemoteId)
+		rcs.server.GetStore().RemoteCluster().Delete(rcSaved.RemoteID)
 		return nil, errors.New(response.Err)
 	}
 
@@ -61,10 +61,10 @@ func (rcs *Service) AcceptInvitation(invite *model.RemoteClusterInvite, name str
 	return rcSaved, nil
 }
 
-func makeConfirmFrame(rc *model.RemoteCluster, teamId string, siteURL string) (*model.RemoteClusterFrame, error) {
+func makeConfirmFrame(rc *model.RemoteCluster, teamID string, siteURL string) (*model.RemoteClusterFrame, error) {
 	confirm := model.RemoteClusterInvite{
-		RemoteId:     rc.RemoteId,
-		RemoteTeamId: teamId,
+		RemoteID:     rc.RemoteID,
+		RemoteTeamID: teamID,
 		SiteURL:      siteURL,
 		Token:        rc.Token,
 	}
@@ -76,7 +76,7 @@ func makeConfirmFrame(rc *model.RemoteCluster, teamId string, siteURL string) (*
 	msg := model.NewRemoteClusterMsg(InvitationTopic, confirmRaw)
 
 	frame := &model.RemoteClusterFrame{
-		RemoteId: rc.RemoteId,
+		RemoteID: rc.RemoteID,
 		Msg:      msg,
 	}
 	return frame, nil

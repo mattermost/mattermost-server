@@ -75,7 +75,7 @@ func dummyWebsocketHandler() http.HandlerFunc {
 
 func registerDummyWebConn(a *App, addr net.Addr, userID string) *WebConn {
 	session, appErr := a.CreateSession(&model.Session{
-		UserId: userID,
+		UserID: userID,
 	})
 	if appErr != nil {
 		panic(appErr)
@@ -204,9 +204,9 @@ func Fuzz(data []byte) int {
 					// assign data randomly
 					// 3 users, 2 teams, 3 channels
 					input := getActionData(data,
-						[]string{u1.Id, u2.Id, u3.Id, ""},
-						[]string{t1.Id, t2.Id, ""},
-						[]string{ch1.Id, ch2.Id, ""})
+						[]string{u1.ID, u2.ID, u3.ID, ""},
+						[]string{t1.ID, t2.ID, ""},
+						[]string{ch1.ID, ch2.ID, ""})
 					if input == nil {
 						returnCode = 0
 						return

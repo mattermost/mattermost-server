@@ -76,7 +76,7 @@ func (a *App) GetAnalytics(name string, teamID string) (model.AnalyticsRows, *mo
 		} else {
 			g.Go(func() error {
 				var err error
-				if usersCount, err = a.Srv().Store.User().Count(model.UserCountOptions{TeamId: teamID}); err != nil {
+				if usersCount, err = a.Srv().Store.User().Count(model.UserCountOptions{TeamID: teamID}); err != nil {
 					return model.NewAppError("GetAnalytics", "app.user.get_total_users_count.app_error", nil, err.Error(), http.StatusInternalServerError)
 				}
 				return nil
@@ -181,7 +181,7 @@ func (a *App) GetAnalytics(name string, teamID string) (model.AnalyticsRows, *mo
 			return rows, nil
 		}
 		analyticsRows, nErr := a.Srv().Store.Post().AnalyticsPostCountsByDay(&model.AnalyticsPostCountsOptions{
-			TeamId:        teamID,
+			TeamID:        teamID,
 			BotsOnly:      true,
 			YesterdayOnly: false,
 		})
@@ -196,7 +196,7 @@ func (a *App) GetAnalytics(name string, teamID string) (model.AnalyticsRows, *mo
 			return rows, nil
 		}
 		analyticsRows, nErr := a.Srv().Store.Post().AnalyticsPostCountsByDay(&model.AnalyticsPostCountsOptions{
-			TeamId:        teamID,
+			TeamID:        teamID,
 			BotsOnly:      false,
 			YesterdayOnly: false,
 		})
@@ -316,7 +316,7 @@ func (a *App) GetRecentlyActiveUsersForTeam(teamID string) (map[string]*model.Us
 	userMap := make(map[string]*model.User)
 
 	for _, user := range users {
-		userMap[user.Id] = user
+		userMap[user.ID] = user
 	}
 
 	return userMap, nil

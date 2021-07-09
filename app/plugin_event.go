@@ -13,7 +13,7 @@ func (s *Server) notifyClusterPluginEvent(event string, data model.PluginEventDa
 			Event:            event,
 			SendType:         model.ClusterSendReliable,
 			WaitForAllToSend: true,
-			Data:             data.ToJson(),
+			Data:             data.ToJSON(),
 		})
 	}
 }

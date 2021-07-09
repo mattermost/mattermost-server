@@ -45,7 +45,7 @@ func newSyncData(task syncTask, rc *model.RemoteCluster, scr *model.SharedChanne
 		scr:              scr,
 		users:            make(map[string]*model.User),
 		profileImages:    make(map[string]*model.User),
-		resultNextCursor: model.GetPostsSinceForSyncCursor{LastPostUpdateAt: scr.LastPostUpdateAt, LastPostId: scr.LastPostId},
+		resultNextCursor: model.GetPostsSinceForSyncCursor{LastPostUpdateAt: scr.LastPostUpdateAt, LastPostID: scr.LastPostID},
 	}
 }
 
@@ -54,7 +54,7 @@ func (sd *syncData) isEmpty() bool {
 }
 
 func (sd *syncData) isCursorChanged() bool {
-	return sd.scr.LastPostUpdateAt != sd.resultNextCursor.LastPostUpdateAt || sd.scr.LastPostId != sd.resultNextCursor.LastPostId
+	return sd.scr.LastPostUpdateAt != sd.resultNextCursor.LastPostUpdateAt || sd.scr.LastPostID != sd.resultNextCursor.LastPostID
 }
 
 // syncForRemote updates a remote cluster with any new posts/reactions for a specific
@@ -68,7 +68,7 @@ func (scs *Service) syncForRemote(task syncTask, rc *model.RemoteCluster) error 
 		return fmt.Errorf("cannot update remote cluster %s for channel id %s; Remote Cluster Service not enabled", rc.Name, task.channelID)
 	}
 
-	scr, err := scs.server.GetStore().SharedChannel().GetRemoteByIds(task.channelID, rc.RemoteId)
+	scr, err := scs.server.GetStore().SharedChannel().GetRemoteByIDs(task.channelID, rc.RemoteID)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (scs *Service) syncForRemote(task syncTask, rc *model.RemoteCluster) error 
 			mlog.Bool("repeat", sd.resultRepeat),
 		)
 		if sd.isCursorChanged() {
-			scs.updateCursorForRemote(sd.scr.Id, sd.rc, sd.resultNextCursor)
+			scs.updateCursorForRemote(sd.scr.ID, sd.rc, sd.resultNextCursor)
 		}
 		return nil
 	}
@@ -166,8 +166,8 @@ func (scs *Service) fetchUsersForSync(sd *syncData) error {
 	}
 
 	for _, u := range users {
-		if u.GetRemoteID() != sd.rc.RemoteId {
-			sd.users[u.Id] = u
+		if u.GetRemoteID() != sd.rc.RemoteID {
+			sd.users[u.ID] = u
 		}
 	}
 
@@ -178,8 +178,8 @@ func (scs *Service) fetchUsersForSync(sd *syncData) error {
 	}
 
 	for _, u := range usersImage {
-		if u.GetRemoteID() != sd.rc.RemoteId {
-			sd.profileImages[u.Id] = u
+		if u.GetRemoteID() != sd.rc.RemoteID {
+			sd.profileImages[u.ID] = u
 		}
 	}
 	return nil
@@ -188,12 +188,12 @@ func (scs *Service) fetchUsersForSync(sd *syncData) error {
 // fetchPostsForSync populates the sync data with any new posts since the last sync.
 func (scs *Service) fetchPostsForSync(sd *syncData) error {
 	options := model.GetPostsSinceForSyncOptions{
-		ChannelId:      sd.task.channelID,
+		ChannelID:      sd.task.channelID,
 		IncludeDeleted: true,
 	}
 	cursor := model.GetPostsSinceForSyncCursor{
 		LastPostUpdateAt: sd.scr.LastPostUpdateAt,
-		LastPostId:       sd.scr.LastPostId,
+		LastPostID:       sd.scr.LastPostID,
 	}
 
 	posts, nextCursor, err := scs.server.GetStore().Post().GetPostsSinceForSync(options, cursor, MaxPostsPerSync)
@@ -208,8 +208,8 @@ func (scs *Service) fetchPostsForSync(sd *syncData) error {
 	// in the list and must be sync'd before the child post. This is and edge case that likely only
 	// happens during load testing or bulk imports.
 	for _, p := range posts {
-		if p.RootId != "" {
-			root, err := scs.server.GetStore().Post().GetSingle(p.RootId, true)
+		if p.RootID != "" {
+			root, err := scs.server.GetStore().Post().GetSingle(p.RootID, true)
 			if err == nil {
 				if (root.CreateAt >= cursor.LastPostUpdateAt || root.UpdateAt >= cursor.LastPostUpdateAt) && !containsPost(sd.posts, root) {
 					sd.posts = append(sd.posts, root)
@@ -226,7 +226,7 @@ func (scs *Service) fetchPostsForSync(sd *syncData) error {
 
 func containsPost(posts []*model.Post, post *model.Post) bool {
 	for _, p := range posts {
-		if p.Id == post.Id {
+		if p.ID == post.ID {
 			return true
 		}
 	}
@@ -238,9 +238,9 @@ func (scs *Service) fetchReactionsForSync(sd *syncData) error {
 	merr := merror.New()
 	for _, post := range sd.posts {
 		// any reactions originating from the remote cluster are filtered out
-		reactions, err := scs.server.GetStore().Reaction().GetForPostSince(post.Id, sd.scr.LastPostUpdateAt, sd.rc.RemoteId, true)
+		reactions, err := scs.server.GetStore().Reaction().GetForPostSince(post.ID, sd.scr.LastPostUpdateAt, sd.rc.RemoteID, true)
 		if err != nil {
-			merr.Append(fmt.Errorf("could not get reactions for post %s: %w", post.Id, err))
+			merr.Append(fmt.Errorf("could not get reactions for post %s: %w", post.ID, err))
 			continue
 		}
 		sd.reactions = append(sd.reactions, reactions...)
@@ -263,15 +263,15 @@ func (scs *Service) fetchPostUsersForSync(sd *syncData) error {
 	userIDs := make(map[string]p2mm)
 
 	for _, reaction := range sd.reactions {
-		userIDs[reaction.UserId] = p2mm{}
+		userIDs[reaction.UserID] = p2mm{}
 	}
 
 	for _, post := range sd.posts {
 		// add author
-		userIDs[post.UserId] = p2mm{}
+		userIDs[post.UserID] = p2mm{}
 
 		// get mentions and users for each mention
-		mentionMap := scs.app.MentionsToTeamMembers(post.Message, sc.TeamId)
+		mentionMap := scs.app.MentionsToTeamMembers(post.Message, sc.TeamID)
 		for _, userID := range mentionMap {
 			userIDs[userID] = p2mm{
 				post:       post,
@@ -296,16 +296,16 @@ func (scs *Service) fetchPostUsersForSync(sd *syncData) error {
 		}
 
 		if sync {
-			sd.users[user.Id] = sanitizeUserForSync(user)
+			sd.users[user.ID] = sanitizeUserForSync(user)
 		}
 
 		if syncImage {
-			sd.profileImages[user.Id] = sanitizeUserForSync(user)
+			sd.profileImages[user.ID] = sanitizeUserForSync(user)
 		}
 
 		// if this was a mention then put the real username in place of the username+remotename, but only
 		// when sending to the remote that the user belongs to.
-		if v.post != nil && user.RemoteId != nil && *user.RemoteId == sd.rc.RemoteId {
+		if v.post != nil && user.RemoteID != nil && *user.RemoteID == sd.rc.RemoteID {
 			fixMention(v.post, v.mentionMap, user)
 		}
 	}
@@ -316,9 +316,9 @@ func (scs *Service) fetchPostUsersForSync(sd *syncData) error {
 func (scs *Service) fetchPostAttachmentsForSync(sd *syncData) error {
 	merr := merror.New()
 	for _, post := range sd.posts {
-		fis, err := scs.server.GetStore().FileInfo().GetForPost(post.Id, false, true, true)
+		fis, err := scs.server.GetStore().FileInfo().GetForPost(post.ID, false, true, true)
 		if err != nil {
-			merr.Append(fmt.Errorf("could not get file attachment info for post %s: %w", post.Id, err))
+			merr.Append(fmt.Errorf("could not get file attachment info for post %s: %w", post.ID, err))
 			continue
 		}
 
@@ -346,12 +346,12 @@ func (scs *Service) filterPostsForSync(sd *syncData) {
 		}
 
 		// Don't send a deleted post if it is just the original copy from an edit.
-		if p.DeleteAt > 0 && p.OriginalId != "" {
+		if p.DeleteAt > 0 && p.OriginalID != "" {
 			continue
 		}
 
 		// don't sync a post back to the remote it came from.
-		if p.GetRemoteID() == sd.rc.RemoteId {
+		if p.GetRemoteID() == sd.rc.RemoteID {
 			continue
 		}
 
@@ -387,7 +387,7 @@ func (scs *Service) sendSyncData(sd *syncData) error {
 			merr.Append(fmt.Errorf("cannot send post sync data: %w", err))
 		}
 	} else if sd.isCursorChanged() {
-		scs.updateCursorForRemote(sd.scr.Id, sd.rc, sd.resultNextCursor)
+		scs.updateCursorForRemote(sd.scr.ID, sd.rc, sd.resultNextCursor)
 	}
 
 	// send reactions
@@ -412,11 +412,11 @@ func (scs *Service) sendUserSyncData(sd *syncData) error {
 
 	err := scs.sendSyncMsgToRemote(msg, sd.rc, func(syncResp SyncResponse, errResp error) {
 		for _, userID := range syncResp.UsersSyncd {
-			if err := scs.server.GetStore().SharedChannel().UpdateUserLastSyncAt(userID, sd.task.channelID, sd.rc.RemoteId); err != nil {
+			if err := scs.server.GetStore().SharedChannel().UpdateUserLastSyncAt(userID, sd.task.channelID, sd.rc.RemoteID); err != nil {
 				scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "Cannot update shared channel user LastSyncAt",
 					mlog.String("user_id", userID),
 					mlog.String("channel_id", sd.task.channelID),
-					mlog.String("remote_id", sd.rc.RemoteId),
+					mlog.String("remote_id", sd.rc.RemoteID),
 					mlog.Err(err),
 				)
 			}
@@ -424,7 +424,7 @@ func (scs *Service) sendUserSyncData(sd *syncData) error {
 		if len(syncResp.UserErrors) != 0 {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "Response indicates error for user(s) sync",
 				mlog.String("channel_id", sd.task.channelID),
-				mlog.String("remote_id", sd.rc.RemoteId),
+				mlog.String("remote_id", sd.rc.RemoteID),
 				mlog.Any("users", syncResp.UserErrors),
 			)
 		}
@@ -437,9 +437,9 @@ func (scs *Service) sendAttachmentSyncData(sd *syncData) {
 	for _, a := range sd.attachments {
 		if err := scs.sendAttachmentForRemote(a.fi, a.post, sd.rc); err != nil {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "Cannot sync post attachment",
-				mlog.String("post_id", a.post.Id),
+				mlog.String("post_id", a.post.ID),
 				mlog.String("channel_id", sd.task.channelID),
-				mlog.String("remote_id", sd.rc.RemoteId),
+				mlog.String("remote_id", sd.rc.RemoteID),
 				mlog.Err(err),
 			)
 		}
@@ -456,7 +456,7 @@ func (scs *Service) sendPostSyncData(sd *syncData) error {
 		if len(syncResp.PostErrors) != 0 {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "Response indicates error for post(s) sync",
 				mlog.String("channel_id", sd.task.channelID),
-				mlog.String("remote_id", sd.rc.RemoteId),
+				mlog.String("remote_id", sd.rc.RemoteID),
 				mlog.Any("posts", syncResp.PostErrors),
 			)
 
@@ -464,7 +464,7 @@ func (scs *Service) sendPostSyncData(sd *syncData) error {
 				scs.handlePostError(postID, sd.task, sd.rc)
 			}
 		}
-		scs.updateCursorForRemote(sd.scr.Id, sd.rc, sd.resultNextCursor)
+		scs.updateCursorForRemote(sd.scr.ID, sd.rc, sd.resultNextCursor)
 	})
 }
 
@@ -477,7 +477,7 @@ func (scs *Service) sendReactionSyncData(sd *syncData) error {
 		if len(syncResp.ReactionErrors) != 0 {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "Response indicates error for reactions(s) sync",
 				mlog.String("channel_id", sd.task.channelID),
-				mlog.String("remote_id", sd.rc.RemoteId),
+				mlog.String("remote_id", sd.rc.RemoteID),
 				mlog.Any("reaction_posts", syncResp.ReactionErrors),
 			)
 		}
@@ -495,7 +495,7 @@ func (scs *Service) sendProfileImageSyncData(sd *syncData) {
 func (scs *Service) sendSyncMsgToRemote(msg *syncMsg, rc *model.RemoteCluster, f sendSyncMsgResultFunc) error {
 	rcs := scs.server.GetRemoteClusterService()
 	if rcs == nil {
-		return fmt.Errorf("cannot update remote cluster %s for channel id %s; Remote Cluster Service not enabled", rc.Name, msg.ChannelId)
+		return fmt.Errorf("cannot update remote cluster %s for channel id %s; Remote Cluster Service not enabled", rc.Name, msg.ChannelID)
 	}
 
 	b, err := json.Marshal(msg)
@@ -517,7 +517,7 @@ func (scs *Service) sendSyncMsgToRemote(msg *syncMsg, rc *model.RemoteCluster, f
 		if err2 := json.Unmarshal(rcResp.Payload, &syncResp); err2 != nil {
 			scs.server.GetLogger().Log(mlog.LvlSharedChannelServiceError, "Invalid sync msg response from remote cluster",
 				mlog.String("remote", rc.Name),
-				mlog.String("channel_id", msg.ChannelId),
+				mlog.String("channel_id", msg.ChannelID),
 				mlog.Err(err2),
 			)
 			return

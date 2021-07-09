@@ -20,28 +20,28 @@ func TestMsgProvider(t *testing.T) {
 	th.linkUserToTeam(th.BasicUser, team)
 	cmd := &msgProvider{}
 
-	th.removePermissionFromRole(model.PermissionCreateDirectChannel.Id, model.SystemUserRoleId)
+	th.removePermissionFromRole(model.PermissionCreateDirectChannel.ID, model.SystemUserRoleID)
 
 	// Check without permission to create a DM channel.
 	resp := cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
 		SiteURL: "http://test.url",
-		TeamId:  team.Id,
-		UserId:  th.BasicUser.Id,
+		TeamID:  team.ID,
+		UserID:  th.BasicUser.ID,
 	}, "@"+th.BasicUser2.Username+" hello")
 
-	channelName := model.GetDMNameFromIds(th.BasicUser.Id, th.BasicUser2.Id)
+	channelName := model.GetDMNameFromIDs(th.BasicUser.ID, th.BasicUser2.ID)
 	assert.Equal(t, "api.command_msg.permission.app_error", resp.Text)
 	assert.Equal(t, "", resp.GotoLocation)
 
-	th.addPermissionToRole(model.PermissionCreateDirectChannel.Id, model.SystemUserRoleId)
+	th.addPermissionToRole(model.PermissionCreateDirectChannel.ID, model.SystemUserRoleID)
 
 	// Check with permission to create a DM channel.
 	resp = cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
 		SiteURL: "http://test.url",
-		TeamId:  team.Id,
-		UserId:  th.BasicUser.Id,
+		TeamID:  team.ID,
+		UserID:  th.BasicUser.ID,
 	}, "@"+th.BasicUser2.Username+" hello")
 
 	assert.Equal(t, "", resp.Text)
@@ -51,8 +51,8 @@ func TestMsgProvider(t *testing.T) {
 	resp = cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
 		SiteURL: "http://test.url",
-		TeamId:  team.Id,
-		UserId:  th.BasicUser.Id,
+		TeamID:  team.ID,
+		UserID:  th.BasicUser.ID,
 	}, "@"+th.BasicUser2.Username+" hello")
 
 	assert.Equal(t, "", resp.Text)
@@ -69,8 +69,8 @@ func TestMsgProvider(t *testing.T) {
 	resp = cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
-		UserId:  guest.Id,
+		TeamID:  th.BasicTeam.ID,
+		UserID:  guest.ID,
 	}, "@"+user.Username+" hello")
 
 	assert.Equal(t, "api.command_msg.missing.app_error", resp.Text)
@@ -83,11 +83,11 @@ func TestMsgProvider(t *testing.T) {
 	resp = cmd.DoCommand(th.App, th.Context, &model.CommandArgs{
 		T:       i18n.IdentityTfunc(),
 		SiteURL: "http://test.url",
-		TeamId:  th.BasicTeam.Id,
-		UserId:  guest.Id,
+		TeamID:  th.BasicTeam.ID,
+		UserID:  guest.ID,
 	}, "@"+user.Username+" hello")
 
-	channelName = model.GetDMNameFromIds(guest.Id, user.Id)
+	channelName = model.GetDMNameFromIDs(guest.ID, user.ID)
 
 	assert.Equal(t, "", resp.Text)
 	assert.Equal(t, "http://test.url/"+th.BasicTeam.Name+"/channels/"+channelName, resp.GotoLocation)

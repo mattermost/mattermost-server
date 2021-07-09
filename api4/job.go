@@ -24,12 +24,12 @@ func (api *API) InitJob() {
 }
 
 func getJob(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireJobId()
+	c.RequireJobID()
 	if c.Err != nil {
 		return
 	}
 
-	job, err := c.App.GetJob(c.Params.JobId)
+	job, err := c.App.GetJob(c.Params.JobID)
 	if err != nil {
 		c.Err = err
 		return
@@ -45,7 +45,7 @@ func getJob(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(job.ToJson()))
+	w.Write([]byte(job.ToJSON()))
 }
 
 func downloadJob(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -53,7 +53,7 @@ func downloadJob(c *Context, w http.ResponseWriter, r *http.Request) {
 	const FilePath = "export"
 	const FileMime = "application/zip"
 
-	c.RequireJobId()
+	c.RequireJobID()
 	if c.Err != nil {
 		return
 	}
@@ -63,7 +63,7 @@ func downloadJob(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	job, err := c.App.GetJob(c.Params.JobId)
+	job, err := c.App.GetJob(c.Params.JobID)
 	if err != nil {
 		c.Err = err
 		return
@@ -85,7 +85,7 @@ func downloadJob(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileName := job.Id + ".zip"
+	fileName := job.ID + ".zip"
 	filePath := filepath.Join(FilePath, fileName)
 	fileReader, err := c.App.FileReader(filePath)
 	if err != nil {
@@ -101,7 +101,7 @@ func downloadJob(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func createJob(c *Context, w http.ResponseWriter, r *http.Request) {
-	job := model.JobFromJson(r.Body)
+	job := model.JobFromJSON(r.Body)
 	if job == nil {
 		c.SetInvalidParam("job")
 		return
@@ -132,7 +132,7 @@ func createJob(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.AddMeta("job", job) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(job.ToJson()))
+	w.Write([]byte(job.ToJSON()))
 }
 
 func getJobs(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -162,7 +162,7 @@ func getJobs(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.JobsToJson(jobs)))
+	w.Write([]byte(model.JobsToJSON(jobs)))
 }
 
 func getJobsByType(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -187,20 +187,20 @@ func getJobsByType(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(model.JobsToJson(jobs)))
+	w.Write([]byte(model.JobsToJSON(jobs)))
 }
 
 func cancelJob(c *Context, w http.ResponseWriter, r *http.Request) {
-	c.RequireJobId()
+	c.RequireJobID()
 	if c.Err != nil {
 		return
 	}
 
 	auditRec := c.MakeAuditRecord("cancelJob", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("job_id", c.Params.JobId)
+	auditRec.AddMeta("job_id", c.Params.JobID)
 
-	job, err := c.App.GetJob(c.Params.JobId)
+	job, err := c.App.GetJob(c.Params.JobID)
 	if err != nil {
 		c.Err = err
 		return
@@ -218,7 +218,7 @@ func cancelJob(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.App.CancelJob(c.Params.JobId); err != nil {
+	if err := c.App.CancelJob(c.Params.JobID); err != nil {
 		c.Err = err
 		return
 	}

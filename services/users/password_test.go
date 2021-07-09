@@ -133,7 +133,7 @@ func TestIsPasswordValidWithSettings(t *testing.T) {
 			} else {
 				invErr, ok := err.(*ErrInvalidPassword)
 				require.True(t, ok)
-				assert.Equal(t, tc.ExpectedError, invErr.Id())
+				assert.Equal(t, tc.ExpectedError, invErr.ID())
 			}
 		})
 	}

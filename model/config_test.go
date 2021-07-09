@@ -147,7 +147,7 @@ func TestConfigIsValidDefaultAlgorithms(t *testing.T) {
 	*c1.SamlSettings.IDpUrl = "http://test.url.com"
 	*c1.SamlSettings.IDpDescriptorUrl = "http://test.url.com"
 	*c1.SamlSettings.IDpCertificateFile = "certificatefile"
-	*c1.SamlSettings.ServiceProviderIDentifier = "http://test.url.com"
+	*c1.SamlSettings.ServiceProviderIdentifier = "http://test.url.com"
 	*c1.SamlSettings.EmailAttribute = "Email"
 	*c1.SamlSettings.UsernameAttribute = "Username"
 
@@ -170,7 +170,7 @@ func TestConfigServiceProviderDefault(t *testing.T) {
 	}
 
 	c1.SetDefaults()
-	assert.Equal(t, *c1.SamlSettings.ServiceProviderIDentifier, *c1.SamlSettings.IDpDescriptorUrl)
+	assert.Equal(t, *c1.SamlSettings.ServiceProviderIdentifier, *c1.SamlSettings.IDpDescriptorUrl)
 
 	err := c1.SamlSettings.isValid()
 	require.Nil(t, err)
@@ -188,7 +188,7 @@ func TestConfigIsValidFakeAlgorithm(t *testing.T) {
 	*c1.SamlSettings.IDpDescriptorUrl = "http://test.url.com"
 	*c1.SamlSettings.IDpMetadataUrl = "http://test.url.com"
 	*c1.SamlSettings.IDpCertificateFile = "certificatefile"
-	*c1.SamlSettings.ServiceProviderIDentifier = "http://test.url.com"
+	*c1.SamlSettings.ServiceProviderIdentifier = "http://test.url.com"
 	*c1.SamlSettings.EmailAttribute = "Email"
 	*c1.SamlSettings.UsernameAttribute = "Username"
 

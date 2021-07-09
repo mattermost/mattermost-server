@@ -25,24 +25,24 @@ func (api *API) InitWebhookLocal() {
 }
 
 func localCreateIncomingHook(c *Context, w http.ResponseWriter, r *http.Request) {
-	hook := model.IncomingWebhookFromJson(r.Body)
+	hook := model.IncomingWebhookFromJSON(r.Body)
 	if hook == nil {
 		c.SetInvalidParam("incoming_webhook")
 		return
 	}
 
-	if hook.UserId == "" {
+	if hook.UserID == "" {
 		c.SetInvalidParam("user_id")
 		return
 	}
 
-	channel, err := c.App.GetChannel(hook.ChannelId)
+	channel, err := c.App.GetChannel(hook.ChannelID)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	if _, err = c.App.GetUser(hook.UserId); err != nil {
+	if _, err = c.App.GetUser(hook.UserID); err != nil {
 		c.Err = err
 		return
 	}
@@ -52,7 +52,7 @@ func localCreateIncomingHook(c *Context, w http.ResponseWriter, r *http.Request)
 	auditRec.AddMeta("channel", channel)
 	c.LogAudit("attempt")
 
-	incomingHook, err := c.App.CreateIncomingWebhookForChannel(hook.UserId, channel, hook)
+	incomingHook, err := c.App.CreateIncomingWebhookForChannel(hook.UserID, channel, hook)
 	if err != nil {
 		c.Err = err
 		return
@@ -63,11 +63,11 @@ func localCreateIncomingHook(c *Context, w http.ResponseWriter, r *http.Request)
 	c.LogAudit("success")
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(incomingHook.ToJson()))
+	w.Write([]byte(incomingHook.ToJSON()))
 }
 
 func localCreateOutgoingHook(c *Context, w http.ResponseWriter, r *http.Request) {
-	hook := model.OutgoingWebhookFromJson(r.Body)
+	hook := model.OutgoingWebhookFromJSON(r.Body)
 	if hook == nil {
 		c.SetInvalidParam("outgoing_webhook")
 		return
@@ -75,15 +75,15 @@ func localCreateOutgoingHook(c *Context, w http.ResponseWriter, r *http.Request)
 
 	auditRec := c.MakeAuditRecord("createOutgoingHook", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("hook_id", hook.Id)
+	auditRec.AddMeta("hook_id", hook.ID)
 	c.LogAudit("attempt")
 
-	if hook.CreatorId == "" {
+	if hook.CreatorID == "" {
 		c.SetInvalidParam("creator_id")
 		return
 	}
 
-	_, err := c.App.GetUser(hook.CreatorId)
+	_, err := c.App.GetUser(hook.CreatorID)
 	if err != nil {
 		c.Err = err
 		return
@@ -98,10 +98,10 @@ func localCreateOutgoingHook(c *Context, w http.ResponseWriter, r *http.Request)
 
 	auditRec.Success()
 	auditRec.AddMeta("hook_display", rhook.DisplayName)
-	auditRec.AddMeta("channel_id", rhook.ChannelId)
-	auditRec.AddMeta("team_id", rhook.TeamId)
+	auditRec.AddMeta("channel_id", rhook.ChannelID)
+	auditRec.AddMeta("team_id", rhook.TeamID)
 	c.LogAudit("success")
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(rhook.ToJson()))
+	w.Write([]byte(rhook.ToJSON()))
 }

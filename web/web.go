@@ -65,7 +65,7 @@ func Handle404(a app.AppIface, w http.ResponseWriter, r *http.Request) {
 	if IsApiCall(a, r) {
 		w.WriteHeader(err.StatusCode)
 		err.DetailedError = "There doesn't appear to be an api call for the url='" + r.URL.Path + "'.  Typo? are you missing a team_id or user_id as part of the url?"
-		w.Write([]byte(err.ToJson()))
+		w.Write([]byte(err.ToJSON()))
 	} else if *a.Config().ServiceSettings.WebserverMode == "disabled" {
 		http.NotFound(w, r)
 	} else {
@@ -103,5 +103,5 @@ func IsOAuthApiCall(a app.AppIface, r *http.Request) bool {
 func ReturnStatusOK(w http.ResponseWriter) {
 	m := make(map[string]string)
 	m[model.STATUS] = model.StatusOk
-	w.Write([]byte(model.MapToJson(m)))
+	w.Write([]byte(model.MapToJSON(m)))
 }

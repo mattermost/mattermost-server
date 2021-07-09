@@ -19,7 +19,7 @@ import (
 const (
 	SamlPublicCertificateName = "saml-public.crt"
 	SamlPrivateKeyName        = "saml-private.key"
-	SamlIdpCertificateName    = "saml-idp.crt"
+	SamlIDpCertificateName    = "saml-idp.crt"
 )
 
 func (a *App) GetSamlMetadata() (string, *model.AppError) {
@@ -89,13 +89,13 @@ func (a *App) AddSamlPrivateCertificate(fileData *multipart.FileHeader) *model.A
 	return nil
 }
 
-func (a *App) AddSamlIdpCertificate(fileData *multipart.FileHeader) *model.AppError {
-	if err := a.writeSamlFile(SamlIdpCertificateName, fileData); err != nil {
+func (a *App) AddSamlIDpCertificate(fileData *multipart.FileHeader) *model.AppError {
+	if err := a.writeSamlFile(SamlIDpCertificateName, fileData); err != nil {
 		return err
 	}
 
 	cfg := a.Config().Clone()
-	*cfg.SamlSettings.IdpCertificateFile = SamlIdpCertificateName
+	*cfg.SamlSettings.IDpCertificateFile = SamlIDpCertificateName
 
 	if err := cfg.IsValid(); err != nil {
 		return err
@@ -150,13 +150,13 @@ func (a *App) RemoveSamlPrivateCertificate() *model.AppError {
 	return nil
 }
 
-func (a *App) RemoveSamlIdpCertificate() *model.AppError {
-	if err := a.removeSamlFile(*a.Config().SamlSettings.IdpCertificateFile); err != nil {
+func (a *App) RemoveSamlIDpCertificate() *model.AppError {
+	if err := a.removeSamlFile(*a.Config().SamlSettings.IDpCertificateFile); err != nil {
 		return err
 	}
 
 	cfg := a.Config().Clone()
-	*cfg.SamlSettings.IdpCertificateFile = ""
+	*cfg.SamlSettings.IDpCertificateFile = ""
 	*cfg.SamlSettings.Enable = false
 
 	if err := cfg.IsValid(); err != nil {
@@ -171,14 +171,14 @@ func (a *App) RemoveSamlIdpCertificate() *model.AppError {
 func (a *App) GetSamlCertificateStatus() *model.SamlCertificateStatus {
 	status := &model.SamlCertificateStatus{}
 
-	status.IdpCertificateFile, _ = a.Srv().configStore.HasFile(*a.Config().SamlSettings.IdpCertificateFile)
+	status.IDpCertificateFile, _ = a.Srv().configStore.HasFile(*a.Config().SamlSettings.IDpCertificateFile)
 	status.PrivateKeyFile, _ = a.Srv().configStore.HasFile(*a.Config().SamlSettings.PrivateKeyFile)
 	status.PublicCertificateFile, _ = a.Srv().configStore.HasFile(*a.Config().SamlSettings.PublicCertificateFile)
 
 	return status
 }
 
-func (a *App) GetSamlMetadataFromIdp(idpMetadataUrl string) (*model.SamlMetadataResponse, *model.AppError) {
+func (a *App) GetSamlMetadataFromIDp(idpMetadataUrl string) (*model.SamlMetadataResponse, *model.AppError) {
 	if a.Saml() == nil {
 		err := model.NewAppError("GetSamlMetadataFromIdp", "api.admin.saml.not_available.app_error", nil, "", http.StatusNotImplemented)
 		return nil, err
@@ -188,7 +188,7 @@ func (a *App) GetSamlMetadataFromIdp(idpMetadataUrl string) (*model.SamlMetadata
 		idpMetadataUrl = "https://" + idpMetadataUrl
 	}
 
-	idpMetadataRaw, err := a.FetchSamlMetadataFromIdp(idpMetadataUrl)
+	idpMetadataRaw, err := a.FetchSamlMetadataFromIDp(idpMetadataUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func (a *App) GetSamlMetadataFromIdp(idpMetadataUrl string) (*model.SamlMetadata
 	return data, nil
 }
 
-func (a *App) FetchSamlMetadataFromIdp(url string) ([]byte, *model.AppError) {
+func (a *App) FetchSamlMetadataFromIDp(url string) ([]byte, *model.AppError) {
 	resp, err := a.HTTPService().MakeClient(false).Get(url)
 	if err != nil {
 		return nil, model.NewAppError("FetchSamlMetadataFromIdp", "app.admin.saml.invalid_response_from_idp.app_error", nil, err.Error(), http.StatusBadRequest)
@@ -228,7 +228,7 @@ func (a *App) BuildSamlMetadataObject(idpMetadata []byte) (*model.SamlMetadataRe
 	}
 
 	data := &model.SamlMetadataResponse{}
-	data.IdpDescriptorUrl = entityDescriptor.EntityID
+	data.IDpDescriptorUrl = entityDescriptor.EntityID
 
 	if entityDescriptor.IDPSSODescriptors == nil || len(entityDescriptor.IDPSSODescriptors) == 0 {
 		err := model.NewAppError("BuildSamlMetadataObject", "api.admin.saml.invalid_xml_missing_idpssodescriptors.app_error", nil, "", http.StatusInternalServerError)
@@ -241,18 +241,18 @@ func (a *App) BuildSamlMetadataObject(idpMetadata []byte) (*model.SamlMetadataRe
 		return nil, err
 	}
 
-	data.IdpUrl = idpSSODescriptor.SingleSignOnServices[0].Location
+	data.IDpUrl = idpSSODescriptor.SingleSignOnServices[0].Location
 	if idpSSODescriptor.SSODescriptor.RoleDescriptor.KeyDescriptors == nil || len(idpSSODescriptor.SSODescriptor.RoleDescriptor.KeyDescriptors) == 0 {
 		err := model.NewAppError("BuildSamlMetadataObject", "api.admin.saml.invalid_xml_missing_keydescriptor.app_error", nil, "", http.StatusInternalServerError)
 		return nil, err
 	}
 	keyDescriptor := idpSSODescriptor.SSODescriptor.RoleDescriptor.KeyDescriptors[0]
-	data.IdpPublicCertificate = keyDescriptor.KeyInfo.X509Data.X509Certificate.Cert
+	data.IDpPublicCertificate = keyDescriptor.KeyInfo.X509Data.X509Certificate.Cert
 
 	return data, nil
 }
 
-func (a *App) SetSamlIdpCertificateFromMetadata(data []byte) *model.AppError {
+func (a *App) SetSamlIDpCertificateFromMetadata(data []byte) *model.AppError {
 	const certPrefix = "-----BEGIN CERTIFICATE-----\n"
 	const certSuffix = "\n-----END CERTIFICATE-----"
 	fixedCertTxt := certPrefix + string(data) + certSuffix
@@ -267,12 +267,12 @@ func (a *App) SetSamlIdpCertificateFromMetadata(data []byte) *model.AppError {
 		Bytes: block.Bytes,
 	})
 
-	if err := a.Srv().configStore.SetFile(SamlIdpCertificateName, data); err != nil {
+	if err := a.Srv().configStore.SetFile(SamlIDpCertificateName, data); err != nil {
 		return model.NewAppError("SetSamlIdpCertificateFromMetadata", "api.admin.saml.failure_save_idp_certificate_file.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 
 	cfg := a.Config().Clone()
-	*cfg.SamlSettings.IdpCertificateFile = SamlIdpCertificateName
+	*cfg.SamlSettings.IDpCertificateFile = SamlIDpCertificateName
 
 	if err := cfg.IsValid(); err != nil {
 		return err

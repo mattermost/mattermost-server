@@ -27,7 +27,7 @@ func Migrate(from, to string) error {
 	}
 
 	files := []string{
-		*sourceConfig.SamlSettings.IdpCertificateFile,
+		*sourceConfig.SamlSettings.IDpCertificateFile,
 		*sourceConfig.SamlSettings.PublicCertificateFile,
 		*sourceConfig.SamlSettings.PrivateKeyFile,
 	}

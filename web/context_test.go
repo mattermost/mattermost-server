@@ -17,18 +17,18 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store/storetest/mocks"
 )
 
-func TestRequireHookId(t *testing.T) {
+func TestRequireHookID(t *testing.T) {
 	c := &Context{}
 	t.Run("WhenHookIdIsValid", func(t *testing.T) {
-		c.Params = &Params{HookId: "abcdefghijklmnopqrstuvwxyz"}
-		c.RequireHookId()
+		c.Params = &Params{HookID: "abcdefghijklmnopqrstuvwxyz"}
+		c.RequireHookID()
 
 		require.Nil(t, c.Err, "Hook Id is Valid. Should not have set error in context")
 	})
 
 	t.Run("WhenHookIdIsInvalid", func(t *testing.T) {
-		c.Params = &Params{HookId: "abc"}
-		c.RequireHookId()
+		c.Params = &Params{HookID: "abc"}
+		c.RequireHookID()
 
 		require.NotNil(t, c.Err, "Should have set Error in context")
 		require.Equal(t, http.StatusBadRequest, c.Err.StatusCode, "Should have set status as 400")
@@ -48,7 +48,7 @@ func TestCloudKeyRequired(t *testing.T) {
 
 	c.CloudKeyRequired()
 
-	assert.Equal(t, c.Err.Id, "api.context.session_expired.app_error")
+	assert.Equal(t, c.Err.ID, "api.context.session_expired.app_error")
 }
 
 func TestMfaRequired(t *testing.T) {
@@ -71,7 +71,7 @@ func TestMfaRequired(t *testing.T) {
 
 	th.App.Srv().SetLicense(model.NewTestLicense("mfa"))
 
-	th.Context.SetSession(&model.Session{Id: "abc", UserId: "userid"})
+	th.Context.SetSession(&model.Session{ID: "abc", UserID: "userid"})
 
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.AnnouncementSettings.UserNoticesEnabled = false
@@ -87,5 +87,5 @@ func TestMfaRequired(t *testing.T) {
 
 	c.MfaRequired()
 
-	assert.Equal(t, c.Err.Id, "api.context.get_user.app_error")
+	assert.Equal(t, c.Err.ID, "api.context.get_user.app_error")
 }

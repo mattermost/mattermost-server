@@ -41,7 +41,7 @@ func SetAppEnvironmentWithPlugins(t *testing.T, pluginCode []string, app *App, a
 	pluginIDs := []string{}
 	activationErrors := []error{}
 	for _, code := range pluginCode {
-		pluginID := model.NewId()
+		pluginID := model.NewID()
 		backend := filepath.Join(pluginDir, pluginID, "backend.exe")
 		utils.CompileGo(t, code, backend)
 
@@ -93,8 +93,8 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		defer tearDown()
 
 		post := &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "message_",
 			CreateAt:  model.GetMillis() - 10000,
 		}
@@ -134,8 +134,8 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		defer tearDown()
 
 		post := &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "message_",
 			CreateAt:  model.GetMillis() - 10000,
 		}
@@ -174,8 +174,8 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		defer tearDown()
 
 		post := &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "message",
 			CreateAt:  model.GetMillis() - 10000,
 		}
@@ -183,7 +183,7 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		require.Nil(t, err)
 
 		assert.Equal(t, "message", post.Message)
-		retrievedPost, errSingle := th.App.Srv().Store.Post().GetSingle(post.Id, false)
+		retrievedPost, errSingle := th.App.Srv().Store.Post().GetSingle(post.ID, false)
 		require.NoError(t, errSingle)
 		assert.Equal(t, "message", retrievedPost.Message)
 	})
@@ -218,8 +218,8 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		defer tearDown()
 
 		post := &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "message",
 			CreateAt:  model.GetMillis() - 10000,
 		}
@@ -227,7 +227,7 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		require.Nil(t, err)
 
 		assert.Equal(t, "message_fromplugin", post.Message)
-		retrievedPost, errSingle := th.App.Srv().Store.Post().GetSingle(post.Id, false)
+		retrievedPost, errSingle := th.App.Srv().Store.Post().GetSingle(post.ID, false)
 		require.NoError(t, errSingle)
 		assert.Equal(t, "message_fromplugin", retrievedPost.Message)
 	})
@@ -284,8 +284,8 @@ func TestHookMessageWillBePosted(t *testing.T) {
 		defer tearDown()
 
 		post := &model.Post{
-			UserId:    th.BasicUser.Id,
-			ChannelId: th.BasicChannel.Id,
+			UserID:    th.BasicUser.ID,
+			ChannelID: th.BasicChannel.ID,
 			Message:   "message",
 			CreateAt:  model.GetMillis() - 10000,
 		}
@@ -328,8 +328,8 @@ func TestHookMessageHasBeenPosted(t *testing.T) {
 	defer tearDown()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Message:   "message",
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -367,8 +367,8 @@ func TestHookMessageWillBeUpdated(t *testing.T) {
 	defer tearDown()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Message:   "message_",
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -415,8 +415,8 @@ func TestHookMessageHasBeenUpdated(t *testing.T) {
 	defer tearDown()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Message:   "message_",
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -464,8 +464,8 @@ func TestHookFileWillBeUploaded(t *testing.T) {
 
 		_, err := th.App.UploadFiles(th.Context,
 			"noteam",
-			th.BasicChannel.Id,
-			th.BasicUser.Id,
+			th.BasicChannel.ID,
+			th.BasicUser.ID,
 			[]io.ReadCloser{ioutil.NopCloser(bytes.NewBufferString("inputfile"))},
 			[]string{"testhook.txt"},
 			[]string{},
@@ -517,8 +517,8 @@ func TestHookFileWillBeUploaded(t *testing.T) {
 
 		_, err := th.App.UploadFiles(th.Context,
 			"noteam",
-			th.BasicChannel.Id,
-			th.BasicUser.Id,
+			th.BasicChannel.ID,
+			th.BasicUser.ID,
 			[]io.ReadCloser{ioutil.NopCloser(bytes.NewBufferString("inputfile"))},
 			[]string{"testhook.txt"},
 			[]string{},
@@ -564,8 +564,8 @@ func TestHookFileWillBeUploaded(t *testing.T) {
 
 		response, err := th.App.UploadFiles(th.Context,
 			"noteam",
-			th.BasicChannel.Id,
-			th.BasicUser.Id,
+			th.BasicChannel.ID,
+			th.BasicUser.ID,
 			[]io.ReadCloser{ioutil.NopCloser(bytes.NewBufferString("inputfile"))},
 			[]string{"testhook.txt"},
 			[]string{},
@@ -575,7 +575,7 @@ func TestHookFileWillBeUploaded(t *testing.T) {
 		assert.NotNil(t, response)
 		assert.Equal(t, 1, len(response.FileInfos))
 
-		fileID := response.FileInfos[0].Id
+		fileID := response.FileInfos[0].ID
 		fileInfo, err := th.App.GetFileInfo(fileID)
 		assert.Nil(t, err)
 		assert.NotNil(t, fileInfo)
@@ -640,8 +640,8 @@ func TestHookFileWillBeUploaded(t *testing.T) {
 
 		response, err := th.App.UploadFiles(th.Context,
 			"noteam",
-			th.BasicChannel.Id,
-			th.BasicUser.Id,
+			th.BasicChannel.ID,
+			th.BasicUser.ID,
 			[]io.ReadCloser{ioutil.NopCloser(bytes.NewBufferString("inputfile"))},
 			[]string{"testhook.txt"},
 			[]string{},
@@ -650,7 +650,7 @@ func TestHookFileWillBeUploaded(t *testing.T) {
 		assert.Nil(t, err)
 		assert.NotNil(t, response)
 		assert.Equal(t, 1, len(response.FileInfos))
-		fileID := response.FileInfos[0].Id
+		fileID := response.FileInfos[0].ID
 
 		fileInfo, err := th.App.GetFileInfo(fileID)
 		assert.Nil(t, err)
@@ -699,7 +699,7 @@ func TestUserWillLogIn_Blocked(t *testing.T) {
 	w := httptest.NewRecorder()
 	err = th.App.DoLogin(th.Context, w, r, th.BasicUser, "", false, false, false)
 
-	assert.Contains(t, err.Id, "Login rejected by plugin", "Expected Login rejected by plugin, got %s", err.Id)
+	assert.Contains(t, err.ID, "Login rejected by plugin", "Expected Login rejected by plugin, got %s", err.ID)
 }
 
 func TestUserWillLogInIn_Passed(t *testing.T) {
@@ -739,7 +739,7 @@ func TestUserWillLogInIn_Passed(t *testing.T) {
 	err = th.App.DoLogin(th.Context, w, r, th.BasicUser, "", false, false, false)
 
 	assert.Nil(t, err, "Expected nil, got %s", err)
-	assert.Equal(t, th.Context.Session().UserId, th.BasicUser.Id)
+	assert.Equal(t, th.Context.Session().UserID, th.BasicUser.ID)
 }
 
 func TestUserHasLoggedIn(t *testing.T) {
@@ -783,7 +783,7 @@ func TestUserHasLoggedIn(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
-	user, _ := th.App.GetUser(th.BasicUser.Id)
+	user, _ := th.App.GetUser(th.BasicUser.ID)
 
 	assert.Equal(t, user.FirstName, "plugin-callback-success", "Expected firstname overwrite, got default")
 }
@@ -818,9 +818,9 @@ func TestUserHasBeenCreated(t *testing.T) {
 	defer tearDown()
 
 	user := &model.User{
-		Email:       model.NewId() + "success+test@example.com",
+		Email:       model.NewID() + "success+test@example.com",
 		Nickname:    "Darth Vader",
-		Username:    "vader" + model.NewId(),
+		Username:    "vader" + model.NewID(),
 		Password:    "passwd1",
 		AuthService: "",
 	}
@@ -829,7 +829,7 @@ func TestUserHasBeenCreated(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 
-	user, err = th.App.GetUser(user.Id)
+	user, err = th.App.GetUser(user.ID)
 	require.Nil(t, err)
 	require.Equal(t, "plugin-callback-success", user.Nickname)
 }
@@ -911,14 +911,14 @@ func TestHookContext(t *testing.T) {
 	defer th.TearDown()
 
 	// We don't actually have a session, we are faking it so just set something arbitrarily
-	ctx := request.NewContext(context.Background(), model.NewId(), model.NewId(), model.NewId(), model.NewId(), model.NewId(), model.Session{}, nil)
-	ctx.Session().Id = model.NewId()
+	ctx := request.NewContext(context.Background(), model.NewID(), model.NewID(), model.NewID(), model.NewID(), model.NewID(), model.Session{}, nil)
+	ctx.Session().ID = model.NewID()
 
 	var mockAPI plugintest.API
 	mockAPI.On("LoadPluginConfiguration", mock.Anything).Return(nil)
-	mockAPI.On("LogDebug", ctx.Session().Id).Return(nil)
-	mockAPI.On("LogInfo", ctx.RequestId()).Return(nil)
-	mockAPI.On("LogError", ctx.IpAddress()).Return(nil)
+	mockAPI.On("LogDebug", ctx.Session().ID).Return(nil)
+	mockAPI.On("LogInfo", ctx.RequestID()).Return(nil)
+	mockAPI.On("LogError", ctx.IDAddress()).Return(nil)
 	mockAPI.On("LogWarn", ctx.AcceptLanguage()).Return(nil)
 	mockAPI.On("DeleteTeam", ctx.UserAgent()).Return(nil)
 
@@ -951,8 +951,8 @@ func TestHookContext(t *testing.T) {
 	defer tearDown()
 
 	post := &model.Post{
-		UserId:    th.BasicUser.Id,
-		ChannelId: th.BasicChannel.Id,
+		UserID:    th.BasicUser.ID,
+		ChannelID: th.BasicChannel.ID,
 		Message:   "not this",
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -1003,16 +1003,16 @@ func TestActiveHooks(t *testing.T) {
 
 		require.True(t, th.App.GetPluginsEnvironment().IsActive(pluginID))
 		user1 := &model.User{
-			Email:       model.NewId() + "success+test@example.com",
+			Email:       model.NewID() + "success+test@example.com",
 			Nickname:    "Darth Vader1",
-			Username:    "vader" + model.NewId(),
+			Username:    "vader" + model.NewID(),
 			Password:    "passwd1",
 			AuthService: "",
 		}
 		_, appErr := th.App.CreateUser(th.Context, user1)
 		require.Nil(t, appErr)
 		time.Sleep(1 * time.Second)
-		user1, appErr = th.App.GetUser(user1.Id)
+		user1, appErr = th.App.GetUser(user1.ID)
 		require.Nil(t, appErr)
 		require.Equal(t, "plugin-callback-success", user1.Nickname)
 
@@ -1050,7 +1050,7 @@ func TestHookMetrics(t *testing.T) {
 
 		th.App.SetPluginsEnvironment(env)
 
-		pluginID := model.NewId()
+		pluginID := model.NewID()
 		backend := filepath.Join(pluginDir, pluginID, "backend.exe")
 		code :=
 			`
@@ -1109,16 +1109,16 @@ func TestHookMetrics(t *testing.T) {
 		require.True(t, th.App.GetPluginsEnvironment().IsActive(pluginID))
 
 		user1 := &model.User{
-			Email:       model.NewId() + "success+test@example.com",
+			Email:       model.NewID() + "success+test@example.com",
 			Nickname:    "Darth Vader1",
-			Username:    "vader" + model.NewId(),
+			Username:    "vader" + model.NewID(),
 			Password:    "passwd1",
 			AuthService: "",
 		}
 		_, appErr := th.App.CreateUser(th.Context, user1)
 		require.Nil(t, appErr)
 		time.Sleep(1 * time.Second)
-		user1, appErr = th.App.GetUser(user1.Id)
+		user1, appErr = th.App.GetUser(user1.ID)
 		require.Nil(t, appErr)
 		require.Equal(t, "plugin-callback-success", user1.Nickname)
 
@@ -1163,8 +1163,8 @@ func TestHookReactionHasBeenAdded(t *testing.T) {
 	defer tearDown()
 
 	reaction := &model.Reaction{
-		UserId:    th.BasicUser.Id,
-		PostId:    th.BasicPost.Id,
+		UserID:    th.BasicUser.ID,
+		PostID:    th.BasicPost.ID,
 		EmojiName: "smile",
 		CreateAt:  model.GetMillis() - 10000,
 	}
@@ -1205,8 +1205,8 @@ func TestHookReactionHasBeenRemoved(t *testing.T) {
 	defer tearDown()
 
 	reaction := &model.Reaction{
-		UserId:    th.BasicUser.Id,
-		PostId:    th.BasicPost.Id,
+		UserID:    th.BasicUser.ID,
+		PostID:    th.BasicPost.ID,
 		EmojiName: "star",
 		CreateAt:  model.GetMillis() - 10000,
 	}

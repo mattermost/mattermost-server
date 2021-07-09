@@ -33,17 +33,17 @@ func testSaveTermsOfService(t *testing.T, ss store.Store) {
 	t.Cleanup(func() { cleanUpTOS(ss) })
 
 	u1 := model.User{}
-	u1.Username = model.NewId()
+	u1.Username = model.NewID()
 	u1.Email = MakeEmail()
-	u1.Nickname = model.NewId()
+	u1.Nickname = model.NewID()
 	_, err := ss.User().Save(&u1)
 	require.NoError(t, err)
 
-	termsOfService := &model.TermsOfService{Text: "terms of service", UserId: u1.Id}
+	termsOfService := &model.TermsOfService{Text: "terms of service", UserID: u1.ID}
 	savedTermsOfService, err := ss.TermsOfService().Save(termsOfService)
 	require.NoError(t, err)
 
-	require.Len(t, savedTermsOfService.Id, 26, "Id should have been populated")
+	require.Len(t, savedTermsOfService.ID, 26, "Id should have been populated")
 
 	require.NotEqual(t, savedTermsOfService.CreateAt, 0, "Create at should have been populated")
 }
@@ -52,33 +52,33 @@ func testGetLatestTermsOfService(t *testing.T, ss store.Store) {
 	t.Cleanup(func() { cleanUpTOS(ss) })
 
 	u1 := model.User{}
-	u1.Username = model.NewId()
+	u1.Username = model.NewID()
 	u1.Email = MakeEmail()
-	u1.Nickname = model.NewId()
+	u1.Nickname = model.NewID()
 	_, err := ss.User().Save(&u1)
 	require.NoError(t, err)
 
-	termsOfService := &model.TermsOfService{Text: "terms of service 2", UserId: u1.Id}
+	termsOfService := &model.TermsOfService{Text: "terms of service 2", UserID: u1.ID}
 	_, err = ss.TermsOfService().Save(termsOfService)
 	require.NoError(t, err)
 
 	fetchedTermsOfService, err := ss.TermsOfService().GetLatest(true)
 	require.NoError(t, err)
 	assert.Equal(t, termsOfService.Text, fetchedTermsOfService.Text)
-	assert.Equal(t, termsOfService.UserId, fetchedTermsOfService.UserId)
+	assert.Equal(t, termsOfService.UserID, fetchedTermsOfService.UserID)
 }
 
 func testGetTermsOfService(t *testing.T, ss store.Store) {
 	t.Cleanup(func() { cleanUpTOS(ss) })
 
 	u1 := model.User{}
-	u1.Username = model.NewId()
+	u1.Username = model.NewID()
 	u1.Email = MakeEmail()
-	u1.Nickname = model.NewId()
+	u1.Nickname = model.NewID()
 	_, err := ss.User().Save(&u1)
 	require.NoError(t, err)
 
-	termsOfService := &model.TermsOfService{Text: "terms of service", UserId: u1.Id}
+	termsOfService := &model.TermsOfService{Text: "terms of service", UserID: u1.ID}
 	_, err = ss.TermsOfService().Save(termsOfService)
 	require.NoError(t, err)
 
@@ -86,7 +86,7 @@ func testGetTermsOfService(t *testing.T, ss store.Store) {
 	assert.Error(t, err)
 	assert.Nil(t, r1)
 
-	receivedTermsOfService, err := ss.TermsOfService().Get(termsOfService.Id, true)
+	receivedTermsOfService, err := ss.TermsOfService().Get(termsOfService.ID, true)
 	assert.NoError(t, err)
 	assert.Equal(t, "terms of service", receivedTermsOfService.Text)
 }

@@ -54,7 +54,7 @@ func (a *App) getSuggestions(c *request.Context, commandArgs *model.CommandArgs,
 
 	if index == -1 { // no space in input
 		for _, command := range commands {
-			if strings.HasPrefix(command.Trigger, strings.ToLower(inputToBeParsed)) && (command.RoleID == roleID || roleID == model.SystemAdminRoleId || roleID == "") {
+			if strings.HasPrefix(command.Trigger, strings.ToLower(inputToBeParsed)) && (command.RoleID == roleID || roleID == model.SystemAdminRoleID || roleID == "") {
 				s := model.AutocompleteSuggestion{
 					Complete:    inputParsed + command.Trigger,
 					Suggestion:  command.Trigger,
@@ -71,7 +71,7 @@ func (a *App) getSuggestions(c *request.Context, commandArgs *model.CommandArgs,
 		if command.Trigger != strings.ToLower(inputToBeParsed[:index]) {
 			continue
 		}
-		if roleID != "" && roleID != model.SystemAdminRoleId && roleID != command.RoleID {
+		if roleID != "" && roleID != model.SystemAdminRoleID && roleID != command.RoleID {
 			continue
 		}
 		toBeParsed := inputToBeParsed[index+1:]
@@ -257,18 +257,18 @@ func (a *App) getDynamicListArgument(c *request.Context, commandArgs *model.Comm
 	// Encode the information normally provided to a plugin slash command handler into the request parameters
 	// Encode PluginContext:
 	pluginContext := pluginContext(c)
-	params.Add("request_id", pluginContext.RequestId)
-	params.Add("session_id", pluginContext.SessionId)
-	params.Add("ip_address", pluginContext.IpAddress)
+	params.Add("request_id", pluginContext.RequestID)
+	params.Add("session_id", pluginContext.SessionID)
+	params.Add("ip_address", pluginContext.IDAddress)
 	params.Add("accept_language", pluginContext.AcceptLanguage)
 	params.Add("user_agent", pluginContext.UserAgent)
 
 	// Encode CommandArgs:
-	params.Add("channel_id", commandArgs.ChannelId)
-	params.Add("team_id", commandArgs.TeamId)
-	params.Add("root_id", commandArgs.RootId)
-	params.Add("parent_id", commandArgs.ParentId)
-	params.Add("user_id", commandArgs.UserId)
+	params.Add("channel_id", commandArgs.ChannelID)
+	params.Add("team_id", commandArgs.TeamID)
+	params.Add("root_id", commandArgs.RootID)
+	params.Add("parent_id", commandArgs.ParentID)
+	params.Add("user_id", commandArgs.UserID)
 	params.Add("site_url", commandArgs.SiteURL)
 
 	resp, err := a.doPluginRequest(c, "GET", dynamicArg.FetchURL, params, nil)

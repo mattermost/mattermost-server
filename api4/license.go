@@ -47,7 +47,7 @@ func getClientLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 		clientLicense = c.App.Srv().GetSanitizedClientLicense()
 	}
 
-	w.Write([]byte(model.MapToJson(clientLicense)))
+	w.Write([]byte(model.MapToJSON(clientLicense)))
 }
 
 func addLicense(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -120,9 +120,9 @@ func addLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	license, appErr = c.App.Srv().SaveLicense(licenseBytes)
 	if appErr != nil {
-		if appErr.Id == model.ExpiredLicenseError {
+		if appErr.ID == model.ExpiredLicenseError {
 			c.LogAudit("failed - expired or non-started license")
-		} else if appErr.Id == model.InvalidLicenseError {
+		} else if appErr.ID == model.InvalidLicenseError {
 			c.LogAudit("failed - invalid license")
 		} else {
 			c.LogAudit("failed - unable to save license")
@@ -134,7 +134,7 @@ func addLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec.Success()
 	c.LogAudit("success")
 
-	w.Write([]byte(license.ToJson()))
+	w.Write([]byte(license.ToJSON()))
 }
 
 func removeLicense(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -210,14 +210,14 @@ func requestTrialLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentUser, appErr := c.App.GetUser(c.AppContext.Session().UserId)
+	currentUser, appErr := c.App.GetUser(c.AppContext.Session().UserID)
 	if appErr != nil {
 		c.Err = appErr
 		return
 	}
 
 	trialLicenseRequest := &model.TrialLicenseRequest{
-		ServerID:              c.App.TelemetryId(),
+		ServerID:              c.App.TelemetryID(),
 		Name:                  currentUser.GetDisplayName(model.ShowFullName),
 		Email:                 currentUser.Email,
 		SiteName:              *c.App.Config().TeamSettings.SiteName,
@@ -289,5 +289,5 @@ func getPrevTrialLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 		clientLicense = utils.GetSanitizedClientLicense(utils.GetClientLicense(license))
 	}
 
-	w.Write([]byte(model.MapToJson(clientLicense)))
+	w.Write([]byte(model.MapToJSON(clientLicense)))
 }

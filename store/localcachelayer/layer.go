@@ -82,14 +82,14 @@ type LocalCacheStore struct {
 	schemeCache cache.Cache
 
 	emoji              *LocalCacheEmojiStore
-	emojiCacheById     cache.Cache
-	emojiIdCacheByName cache.Cache
+	emojiCacheByID     cache.Cache
+	emojiIDCacheByName cache.Cache
 
 	channel                      LocalCacheChannelStore
 	channelMemberCountsCache     cache.Cache
 	channelGuestCountCache       cache.Cache
 	channelPinnedPostCountsCache cache.Cache
-	channelByIdCache             cache.Cache
+	channelByIDCache             cache.Cache
 
 	webhook      LocalCacheWebhookStore
 	webhookCache cache.Cache
@@ -99,11 +99,11 @@ type LocalCacheStore struct {
 	lastPostTimeCache  cache.Cache
 
 	user                   *LocalCacheUserStore
-	userProfileByIdsCache  cache.Cache
+	userProfileByIDsCache  cache.Cache
 	profilesInChannelCache cache.Cache
 
 	team                       LocalCacheTeamStore
-	teamAllTeamIdsForUserCache cache.Cache
+	teamAllTeamIDsForUserCache cache.Cache
 
 	termsOfService      LocalCacheTermsOfServiceStore
 	termsOfServiceCache cache.Cache
@@ -181,26 +181,26 @@ func NewLocalCacheLayer(baseStore store.Store, metrics einterfaces.MetricsInterf
 	localCacheStore.webhook = LocalCacheWebhookStore{WebhookStore: baseStore.Webhook(), rootStore: &localCacheStore}
 
 	// Emojis
-	if localCacheStore.emojiCacheById, err = cacheProvider.NewCache(&cache.CacheOptions{
+	if localCacheStore.emojiCacheByID, err = cacheProvider.NewCache(&cache.CacheOptions{
 		Size:                   EmojiCacheSize,
 		Name:                   "EmojiById",
 		DefaultExpiry:          EmojiCacheSec * time.Second,
-		InvalidateClusterEvent: model.ClusterEventInvalidateCacheForEmojisById,
+		InvalidateClusterEvent: model.ClusterEventInvalidateCacheForEmojisByID,
 	}); err != nil {
 		return
 	}
-	if localCacheStore.emojiIdCacheByName, err = cacheProvider.NewCache(&cache.CacheOptions{
+	if localCacheStore.emojiIDCacheByName, err = cacheProvider.NewCache(&cache.CacheOptions{
 		Size:                   EmojiCacheSize,
 		Name:                   "EmojiByName",
 		DefaultExpiry:          EmojiCacheSec * time.Second,
-		InvalidateClusterEvent: model.ClusterEventInvalidateCacheForEmojisIdByName,
+		InvalidateClusterEvent: model.ClusterEventInvalidateCacheForEmojisIDByName,
 	}); err != nil {
 		return
 	}
 	localCacheStore.emoji = &LocalCacheEmojiStore{
 		EmojiStore:               baseStore.Emoji(),
 		rootStore:                &localCacheStore,
-		emojiByIdInvalidations:   make(map[string]bool),
+		emojiByIDInvalidations:   make(map[string]bool),
 		emojiByNameInvalidations: make(map[string]bool),
 	}
 
@@ -229,7 +229,7 @@ func NewLocalCacheLayer(baseStore store.Store, metrics einterfaces.MetricsInterf
 	}); err != nil {
 		return
 	}
-	if localCacheStore.channelByIdCache, err = cacheProvider.NewCache(&cache.CacheOptions{
+	if localCacheStore.channelByIDCache, err = cacheProvider.NewCache(&cache.CacheOptions{
 		Size:                   model.ChannelCacheSize,
 		Name:                   "channelById",
 		DefaultExpiry:          ChannelCacheSec * time.Second,
@@ -270,11 +270,11 @@ func NewLocalCacheLayer(baseStore store.Store, metrics einterfaces.MetricsInterf
 	localCacheStore.termsOfService = LocalCacheTermsOfServiceStore{TermsOfServiceStore: baseStore.TermsOfService(), rootStore: &localCacheStore}
 
 	// Users
-	if localCacheStore.userProfileByIdsCache, err = cacheProvider.NewCache(&cache.CacheOptions{
+	if localCacheStore.userProfileByIDsCache, err = cacheProvider.NewCache(&cache.CacheOptions{
 		Size:                   UserProfileByIDCacheSize,
 		Name:                   "UserProfileByIds",
 		DefaultExpiry:          UserProfileByIDSec * time.Second,
-		InvalidateClusterEvent: model.ClusterEventInvalidateCacheForProfileByIds,
+		InvalidateClusterEvent: model.ClusterEventInvalidateCacheForProfileByIDs,
 		Striped:                true,
 		StripedBuckets:         maxInt(runtime.NumCPU()-1, 1),
 	}); err != nil {
@@ -291,11 +291,11 @@ func NewLocalCacheLayer(baseStore store.Store, metrics einterfaces.MetricsInterf
 	localCacheStore.user = &LocalCacheUserStore{
 		UserStore:                     baseStore.User(),
 		rootStore:                     &localCacheStore,
-		userProfileByIdsInvalidations: make(map[string]bool),
+		userProfileByIDsInvalidations: make(map[string]bool),
 	}
 
 	// Teams
-	if localCacheStore.teamAllTeamIdsForUserCache, err = cacheProvider.NewCache(&cache.CacheOptions{
+	if localCacheStore.teamAllTeamIDsForUserCache, err = cacheProvider.NewCache(&cache.CacheOptions{
 		Size:                   TeamCacheSize,
 		Name:                   "Team",
 		DefaultExpiry:          TeamCacheSec * time.Second,
@@ -313,15 +313,15 @@ func NewLocalCacheLayer(baseStore store.Store, metrics einterfaces.MetricsInterf
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForFileInfos, localCacheStore.fileInfo.handleClusterInvalidateFileInfo)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForLastPostTime, localCacheStore.post.handleClusterInvalidateLastPostTime)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForWebhooks, localCacheStore.webhook.handleClusterInvalidateWebhook)
-		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForEmojisById, localCacheStore.emoji.handleClusterInvalidateEmojiById)
-		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForEmojisIdByName, localCacheStore.emoji.handleClusterInvalidateEmojiIdByName)
+		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForEmojisByID, localCacheStore.emoji.handleClusterInvalidateEmojiByID)
+		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForEmojisIDByName, localCacheStore.emoji.handleClusterInvalidateEmojiIDByName)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForChannelPinnedpostsCounts, localCacheStore.channel.handleClusterInvalidateChannelPinnedPostCount)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForChannelMemberCounts, localCacheStore.channel.handleClusterInvalidateChannelMemberCounts)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForChannelGuestCount, localCacheStore.channel.handleClusterInvalidateChannelGuestCounts)
-		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForChannel, localCacheStore.channel.handleClusterInvalidateChannelById)
+		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForChannel, localCacheStore.channel.handleClusterInvalidateChannelByID)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForLastPosts, localCacheStore.post.handleClusterInvalidateLastPosts)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForTermsOfService, localCacheStore.termsOfService.handleClusterInvalidateTermsOfService)
-		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForProfileByIds, localCacheStore.user.handleClusterInvalidateScheme)
+		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForProfileByIDs, localCacheStore.user.handleClusterInvalidateScheme)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForProfileInChannel, localCacheStore.user.handleClusterInvalidateProfilesInChannel)
 		cluster.RegisterClusterMessageHandler(model.ClusterEventInvalidateCacheForTeams, localCacheStore.team.handleClusterInvalidateTeam)
 	}
@@ -432,17 +432,17 @@ func (s *LocalCacheStore) Invalidate() {
 	s.doClearCacheCluster(s.roleCache)
 	s.doClearCacheCluster(s.fileInfoCache)
 	s.doClearCacheCluster(s.webhookCache)
-	s.doClearCacheCluster(s.emojiCacheById)
-	s.doClearCacheCluster(s.emojiIdCacheByName)
+	s.doClearCacheCluster(s.emojiCacheByID)
+	s.doClearCacheCluster(s.emojiIDCacheByName)
 	s.doClearCacheCluster(s.channelMemberCountsCache)
 	s.doClearCacheCluster(s.channelPinnedPostCountsCache)
 	s.doClearCacheCluster(s.channelGuestCountCache)
-	s.doClearCacheCluster(s.channelByIdCache)
+	s.doClearCacheCluster(s.channelByIDCache)
 	s.doClearCacheCluster(s.postLastPostsCache)
 	s.doClearCacheCluster(s.termsOfServiceCache)
 	s.doClearCacheCluster(s.lastPostTimeCache)
-	s.doClearCacheCluster(s.userProfileByIdsCache)
+	s.doClearCacheCluster(s.userProfileByIDsCache)
 	s.doClearCacheCluster(s.profilesInChannelCache)
-	s.doClearCacheCluster(s.teamAllTeamIdsForUserCache)
+	s.doClearCacheCluster(s.teamAllTeamIDsForUserCache)
 	s.doClearCacheCluster(s.rolePermissionsCache)
 }

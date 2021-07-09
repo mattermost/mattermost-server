@@ -52,14 +52,14 @@ func TestSamlCompleteCSRFPass(t *testing.T) {
 	defer resp.Body.Close()
 }
 
-func TestSamlResetId(t *testing.T) {
+func TestSamlResetID(t *testing.T) {
 	th := SetupEnterprise(t).InitBasic()
 	defer th.TearDown()
 	th.App.Srv().Saml = &mocks.SamlInterface{}
 
 	user := th.BasicUser
-	_, appErr := th.App.UpdateUserAuth(user.Id, &model.UserAuth{
-		AuthData:    model.NewString(model.NewId()),
+	_, appErr := th.App.UpdateUserAuth(user.ID, &model.UserAuth{
+		AuthData:    model.NewString(model.NewID()),
 		AuthService: model.UserAuthServiceSaml,
 	})
 	require.Nil(t, appErr)

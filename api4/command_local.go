@@ -11,13 +11,13 @@ import (
 )
 
 func (api *API) InitCommandLocal() {
-	api.BaseRoutes.Commands.Handle("", api.ApiLocal(localCreateCommand)).Methods("POST")
-	api.BaseRoutes.Commands.Handle("", api.ApiLocal(listCommands)).Methods("GET")
+	api.BaseRoutes.Commands.Handle("", api.APILocal(localCreateCommand)).Methods("POST")
+	api.BaseRoutes.Commands.Handle("", api.APILocal(listCommands)).Methods("GET")
 
-	api.BaseRoutes.Command.Handle("", api.ApiLocal(getCommand)).Methods("GET")
-	api.BaseRoutes.Command.Handle("", api.ApiLocal(updateCommand)).Methods("PUT")
-	api.BaseRoutes.Command.Handle("/move", api.ApiLocal(moveCommand)).Methods("PUT")
-	api.BaseRoutes.Command.Handle("", api.ApiLocal(deleteCommand)).Methods("DELETE")
+	api.BaseRoutes.Command.Handle("", api.APILocal(getCommand)).Methods("GET")
+	api.BaseRoutes.Command.Handle("", api.APILocal(updateCommand)).Methods("PUT")
+	api.BaseRoutes.Command.Handle("/move", api.APILocal(moveCommand)).Methods("PUT")
+	api.BaseRoutes.Command.Handle("", api.APILocal(deleteCommand)).Methods("DELETE")
 }
 
 func localCreateCommand(c *Context, w http.ResponseWriter, r *http.Request) {

@@ -37,9 +37,9 @@ const avgReadMsgSizeBytes = 1024
 // A client must read from PingTimeoutChannel, EventChannel and ResponseChannel to prevent
 // deadlocks from occurring in the program.
 type WebSocketClient struct {
-	Url                string                  // The location of the server like "ws://localhost:8065"
-	ApiUrl             string                  // The API location of the server like "ws://localhost:8065/api/v3"
-	ConnectUrl         string                  // The WebSocket URL to connect to like "ws://localhost:8065/api/v3/path/to/websocket"
+	URL                string                  // The location of the server like "ws://localhost:8065"
+	APIURL             string                  // The API location of the server like "ws://localhost:8065/api/v3"
+	ConnectURL         string                  // The WebSocket URL to connect to like "ws://localhost:8065/api/v3/path/to/websocket"
 	Conn               *websocket.Conn         // The WebSocket connection
 	AuthToken          string                  // The token used to open the WebSocket connection
 	Sequence           int64                   // The ever-incrementing sequence attached to each WebSocket action
@@ -66,15 +66,15 @@ func NewWebSocketClient(url, authToken string) (*WebSocketClient, *AppError) {
 // NewWebSocketClientWithDialer constructs a new WebSocket client with convenience
 // methods for talking to the server using a custom dialer.
 func NewWebSocketClientWithDialer(dialer *websocket.Dialer, url, authToken string) (*WebSocketClient, *AppError) {
-	conn, _, err := dialer.Dial(url+ApiUrlSuffix+"/websocket", nil)
+	conn, _, err := dialer.Dial(url+APIURLSuffix+"/websocket", nil)
 	if err != nil {
 		return nil, NewAppError("NewWebSocketClient", "model.websocket_client.connect_fail.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 
 	client := &WebSocketClient{
-		Url:                url,
-		ApiUrl:             url + ApiUrlSuffix,
-		ConnectUrl:         url + ApiUrlSuffix + "/websocket",
+		URL:                url,
+		APIURL:             url + APIURLSuffix,
+		ConnectURL:         url + APIURLSuffix + "/websocket",
 		Conn:               conn,
 		AuthToken:          authToken,
 		Sequence:           1,
@@ -117,7 +117,7 @@ func (wsc *WebSocketClient) Connect() *AppError {
 // This is racy and error-prone and should not be used. Use any of the New* functions to create a websocket.
 func (wsc *WebSocketClient) ConnectWithDialer(dialer *websocket.Dialer) *AppError {
 	var err error
-	wsc.Conn, _, err = dialer.Dial(wsc.ConnectUrl, nil)
+	wsc.Conn, _, err = dialer.Dial(wsc.ConnectURL, nil)
 	if err != nil {
 		return NewAppError("Connect", "model.websocket_client.connect_fail.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}

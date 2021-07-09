@@ -73,7 +73,7 @@ func init() {
 			PermissionReadElasticsearchPostAggregationJob,
 		},
 		PermissionSysconsoleWriteEnvironmentWebServer.ID: {
-			PermissionTestSiteUrl,
+			PermissionTestSiteURL,
 			PermissionReloadConfig,
 			PermissionInvalidateCaches,
 		},

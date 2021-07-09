@@ -611,11 +611,11 @@ func TestTriggerOutGoingWebhookWithUsernameAndIconURL(t *testing.T) {
 		WebhookResponse            *model.OutgoingWebhookResponse
 	}
 
-	createOutgoingWebhook := func(channel *model.Channel, testCallBackUrl string, th *TestHelper) (*model.OutgoingWebhook, *model.AppError) {
+	createOutgoingWebhook := func(channel *model.Channel, testCallBackURL string, th *TestHelper) (*model.OutgoingWebhook, *model.AppError) {
 		outgoingWebhook := model.OutgoingWebhook{
 			ChannelID:    channel.ID,
 			TeamID:       channel.TeamID,
-			CallbackURLs: []string{testCallBackUrl},
+			CallbackURLs: []string{testCallBackURL},
 			Username:     "some-user-name",
 			IconURL:      "http://some-icon/",
 			DisplayName:  "some-display-name",

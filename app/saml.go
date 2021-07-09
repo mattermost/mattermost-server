@@ -178,17 +178,17 @@ func (a *App) GetSamlCertificateStatus() *model.SamlCertificateStatus {
 	return status
 }
 
-func (a *App) GetSamlMetadataFromIDp(idpMetadataUrl string) (*model.SamlMetadataResponse, *model.AppError) {
+func (a *App) GetSamlMetadataFromIDp(idpMetadataURL string) (*model.SamlMetadataResponse, *model.AppError) {
 	if a.Saml() == nil {
 		err := model.NewAppError("GetSamlMetadataFromIdp", "api.admin.saml.not_available.app_error", nil, "", http.StatusNotImplemented)
 		return nil, err
 	}
 
-	if !strings.HasPrefix(idpMetadataUrl, "http://") && !strings.HasPrefix(idpMetadataUrl, "https://") {
-		idpMetadataUrl = "https://" + idpMetadataUrl
+	if !strings.HasPrefix(idpMetadataURL, "http://") && !strings.HasPrefix(idpMetadataURL, "https://") {
+		idpMetadataURL = "https://" + idpMetadataURL
 	}
 
-	idpMetadataRaw, err := a.FetchSamlMetadataFromIDp(idpMetadataUrl)
+	idpMetadataRaw, err := a.FetchSamlMetadataFromIDp(idpMetadataURL)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (a *App) BuildSamlMetadataObject(idpMetadata []byte) (*model.SamlMetadataRe
 	}
 
 	data := &model.SamlMetadataResponse{}
-	data.IDpDescriptorUrl = entityDescriptor.EntityID
+	data.IDpDescriptorURL = entityDescriptor.EntityID
 
 	if entityDescriptor.IDPSSODescriptors == nil || len(entityDescriptor.IDPSSODescriptors) == 0 {
 		err := model.NewAppError("BuildSamlMetadataObject", "api.admin.saml.invalid_xml_missing_idpssodescriptors.app_error", nil, "", http.StatusInternalServerError)
@@ -241,7 +241,7 @@ func (a *App) BuildSamlMetadataObject(idpMetadata []byte) (*model.SamlMetadataRe
 		return nil, err
 	}
 
-	data.IDpUrl = idpSSODescriptor.SingleSignOnServices[0].Location
+	data.IDpURL = idpSSODescriptor.SingleSignOnServices[0].Location
 	if idpSSODescriptor.SSODescriptor.RoleDescriptor.KeyDescriptors == nil || len(idpSSODescriptor.SSODescriptor.RoleDescriptor.KeyDescriptors) == 0 {
 		err := model.NewAppError("BuildSamlMetadataObject", "api.admin.saml.invalid_xml_missing_keydescriptor.app_error", nil, "", http.StatusInternalServerError)
 		return nil, err

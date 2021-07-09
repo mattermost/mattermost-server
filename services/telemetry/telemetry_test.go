@@ -532,7 +532,7 @@ func TestRudderTelemetry(t *testing.T) {
 
 		config := telemetryService.getRudderConfig()
 
-		assert.Equal(t, "arudderstackplace", config.DataplaneUrl)
+		assert.Equal(t, "arudderstackplace", config.DataplaneURL)
 		assert.Equal(t, "abc123", config.RudderKey)
 	})
 }

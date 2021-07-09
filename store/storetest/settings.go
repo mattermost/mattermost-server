@@ -71,15 +71,15 @@ func MySQLSettings(withReplica bool) *model.SqlSettings {
 // The database name is generated randomly and must be created before use.
 func PostgreSQLSettings() *model.SqlSettings {
 	dsn := getEnv("TEST_DATABASE_POSTGRESQL_DSN", defaultPostgresqlDSN)
-	dsnUrl, err := url.Parse(dsn)
+	dsnURL, err := url.Parse(dsn)
 	if err != nil {
 		panic("failed to parse dsn " + dsn + ": " + err.Error())
 	}
 
 	// Generate a random database name
-	dsnUrl.Path = "db" + model.NewID()
+	dsnURL.Path = "db" + model.NewID()
 
-	return databaseSettings("postgres", dsnUrl.String())
+	return databaseSettings("postgres", dsnURL.String())
 }
 
 func mySQLRootDSN(dsn string) string {
@@ -97,7 +97,7 @@ func mySQLRootDSN(dsn string) string {
 }
 
 func postgreSQLRootDSN(dsn string) string {
-	dsnUrl, err := url.Parse(dsn)
+	dsnURL, err := url.Parse(dsn)
 	if err != nil {
 		panic("failed to parse dsn " + dsn + ": " + err.Error())
 	}
@@ -109,9 +109,9 @@ func postgreSQLRootDSN(dsn string) string {
 	// }
 
 	// dsnUrl.User = url.UserPassword("", password)
-	dsnUrl.Path = "postgres"
+	dsnURL.Path = "postgres"
 
-	return dsnUrl.String()
+	return dsnURL.String()
 }
 
 func mySQLDSNDatabase(dsn string) string {
@@ -124,12 +124,12 @@ func mySQLDSNDatabase(dsn string) string {
 }
 
 func postgreSQLDSNDatabase(dsn string) string {
-	dsnUrl, err := url.Parse(dsn)
+	dsnURL, err := url.Parse(dsn)
 	if err != nil {
 		panic("failed to parse dsn " + dsn + ": " + err.Error())
 	}
 
-	return path.Base(dsnUrl.Path)
+	return path.Base(dsnURL.Path)
 }
 
 func databaseSettings(driver, dataSource string) *model.SqlSettings {

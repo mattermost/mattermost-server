@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUrlEncode(t *testing.T) {
+func TestURLEncode(t *testing.T) {
 
 	toEncode := "testing 1 2 3"
 	encoded := URLEncode(toEncode)

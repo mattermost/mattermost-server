@@ -85,8 +85,8 @@ func desanitize(actual, target *model.Config) {
 		*target.MessageExportSettings.GlobalRelaySettings.SmtpPassword = *actual.MessageExportSettings.GlobalRelaySettings.SmtpPassword
 	}
 
-	if target.ServiceSettings.GfycatApiSecret != nil && *target.ServiceSettings.GfycatApiSecret == model.FakeSetting {
-		*target.ServiceSettings.GfycatApiSecret = *actual.ServiceSettings.GfycatApiSecret
+	if target.ServiceSettings.GfycatAPISecret != nil && *target.ServiceSettings.GfycatAPISecret == model.FakeSetting {
+		*target.ServiceSettings.GfycatAPISecret = *actual.ServiceSettings.GfycatAPISecret
 	}
 
 	if *target.ServiceSettings.SplitKey == model.FakeSetting {

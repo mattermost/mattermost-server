@@ -62,7 +62,7 @@ const (
 
 	PostPropsAddedUserID       = "addedUserId"
 	PostPropsDeleteBy          = "deleteBy"
-	PostPropsOverrideIconUrl   = "override_icon_url"
+	PostPropsOverrideIconURL   = "override_icon_url"
 	PostPropsOverrideIconEmoji = "override_icon_emoji"
 
 	PostPropsMentionHighlightDisabled = "mentionHighlightDisabled"

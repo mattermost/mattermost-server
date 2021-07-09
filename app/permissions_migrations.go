@@ -755,7 +755,7 @@ func (a *App) getAddEnvironmentSubsectionPermissions() (permissionsMap, error) {
 	transformations = append(transformations, permissionTransformation{
 		On: permissionExists(model.PermissionSysconsoleWriteEnvironmentWebServer.ID),
 		Add: []string{
-			model.PermissionTestSiteUrl.ID,
+			model.PermissionTestSiteURL.ID,
 			model.PermissionReloadConfig.ID,
 			model.PermissionInvalidateCaches.ID,
 		},

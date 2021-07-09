@@ -35,7 +35,7 @@ type TestEnvironment struct {
 
 // Init adds manualtest endpoint to the API.
 func Init(api4 *api4.API) {
-	api4.BaseRoutes.Root.Handle("/manualtest", api4.ApiHandler(manualTest)).Methods("GET")
+	api4.BaseRoutes.Root.Handle("/manualtest", api4.APIHandler(manualTest)).Methods("GET")
 }
 
 func manualTest(c *web.Context, w http.ResponseWriter, r *http.Request) {

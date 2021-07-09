@@ -468,7 +468,7 @@ func (th *TestHelper) CreateLocalClient(socketPath string) *model.Client4 {
 	}
 
 	return &model.Client4{
-		ApiUrl:     "http://_" + model.ApiUrlSuffix,
+		APIURL:     "http://_" + model.APIURLSuffix,
 		HttpClient: httpClient,
 	}
 }
@@ -608,8 +608,8 @@ func (th *TestHelper) SetupSamlConfig() {
 		*cfg.SamlSettings.Enable = true
 		*cfg.SamlSettings.Verify = false
 		*cfg.SamlSettings.Encrypt = false
-		*cfg.SamlSettings.IDpUrl = "https://does.notmatter.com"
-		*cfg.SamlSettings.IDpDescriptorUrl = "https://localhost/adfs/services/trust"
+		*cfg.SamlSettings.IDpURL = "https://does.notmatter.com"
+		*cfg.SamlSettings.IDpDescriptorURL = "https://localhost/adfs/services/trust"
 		*cfg.SamlSettings.AssertionConsumerServiceURL = "https://localhost/login/sso/saml"
 		*cfg.SamlSettings.ServiceProviderIdentifier = "https://localhost/login/sso/saml"
 		*cfg.SamlSettings.IDpCertificateFile = app.SamlIDpCertificateName

@@ -59,7 +59,7 @@ func (ad *AuthData) IsValid() *AppError {
 		return NewAppError("AuthData.IsValid", "model.authorize.is_valid.create_at.app_error", nil, "client_id="+ad.ClientID, http.StatusBadRequest)
 	}
 
-	if len(ad.RedirectURI) > 256 || !IsValidHttpUrl(ad.RedirectURI) {
+	if len(ad.RedirectURI) > 256 || !IsValidHttpURL(ad.RedirectURI) {
 		return NewAppError("AuthData.IsValid", "model.authorize.is_valid.redirect_uri.app_error", nil, "client_id="+ad.ClientID, http.StatusBadRequest)
 	}
 
@@ -86,7 +86,7 @@ func (ar *AuthorizeRequest) IsValid() *AppError {
 		return NewAppError("AuthData.IsValid", "model.authorize.is_valid.response_type.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	if ar.RedirectURI == "" || len(ar.RedirectURI) > 256 || !IsValidHttpUrl(ar.RedirectURI) {
+	if ar.RedirectURI == "" || len(ar.RedirectURI) > 256 || !IsValidHttpURL(ar.RedirectURI) {
 		return NewAppError("AuthData.IsValid", "model.authorize.is_valid.redirect_uri.app_error", nil, "client_id="+ar.ClientID, http.StatusBadRequest)
 	}
 

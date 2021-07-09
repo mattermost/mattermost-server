@@ -209,8 +209,8 @@ func (c *Context) SetInvalidParam(parameter string) {
 	c.Err = NewInvalidParamError(parameter)
 }
 
-func (c *Context) SetInvalidUrlParam(parameter string) {
-	c.Err = NewInvalidUrlParamError(parameter)
+func (c *Context) SetInvalidURLParam(parameter string) {
+	c.Err = NewInvalidURLParamError(parameter)
 }
 
 func (c *Context) SetServerBusyError() {
@@ -257,7 +257,7 @@ func NewInvalidParamError(parameter string) *model.AppError {
 	err := model.NewAppError("Context", "api.context.invalid_body_param.app_error", map[string]interface{}{"Name": parameter}, "", http.StatusBadRequest)
 	return err
 }
-func NewInvalidUrlParamError(parameter string) *model.AppError {
+func NewInvalidURLParamError(parameter string) *model.AppError {
 	err := model.NewAppError("Context", "api.context.invalid_url_param.app_error", map[string]interface{}{"Name": parameter}, "", http.StatusBadRequest)
 	return err
 }
@@ -303,7 +303,7 @@ func (c *Context) RequireUserID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.UserID) {
-		c.SetInvalidUrlParam("user_id")
+		c.SetInvalidURLParam("user_id")
 	}
 	return c
 }
@@ -314,7 +314,7 @@ func (c *Context) RequireTeamID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.TeamID) {
-		c.SetInvalidUrlParam("team_id")
+		c.SetInvalidURLParam("team_id")
 	}
 	return c
 }
@@ -325,7 +325,7 @@ func (c *Context) RequireCategoryID() *Context {
 	}
 
 	if !model.IsValidCategoryID(c.Params.CategoryID) {
-		c.SetInvalidUrlParam("category_id")
+		c.SetInvalidURLParam("category_id")
 	}
 	return c
 }
@@ -336,7 +336,7 @@ func (c *Context) RequireInviteID() *Context {
 	}
 
 	if c.Params.InviteID == "" {
-		c.SetInvalidUrlParam("invite_id")
+		c.SetInvalidURLParam("invite_id")
 	}
 	return c
 }
@@ -347,7 +347,7 @@ func (c *Context) RequireTokenID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.TokenID) {
-		c.SetInvalidUrlParam("token_id")
+		c.SetInvalidURLParam("token_id")
 	}
 	return c
 }
@@ -358,7 +358,7 @@ func (c *Context) RequireThreadID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.ThreadID) {
-		c.SetInvalidUrlParam("thread_id")
+		c.SetInvalidURLParam("thread_id")
 	}
 	return c
 }
@@ -369,7 +369,7 @@ func (c *Context) RequireTimestamp() *Context {
 	}
 
 	if c.Params.Timestamp == 0 {
-		c.SetInvalidUrlParam("timestamp")
+		c.SetInvalidURLParam("timestamp")
 	}
 	return c
 }
@@ -380,7 +380,7 @@ func (c *Context) RequireChannelID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.ChannelID) {
-		c.SetInvalidUrlParam("channel_id")
+		c.SetInvalidURLParam("channel_id")
 	}
 	return c
 }
@@ -403,7 +403,7 @@ func (c *Context) RequirePostID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.PostID) {
-		c.SetInvalidUrlParam("post_id")
+		c.SetInvalidURLParam("post_id")
 	}
 	return c
 }
@@ -414,7 +414,7 @@ func (c *Context) RequirePolicyID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.PolicyID) {
-		c.SetInvalidUrlParam("policy_id")
+		c.SetInvalidURLParam("policy_id")
 	}
 	return c
 }
@@ -425,7 +425,7 @@ func (c *Context) RequireAppID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.AppID) {
-		c.SetInvalidUrlParam("app_id")
+		c.SetInvalidURLParam("app_id")
 	}
 	return c
 }
@@ -436,7 +436,7 @@ func (c *Context) RequireFileID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.FileID) {
-		c.SetInvalidUrlParam("file_id")
+		c.SetInvalidURLParam("file_id")
 	}
 
 	return c
@@ -448,7 +448,7 @@ func (c *Context) RequireUploadID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.UploadID) {
-		c.SetInvalidUrlParam("upload_id")
+		c.SetInvalidURLParam("upload_id")
 	}
 
 	return c
@@ -460,7 +460,7 @@ func (c *Context) RequireFilename() *Context {
 	}
 
 	if c.Params.Filename == "" {
-		c.SetInvalidUrlParam("filename")
+		c.SetInvalidURLParam("filename")
 	}
 
 	return c
@@ -472,7 +472,7 @@ func (c *Context) RequirePluginID() *Context {
 	}
 
 	if c.Params.PluginID == "" {
-		c.SetInvalidUrlParam("plugin_id")
+		c.SetInvalidURLParam("plugin_id")
 	}
 
 	return c
@@ -484,7 +484,7 @@ func (c *Context) RequireReportID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.ReportID) {
-		c.SetInvalidUrlParam("report_id")
+		c.SetInvalidURLParam("report_id")
 	}
 	return c
 }
@@ -495,7 +495,7 @@ func (c *Context) RequireEmojiID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.EmojiID) {
-		c.SetInvalidUrlParam("emoji_id")
+		c.SetInvalidURLParam("emoji_id")
 	}
 	return c
 }
@@ -506,7 +506,7 @@ func (c *Context) RequireTeamName() *Context {
 	}
 
 	if !model.IsValidTeamName(c.Params.TeamName) {
-		c.SetInvalidUrlParam("team_name")
+		c.SetInvalidURLParam("team_name")
 	}
 
 	return c
@@ -518,7 +518,7 @@ func (c *Context) RequireChannelName() *Context {
 	}
 
 	if !model.IsValidChannelIdentifier(c.Params.ChannelName) {
-		c.SetInvalidUrlParam("channel_name")
+		c.SetInvalidURLParam("channel_name")
 	}
 
 	return c
@@ -530,7 +530,7 @@ func (c *Context) SanitizeEmail() *Context {
 	}
 	c.Params.Email = strings.ToLower(c.Params.Email)
 	if !model.IsValidEmail(c.Params.Email) {
-		c.SetInvalidUrlParam("email")
+		c.SetInvalidURLParam("email")
 	}
 
 	return c
@@ -542,7 +542,7 @@ func (c *Context) RequireCategory() *Context {
 	}
 
 	if !model.IsValidAlphaNumHyphenUnderscore(c.Params.Category, true) {
-		c.SetInvalidUrlParam("category")
+		c.SetInvalidURLParam("category")
 	}
 
 	return c
@@ -554,7 +554,7 @@ func (c *Context) RequireService() *Context {
 	}
 
 	if c.Params.Service == "" {
-		c.SetInvalidUrlParam("service")
+		c.SetInvalidURLParam("service")
 	}
 
 	return c
@@ -566,7 +566,7 @@ func (c *Context) RequirePreferenceName() *Context {
 	}
 
 	if !model.IsValidAlphaNumHyphenUnderscore(c.Params.PreferenceName, true) {
-		c.SetInvalidUrlParam("preference_name")
+		c.SetInvalidURLParam("preference_name")
 	}
 
 	return c
@@ -580,7 +580,7 @@ func (c *Context) RequireEmojiName() *Context {
 	validName := regexp.MustCompile(`^[a-zA-Z0-9\-\+_]+$`)
 
 	if c.Params.EmojiName == "" || len(c.Params.EmojiName) > model.EmojiNameMaxLength || !validName.MatchString(c.Params.EmojiName) {
-		c.SetInvalidUrlParam("emoji_name")
+		c.SetInvalidURLParam("emoji_name")
 	}
 
 	return c
@@ -592,7 +592,7 @@ func (c *Context) RequireHookID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.HookID) {
-		c.SetInvalidUrlParam("hook_id")
+		c.SetInvalidURLParam("hook_id")
 	}
 
 	return c
@@ -604,7 +604,7 @@ func (c *Context) RequireCommandID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.CommandID) {
-		c.SetInvalidUrlParam("command_id")
+		c.SetInvalidURLParam("command_id")
 	}
 	return c
 }
@@ -615,7 +615,7 @@ func (c *Context) RequireJobID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.JobID) {
-		c.SetInvalidUrlParam("job_id")
+		c.SetInvalidURLParam("job_id")
 	}
 	return c
 }
@@ -626,7 +626,7 @@ func (c *Context) RequireJobType() *Context {
 	}
 
 	if c.Params.JobType == "" || len(c.Params.JobType) > 32 {
-		c.SetInvalidUrlParam("job_type")
+		c.SetInvalidURLParam("job_type")
 	}
 	return c
 }
@@ -637,7 +637,7 @@ func (c *Context) RequireRoleID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.RoleID) {
-		c.SetInvalidUrlParam("role_id")
+		c.SetInvalidURLParam("role_id")
 	}
 	return c
 }
@@ -648,7 +648,7 @@ func (c *Context) RequireSchemeID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.SchemeID) {
-		c.SetInvalidUrlParam("scheme_id")
+		c.SetInvalidURLParam("scheme_id")
 	}
 	return c
 }
@@ -659,7 +659,7 @@ func (c *Context) RequireRoleName() *Context {
 	}
 
 	if !model.IsValidRoleName(c.Params.RoleName) {
-		c.SetInvalidUrlParam("role_name")
+		c.SetInvalidURLParam("role_name")
 	}
 
 	return c
@@ -671,7 +671,7 @@ func (c *Context) RequireGroupID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.GroupID) {
-		c.SetInvalidUrlParam("group_id")
+		c.SetInvalidURLParam("group_id")
 	}
 	return c
 }
@@ -682,7 +682,7 @@ func (c *Context) RequireRemoteID() *Context {
 	}
 
 	if c.Params.RemoteID == "" {
-		c.SetInvalidUrlParam("remote_id")
+		c.SetInvalidURLParam("remote_id")
 	}
 	return c
 }
@@ -693,7 +693,7 @@ func (c *Context) RequireSyncableID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.SyncableID) {
-		c.SetInvalidUrlParam("syncable_id")
+		c.SetInvalidURLParam("syncable_id")
 	}
 	return c
 }
@@ -704,7 +704,7 @@ func (c *Context) RequireSyncableType() *Context {
 	}
 
 	if c.Params.SyncableType != model.GroupSyncableTypeTeam && c.Params.SyncableType != model.GroupSyncableTypeChannel {
-		c.SetInvalidUrlParam("syncable_type")
+		c.SetInvalidURLParam("syncable_type")
 	}
 	return c
 }
@@ -715,7 +715,7 @@ func (c *Context) RequireBotUserID() *Context {
 	}
 
 	if !model.IsValidID(c.Params.BotUserID) {
-		c.SetInvalidUrlParam("bot_user_id")
+		c.SetInvalidURLParam("bot_user_id")
 	}
 	return c
 }
@@ -726,7 +726,7 @@ func (c *Context) RequireInvoiceID() *Context {
 	}
 
 	if len(c.Params.InvoiceID) != 27 {
-		c.SetInvalidUrlParam("invoice_id")
+		c.SetInvalidURLParam("invoice_id")
 	}
 
 	return c

@@ -21,7 +21,7 @@ func TestWebSocketTrailingSlash(t *testing.T) {
 	defer th.TearDown()
 
 	url := fmt.Sprintf("ws://localhost:%v", th.App.Srv().ListenAddr.Port)
-	_, _, err := websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket/", nil)
+	_, _, err := websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket/", nil)
 	require.NoError(t, err)
 }
 
@@ -156,42 +156,42 @@ func TestWebsocketOriginSecurity(t *testing.T) {
 	url := fmt.Sprintf("ws://localhost:%v", th.App.Srv().ListenAddr.Port)
 
 	// Should fail because origin doesn't match
-	_, _, err := websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket", http.Header{
+	_, _, err := websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket", http.Header{
 		"Origin": []string{"http://www.evil.com"},
 	})
 
 	require.Error(t, err, "Should have errored because Origin does not match host! SECURITY ISSUE!")
 
 	// We are not a browser so we can spoof this just fine
-	_, _, err = websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket", http.Header{
+	_, _, err = websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket", http.Header{
 		"Origin": []string{fmt.Sprintf("http://localhost:%v", th.App.Srv().ListenAddr.Port)},
 	})
 	require.NoError(t, err, err)
 
 	// Should succeed now because open CORS
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.AllowCorsFrom = "*" })
-	_, _, err = websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket", http.Header{
+	_, _, err = websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket", http.Header{
 		"Origin": []string{"http://www.evil.com"},
 	})
 	require.NoError(t, err, err)
 
 	// Should succeed now because matching CORS
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.AllowCorsFrom = "http://www.evil.com" })
-	_, _, err = websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket", http.Header{
+	_, _, err = websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket", http.Header{
 		"Origin": []string{"http://www.evil.com"},
 	})
 	require.NoError(t, err, err)
 
 	// Should fail because non-matching CORS
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.AllowCorsFrom = "http://www.good.com" })
-	_, _, err = websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket", http.Header{
+	_, _, err = websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket", http.Header{
 		"Origin": []string{"http://www.evil.com"},
 	})
 	require.Error(t, err, "Should have errored because Origin contain AllowCorsFrom")
 
 	// Should fail because non-matching CORS
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.AllowCorsFrom = "http://www.good.com" })
-	_, _, err = websocket.DefaultDialer.Dial(url+model.ApiUrlSuffix+"/websocket", http.Header{
+	_, _, err = websocket.DefaultDialer.Dial(url+model.APIURLSuffix+"/websocket", http.Header{
 		"Origin": []string{"http://www.good.co"},
 	})
 	require.Error(t, err, "Should have errored because Origin does not match host! SECURITY ISSUE!")

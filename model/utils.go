@@ -499,12 +499,12 @@ func ClearMentionTags(post string) string {
 	return post
 }
 
-func IsValidHttpUrl(rawUrl string) bool {
-	if strings.Index(rawUrl, "http://") != 0 && strings.Index(rawUrl, "https://") != 0 {
+func IsValidHttpURL(rawURL string) bool {
+	if strings.Index(rawURL, "http://") != 0 && strings.Index(rawURL, "https://") != 0 {
 		return false
 	}
 
-	if u, err := url.ParseRequestURI(rawUrl); err != nil || u.Scheme == "" || u.Host == "" {
+	if u, err := url.ParseRequestURI(rawURL); err != nil || u.Scheme == "" || u.Host == "" {
 		return false
 	}
 
@@ -525,7 +525,7 @@ func IsValidTurnOrStunServer(rawURI string) bool {
 
 func IsSafeLink(link *string) bool {
 	if link != nil {
-		if IsValidHttpUrl(*link) {
+		if IsValidHttpURL(*link) {
 			return true
 		} else if strings.HasPrefix(*link, "/") {
 			return true
@@ -537,12 +537,12 @@ func IsSafeLink(link *string) bool {
 	return true
 }
 
-func IsValidWebsocketUrl(rawUrl string) bool {
-	if strings.Index(rawUrl, "ws://") != 0 && strings.Index(rawUrl, "wss://") != 0 {
+func IsValidWebsocketURL(rawURL string) bool {
+	if strings.Index(rawURL, "ws://") != 0 && strings.Index(rawURL, "wss://") != 0 {
 		return false
 	}
 
-	if _, err := url.ParseRequestURI(rawUrl); err != nil {
+	if _, err := url.ParseRequestURI(rawURL); err != nil {
 		return false
 	}
 

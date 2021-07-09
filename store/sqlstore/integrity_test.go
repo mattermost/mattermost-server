@@ -147,7 +147,7 @@ func createOAuthAccessData(ss store.Store, userID string) *model.AccessData {
 func createOAuthApp(ss store.Store, userID string) *model.OAuthApp {
 	m := model.OAuthApp{}
 	m.CreatorID = userID
-	m.CallbackUrls = []string{"https://nowhere.com"}
+	m.CallbackURLs = []string{"https://nowhere.com"}
 	m.Homepage = "https://nowhere.com"
 	m.ID = ""
 	m.Name = "TestApp" + model.NewID()

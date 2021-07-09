@@ -11,7 +11,7 @@ import (
 )
 
 func (api *API) InitBleve() {
-	api.BaseRoutes.Bleve.Handle("/purge_indexes", api.ApiSessionRequired(purgeBleveIndexes)).Methods("POST")
+	api.BaseRoutes.Bleve.Handle("/purge_indexes", api.APISessionRequired(purgeBleveIndexes)).Methods("POST")
 }
 
 func purgeBleveIndexes(c *Context, w http.ResponseWriter, r *http.Request) {

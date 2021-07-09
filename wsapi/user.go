@@ -8,8 +8,8 @@ import (
 )
 
 func (api *API) InitUser() {
-	api.Router.Handle("user_typing", api.ApiWebSocketHandler(api.userTyping))
-	api.Router.Handle("user_update_active_status", api.ApiWebSocketHandler(api.userUpdateActiveStatus))
+	api.Router.Handle("user_typing", api.APIWebSocketHandler(api.userTyping))
+	api.Router.Handle("user_update_active_status", api.APIWebSocketHandler(api.userUpdateActiveStatus))
 }
 
 func (api *API) userTyping(req *model.WebSocketRequest) (map[string]interface{}, *model.AppError) {

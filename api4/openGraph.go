@@ -18,7 +18,7 @@ var openGraphDataCache = cache.NewLRU(cache.LRUOptions{
 })
 
 func (api *API) InitOpenGraph() {
-	api.BaseRoutes.OpenGraph.Handle("", api.ApiSessionRequired(getOpenGraphMetadata)).Methods("POST")
+	api.BaseRoutes.OpenGraph.Handle("", api.APISessionRequired(getOpenGraphMetadata)).Methods("POST")
 
 	// Dump the image cache if the proxy settings have changed. (need switch URLs to the correct proxy)
 	api.app.AddConfigListener(func(before, after *model.Config) {

@@ -27,7 +27,7 @@ func (a *App) DownloadFromURL(downloadURL string) ([]byte, error) {
 }
 
 func (s *Server) downloadFromURL(downloadURL string) ([]byte, error) {
-	if !model.IsValidHttpUrl(downloadURL) {
+	if !model.IsValidHttpURL(downloadURL) {
 		return nil, errors.Errorf("invalid url %s", downloadURL)
 	}
 
@@ -35,7 +35,7 @@ func (s *Server) downloadFromURL(downloadURL string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Errorf("failed to parse url %s", downloadURL)
 	}
-	if !*s.Config().PluginSettings.AllowInsecureDownloadUrl && u.Scheme != "https" {
+	if !*s.Config().PluginSettings.AllowInsecureDownloadURL && u.Scheme != "https" {
 		return nil, errors.Errorf("insecure url not allowed %s", downloadURL)
 	}
 

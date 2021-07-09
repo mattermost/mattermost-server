@@ -8,7 +8,7 @@ import (
 )
 
 func (api *API) InitSystem() {
-	api.Router.Handle("ping", api.ApiWebSocketHandler(ping))
+	api.Router.Handle("ping", api.APIWebSocketHandler(ping))
 }
 
 func ping(req *model.WebSocketRequest) (map[string]interface{}, *model.AppError) {

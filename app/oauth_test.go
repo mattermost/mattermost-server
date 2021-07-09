@@ -28,7 +28,7 @@ func TestGetOAuthAccessTokenForImplicitFlow(t *testing.T) {
 		CreatorID:    th.BasicUser2.ID,
 		Homepage:     "https://nowhere.com",
 		Description:  "test",
-		CallbackUrls: []string{"https://nowhere.com"},
+		CallbackURLs: []string{"https://nowhere.com"},
 	}
 
 	oapp, err := th.App.CreateOAuthApp(oapp)
@@ -37,7 +37,7 @@ func TestGetOAuthAccessTokenForImplicitFlow(t *testing.T) {
 	authRequest := &model.AuthorizeRequest{
 		ResponseType: model.ImplicitResponseType,
 		ClientID:     oapp.ID,
-		RedirectURI:  oapp.CallbackUrls[0],
+		RedirectURI:  oapp.CallbackURLs[0],
 		Scope:        "",
 		State:        "123",
 	}
@@ -94,7 +94,7 @@ func TestOAuthDeleteApp(t *testing.T) {
 	a1 := &model.OAuthApp{}
 	a1.CreatorID = model.NewID()
 	a1.Name = "TestApp" + model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 
 	var err *model.AppError
@@ -142,9 +142,9 @@ func TestAuthorizeOAuthUser(t *testing.T) {
 			}
 
 			if userEndpoint {
-				*cfg.GitLabSettings.UserApiEndpoint = serverURL + "/user"
+				*cfg.GitLabSettings.UserAPIEndpoint = serverURL + "/user"
 			} else {
-				*cfg.GitLabSettings.UserApiEndpoint = ""
+				*cfg.GitLabSettings.UserAPIEndpoint = ""
 			}
 		})
 

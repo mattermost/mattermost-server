@@ -330,7 +330,7 @@ func TestUploadDataMultipart(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mpData, contentType := genMultipartData(t, data)
 
-		req, err := http.NewRequest("POST", th.Client.ApiUrl+"/uploads/"+us.ID, mpData)
+		req, err := http.NewRequest("POST", th.Client.APIURL+"/uploads/"+us.ID, mpData)
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", contentType)
 		req.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
@@ -354,7 +354,7 @@ func TestUploadDataMultipart(t *testing.T) {
 		require.NotNil(t, u)
 		require.NotEmpty(t, u)
 
-		req, err := http.NewRequest("POST", th.Client.ApiUrl+"/uploads/"+u.ID, mpData)
+		req, err := http.NewRequest("POST", th.Client.APIURL+"/uploads/"+u.ID, mpData)
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", contentType)
 		req.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
@@ -365,7 +365,7 @@ func TestUploadDataMultipart(t *testing.T) {
 
 		mpData, contentType = genMultipartData(t, data[5*1024*1024:])
 
-		req, err = http.NewRequest("POST", th.Client.ApiUrl+"/uploads/"+u.ID, mpData)
+		req, err = http.NewRequest("POST", th.Client.APIURL+"/uploads/"+u.ID, mpData)
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", contentType)
 		req.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)

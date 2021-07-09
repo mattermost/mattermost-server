@@ -245,9 +245,9 @@ func modifyIncomingWebhookCmdF(command *cobra.Command, args []string) (cmdError 
 	if description != "" {
 		updatedHook.Description = description
 	}
-	iconUrl, _ := command.Flags().GetString("icon")
-	if iconUrl != "" {
-		updatedHook.IconURL = iconUrl
+	iconURL, _ := command.Flags().GetString("icon")
+	if iconURL != "" {
+		updatedHook.IconURL = iconURL
 	}
 	channelLocked, _ := command.Flags().GetBool("lock-to-channel")
 	updatedHook.ChannelLocked = channelLocked

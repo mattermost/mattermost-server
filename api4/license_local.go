@@ -13,8 +13,8 @@ import (
 )
 
 func (api *API) InitLicenseLocal() {
-	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiLocal(localAddLicense)).Methods("POST")
-	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiLocal(localRemoveLicense)).Methods("DELETE")
+	api.BaseRoutes.APIRoot.Handle("/license", api.APILocal(localAddLicense)).Methods("POST")
+	api.BaseRoutes.APIRoot.Handle("/license", api.APILocal(localRemoveLicense)).Methods("DELETE")
 }
 
 func localAddLicense(c *Context, w http.ResponseWriter, r *http.Request) {

@@ -24,7 +24,7 @@ type apiTimerLayer struct {
 func (api *apiTimerLayer) recordTime(startTime timePkg.Time, name string, success bool) {
 	if api.metrics != nil {
 		elapsedTime := float64(timePkg.Since(startTime)) / float64(timePkg.Second)
-		api.metrics.ObservePluginApiDuration(api.pluginID, name, success, elapsedTime)
+		api.metrics.ObservePluginAPIDuration(api.pluginID, name, success, elapsedTime)
 	}
 }
 

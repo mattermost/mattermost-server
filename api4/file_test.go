@@ -60,7 +60,7 @@ func fileBytes(t *testing.T, path string) []byte {
 
 func testDoUploadFileRequest(t testing.TB, c *model.Client4, url string, blob []byte, contentType string,
 	contentLength int64) (*model.FileUploadResponse, *model.Response) {
-	req, err := http.NewRequest("POST", c.ApiUrl+c.GetFilesRoute()+url, bytes.NewReader(blob))
+	req, err := http.NewRequest("POST", c.APIURL+c.GetFilesRoute()+url, bytes.NewReader(blob))
 	require.NoError(t, err)
 
 	if contentLength != 0 {
@@ -1009,7 +1009,7 @@ func TestGetPublicFile(t *testing.T) {
 
 	info, err := th.App.Srv().Store.FileInfo().Get(fileID)
 	require.NoError(t, err)
-	link := th.App.GeneratePublicLink(Client.Url, info)
+	link := th.App.GeneratePublicLink(Client.URL, info)
 
 	resp, err := http.Get(link)
 	require.NoError(t, err)
@@ -1042,7 +1042,7 @@ func TestGetPublicFile(t *testing.T) {
 	require.NoError(t, th.cleanupTestFile(fileInfo))
 
 	th.cleanupTestFile(info)
-	link = th.App.GeneratePublicLink(Client.Url, info)
+	link = th.App.GeneratePublicLink(Client.URL, info)
 	resp, err = http.Get(link)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusNotFound, resp.StatusCode, "should've failed to get file after it is deleted")

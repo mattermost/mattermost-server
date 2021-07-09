@@ -15,13 +15,13 @@ import (
 // https://github.com/mattermost/mattermost-plugin-starter-template/issues/115
 func TestClient4TrimTrailingSlash(t *testing.T) {
 	slashes := []int{0, 1, 5}
-	baseUrl := "https://foo.com:1234"
+	baseURL := "https://foo.com:1234"
 
 	for _, s := range slashes {
-		testUrl := baseUrl + strings.Repeat("/", s)
-		client := NewAPIv4Client(testUrl)
-		assert.Equal(t, baseUrl, client.Url)
-		assert.Equal(t, baseUrl+ApiUrlSuffix, client.ApiUrl)
+		testURL := baseURL + strings.Repeat("/", s)
+		client := NewAPIv4Client(testURL)
+		assert.Equal(t, baseURL, client.URL)
+		assert.Equal(t, baseURL+APIURLSuffix, client.APIURL)
 	}
 }
 

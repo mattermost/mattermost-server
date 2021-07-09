@@ -4,7 +4,7 @@
 package api4
 
 func (api *API) InitUploadLocal() {
-	api.BaseRoutes.Uploads.Handle("", api.ApiLocal(createUpload)).Methods("POST")
-	api.BaseRoutes.Upload.Handle("", api.ApiLocal(getUpload)).Methods("GET")
-	api.BaseRoutes.Upload.Handle("", api.ApiLocal(uploadData)).Methods("POST")
+	api.BaseRoutes.Uploads.Handle("", api.APILocal(createUpload)).Methods("POST")
+	api.BaseRoutes.Upload.Handle("", api.APILocal(getUpload)).Methods("GET")
+	api.BaseRoutes.Upload.Handle("", api.APILocal(uploadData)).Methods("POST")
 }

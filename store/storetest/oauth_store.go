@@ -35,7 +35,7 @@ func TestOAuthStore(t *testing.T, ss store.Store) {
 func testOAuthStoreSaveApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
 	a1.CreatorID = model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 
 	// Try to save an app that already has an Id
@@ -59,7 +59,7 @@ func testOAuthStoreGetApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
 	a1.CreatorID = model.NewID()
 	a1.Name = "TestApp" + model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)
@@ -87,7 +87,7 @@ func testOAuthStoreUpdateApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
 	a1.CreatorID = model.NewID()
 	a1.Name = "TestApp" + model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)
@@ -289,7 +289,7 @@ func testOAuthGetAuthorizedApps(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
 	a1.CreatorID = model.NewID()
 	a1.Name = "TestApp" + model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)
@@ -317,7 +317,7 @@ func testOAuthGetAccessDataByUserForApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
 	a1.CreatorID = model.NewID()
 	a1.Name = "TestApp" + model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)
@@ -355,7 +355,7 @@ func testOAuthStoreDeleteApp(t *testing.T, ss store.Store) {
 	a1 := model.OAuthApp{}
 	a1.CreatorID = model.NewID()
 	a1.Name = "TestApp" + model.NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	_, err := ss.OAuth().SaveApp(&a1)
 	require.NoError(t, err)

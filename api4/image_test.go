@@ -33,7 +33,7 @@ func TestGetImage(t *testing.T) {
 			cfg.ImageProxySettings.Enable = model.NewBool(false)
 		})
 
-		r, err := http.NewRequest("GET", th.Client.ApiUrl+"/image?url="+url.QueryEscape(imageURL), nil)
+		r, err := http.NewRequest("GET", th.Client.APIURL+"/image?url="+url.QueryEscape(imageURL), nil)
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
@@ -54,7 +54,7 @@ func TestGetImage(t *testing.T) {
 			cfg.ImageProxySettings.RemoteImageProxyURL = model.NewString("https://proxy.foo.bar")
 		})
 
-		r, err := http.NewRequest("GET", th.Client.ApiUrl+"/image?url="+url.QueryEscape(imageURL), nil)
+		r, err := http.NewRequest("GET", th.Client.APIURL+"/image?url="+url.QueryEscape(imageURL), nil)
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
@@ -81,7 +81,7 @@ func TestGetImage(t *testing.T) {
 		imageServer := httptest.NewServer(handler)
 		defer imageServer.Close()
 
-		r, err := http.NewRequest("GET", th.Client.ApiUrl+"/image?url="+url.QueryEscape(imageServer.URL+"/image.png"), nil)
+		r, err := http.NewRequest("GET", th.Client.APIURL+"/image?url="+url.QueryEscape(imageServer.URL+"/image.png"), nil)
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
@@ -94,7 +94,7 @@ func TestGetImage(t *testing.T) {
 		assert.Equal(t, "success", string(respBody))
 
 		// local images should not be proxied, but forwarded
-		r, err = http.NewRequest("GET", th.Client.ApiUrl+"/image?url=/plugins/test/image.png", nil)
+		r, err = http.NewRequest("GET", th.Client.APIURL+"/image?url=/plugins/test/image.png", nil)
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
@@ -106,7 +106,7 @@ func TestGetImage(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			cfg.ServiceSettings.SiteURL = model.NewString("http://foo.com")
 		})
-		r, err = http.NewRequest("GET", th.Client.ApiUrl+"/image?url="+strings.TrimPrefix(imageServer.URL, "http:")+"/image.png", nil)
+		r, err = http.NewRequest("GET", th.Client.APIURL+"/image?url="+strings.TrimPrefix(imageServer.URL, "http:")+"/image.png", nil)
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
@@ -115,7 +115,7 @@ func TestGetImage(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		// opaque URLs are not supported, should return an error
-		r, err = http.NewRequest("GET", th.Client.ApiUrl+"/image?url=mailto:test@example.com", nil)
+		r, err = http.NewRequest("GET", th.Client.APIURL+"/image?url=mailto:test@example.com", nil)
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 

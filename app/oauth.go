@@ -426,12 +426,12 @@ func (a *App) GetOAuthLoginEndpoint(w http.ResponseWriter, r *http.Request, serv
 
 	stateProps[model.UserAuthServiceIsMobile] = strconv.FormatBool(isMobile)
 
-	authUrl, err := a.GetAuthorizationCode(w, r, service, stateProps, loginHint)
+	authURL, err := a.GetAuthorizationCode(w, r, service, stateProps, loginHint)
 	if err != nil {
 		return "", err
 	}
 
-	return authUrl, nil
+	return authURL, nil
 }
 
 func (a *App) GetOAuthSignupEndpoint(w http.ResponseWriter, r *http.Request, service, teamID string) (string, *model.AppError) {
@@ -441,12 +441,12 @@ func (a *App) GetOAuthSignupEndpoint(w http.ResponseWriter, r *http.Request, ser
 		stateProps["team_id"] = teamID
 	}
 
-	authUrl, err := a.GetAuthorizationCode(w, r, service, stateProps, "")
+	authURL, err := a.GetAuthorizationCode(w, r, service, stateProps, "")
 	if err != nil {
 		return "", err
 	}
 
-	return authUrl, nil
+	return authURL, nil
 }
 
 func (a *App) GetAuthorizedAppsForUser(userID string, page, perPage int) ([]*model.OAuthApp, *model.AppError) {
@@ -745,24 +745,24 @@ func (a *App) GetAuthorizationCode(w http.ResponseWriter, r *http.Request, servi
 	props["token"] = stateToken.Token
 	state := b64.StdEncoding.EncodeToString([]byte(model.MapToJSON(props)))
 
-	siteUrl := a.GetSiteURL()
-	if strings.TrimSpace(siteUrl) == "" {
-		siteUrl = GetProtocol(r) + "://" + r.Host
+	siteURL := a.GetSiteURL()
+	if strings.TrimSpace(siteURL) == "" {
+		siteURL = GetProtocol(r) + "://" + r.Host
 	}
 
-	redirectURI := siteUrl + "/signup/" + service + "/complete"
+	redirectURI := siteURL + "/signup/" + service + "/complete"
 
-	authUrl := endpoint + "?response_type=code&client_id=" + clientID + "&redirect_uri=" + url.QueryEscape(redirectURI) + "&state=" + url.QueryEscape(state)
+	authURL := endpoint + "?response_type=code&client_id=" + clientID + "&redirect_uri=" + url.QueryEscape(redirectURI) + "&state=" + url.QueryEscape(state)
 
 	if scope != "" {
-		authUrl += "&scope=" + utils.URLEncode(scope)
+		authURL += "&scope=" + utils.URLEncode(scope)
 	}
 
 	if loginHint != "" {
-		authUrl += "&login_hint=" + utils.URLEncode(loginHint)
+		authURL += "&login_hint=" + utils.URLEncode(loginHint)
 	}
 
-	return authUrl, nil
+	return authURL, nil
 }
 
 func (a *App) AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, code, state, redirectURI string) (io.ReadCloser, string, map[string]string, *model.User, *model.AppError) {
@@ -871,7 +871,7 @@ func (a *App) AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service
 		}
 	}
 
-	req, requestErr = http.NewRequest("GET", *sso.UserApiEndpoint, strings.NewReader(""))
+	req, requestErr = http.NewRequest("GET", *sso.UserAPIEndpoint, strings.NewReader(""))
 	if requestErr != nil {
 		return nil, "", stateProps, nil, model.NewAppError("AuthorizeOAuthUser", "api.user.authorize_oauth_user.service.app_error", map[string]interface{}{"Service": service}, requestErr.Error(), http.StatusInternalServerError)
 	}
@@ -926,12 +926,12 @@ func (a *App) SwitchEmailToOAuth(w http.ResponseWriter, r *http.Request, email, 
 		return a.GetSiteURL() + "/login/sso/saml?action=" + model.OAuthActionEmailToSSO + "&email=" + utils.URLEncode(email), nil
 	}
 
-	authUrl, err := a.GetAuthorizationCode(w, r, service, stateProps, "")
+	authURL, err := a.GetAuthorizationCode(w, r, service, stateProps, "")
 	if err != nil {
 		return "", err
 	}
 
-	return authUrl, nil
+	return authURL, nil
 }
 
 func (a *App) SwitchOAuthToEmail(email, password, requesterID string) (string, *model.AppError) {

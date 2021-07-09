@@ -10,7 +10,7 @@ import (
 )
 
 func (api *API) InitCluster() {
-	api.BaseRoutes.Cluster.Handle("/status", api.ApiSessionRequired(getClusterStatus)).Methods("GET")
+	api.BaseRoutes.Cluster.Handle("/status", api.APISessionRequired(getClusterStatus)).Methods("GET")
 }
 
 func getClusterStatus(c *Context, w http.ResponseWriter, r *http.Request) {

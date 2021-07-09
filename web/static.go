@@ -65,7 +65,7 @@ func root(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if IsApiCall(c.App, r) {
+	if IsAPICall(c.App, r) {
 		Handle404(c.App, w, r)
 		return
 	}

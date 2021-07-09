@@ -11,7 +11,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-func TestApiResctrictedViewMembers(t *testing.T) {
+func TestAPIResctrictedViewMembers(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 

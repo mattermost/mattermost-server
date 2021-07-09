@@ -62,7 +62,7 @@ func Handle404(a app.AppIface, w http.ResponseWriter, r *http.Request) {
 	ipAddress := utils.GetIPAddress(r, a.Config().ServiceSettings.TrustedProxyIPHeader)
 	mlog.Debug("not found handler triggered", mlog.String("path", r.URL.Path), mlog.Int("code", 404), mlog.String("ip", ipAddress))
 
-	if IsApiCall(a, r) {
+	if IsAPICall(a, r) {
 		w.WriteHeader(err.StatusCode)
 		err.DetailedError = "There doesn't appear to be an api call for the url='" + r.URL.Path + "'.  Typo? are you missing a team_id or user_id as part of the url?"
 		w.Write([]byte(err.ToJSON()))
@@ -73,7 +73,7 @@ func Handle404(a app.AppIface, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func IsApiCall(a app.AppIface, r *http.Request) bool {
+func IsAPICall(a app.AppIface, r *http.Request) bool {
 	subpath, _ := utils.GetSubpathFromConfig(a.Config())
 
 	return strings.HasPrefix(r.URL.Path, path.Join(subpath, "api")+"/")
@@ -85,7 +85,7 @@ func IsWebhookCall(a app.AppIface, r *http.Request) bool {
 	return strings.HasPrefix(r.URL.Path, path.Join(subpath, "hooks")+"/")
 }
 
-func IsOAuthApiCall(a app.AppIface, r *http.Request) bool {
+func IsOAuthAPICall(a app.AppIface, r *http.Request) bool {
 	subpath, _ := utils.GetSubpathFromConfig(a.Config())
 
 	if r.Method == "POST" && r.URL.Path == path.Join(subpath, "oauth", "authorize") {

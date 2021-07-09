@@ -28,7 +28,7 @@ type OAuthApp struct {
 	Name         string      `json:"name"`
 	Description  string      `json:"description"`
 	IconURL      string      `json:"icon_url"`
-	CallbackUrls StringArray `json:"callback_urls"`
+	CallbackURLs StringArray `json:"callback_urls"`
 	Homepage     string      `json:"homepage"`
 	IsTrusted    bool        `json:"is_trusted"`
 }
@@ -61,17 +61,17 @@ func (a *OAuthApp) IsValid() *AppError {
 		return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.name.app_error", nil, "app_id="+a.ID, http.StatusBadRequest)
 	}
 
-	if len(a.CallbackUrls) == 0 || len(fmt.Sprintf("%s", a.CallbackUrls)) > 1024 {
+	if len(a.CallbackURLs) == 0 || len(fmt.Sprintf("%s", a.CallbackURLs)) > 1024 {
 		return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.callback.app_error", nil, "app_id="+a.ID, http.StatusBadRequest)
 	}
 
-	for _, callback := range a.CallbackUrls {
-		if !IsValidHttpUrl(callback) {
+	for _, callback := range a.CallbackURLs {
+		if !IsValidHttpURL(callback) {
 			return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.callback.app_error", nil, "", http.StatusBadRequest)
 		}
 	}
 
-	if a.Homepage == "" || len(a.Homepage) > 256 || !IsValidHttpUrl(a.Homepage) {
+	if a.Homepage == "" || len(a.Homepage) > 256 || !IsValidHttpURL(a.Homepage) {
 		return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.homepage.app_error", nil, "app_id="+a.ID, http.StatusBadRequest)
 	}
 
@@ -80,7 +80,7 @@ func (a *OAuthApp) IsValid() *AppError {
 	}
 
 	if a.IconURL != "" {
-		if len(a.IconURL) > 512 || !IsValidHttpUrl(a.IconURL) {
+		if len(a.IconURL) > 512 || !IsValidHttpURL(a.IconURL) {
 			return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.icon_url.app_error", nil, "app_id="+a.ID, http.StatusBadRequest)
 		}
 	}
@@ -124,7 +124,7 @@ func (a *OAuthApp) Sanitize() {
 }
 
 func (a *OAuthApp) IsValidRedirectURL(url string) bool {
-	for _, u := range a.CallbackUrls {
+	for _, u := range a.CallbackURLs {
 		if u == url {
 			return true
 		}

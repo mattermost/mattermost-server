@@ -47,7 +47,7 @@ func TestGenerateSecret(t *testing.T) {
 	})
 }
 
-func TestGetIssuerFromUrl(t *testing.T) {
+func TestGetIssuerFromURL(t *testing.T) {
 	cases := []struct {
 		Input    string
 		Expected string
@@ -64,7 +64,7 @@ func TestGetIssuerFromUrl(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		assert.Equal(t, c.Expected, getIssuerFromUrl(c.Input))
+		assert.Equal(t, c.Expected, getIssuerFromURL(c.Input))
 	}
 }
 

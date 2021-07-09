@@ -40,7 +40,7 @@ func TestPlugin(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.Enable = true
 			*cfg.PluginSettings.EnableUploads = true
-			*cfg.PluginSettings.AllowInsecureDownloadUrl = true
+			*cfg.PluginSettings.AllowInsecureDownloadURL = true
 		})
 
 		path, _ := fileutils.FindDir("tests")
@@ -56,14 +56,14 @@ func TestPlugin(t *testing.T) {
 
 		url := testServer.URL
 
-		manifest, resp := client.InstallPluginFromUrl(url, false)
+		manifest, resp := client.InstallPluginFromURL(url, false)
 		CheckNoError(t, resp)
 		assert.Equal(t, "testplugin", manifest.ID)
 
-		_, resp = client.InstallPluginFromUrl(url, false)
+		_, resp = client.InstallPluginFromURL(url, false)
 		CheckBadRequestStatus(t, resp)
 
-		manifest, resp = client.InstallPluginFromUrl(url, true)
+		manifest, resp = client.InstallPluginFromURL(url, true)
 		CheckNoError(t, resp)
 		assert.Equal(t, "testplugin", manifest.ID)
 
@@ -89,7 +89,7 @@ func TestPlugin(t *testing.T) {
 			}))
 			defer func() { slowTestServer.Close() }()
 
-			manifest, resp = client.InstallPluginFromUrl(slowTestServer.URL, true)
+			manifest, resp = client.InstallPluginFromURL(slowTestServer.URL, true)
 			CheckNoError(t, resp)
 			assert.Equal(t, "testplugin", manifest.ID)
 		})
@@ -98,20 +98,20 @@ func TestPlugin(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) { *cfg.PluginSettings.Enable = false })
 
-		_, resp = client.InstallPluginFromUrl(url, false)
+		_, resp = client.InstallPluginFromURL(url, false)
 		CheckNotImplementedStatus(t, resp)
 
 		th.App.UpdateConfig(func(cfg *model.Config) { *cfg.PluginSettings.Enable = true })
 
-		_, resp = th.Client.InstallPluginFromUrl(url, false)
+		_, resp = th.Client.InstallPluginFromURL(url, false)
 		CheckForbiddenStatus(t, resp)
 
-		_, resp = client.InstallPluginFromUrl("http://nodata", false)
+		_, resp = client.InstallPluginFromURL("http://nodata", false)
 		CheckBadRequestStatus(t, resp)
 
-		th.App.UpdateConfig(func(cfg *model.Config) { *cfg.PluginSettings.AllowInsecureDownloadUrl = false })
+		th.App.UpdateConfig(func(cfg *model.Config) { *cfg.PluginSettings.AllowInsecureDownloadURL = false })
 
-		_, resp = client.InstallPluginFromUrl(url, false)
+		_, resp = client.InstallPluginFromURL(url, false)
 		CheckBadRequestStatus(t, resp)
 
 		// Successful upload
@@ -146,7 +146,7 @@ func TestPlugin(t *testing.T) {
 		_, resp = client.UploadPlugin(bytes.NewReader(tarData))
 		CheckNotImplementedStatus(t, resp)
 
-		_, resp = client.InstallPluginFromUrl(url, false)
+		_, resp = client.InstallPluginFromURL(url, false)
 		CheckNotImplementedStatus(t, resp)
 
 		th.App.UpdateConfig(func(cfg *model.Config) { *cfg.PluginSettings.EnableUploads = true })
@@ -481,7 +481,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = false
-			*cfg.PluginSettings.MarketplaceUrl = "invalid.com"
+			*cfg.PluginSettings.MarketplaceURL = "invalid.com"
 		})
 
 		plugins, resp := client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -492,7 +492,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = "invalid.com"
+			*cfg.PluginSettings.MarketplaceURL = "invalid.com"
 		})
 
 		plugins, resp := client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -503,7 +503,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 	t.Run("no permission", func(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = "invalid.com"
+			*cfg.PluginSettings.MarketplaceURL = "invalid.com"
 		})
 
 		plugins, resp := th.Client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -522,7 +522,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -547,7 +547,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -571,7 +571,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -595,7 +595,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		l := model.NewTestLicense()
@@ -624,7 +624,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		th.App.Srv().SetLicense(model.NewTestLicense("enterprise_plugins"))
@@ -650,7 +650,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := client.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -674,7 +674,7 @@ func TestGetMarketplacePlugins(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		th.App.Srv().SetLicense(model.NewTestLicense("cloud"))
@@ -730,7 +730,7 @@ func TestGetInstalledMarketplacePlugins(t *testing.T) {
 			*cfg.PluginSettings.Enable = true
 			*cfg.PluginSettings.EnableUploads = true
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := th.SystemAdminClient.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -811,7 +811,7 @@ func TestGetInstalledMarketplacePlugins(t *testing.T) {
 		}))
 		defer func() { testServer.Close() }()
 		th.App.UpdateConfig(func(cfg *model.Config) {
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := th.SystemAdminClient.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -876,7 +876,7 @@ func TestSearchGetMarketplacePlugins(t *testing.T) {
 			*cfg.PluginSettings.Enable = true
 			*cfg.PluginSettings.EnableUploads = true
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		plugins, resp := th.SystemAdminClient.GetMarketplacePlugins(&model.MarketplacePluginFilter{})
@@ -989,7 +989,7 @@ func TestGetLocalPluginInMarketplace(t *testing.T) {
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.PluginSettings.Enable = true
 		*cfg.PluginSettings.EnableMarketplace = true
-		*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+		*cfg.PluginSettings.MarketplaceURL = testServer.URL
 	})
 
 	t.Run("Get plugins with EnableRemoteMarketplace enabled", func(t *testing.T) {
@@ -1153,7 +1153,7 @@ func TestGetPrepackagedPluginInMarketplace(t *testing.T) {
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.PluginSettings.Enable = true
 		*cfg.PluginSettings.EnableMarketplace = true
-		*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+		*cfg.PluginSettings.MarketplaceURL = testServer.URL
 	})
 
 	prepackagePlugin := &plugin.PrepackagedPlugin{
@@ -1307,7 +1307,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = false
-			*cfg.PluginSettings.MarketplaceUrl = "invalid.com"
+			*cfg.PluginSettings.MarketplaceURL = "invalid.com"
 		})
 		plugin, resp := client.InstallMarketplacePlugin(request)
 		CheckNotImplementedStatus(t, resp)
@@ -1323,7 +1323,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 		CheckNotImplementedStatus(t, resp)
 		require.Nil(t, manifest)
 
-		manifest, resp = client.InstallPluginFromUrl("some_url", true)
+		manifest, resp = client.InstallPluginFromURL("some_url", true)
 		CheckNotImplementedStatus(t, resp)
 		require.Nil(t, manifest)
 	}, "RequirePluginSignature enabled")
@@ -1331,7 +1331,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = "invalid.com"
+			*cfg.PluginSettings.MarketplaceURL = "invalid.com"
 		})
 
 		plugin, resp := client.InstallMarketplacePlugin(request)
@@ -1342,7 +1342,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 	t.Run("no permission", func(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = "invalid.com"
+			*cfg.PluginSettings.MarketplaceURL = "invalid.com"
 		})
 
 		plugin, resp := th.Client.InstallMarketplacePlugin(request)
@@ -1361,7 +1361,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 		pRequest := &model.InstallMarketplacePluginRequest{ID: "some_plugin_id", Version: "0.0.1"}
 		plugin, resp := client.InstallMarketplacePlugin(pRequest)
@@ -1380,8 +1380,8 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
-			*cfg.PluginSettings.AllowInsecureDownloadUrl = true
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
+			*cfg.PluginSettings.AllowInsecureDownloadURL = true
 		})
 		pRequest := &model.InstallMarketplacePluginRequest{ID: "testplugin2", Version: "1.2.2"}
 		plugin, resp := client.InstallMarketplacePlugin(pRequest)
@@ -1404,7 +1404,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
 			*cfg.PluginSettings.EnableRemoteMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		key, err := os.Open(filepath.Join(path, "development-private-key.asc"))
@@ -1457,7 +1457,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
 			*cfg.PluginSettings.EnableRemoteMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		// The content of the request is irrelevant. This test only cares about enterprise_plugins.
@@ -1490,7 +1490,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
 			*cfg.PluginSettings.EnableRemoteMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		l := model.NewTestLicense()
@@ -1527,7 +1527,7 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
 		})
 
 		th.App.Srv().SetLicense(model.NewTestLicense("enterprise_plugins"))
@@ -1587,8 +1587,8 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 			th2.App.UpdateConfig(func(cfg *model.Config) {
 				*cfg.PluginSettings.EnableMarketplace = true
 				*cfg.PluginSettings.EnableRemoteMarketplace = false
-				*cfg.PluginSettings.MarketplaceUrl = testServer.URL
-				*cfg.PluginSettings.AllowInsecureDownloadUrl = false
+				*cfg.PluginSettings.MarketplaceURL = testServer.URL
+				*cfg.PluginSettings.AllowInsecureDownloadURL = false
 			})
 
 			env := th2.App.GetPluginsEnvironment()
@@ -1638,8 +1638,8 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 			th2.App.UpdateConfig(func(cfg *model.Config) {
 				*cfg.PluginSettings.EnableMarketplace = true
 				*cfg.PluginSettings.EnableRemoteMarketplace = true
-				*cfg.PluginSettings.MarketplaceUrl = testServer.URL
-				*cfg.PluginSettings.AllowInsecureDownloadUrl = true
+				*cfg.PluginSettings.MarketplaceURL = testServer.URL
+				*cfg.PluginSettings.AllowInsecureDownloadURL = true
 			})
 
 			pRequest = &model.InstallMarketplacePluginRequest{ID: "testplugin2", Version: "1.2.3"}
@@ -1717,8 +1717,8 @@ func TestInstallMarketplacePlugin(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) {
 			*cfg.PluginSettings.EnableMarketplace = true
 			*cfg.PluginSettings.EnableRemoteMarketplace = true
-			*cfg.PluginSettings.MarketplaceUrl = testServer.URL
-			*cfg.PluginSettings.AllowInsecureDownloadUrl = true
+			*cfg.PluginSettings.MarketplaceURL = testServer.URL
+			*cfg.PluginSettings.AllowInsecureDownloadURL = true
 		})
 
 		env := th.App.GetPluginsEnvironment()

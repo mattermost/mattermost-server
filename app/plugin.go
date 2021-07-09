@@ -195,11 +195,11 @@ func (s *Server) initPlugins(c *request.Context, pluginDir, webappPluginDir stri
 		return
 	}
 
-	newApiFunc := func(manifest *model.Manifest) plugin.API {
+	newAPIFunc := func(manifest *model.Manifest) plugin.API {
 		return New(ServerConnector(s)).NewPluginAPI(c, manifest)
 	}
 
-	env, err := plugin.NewEnvironment(newApiFunc, NewDriverImpl(s), pluginDir, webappPluginDir, s.Log, s.Metrics)
+	env, err := plugin.NewEnvironment(newAPIFunc, NewDriverImpl(s), pluginDir, webappPluginDir, s.Log, s.Metrics)
 	if err != nil {
 		mlog.Error("Failed to start up plugins", mlog.Err(err))
 		return
@@ -553,7 +553,7 @@ func (s *Server) getPrepackagedPlugin(pluginID, version string) (*plugin.Prepack
 // getRemoteMarketplacePlugin returns plugin from marketplace-server.
 func (s *Server) getRemoteMarketplacePlugin(pluginID, version string) (*model.BaseMarketplacePlugin, *model.AppError) {
 	marketplaceClient, err := marketplace.NewClient(
-		*s.Config().PluginSettings.MarketplaceUrl,
+		*s.Config().PluginSettings.MarketplaceURL,
 		s.HTTPService,
 	)
 	if err != nil {
@@ -581,7 +581,7 @@ func (a *App) getRemotePlugins() (map[string]*model.MarketplacePlugin, *model.Ap
 	}
 
 	marketplaceClient, err := marketplace.NewClient(
-		*a.Config().PluginSettings.MarketplaceUrl,
+		*a.Config().PluginSettings.MarketplaceURL,
 		a.HTTPService(),
 	)
 	if err != nil {

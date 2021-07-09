@@ -32,7 +32,7 @@ func TestCreateOAuthApp(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}, IsTrusted: true}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}, IsTrusted: true}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -58,7 +58,7 @@ func TestCreateOAuthApp(t *testing.T) {
 	_, resp = AdminClient.CreateOAuthApp(oapp)
 	CheckBadRequestStatus(t, resp)
 
-	r, err := Client.DoApiPost("/oauth/apps", "garbage")
+	r, err := Client.DoAPIPost("/oauth/apps", "garbage")
 	require.NotNil(t, err, "expected error from garbage post")
 	assert.Equal(t, http.StatusBadRequest, r.StatusCode)
 
@@ -95,7 +95,7 @@ func TestUpdateOAuthApp(t *testing.T) {
 		IconURL:      "https://nowhere.com/img",
 		Homepage:     "https://nowhere.com",
 		Description:  "test",
-		CallbackUrls: []string{"https://callback.com"},
+		CallbackURLs: []string{"https://callback.com"},
 	}
 
 	oapp, _ = AdminClient.CreateOAuthApp(oapp)
@@ -105,7 +105,7 @@ func TestUpdateOAuthApp(t *testing.T) {
 	oapp.IconURL = "https://nowhere.com/img_update"
 	oapp.Homepage = "https://nowhere_update.com"
 	oapp.Description = "test_update"
-	oapp.CallbackUrls = []string{"https://callback_update.com", "https://another_callback.com"}
+	oapp.CallbackURLs = []string{"https://callback_update.com", "https://another_callback.com"}
 
 	updatedApp, resp := AdminClient.UpdateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -118,9 +118,9 @@ func TestUpdateOAuthApp(t *testing.T) {
 	assert.Equal(t, oapp.Description, updatedApp.Description, "Description should have updated")
 	assert.Equal(t, oapp.IconURL, updatedApp.IconURL, "IconURL should have updated")
 
-	if len(updatedApp.CallbackUrls) == len(oapp.CallbackUrls) {
-		for i, callbackUrl := range updatedApp.CallbackUrls {
-			assert.Equal(t, oapp.CallbackUrls[i], callbackUrl, "Description should have updated")
+	if len(updatedApp.CallbackURLs) == len(oapp.CallbackURLs) {
+		for i, callbackURL := range updatedApp.CallbackURLs {
+			assert.Equal(t, oapp.CallbackURLs[i], callbackURL, "Description should have updated")
 		}
 	}
 	assert.Equal(t, oapp.Homepage, updatedApp.Homepage, "Homepage should have updated")
@@ -166,7 +166,7 @@ func TestUpdateOAuthApp(t *testing.T) {
 		IconURL:      "https://nowhere.com/img",
 		Homepage:     "https://nowhere.com",
 		Description:  "test",
-		CallbackUrls: []string{"https://callback.com"},
+		CallbackURLs: []string{"https://callback.com"},
 	}
 
 	userOapp, resp = Client.CreateOAuthApp(userOapp)
@@ -205,7 +205,7 @@ func TestGetOAuthApps(t *testing.T) {
 	th.AddPermissionToRole(model.PermissionManageOAuth.ID, model.SystemUserRoleID)
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -271,7 +271,7 @@ func TestGetOAuthApp(t *testing.T) {
 	th.AddPermissionToRole(model.PermissionManageOAuth.ID, model.SystemUserRoleID)
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -335,7 +335,7 @@ func TestGetOAuthAppInfo(t *testing.T) {
 	th.AddPermissionToRole(model.PermissionManageOAuth.ID, model.SystemUserRoleID)
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -399,7 +399,7 @@ func TestDeleteOAuthApp(t *testing.T) {
 	th.AddPermissionToRole(model.PermissionManageOAuth.ID, model.SystemUserRoleID)
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -466,7 +466,7 @@ func TestRegenerateOAuthAppSecret(t *testing.T) {
 	th.AddPermissionToRole(model.PermissionManageOAuth.ID, model.SystemUserRoleID)
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -529,7 +529,7 @@ func TestGetAuthorizedOAuthAppsForUser(t *testing.T) {
 	}()
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableOAuthServiceProvider = true })
 
-	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackUrls: []string{"https://nowhere.com"}}
+	oapp := &model.OAuthApp{Name: GenerateTestAppName(), Homepage: "https://nowhere.com", Description: "test", CallbackURLs: []string{"https://nowhere.com"}}
 
 	rapp, resp := AdminClient.CreateOAuthApp(oapp)
 	CheckNoError(t, resp)
@@ -537,7 +537,7 @@ func TestGetAuthorizedOAuthAppsForUser(t *testing.T) {
 	authRequest := &model.AuthorizeRequest{
 		ResponseType: model.AuthCodeResponseType,
 		ClientID:     rapp.ID,
-		RedirectURI:  rapp.CallbackUrls[0],
+		RedirectURI:  rapp.CallbackURLs[0],
 		Scope:        "",
 		State:        "123",
 	}

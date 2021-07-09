@@ -142,7 +142,7 @@ func TestGetClientConfig(t *testing.T) {
 			"default marketplace",
 			&model.Config{
 				PluginSettings: model.PluginSettings{
-					MarketplaceUrl: model.NewString(model.PluginSettingsDefaultMarketplaceUrl),
+					MarketplaceURL: model.NewString(model.PluginSettingsDefaultMarketplaceURL),
 				},
 			},
 			"tag1",
@@ -155,7 +155,7 @@ func TestGetClientConfig(t *testing.T) {
 			"non-default marketplace",
 			&model.Config{
 				PluginSettings: model.PluginSettings{
-					MarketplaceUrl: model.NewString("http://example.com"),
+					MarketplaceURL: model.NewString("http://example.com"),
 				},
 			},
 			"tag1",

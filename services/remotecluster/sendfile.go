@@ -98,7 +98,7 @@ func (rcs *Service) sendFileToRemote(timeout time.Duration, task sendFileTask) (
 	if err != nil {
 		return nil, fmt.Errorf("invalid siteURL while sending file to remote %s: %w", task.rc.RemoteID, err)
 	}
-	u.Path = path.Join(u.Path, model.ApiUrlSuffix, "remotecluster", "upload", task.us.ID)
+	u.Path = path.Join(u.Path, model.APIURLSuffix, "remotecluster", "upload", task.us.ID)
 
 	req, err := http.NewRequest("POST", u.String(), r)
 	if err != nil {

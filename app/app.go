@@ -300,13 +300,13 @@ func (a *App) notifyAdminsOfWarnMetricStatus(c *request.Context, warnMetricID st
 		actionID := "contactUs"
 		actionName := T("api.server.warn_metric.contact_us")
 		postActionValue := T("api.server.warn_metric.contacting_us")
-		postActionUrl := fmt.Sprintf("/warn_metrics/ack/%s", warnMetricID)
+		postActionURL := fmt.Sprintf("/warn_metrics/ack/%s", warnMetricID)
 
 		if isE0Edition {
 			actionID = "startTrial"
 			actionName = T("api.server.warn_metric.start_trial")
 			postActionValue = T("api.server.warn_metric.starting_trial")
-			postActionUrl = fmt.Sprintf("/warn_metrics/trial-license-ack/%s", warnMetricID)
+			postActionURL = fmt.Sprintf("/warn_metrics/trial-license-ack/%s", warnMetricID)
 		}
 
 		actions := []*model.PostAction{}
@@ -330,7 +330,7 @@ func (a *App) notifyAdminsOfWarnMetricStatus(c *request.Context, warnMetricID st
 						"bot_user_id": warnMetricsBot.UserID,
 						"force_ack":   false,
 					},
-					URL: postActionUrl,
+					URL: postActionURL,
 				},
 			},
 		)

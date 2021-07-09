@@ -4,12 +4,12 @@
 package api4
 
 func (api *API) InitPluginLocal() {
-	api.BaseRoutes.Plugins.Handle("", api.ApiLocal(uploadPlugin)).Methods("POST")
-	api.BaseRoutes.Plugins.Handle("", api.ApiLocal(getPlugins)).Methods("GET")
-	api.BaseRoutes.Plugins.Handle("/install_from_url", api.ApiLocal(installPluginFromUrl)).Methods("POST")
-	api.BaseRoutes.Plugin.Handle("", api.ApiLocal(removePlugin)).Methods("DELETE")
-	api.BaseRoutes.Plugin.Handle("/enable", api.ApiLocal(enablePlugin)).Methods("POST")
-	api.BaseRoutes.Plugin.Handle("/disable", api.ApiLocal(disablePlugin)).Methods("POST")
-	api.BaseRoutes.Plugins.Handle("/marketplace", api.ApiLocal(installMarketplacePlugin)).Methods("POST")
-	api.BaseRoutes.Plugins.Handle("/marketplace", api.ApiLocal(getMarketplacePlugins)).Methods("GET")
+	api.BaseRoutes.Plugins.Handle("", api.APILocal(uploadPlugin)).Methods("POST")
+	api.BaseRoutes.Plugins.Handle("", api.APILocal(getPlugins)).Methods("GET")
+	api.BaseRoutes.Plugins.Handle("/install_from_url", api.APILocal(installPluginFromURL)).Methods("POST")
+	api.BaseRoutes.Plugin.Handle("", api.APILocal(removePlugin)).Methods("DELETE")
+	api.BaseRoutes.Plugin.Handle("/enable", api.APILocal(enablePlugin)).Methods("POST")
+	api.BaseRoutes.Plugin.Handle("/disable", api.APILocal(disablePlugin)).Methods("POST")
+	api.BaseRoutes.Plugins.Handle("/marketplace", api.APILocal(installMarketplacePlugin)).Methods("POST")
+	api.BaseRoutes.Plugins.Handle("/marketplace", api.APILocal(getMarketplacePlugins)).Methods("GET")
 }

@@ -4,5 +4,5 @@
 package api4
 
 func (api *API) InitImportLocal() {
-	api.BaseRoutes.Imports.Handle("", api.ApiLocal(listImports)).Methods("GET")
+	api.BaseRoutes.Imports.Handle("", api.APILocal(listImports)).Methods("GET")
 }

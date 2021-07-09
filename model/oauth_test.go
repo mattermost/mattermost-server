@@ -14,7 +14,7 @@ func TestOAuthAppJSON(t *testing.T) {
 	a1 := OAuthApp{}
 	a1.ID = NewID()
 	a1.Name = "TestOAuthApp" + NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	a1.IconURL = "https://nowhere.com/icon_image.png"
 	a1.ClientSecret = NewID()
@@ -29,7 +29,7 @@ func TestOAuthAppPreSave(t *testing.T) {
 	a1 := OAuthApp{}
 	a1.ID = NewID()
 	a1.Name = "TestOAuthApp" + NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	a1.IconURL = "https://nowhere.com/icon_image.png"
 	a1.ClientSecret = NewID()
@@ -42,7 +42,7 @@ func TestOAuthAppPreUpdate(t *testing.T) {
 	a1 := OAuthApp{}
 	a1.ID = NewID()
 	a1.Name = "TestOAuthApp" + NewID()
-	a1.CallbackUrls = []string{"https://nowhere.com"}
+	a1.CallbackURLs = []string{"https://nowhere.com"}
 	a1.Homepage = "https://nowhere.com"
 	a1.IconURL = "https://nowhere.com/icon_image.png"
 	a1.ClientSecret = NewID()
@@ -72,7 +72,7 @@ func TestOAuthAppIsValid(t *testing.T) {
 	app.Name = "TestOAuthApp"
 	require.NotNil(t, app.IsValid())
 
-	app.CallbackUrls = []string{"https://nowhere.com"}
+	app.CallbackURLs = []string{"https://nowhere.com"}
 	require.NotNil(t, app.IsValid())
 
 	app.Homepage = "https://nowhere.com"

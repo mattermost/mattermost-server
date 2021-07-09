@@ -61,7 +61,7 @@ type TestNewConfig struct {
 }
 
 type TestNewServiceSettings struct {
-	SiteUrl                  *string
+	SiteURL                  *string
 	UseLetsEncrypt           *bool
 	TLSStrictTransportMaxAge *int64
 	AllowedThemes            []string
@@ -483,7 +483,7 @@ func TestUpdateMap(t *testing.T) {
 	// create a config to make changes
 	config := TestNewConfig{
 		TestNewServiceSettings{
-			SiteUrl:                  model.NewString("abc.def"),
+			SiteURL:                  model.NewString("abc.def"),
 			UseLetsEncrypt:           model.NewBool(false),
 			TLSStrictTransportMaxAge: model.NewInt64(36),
 			AllowedThemes:            []string{"Hello", "World"},

@@ -108,7 +108,7 @@ var PermissionCreateComplianceExportJob *Permission
 var PermissionReadComplianceExportJob *Permission
 var PermissionReadAudits *Permission
 var PermissionTestElasticsearch *Permission
-var PermissionTestSiteUrl *Permission
+var PermissionTestSiteURL *Permission
 var PermissionTestS3 *Permission
 var PermissionReloadConfig *Permission
 var PermissionInvalidateCaches *Permission
@@ -909,7 +909,7 @@ func initializePermissions() {
 		PermissionScopeSystem,
 	}
 
-	PermissionTestSiteUrl = &Permission{
+	PermissionTestSiteURL = &Permission{
 		"test_site_url",
 		"",
 		"",
@@ -2048,7 +2048,7 @@ func initializePermissions() {
 		PermissionCreateComplianceExportJob,
 		PermissionReadComplianceExportJob,
 		PermissionReadAudits,
-		PermissionTestSiteUrl,
+		PermissionTestSiteURL,
 		PermissionTestElasticsearch,
 		PermissionTestS3,
 		PermissionReloadConfig,

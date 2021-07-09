@@ -31,8 +31,8 @@ type SamlCertificateStatus struct {
 }
 
 type SamlMetadataResponse struct {
-	IDpDescriptorUrl     string `json:"idp_descriptor_url"`
-	IDpUrl               string `json:"idp_url"`
+	IDpDescriptorURL     string `json:"idp_descriptor_url"`
+	IDpURL               string `json:"idp_url"`
 	IDpPublicCertificate string `json:"idp_public_certificate"`
 }
 

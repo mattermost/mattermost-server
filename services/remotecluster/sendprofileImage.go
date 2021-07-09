@@ -99,7 +99,7 @@ func (rcs *Service) sendProfileImageToRemote(timeout time.Duration, task sendPro
 	if err != nil {
 		return fmt.Errorf("invalid siteURL while sending file to remote %s: %w", task.rc.RemoteID, err)
 	}
-	u.Path = path.Join(u.Path, model.ApiUrlSuffix, "remotecluster", task.userID, "image")
+	u.Path = path.Join(u.Path, model.APIURLSuffix, "remotecluster", task.userID, "image")
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)

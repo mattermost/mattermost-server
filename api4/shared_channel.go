@@ -11,8 +11,8 @@ import (
 )
 
 func (api *API) InitSharedChannels() {
-	api.BaseRoutes.SharedChannels.Handle("/{team_id:[A-Za-z0-9]+}", api.ApiSessionRequired(getSharedChannels)).Methods("GET")
-	api.BaseRoutes.SharedChannels.Handle("/remote_info/{remote_id:[A-Za-z0-9]+}", api.ApiSessionRequired(getRemoteClusterInfo)).Methods("GET")
+	api.BaseRoutes.SharedChannels.Handle("/{team_id:[A-Za-z0-9]+}", api.APISessionRequired(getSharedChannels)).Methods("GET")
+	api.BaseRoutes.SharedChannels.Handle("/remote_info/{remote_id:[A-Za-z0-9]+}", api.APISessionRequired(getRemoteClusterInfo)).Methods("GET")
 }
 
 func getSharedChannels(c *Context, w http.ResponseWriter, r *http.Request) {

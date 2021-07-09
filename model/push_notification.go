@@ -64,7 +64,7 @@ type PushNotification struct {
 	SenderID         string `json:"sender_id,omitempty"`
 	SenderName       string `json:"sender_name,omitempty"`
 	OverrideUsername string `json:"override_username,omitempty"`
-	OverrideIconUrl  string `json:"override_icon_url,omitempty"`
+	OverrideIconURL  string `json:"override_icon_url,omitempty"`
 	FromWebhook      string `json:"from_webhook,omitempty"`
 	Version          string `json:"version,omitempty"`
 	IsIDLoaded       bool   `json:"is_id_loaded"`

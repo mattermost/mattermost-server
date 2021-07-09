@@ -66,12 +66,12 @@ func (a *OAuthApp) IsValid() *AppError {
 	}
 
 	for _, callback := range a.CallbackURLs {
-		if !IsValidHttpURL(callback) {
+		if !IsValidHTTPURL(callback) {
 			return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.callback.app_error", nil, "", http.StatusBadRequest)
 		}
 	}
 
-	if a.Homepage == "" || len(a.Homepage) > 256 || !IsValidHttpURL(a.Homepage) {
+	if a.Homepage == "" || len(a.Homepage) > 256 || !IsValidHTTPURL(a.Homepage) {
 		return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.homepage.app_error", nil, "app_id="+a.ID, http.StatusBadRequest)
 	}
 
@@ -80,7 +80,7 @@ func (a *OAuthApp) IsValid() *AppError {
 	}
 
 	if a.IconURL != "" {
-		if len(a.IconURL) > 512 || !IsValidHttpURL(a.IconURL) {
+		if len(a.IconURL) > 512 || !IsValidHTTPURL(a.IconURL) {
 			return NewAppError("OAuthApp.IsValid", "model.oauth.is_valid.icon_url.app_error", nil, "app_id="+a.ID, http.StatusBadRequest)
 		}
 	}

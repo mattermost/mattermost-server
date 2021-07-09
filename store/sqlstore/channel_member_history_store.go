@@ -15,13 +15,13 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlChannelMemberHistoryStore struct {
-	*SqlStore
+type SQLChannelMemberHistoryStore struct {
+	*SQLStore
 }
 
-func newSqlChannelMemberHistoryStore(sqlStore *SqlStore) store.ChannelMemberHistoryStore {
-	s := &SqlChannelMemberHistoryStore{
-		SqlStore: sqlStore,
+func newSQLChannelMemberHistoryStore(sqlStore *SQLStore) store.ChannelMemberHistoryStore {
+	s := &SQLChannelMemberHistoryStore{
+		SQLStore: sqlStore,
 	}
 
 	for _, db := range sqlStore.GetAllConns() {
@@ -34,7 +34,7 @@ func newSqlChannelMemberHistoryStore(sqlStore *SqlStore) store.ChannelMemberHist
 	return s
 }
 
-func (s SqlChannelMemberHistoryStore) LogJoinEvent(userID string, channelID string, joinTime int64) error {
+func (s SQLChannelMemberHistoryStore) LogJoinEvent(userID string, channelID string, joinTime int64) error {
 	channelMemberHistory := &model.ChannelMemberHistory{
 		UserID:    userID,
 		ChannelID: channelID,
@@ -47,7 +47,7 @@ func (s SqlChannelMemberHistoryStore) LogJoinEvent(userID string, channelID stri
 	return nil
 }
 
-func (s SqlChannelMemberHistoryStore) LogLeaveEvent(userID string, channelID string, leaveTime int64) error {
+func (s SQLChannelMemberHistoryStore) LogLeaveEvent(userID string, channelID string, leaveTime int64) error {
 	query, params, err := s.getQueryBuilder().
 		Update("ChannelMemberHistory").
 		Set("LeaveTime", leaveTime).
@@ -71,7 +71,7 @@ func (s SqlChannelMemberHistoryStore) LogLeaveEvent(userID string, channelID str
 	return nil
 }
 
-func (s SqlChannelMemberHistoryStore) GetUsersInChannelDuring(startTime int64, endTime int64, channelID string) ([]*model.ChannelMemberHistoryResult, error) {
+func (s SQLChannelMemberHistoryStore) GetUsersInChannelDuring(startTime int64, endTime int64, channelID string) ([]*model.ChannelMemberHistoryResult, error) {
 	useChannelMemberHistory, err := s.hasDataAtOrBefore(startTime)
 	if err != nil {
 		return nil, errors.Wrapf(err, "hasDataAtOrBefore startTime=%d endTime=%d channelId=%s", startTime, endTime, channelID)
@@ -96,7 +96,7 @@ func (s SqlChannelMemberHistoryStore) GetUsersInChannelDuring(startTime int64, e
 	return channelMemberHistories, nil
 }
 
-func (s SqlChannelMemberHistoryStore) hasDataAtOrBefore(time int64) (bool, error) {
+func (s SQLChannelMemberHistoryStore) hasDataAtOrBefore(time int64) (bool, error) {
 	type NullableCountResult struct {
 		Min sql.NullInt64
 	}
@@ -115,7 +115,7 @@ func (s SqlChannelMemberHistoryStore) hasDataAtOrBefore(time int64) (bool, error
 	}
 }
 
-func (s SqlChannelMemberHistoryStore) getFromChannelMemberHistoryTable(startTime int64, endTime int64, channelID string) ([]*model.ChannelMemberHistoryResult, error) {
+func (s SQLChannelMemberHistoryStore) getFromChannelMemberHistoryTable(startTime int64, endTime int64, channelID string) ([]*model.ChannelMemberHistoryResult, error) {
 	query, args, err := s.getQueryBuilder().
 		Select("cmh.*, u.Email, u.Username, Bots.UserId IS NOT NULL AS IsBot, u.DeleteAt AS UserDeleteAt").
 		From("ChannelMemberHistory cmh").
@@ -141,7 +141,7 @@ func (s SqlChannelMemberHistoryStore) getFromChannelMemberHistoryTable(startTime
 	return histories, nil
 }
 
-func (s SqlChannelMemberHistoryStore) getFromChannelMembersTable(startTime int64, endTime int64, channelID string) ([]*model.ChannelMemberHistoryResult, error) {
+func (s SQLChannelMemberHistoryStore) getFromChannelMembersTable(startTime int64, endTime int64, channelID string) ([]*model.ChannelMemberHistoryResult, error) {
 	query, args, err := s.getQueryBuilder().
 		Select("ch.ChannelId, ch.UserId, u.Email, u.Username, Bots.UserId IS NOT NULL AS IsBot, u.DeleteAt AS UserDeleteAt").
 		Distinct().
@@ -168,7 +168,7 @@ func (s SqlChannelMemberHistoryStore) getFromChannelMembersTable(startTime int64
 // PermanentDeleteBatchForRetentionPolicies deletes a batch of records which are affected by
 // the global or a granular retention policy.
 // See `genericPermanentDeleteBatchForRetentionPolicies` for details.
-func (s SqlChannelMemberHistoryStore) PermanentDeleteBatchForRetentionPolicies(now, globalPolicyEndTime, limit int64, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
+func (s SQLChannelMemberHistoryStore) PermanentDeleteBatchForRetentionPolicies(now, globalPolicyEndTime, limit int64, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
 	builder := s.getQueryBuilder().
 		Select("ChannelMemberHistory.ChannelId, ChannelMemberHistory.UserId, ChannelMemberHistory.JoinTime").
 		From("ChannelMemberHistory")
@@ -181,11 +181,11 @@ func (s SqlChannelMemberHistoryStore) PermanentDeleteBatchForRetentionPolicies(n
 		NowMillis:           now,
 		GlobalPolicyEndTime: globalPolicyEndTime,
 		Limit:               limit,
-	}, s.SqlStore, cursor)
+	}, s.SQLStore, cursor)
 }
 
 // DeleteOrphanedRows removes entries from ChannelMemberHistory when a corresponding channel no longer exists.
-func (s SqlChannelMemberHistoryStore) DeleteOrphanedRows(limit int) (deleted int64, err error) {
+func (s SQLChannelMemberHistoryStore) DeleteOrphanedRows(limit int) (deleted int64, err error) {
 	// We need the extra level of nesting to deal with MySQL's locking
 	const query = `
 	DELETE FROM ChannelMemberHistory WHERE (ChannelId, UserId, JoinTime) IN (
@@ -205,7 +205,7 @@ func (s SqlChannelMemberHistoryStore) DeleteOrphanedRows(limit int) (deleted int
 	return
 }
 
-func (s SqlChannelMemberHistoryStore) PermanentDeleteBatch(endTime int64, limit int64) (int64, error) {
+func (s SQLChannelMemberHistoryStore) PermanentDeleteBatch(endTime int64, limit int64) (int64, error) {
 	var (
 		query string
 		args  []interface{}

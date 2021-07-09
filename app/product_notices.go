@@ -259,7 +259,7 @@ func (a *App) GetProductNotices(c *request.Context, userID, teamID string, clien
 
 	sku := a.Srv().ClientLicense()["SkuShortName"]
 	isCloud := a.Srv().License() != nil && *a.Srv().License().Features.Cloud
-	dbName := *a.Srv().Config().SqlSettings.DriverName
+	dbName := *a.Srv().Config().SQLSettings.DriverName
 
 	var searchEngineName, searchEngineVersion string
 	if engine := a.Srv().SearchEngine; engine != nil && engine.ElasticsearchEngine != nil {

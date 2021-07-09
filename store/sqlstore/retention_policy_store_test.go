@@ -10,5 +10,5 @@ import (
 )
 
 func TestRetentionPolicyStore(t *testing.T) {
-	StoreTestWithSqlStore(t, storetest.TestRetentionPolicyStore)
+	StoreTestWithSQLStore(t, storetest.TestRetentionPolicyStore)
 }

@@ -13,13 +13,13 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlTermsOfServiceStore struct {
-	*SqlStore
+type SQLTermsOfServiceStore struct {
+	*SQLStore
 	metrics einterfaces.MetricsInterface
 }
 
-func newSqlTermsOfServiceStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) store.TermsOfServiceStore {
-	s := SqlTermsOfServiceStore{sqlStore, metrics}
+func newSQLTermsOfServiceStore(sqlStore *SQLStore, metrics einterfaces.MetricsInterface) store.TermsOfServiceStore {
+	s := SQLTermsOfServiceStore{sqlStore, metrics}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.TermsOfService{}, "TermsOfService").SetKeys(false, "Id")
@@ -31,10 +31,10 @@ func newSqlTermsOfServiceStore(sqlStore *SqlStore, metrics einterfaces.MetricsIn
 	return s
 }
 
-func (s SqlTermsOfServiceStore) createIndexesIfNotExists() {
+func (s SQLTermsOfServiceStore) createIndexesIfNotExists() {
 }
 
-func (s SqlTermsOfServiceStore) Save(termsOfService *model.TermsOfService) (*model.TermsOfService, error) {
+func (s SQLTermsOfServiceStore) Save(termsOfService *model.TermsOfService) (*model.TermsOfService, error) {
 	if termsOfService.ID != "" {
 		return nil, store.NewErrInvalidInput("TermsOfService", "Id", termsOfService.ID)
 	}
@@ -52,7 +52,7 @@ func (s SqlTermsOfServiceStore) Save(termsOfService *model.TermsOfService) (*mod
 	return termsOfService, nil
 }
 
-func (s SqlTermsOfServiceStore) GetLatest(allowFromCache bool) (*model.TermsOfService, error) {
+func (s SQLTermsOfServiceStore) GetLatest(allowFromCache bool) (*model.TermsOfService, error) {
 	var termsOfService *model.TermsOfService
 
 	query := s.getQueryBuilder().
@@ -76,7 +76,7 @@ func (s SqlTermsOfServiceStore) GetLatest(allowFromCache bool) (*model.TermsOfSe
 	return termsOfService, nil
 }
 
-func (s SqlTermsOfServiceStore) Get(id string, allowFromCache bool) (*model.TermsOfService, error) {
+func (s SQLTermsOfServiceStore) Get(id string, allowFromCache bool) (*model.TermsOfService, error) {
 	obj, err := s.GetReplica().Get(model.TermsOfService{}, id)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not find TermsOfService with id=%s", id)

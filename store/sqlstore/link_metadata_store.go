@@ -13,12 +13,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlLinkMetadataStore struct {
-	*SqlStore
+type SQLLinkMetadataStore struct {
+	*SQLStore
 }
 
-func newSqlLinkMetadataStore(sqlStore *SqlStore) store.LinkMetadataStore {
-	s := &SqlLinkMetadataStore{sqlStore}
+func newSQLLinkMetadataStore(sqlStore *SQLStore) store.LinkMetadataStore {
+	s := &SQLLinkMetadataStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.LinkMetadata{}, "LinkMetadata").SetKeys(false, "Hash")
@@ -30,7 +30,7 @@ func newSqlLinkMetadataStore(sqlStore *SqlStore) store.LinkMetadataStore {
 	return s
 }
 
-func (s SqlLinkMetadataStore) createIndexesIfNotExists() {
+func (s SQLLinkMetadataStore) createIndexesIfNotExists() {
 	if s.DriverName() == model.DatabaseDriverMysql {
 		s.CreateCompositeIndexIfNotExists("idx_link_metadata_url_timestamp", "LinkMetadata", []string{"URL(512)", "Timestamp"})
 	} else {
@@ -38,7 +38,7 @@ func (s SqlLinkMetadataStore) createIndexesIfNotExists() {
 	}
 }
 
-func (s SqlLinkMetadataStore) Save(metadata *model.LinkMetadata) (*model.LinkMetadata, error) {
+func (s SQLLinkMetadataStore) Save(metadata *model.LinkMetadata) (*model.LinkMetadata, error) {
 	if err := metadata.IsValid(); err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (s SqlLinkMetadataStore) Save(metadata *model.LinkMetadata) (*model.LinkMet
 	return metadata, nil
 }
 
-func (s SqlLinkMetadataStore) Get(url string, timestamp int64) (*model.LinkMetadata, error) {
+func (s SQLLinkMetadataStore) Get(url string, timestamp int64) (*model.LinkMetadata, error) {
 	var metadata *model.LinkMetadata
 	query, args, err := s.getQueryBuilder().
 		Select("*").

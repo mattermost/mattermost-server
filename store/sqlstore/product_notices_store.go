@@ -13,12 +13,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlProductNoticesStore struct {
-	*SqlStore
+type SQLProductNoticesStore struct {
+	*SQLStore
 }
 
-func newSqlProductNoticesStore(sqlStore *SqlStore) store.ProductNoticesStore {
-	s := SqlProductNoticesStore{sqlStore}
+func newSQLProductNoticesStore(sqlStore *SQLStore) store.ProductNoticesStore {
+	s := SQLProductNoticesStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.ProductNoticeViewState{}, "ProductNoticeViewState").SetKeys(false, "UserId", "NoticeId")
@@ -29,12 +29,12 @@ func newSqlProductNoticesStore(sqlStore *SqlStore) store.ProductNoticesStore {
 	return s
 }
 
-func (s SqlProductNoticesStore) createIndexesIfNotExists() {
+func (s SQLProductNoticesStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_notice_views_timestamp", "ProductNoticeViewState", "Timestamp")
 	s.CreateIndexIfNotExists("idx_notice_views_notice_id", "ProductNoticeViewState", "NoticeId")
 }
 
-func (s SqlProductNoticesStore) Clear(notices []string) error {
+func (s SQLProductNoticesStore) Clear(notices []string) error {
 	sql, args, _ := s.getQueryBuilder().Delete("ProductNoticeViewState").Where(sq.Eq{"NoticeId": notices}).ToSql()
 	if _, err := s.GetMaster().Exec(sql, args...); err != nil {
 		return errors.Wrapf(err, "failed to delete records from ProductNoticeViewState")
@@ -42,7 +42,7 @@ func (s SqlProductNoticesStore) Clear(notices []string) error {
 	return nil
 }
 
-func (s SqlProductNoticesStore) ClearOldNotices(currentNotices *model.ProductNotices) error {
+func (s SQLProductNoticesStore) ClearOldNotices(currentNotices *model.ProductNotices) error {
 	var notices []string
 	for _, currentNotice := range *currentNotices {
 		notices = append(notices, currentNotice.ID)
@@ -54,7 +54,7 @@ func (s SqlProductNoticesStore) ClearOldNotices(currentNotices *model.ProductNot
 	return nil
 }
 
-func (s SqlProductNoticesStore) View(userID string, notices []string) error {
+func (s SQLProductNoticesStore) View(userID string, notices []string) error {
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
 		return errors.Wrap(err, "begin_transaction")
@@ -112,7 +112,7 @@ func (s SqlProductNoticesStore) View(userID string, notices []string) error {
 	return nil
 }
 
-func (s SqlProductNoticesStore) GetViews(userID string) ([]model.ProductNoticeViewState, error) {
+func (s SQLProductNoticesStore) GetViews(userID string) ([]model.ProductNoticeViewState, error) {
 	var noticeStates []model.ProductNoticeViewState
 	sql, args, _ := s.getQueryBuilder().Select("*").From("ProductNoticeViewState").Where(sq.Eq{"UserId": userID}).ToSql()
 	if _, err := s.GetReplica().Select(&noticeStates, sql, args...); err != nil {

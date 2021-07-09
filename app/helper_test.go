@@ -570,7 +570,7 @@ func (th *TestHelper) TearDown() {
 	}
 }
 
-func (*TestHelper) GetSqlStore() *sqlstore.SqlStore {
+func (*TestHelper) GetSQLStore() *sqlstore.SQLStore {
 	return mainHelper.GetSQLStore()
 }
 

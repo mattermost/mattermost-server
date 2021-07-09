@@ -14,12 +14,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlCommandWebhookStore struct {
-	*SqlStore
+type SQLCommandWebhookStore struct {
+	*SQLStore
 }
 
-func newSqlCommandWebhookStore(sqlStore *SqlStore) store.CommandWebhookStore {
-	s := &SqlCommandWebhookStore{sqlStore}
+func newSQLCommandWebhookStore(sqlStore *SQLStore) store.CommandWebhookStore {
+	s := &SQLCommandWebhookStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		tablec := db.AddTableWithName(model.CommandWebhook{}, "CommandWebhooks").SetKeys(false, "Id")
@@ -34,11 +34,11 @@ func newSqlCommandWebhookStore(sqlStore *SqlStore) store.CommandWebhookStore {
 	return s
 }
 
-func (s SqlCommandWebhookStore) createIndexesIfNotExists() {
+func (s SQLCommandWebhookStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_command_webhook_create_at", "CommandWebhooks", "CreateAt")
 }
 
-func (s SqlCommandWebhookStore) Save(webhook *model.CommandWebhook) (*model.CommandWebhook, error) {
+func (s SQLCommandWebhookStore) Save(webhook *model.CommandWebhook) (*model.CommandWebhook, error) {
 	if webhook.ID != "" {
 		return nil, store.NewErrInvalidInput("CommandWebhook", "id", webhook.ID)
 	}
@@ -55,7 +55,7 @@ func (s SqlCommandWebhookStore) Save(webhook *model.CommandWebhook) (*model.Comm
 	return webhook, nil
 }
 
-func (s SqlCommandWebhookStore) Get(id string) (*model.CommandWebhook, error) {
+func (s SQLCommandWebhookStore) Get(id string) (*model.CommandWebhook, error) {
 	var webhook model.CommandWebhook
 
 	exptime := model.GetMillis() - model.CommandWebhookLifetime
@@ -81,7 +81,7 @@ func (s SqlCommandWebhookStore) Get(id string) (*model.CommandWebhook, error) {
 	return &webhook, nil
 }
 
-func (s SqlCommandWebhookStore) TryUse(id string, limit int) error {
+func (s SQLCommandWebhookStore) TryUse(id string, limit int) error {
 	query := s.getQueryBuilder().
 		Update("CommandWebhooks").
 		Set("UseCount", sq.Expr("UseCount + 1")).
@@ -102,7 +102,7 @@ func (s SqlCommandWebhookStore) TryUse(id string, limit int) error {
 	return nil
 }
 
-func (s SqlCommandWebhookStore) Cleanup() {
+func (s SQLCommandWebhookStore) Cleanup() {
 	mlog.Debug("Cleaning up command webhook store.")
 	exptime := model.GetMillis() - model.CommandWebhookLifetime
 

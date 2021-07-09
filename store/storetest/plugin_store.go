@@ -14,7 +14,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-func TestPluginStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestPluginStore(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("SaveOrUpdate", func(t *testing.T) { testPluginSaveOrUpdate(t, ss) })
 	t.Run("CompareAndSet", func(t *testing.T) { testPluginCompareAndSet(t, ss) })
 	t.Run("CompareAndDelete", func(t *testing.T) { testPluginCompareAndDelete(t, ss) })

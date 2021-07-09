@@ -19,18 +19,18 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlFileInfoStore struct {
-	*SqlStore
+type SQLFileInfoStore struct {
+	*SQLStore
 	metrics     einterfaces.MetricsInterface
 	queryFields []string
 }
 
-func (fs SqlFileInfoStore) ClearCaches() {
+func (fs SQLFileInfoStore) ClearCaches() {
 }
 
-func newSqlFileInfoStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) store.FileInfoStore {
-	s := &SqlFileInfoStore{
-		SqlStore: sqlStore,
+func newSQLFileInfoStore(sqlStore *SQLStore, metrics einterfaces.MetricsInterface) store.FileInfoStore {
+	s := &SQLFileInfoStore{
+		SQLStore: sqlStore,
 		metrics:  metrics,
 	}
 
@@ -74,7 +74,7 @@ func newSqlFileInfoStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterfac
 	return s
 }
 
-func (fs SqlFileInfoStore) createIndexesIfNotExists() {
+func (fs SQLFileInfoStore) createIndexesIfNotExists() {
 	fs.CreateIndexIfNotExists("idx_fileinfo_update_at", "FileInfo", "UpdateAt")
 	fs.CreateIndexIfNotExists("idx_fileinfo_create_at", "FileInfo", "CreateAt")
 	fs.CreateIndexIfNotExists("idx_fileinfo_delete_at", "FileInfo", "DeleteAt")
@@ -87,7 +87,7 @@ func (fs SqlFileInfoStore) createIndexesIfNotExists() {
 	fs.CreateFullTextIndexIfNotExists("idx_fileinfo_content_txt", "FileInfo", "Content")
 }
 
-func (fs SqlFileInfoStore) Save(info *model.FileInfo) (*model.FileInfo, error) {
+func (fs SQLFileInfoStore) Save(info *model.FileInfo) (*model.FileInfo, error) {
 	info.PreSave()
 	if err := info.IsValid(); err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (fs SqlFileInfoStore) Save(info *model.FileInfo) (*model.FileInfo, error) {
 	return info, nil
 }
 
-func (fs SqlFileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, error) {
+func (fs SQLFileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, error) {
 	query := fs.getQueryBuilder().
 		Select(append(fs.queryFields, "COALESCE(P.ChannelId, '') as ChannelId")...).
 		From("FileInfo").
@@ -120,7 +120,7 @@ func (fs SqlFileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, error) {
 	return infos, nil
 }
 
-func (fs SqlFileInfoStore) Upsert(info *model.FileInfo) (*model.FileInfo, error) {
+func (fs SQLFileInfoStore) Upsert(info *model.FileInfo) (*model.FileInfo, error) {
 	info.PreSave()
 	if err := info.IsValid(); err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (fs SqlFileInfoStore) Upsert(info *model.FileInfo) (*model.FileInfo, error)
 	return info, nil
 }
 
-func (fs SqlFileInfoStore) get(id string, fromMaster bool) (*model.FileInfo, error) {
+func (fs SQLFileInfoStore) get(id string, fromMaster bool) (*model.FileInfo, error) {
 	info := &model.FileInfo{}
 
 	query := fs.getQueryBuilder().
@@ -166,15 +166,15 @@ func (fs SqlFileInfoStore) get(id string, fromMaster bool) (*model.FileInfo, err
 	return info, nil
 }
 
-func (fs SqlFileInfoStore) Get(id string) (*model.FileInfo, error) {
+func (fs SQLFileInfoStore) Get(id string) (*model.FileInfo, error) {
 	return fs.get(id, false)
 }
 
-func (fs SqlFileInfoStore) GetFromMaster(id string) (*model.FileInfo, error) {
+func (fs SQLFileInfoStore) GetFromMaster(id string) (*model.FileInfo, error) {
 	return fs.get(id, true)
 }
 
-func (fs SqlFileInfoStore) GetWithOptions(page, perPage int, opt *model.GetFileInfosOptions) ([]*model.FileInfo, error) {
+func (fs SQLFileInfoStore) GetWithOptions(page, perPage int, opt *model.GetFileInfosOptions) ([]*model.FileInfo, error) {
 	if perPage < 0 {
 		return nil, store.NewErrLimitExceeded("perPage", perPage, "value used in pagination while getting FileInfos")
 	} else if page < 0 {
@@ -241,7 +241,7 @@ func (fs SqlFileInfoStore) GetWithOptions(page, perPage int, opt *model.GetFileI
 	return infos, nil
 }
 
-func (fs SqlFileInfoStore) GetByPath(path string) (*model.FileInfo, error) {
+func (fs SQLFileInfoStore) GetByPath(path string) (*model.FileInfo, error) {
 	info := &model.FileInfo{}
 
 	query := fs.getQueryBuilder().
@@ -266,10 +266,10 @@ func (fs SqlFileInfoStore) GetByPath(path string) (*model.FileInfo, error) {
 	return info, nil
 }
 
-func (fs SqlFileInfoStore) InvalidateFileInfosForPostCache(postID string, deleted bool) {
+func (fs SQLFileInfoStore) InvalidateFileInfosForPostCache(postID string, deleted bool) {
 }
 
-func (fs SqlFileInfoStore) GetForPost(postID string, readFromMaster, includeDeleted, allowFromCache bool) ([]*model.FileInfo, error) {
+func (fs SQLFileInfoStore) GetForPost(postID string, readFromMaster, includeDeleted, allowFromCache bool) ([]*model.FileInfo, error) {
 	var infos []*model.FileInfo
 
 	dbmap := fs.GetReplica()
@@ -299,7 +299,7 @@ func (fs SqlFileInfoStore) GetForPost(postID string, readFromMaster, includeDele
 	return infos, nil
 }
 
-func (fs SqlFileInfoStore) GetForUser(userID string) ([]*model.FileInfo, error) {
+func (fs SQLFileInfoStore) GetForUser(userID string) ([]*model.FileInfo, error) {
 	var infos []*model.FileInfo
 
 	dbmap := fs.GetReplica()
@@ -322,7 +322,7 @@ func (fs SqlFileInfoStore) GetForUser(userID string) ([]*model.FileInfo, error) 
 	return infos, nil
 }
 
-func (fs SqlFileInfoStore) AttachToPost(fileID, postID, creatorID string) error {
+func (fs SQLFileInfoStore) AttachToPost(fileID, postID, creatorID string) error {
 	sqlResult, err := fs.GetMaster().Exec(`
 		UPDATE
 			FileInfo
@@ -352,7 +352,7 @@ func (fs SqlFileInfoStore) AttachToPost(fileID, postID, creatorID string) error 
 	return nil
 }
 
-func (fs SqlFileInfoStore) SetContent(fileID, content string) error {
+func (fs SQLFileInfoStore) SetContent(fileID, content string) error {
 	query := fs.getQueryBuilder().
 		Update("FileInfo").
 		Set("Content", content).
@@ -371,7 +371,7 @@ func (fs SqlFileInfoStore) SetContent(fileID, content string) error {
 	return nil
 }
 
-func (fs SqlFileInfoStore) DeleteForPost(postID string) (string, error) {
+func (fs SQLFileInfoStore) DeleteForPost(postID string) (string, error) {
 	if _, err := fs.GetMaster().Exec(
 		`UPDATE
 				FileInfo
@@ -384,7 +384,7 @@ func (fs SqlFileInfoStore) DeleteForPost(postID string) (string, error) {
 	return postID, nil
 }
 
-func (fs SqlFileInfoStore) PermanentDelete(fileID string) error {
+func (fs SQLFileInfoStore) PermanentDelete(fileID string) error {
 	if _, err := fs.GetMaster().Exec(
 		`DELETE FROM
 				FileInfo
@@ -395,7 +395,7 @@ func (fs SqlFileInfoStore) PermanentDelete(fileID string) error {
 	return nil
 }
 
-func (fs SqlFileInfoStore) PermanentDeleteBatch(endTime int64, limit int64) (int64, error) {
+func (fs SQLFileInfoStore) PermanentDeleteBatch(endTime int64, limit int64) (int64, error) {
 	var query string
 	if fs.DriverName() == "postgres" {
 		query = "DELETE from FileInfo WHERE Id = any (array (SELECT Id FROM FileInfo WHERE CreateAt < :EndTime LIMIT :Limit))"
@@ -416,7 +416,7 @@ func (fs SqlFileInfoStore) PermanentDeleteBatch(endTime int64, limit int64) (int
 	return rowsAffected, nil
 }
 
-func (fs SqlFileInfoStore) PermanentDeleteByUser(userID string) (int64, error) {
+func (fs SQLFileInfoStore) PermanentDeleteByUser(userID string) (int64, error) {
 	query := "DELETE from FileInfo WHERE CreatorId = :CreatorId"
 
 	sqlResult, err := fs.GetMaster().Exec(query, map[string]interface{}{"CreatorId": userID})
@@ -432,7 +432,7 @@ func (fs SqlFileInfoStore) PermanentDeleteByUser(userID string) (int64, error) {
 	return rowsAffected, nil
 }
 
-func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userID, teamID string, page, perPage int) (*model.FileInfoList, error) {
+func (fs SQLFileInfoStore) Search(paramsList []*model.SearchParams, userID, teamID string, page, perPage int) (*model.FileInfoList, error) {
 	// Since we don't support paging for DB search, we just return nothing for later pages
 	if page > 0 {
 		return model.NewFileInfoList(), nil
@@ -606,7 +606,7 @@ func (fs SqlFileInfoStore) Search(paramsList []*model.SearchParams, userID, team
 	return list, nil
 }
 
-func (fs SqlFileInfoStore) CountAll() (int64, error) {
+func (fs SQLFileInfoStore) CountAll() (int64, error) {
 	query := fs.getQueryBuilder().
 		Select("COUNT(*)").
 		From("FileInfo").
@@ -624,7 +624,7 @@ func (fs SqlFileInfoStore) CountAll() (int64, error) {
 	return count, nil
 }
 
-func (fs SqlFileInfoStore) GetFilesBatchForIndexing(startTime, endTime int64, limit int) ([]*model.FileForIndexing, error) {
+func (fs SQLFileInfoStore) GetFilesBatchForIndexing(startTime, endTime int64, limit int) ([]*model.FileForIndexing, error) {
 	var files []*model.FileForIndexing
 	sql, args, _ := fs.getQueryBuilder().
 		Select(append(fs.queryFields, "Coalesce(p.ChannelId, '') AS ChannelId")...).

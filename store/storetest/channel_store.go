@@ -22,7 +22,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/utils"
 )
 
-type SqlStore interface {
+type SQLStore interface {
 	GetMaster() *gorp.DbMap
 	DriverName() string
 }
@@ -36,7 +36,7 @@ func cleanupChannels(t *testing.T, ss store.Store) {
 	}
 }
 
-func TestChannelStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestChannelStore(t *testing.T, ss store.Store, s SQLStore) {
 	createDefaultRoles(ss)
 
 	t.Run("Save", func(t *testing.T) { testChannelStoreSave(t, ss) })
@@ -166,7 +166,7 @@ func testChannelStoreSave(t *testing.T, ss store.Store) {
 	require.True(t, errors.As(nErr, &cErr))
 }
 
-func testChannelStoreSaveDirectChannel(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreSaveDirectChannel(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}
@@ -367,7 +367,7 @@ func testGetChannelUnread(t *testing.T, ss store.Store) {
 	require.EqualValues(t, 10, ch2.MsgCount, "wrong MsgCount for channel 2")
 }
 
-func testChannelStoreGet(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreGet(t *testing.T, ss store.Store, s SQLStore) {
 	o1 := model.Channel{}
 	o1.TeamID = model.NewID()
 	o1.DisplayName = "Name"
@@ -3259,7 +3259,7 @@ func testChannelStoreGetChannels(t *testing.T, ss store.Store) {
 	ss.Channel().InvalidateAllChannelMembersForUser(m1.UserID)
 }
 
-func testChannelStoreGetAllChannels(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreGetAllChannels(t *testing.T, ss store.Store, s SQLStore) {
 	cleanupChannels(t, ss)
 
 	t1 := model.Team{}
@@ -4979,7 +4979,7 @@ func (s ByChannelDisplayName) Less(i, j int) bool {
 	return s[i].ID < s[j].ID
 }
 
-func testChannelStoreSearchArchivedInTeam(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreSearchArchivedInTeam(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 	userID := model.NewID()
 
@@ -6287,7 +6287,7 @@ func testChannelStoreClearAllCustomRoleAssignments(t *testing.T, ss store.Store)
 
 // testMaterializedPublicChannels tests edge cases involving the triggers and stored procedures
 // that materialize the PublicChannels table.
-func testMaterializedPublicChannels(t *testing.T, ss store.Store, s SqlStore) {
+func testMaterializedPublicChannels(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	// o1 is a public channel on the team
@@ -6532,7 +6532,7 @@ func testChannelStoreGetChannelMembersForExport(t *testing.T, ss store.Store) {
 	assert.Equal(t, u1.ID, cmfe1.UserID)
 }
 
-func testChannelStoreRemoveAllDeactivatedMembers(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreRemoveAllDeactivatedMembers(t *testing.T, ss store.Store, s SQLStore) {
 	// Set up all the objects needed in the store.
 	t1 := model.Team{}
 	t1.DisplayName = "Name"
@@ -6615,7 +6615,7 @@ func testChannelStoreRemoveAllDeactivatedMembers(t *testing.T, ss store.Store, s
 	s.GetMaster().Exec("TRUNCATE Channels")
 }
 
-func testChannelStoreExportAllDirectChannels(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreExportAllDirectChannels(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}
@@ -6672,7 +6672,7 @@ func testChannelStoreExportAllDirectChannels(t *testing.T, ss store.Store, s Sql
 	s.GetMaster().Exec("TRUNCATE Channels")
 }
 
-func testChannelStoreExportAllDirectChannelsExcludePrivateAndPublic(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreExportAllDirectChannelsExcludePrivateAndPublic(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}
@@ -6734,7 +6734,7 @@ func testChannelStoreExportAllDirectChannelsExcludePrivateAndPublic(t *testing.T
 	s.GetMaster().Exec("TRUNCATE Channels")
 }
 
-func testChannelStoreExportAllDirectChannelsDeletedChannel(t *testing.T, ss store.Store, s SqlStore) {
+func testChannelStoreExportAllDirectChannelsDeletedChannel(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}

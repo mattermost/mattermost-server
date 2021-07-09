@@ -85,7 +85,7 @@ const (
 type ServerIface interface {
 	Config() *model.Config
 	IsLeader() bool
-	HttpService() httpservice.HTTPService
+	HTTPService() httpservice.HTTPService
 	GetPluginsEnvironment() *plugin.Environment
 	License() *model.License
 	GetRoleByName(context.Context, string) (*model.Role, *model.AppError)
@@ -490,16 +490,16 @@ func (ts *TelemetryService) trackConfig() {
 	})
 
 	ts.sendTelemetry(TrackConfigSQL, map[string]interface{}{
-		"driver_name":                    *cfg.SqlSettings.DriverName,
-		"trace":                          cfg.SqlSettings.Trace,
-		"max_idle_conns":                 *cfg.SqlSettings.MaxIdleConns,
-		"conn_max_lifetime_milliseconds": *cfg.SqlSettings.ConnMaxLifetimeMilliseconds,
-		"conn_max_idletime_milliseconds": *cfg.SqlSettings.ConnMaxIdleTimeMilliseconds,
-		"max_open_conns":                 *cfg.SqlSettings.MaxOpenConns,
-		"data_source_replicas":           len(cfg.SqlSettings.DataSourceReplicas),
-		"data_source_search_replicas":    len(cfg.SqlSettings.DataSourceSearchReplicas),
-		"query_timeout":                  *cfg.SqlSettings.QueryTimeout,
-		"disable_database_search":        *cfg.SqlSettings.DisableDatabaseSearch,
+		"driver_name":                    *cfg.SQLSettings.DriverName,
+		"trace":                          cfg.SQLSettings.Trace,
+		"max_idle_conns":                 *cfg.SQLSettings.MaxIdleConns,
+		"conn_max_lifetime_milliseconds": *cfg.SQLSettings.ConnMaxLifetimeMilliseconds,
+		"conn_max_idletime_milliseconds": *cfg.SQLSettings.ConnMaxIdleTimeMilliseconds,
+		"max_open_conns":                 *cfg.SQLSettings.MaxOpenConns,
+		"data_source_replicas":           len(cfg.SQLSettings.DataSourceReplicas),
+		"data_source_search_replicas":    len(cfg.SQLSettings.DataSourceSearchReplicas),
+		"query_timeout":                  *cfg.SQLSettings.QueryTimeout,
+		"disable_database_search":        *cfg.SQLSettings.DisableDatabaseSearch,
 	})
 
 	ts.sendTelemetry(TrackConfigLog, map[string]interface{}{
@@ -925,7 +925,7 @@ func (ts *TelemetryService) trackServer() {
 	data := map[string]interface{}{
 		"edition":           model.BuildEnterpriseReady,
 		"version":           model.CurrentVersion,
-		"database_type":     *ts.srv.Config().SqlSettings.DriverName,
+		"database_type":     *ts.srv.Config().SQLSettings.DriverName,
 		"operating_system":  runtime.GOOS,
 		"installation_type": os.Getenv(EnvVarInstallType),
 	}
@@ -1380,7 +1380,7 @@ func (ts *TelemetryService) trackPluginConfig(cfg *model.Config, marketplaceURL 
 func (ts *TelemetryService) getAllMarketplaceplugins(marketplaceURL string) ([]*model.BaseMarketplacePlugin, error) {
 	marketplaceClient, err := marketplace.NewClient(
 		marketplaceURL,
-		ts.srv.HttpService(),
+		ts.srv.HTTPService(),
 	)
 	if err != nil {
 		return nil, err

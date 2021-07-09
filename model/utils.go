@@ -499,7 +499,7 @@ func ClearMentionTags(post string) string {
 	return post
 }
 
-func IsValidHttpURL(rawURL string) bool {
+func IsValidHTTPURL(rawURL string) bool {
 	if strings.Index(rawURL, "http://") != 0 && strings.Index(rawURL, "https://") != 0 {
 		return false
 	}
@@ -525,7 +525,7 @@ func IsValidTurnOrStunServer(rawURI string) bool {
 
 func IsSafeLink(link *string) bool {
 	if link != nil {
-		if IsValidHttpURL(*link) {
+		if IsValidHTTPURL(*link) {
 			return true
 		} else if strings.HasPrefix(*link, "/") {
 			return true

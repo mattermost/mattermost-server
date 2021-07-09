@@ -15,14 +15,14 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlEmojiStore struct {
-	*SqlStore
+type SQLEmojiStore struct {
+	*SQLStore
 	metrics einterfaces.MetricsInterface
 }
 
-func newSqlEmojiStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) store.EmojiStore {
-	s := &SqlEmojiStore{
-		SqlStore: sqlStore,
+func newSQLEmojiStore(sqlStore *SQLStore, metrics einterfaces.MetricsInterface) store.EmojiStore {
+	s := &SQLEmojiStore{
+		SQLStore: sqlStore,
 		metrics:  metrics,
 	}
 
@@ -38,13 +38,13 @@ func newSqlEmojiStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) 
 	return s
 }
 
-func (es SqlEmojiStore) createIndexesIfNotExists() {
+func (es SQLEmojiStore) createIndexesIfNotExists() {
 	es.CreateIndexIfNotExists("idx_emoji_update_at", "Emoji", "UpdateAt")
 	es.CreateIndexIfNotExists("idx_emoji_create_at", "Emoji", "CreateAt")
 	es.CreateIndexIfNotExists("idx_emoji_delete_at", "Emoji", "DeleteAt")
 }
 
-func (es SqlEmojiStore) Save(emoji *model.Emoji) (*model.Emoji, error) {
+func (es SQLEmojiStore) Save(emoji *model.Emoji) (*model.Emoji, error) {
 	emoji.PreSave()
 	if err := emoji.IsValid(); err != nil {
 		return nil, err
@@ -57,15 +57,15 @@ func (es SqlEmojiStore) Save(emoji *model.Emoji) (*model.Emoji, error) {
 	return emoji, nil
 }
 
-func (es SqlEmojiStore) Get(ctx context.Context, id string, allowFromCache bool) (*model.Emoji, error) {
+func (es SQLEmojiStore) Get(ctx context.Context, id string, allowFromCache bool) (*model.Emoji, error) {
 	return es.getBy(ctx, "Id", id)
 }
 
-func (es SqlEmojiStore) GetByName(ctx context.Context, name string, allowFromCache bool) (*model.Emoji, error) {
+func (es SQLEmojiStore) GetByName(ctx context.Context, name string, allowFromCache bool) (*model.Emoji, error) {
 	return es.getBy(ctx, "Name", name)
 }
 
-func (es SqlEmojiStore) GetMultipleByName(names []string) ([]*model.Emoji, error) {
+func (es SQLEmojiStore) GetMultipleByName(names []string) ([]*model.Emoji, error) {
 	keys, params := MapStringsToQueryParams(names, "Emoji")
 
 	var emojis []*model.Emoji
@@ -83,7 +83,7 @@ func (es SqlEmojiStore) GetMultipleByName(names []string) ([]*model.Emoji, error
 	return emojis, nil
 }
 
-func (es SqlEmojiStore) GetList(offset, limit int, sort string) ([]*model.Emoji, error) {
+func (es SQLEmojiStore) GetList(offset, limit int, sort string) ([]*model.Emoji, error) {
 	var emoji []*model.Emoji
 
 	query := "SELECT * FROM Emoji WHERE DeleteAt = 0"
@@ -100,7 +100,7 @@ func (es SqlEmojiStore) GetList(offset, limit int, sort string) ([]*model.Emoji,
 	return emoji, nil
 }
 
-func (es SqlEmojiStore) Delete(emoji *model.Emoji, time int64) error {
+func (es SQLEmojiStore) Delete(emoji *model.Emoji, time int64) error {
 	if sqlResult, err := es.GetMaster().Exec(
 		`UPDATE
 			Emoji
@@ -118,7 +118,7 @@ func (es SqlEmojiStore) Delete(emoji *model.Emoji, time int64) error {
 	return nil
 }
 
-func (es SqlEmojiStore) Search(name string, prefixOnly bool, limit int) ([]*model.Emoji, error) {
+func (es SQLEmojiStore) Search(name string, prefixOnly bool, limit int) ([]*model.Emoji, error) {
 	var emojis []*model.Emoji
 
 	name = sanitizeSearchTerm(name, "\\")
@@ -146,7 +146,7 @@ func (es SqlEmojiStore) Search(name string, prefixOnly bool, limit int) ([]*mode
 }
 
 // getBy returns one active (not deleted) emoji, found by any one column (what/key).
-func (es SqlEmojiStore) getBy(ctx context.Context, what, key string) (*model.Emoji, error) {
+func (es SQLEmojiStore) getBy(ctx context.Context, what, key string) (*model.Emoji, error) {
 	var emoji *model.Emoji
 
 	err := es.DBFromContext(ctx).SelectOne(&emoji,

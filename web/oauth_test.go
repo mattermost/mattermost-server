@@ -439,12 +439,12 @@ func TestOAuthComplete(t *testing.T) {
 		th.App.UpdateConfig(func(cfg *model.Config) { cfg.ServiceSettings.EnableOAuthServiceProvider = enableOAuthServiceProvider })
 	}()
 
-	r, err := HttpGet(APIClient.URL+"/login/gitlab/complete?code=123", APIClient.HttpClient, "", true)
+	r, err := HTTPGet(APIClient.URL+"/login/gitlab/complete?code=123", APIClient.HTTPClient, "", true)
 	assert.NotNil(t, err)
 	closeBody(r)
 
 	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.GitLabSettings.Enable = true })
-	r, err = HttpGet(APIClient.URL+"/login/gitlab/complete?code=123&state=!#$#F@#Yˆ&~ñ", APIClient.HttpClient, "", true)
+	r, err = HTTPGet(APIClient.URL+"/login/gitlab/complete?code=123&state=!#$#F@#Yˆ&~ñ", APIClient.HTTPClient, "", true)
 	assert.NotNil(t, err)
 	closeBody(r)
 
@@ -457,13 +457,13 @@ func TestOAuthComplete(t *testing.T) {
 	stateProps["redirect_to"] = *th.App.Config().GitLabSettings.AuthEndpoint
 
 	state := base64.StdEncoding.EncodeToString([]byte(model.MapToJSON(stateProps)))
-	r, err = HttpGet(APIClient.URL+"/login/gitlab/complete?code=123&state="+url.QueryEscape(state), APIClient.HttpClient, "", true)
+	r, err = HTTPGet(APIClient.URL+"/login/gitlab/complete?code=123&state="+url.QueryEscape(state), APIClient.HTTPClient, "", true)
 	assert.NotNil(t, err)
 	closeBody(r)
 
 	stateProps["hash"] = utils.HashSha256(*th.App.Config().GitLabSettings.ID)
 	state = base64.StdEncoding.EncodeToString([]byte(model.MapToJSON(stateProps)))
-	r, err = HttpGet(APIClient.URL+"/login/gitlab/complete?code=123&state="+url.QueryEscape(state), APIClient.HttpClient, "", true)
+	r, err = HTTPGet(APIClient.URL+"/login/gitlab/complete?code=123&state="+url.QueryEscape(state), APIClient.HTTPClient, "", true)
 	assert.NotNil(t, err)
 	closeBody(r)
 
@@ -518,7 +518,7 @@ func TestOAuthComplete(t *testing.T) {
 	stateProps["hash"] = utils.HashSha256(*th.App.Config().GitLabSettings.ID)
 	stateProps["redirect_to"] = "/oauth/authorize"
 	state = base64.StdEncoding.EncodeToString([]byte(model.MapToJSON(stateProps)))
-	r, err = HttpGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HttpClient, "", false)
+	r, err = HTTPGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HTTPClient, "", false)
 	if err == nil {
 		closeBody(r)
 	}
@@ -530,7 +530,7 @@ func TestOAuthComplete(t *testing.T) {
 	rurl, _ = url.Parse(redirect)
 
 	code = rurl.Query().Get("code")
-	r, err = HttpGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HttpClient, "", false)
+	r, err = HTTPGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HTTPClient, "", false)
 	if err == nil {
 		closeBody(r)
 	}
@@ -546,7 +546,7 @@ func TestOAuthComplete(t *testing.T) {
 	code = rurl.Query().Get("code")
 	stateProps["action"] = model.OAuthActionLogin
 	state = base64.StdEncoding.EncodeToString([]byte(model.MapToJSON(stateProps)))
-	if r, err := HttpGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HttpClient, "", false); err == nil {
+	if r, err := HTTPGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HTTPClient, "", false); err == nil {
 		closeBody(r)
 	}
 
@@ -557,7 +557,7 @@ func TestOAuthComplete(t *testing.T) {
 	code = rurl.Query().Get("code")
 	delete(stateProps, "action")
 	state = base64.StdEncoding.EncodeToString([]byte(model.MapToJSON(stateProps)))
-	if r, err := HttpGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HttpClient, "", false); err == nil {
+	if r, err := HTTPGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HTTPClient, "", false); err == nil {
 		closeBody(r)
 	}
 
@@ -568,7 +568,7 @@ func TestOAuthComplete(t *testing.T) {
 	code = rurl.Query().Get("code")
 	stateProps["action"] = model.OAuthActionSignup
 	state = base64.StdEncoding.EncodeToString([]byte(model.MapToJSON(stateProps)))
-	if r, err := HttpGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HttpClient, "", false); err == nil {
+	if r, err := HTTPGet(APIClient.URL+"/login/"+model.ServiceGitlab+"/complete?code="+url.QueryEscape(code)+"&state="+url.QueryEscape(state), APIClient.HTTPClient, "", false); err == nil {
 		closeBody(r)
 	}
 }
@@ -612,7 +612,7 @@ func TestOAuthComplete_ErrorMessages(t *testing.T) {
 	assert.Contains(t, responseWriter.Body.String(), "<!-- mobile app message -->")
 }
 
-func HttpGet(url string, httpClient *http.Client, authToken string, followRedirect bool) (*http.Response, *model.AppError) {
+func HTTPGet(url string, httpClient *http.Client, authToken string, followRedirect bool) (*http.Response, *model.AppError) {
 	rq, _ := http.NewRequest("GET", url, nil)
 	rq.Close = true
 

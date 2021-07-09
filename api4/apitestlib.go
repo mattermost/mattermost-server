@@ -469,7 +469,7 @@ func (th *TestHelper) CreateLocalClient(socketPath string) *model.Client4 {
 
 	return &model.Client4{
 		APIURL:     "http://_" + model.APIURLSuffix,
-		HttpClient: httpClient,
+		HTTPClient: httpClient,
 	}
 }
 

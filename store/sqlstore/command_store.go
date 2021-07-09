@@ -13,14 +13,14 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlCommandStore struct {
-	*SqlStore
+type SQLCommandStore struct {
+	*SQLStore
 
 	commandsQuery sq.SelectBuilder
 }
 
-func newSqlCommandStore(sqlStore *SqlStore) store.CommandStore {
-	s := &SqlCommandStore{SqlStore: sqlStore}
+func newSQLCommandStore(sqlStore *SQLStore) store.CommandStore {
+	s := &SQLCommandStore{SQLStore: sqlStore}
 
 	s.commandsQuery = s.getQueryBuilder().
 		Select("*").
@@ -46,14 +46,14 @@ func newSqlCommandStore(sqlStore *SqlStore) store.CommandStore {
 	return s
 }
 
-func (s SqlCommandStore) createIndexesIfNotExists() {
+func (s SQLCommandStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_command_team_id", "Commands", "TeamId")
 	s.CreateIndexIfNotExists("idx_command_update_at", "Commands", "UpdateAt")
 	s.CreateIndexIfNotExists("idx_command_create_at", "Commands", "CreateAt")
 	s.CreateIndexIfNotExists("idx_command_delete_at", "Commands", "DeleteAt")
 }
 
-func (s SqlCommandStore) Save(command *model.Command) (*model.Command, error) {
+func (s SQLCommandStore) Save(command *model.Command) (*model.Command, error) {
 	if command.ID != "" {
 		return nil, store.NewErrInvalidInput("Command", "CommandId", command.ID)
 	}
@@ -70,7 +70,7 @@ func (s SqlCommandStore) Save(command *model.Command) (*model.Command, error) {
 	return command, nil
 }
 
-func (s SqlCommandStore) Get(id string) (*model.Command, error) {
+func (s SQLCommandStore) Get(id string) (*model.Command, error) {
 	var command model.Command
 
 	query, args, err := s.commandsQuery.
@@ -87,7 +87,7 @@ func (s SqlCommandStore) Get(id string) (*model.Command, error) {
 	return &command, nil
 }
 
-func (s SqlCommandStore) GetByTeam(teamID string) ([]*model.Command, error) {
+func (s SQLCommandStore) GetByTeam(teamID string) ([]*model.Command, error) {
 	var commands []*model.Command
 
 	sql, args, err := s.commandsQuery.
@@ -102,7 +102,7 @@ func (s SqlCommandStore) GetByTeam(teamID string) ([]*model.Command, error) {
 	return commands, nil
 }
 
-func (s SqlCommandStore) GetByTrigger(teamID string, trigger string) (*model.Command, error) {
+func (s SQLCommandStore) GetByTrigger(teamID string, trigger string) (*model.Command, error) {
 	var command model.Command
 	var triggerStr string
 	if s.DriverName() == "mysql" {
@@ -127,7 +127,7 @@ func (s SqlCommandStore) GetByTrigger(teamID string, trigger string) (*model.Com
 	return &command, nil
 }
 
-func (s SqlCommandStore) Delete(commandID string, time int64) error {
+func (s SQLCommandStore) Delete(commandID string, time int64) error {
 	sql, args, err := s.getQueryBuilder().
 		Update("Commands").
 		SetMap(sq.Eq{"DeleteAt": time, "UpdateAt": time}).
@@ -144,7 +144,7 @@ func (s SqlCommandStore) Delete(commandID string, time int64) error {
 	return nil
 }
 
-func (s SqlCommandStore) PermanentDeleteByTeam(teamID string) error {
+func (s SQLCommandStore) PermanentDeleteByTeam(teamID string) error {
 	sql, args, err := s.getQueryBuilder().
 		Delete("Commands").
 		Where(sq.Eq{"TeamId": teamID}).ToSql()
@@ -158,7 +158,7 @@ func (s SqlCommandStore) PermanentDeleteByTeam(teamID string) error {
 	return nil
 }
 
-func (s SqlCommandStore) PermanentDeleteByUser(userID string) error {
+func (s SQLCommandStore) PermanentDeleteByUser(userID string) error {
 	sql, args, err := s.getQueryBuilder().
 		Delete("Commands").
 		Where(sq.Eq{"CreatorId": userID}).ToSql()
@@ -173,7 +173,7 @@ func (s SqlCommandStore) PermanentDeleteByUser(userID string) error {
 	return nil
 }
 
-func (s SqlCommandStore) Update(cmd *model.Command) (*model.Command, error) {
+func (s SQLCommandStore) Update(cmd *model.Command) (*model.Command, error) {
 	cmd.UpdateAt = model.GetMillis()
 
 	if err := cmd.IsValid(); err != nil {
@@ -187,7 +187,7 @@ func (s SqlCommandStore) Update(cmd *model.Command) (*model.Command, error) {
 	return cmd, nil
 }
 
-func (s SqlCommandStore) AnalyticsCommandCount(teamID string) (int64, error) {
+func (s SQLCommandStore) AnalyticsCommandCount(teamID string) (int64, error) {
 	query := s.getQueryBuilder().
 		Select("COUNT(*)").
 		From("Commands").

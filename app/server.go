@@ -78,7 +78,7 @@ var MaxNotificationsPerChannelDefault int64 = 1000000
 var SentryDSN = "placeholder_sentry_dsn"
 
 type Server struct {
-	sqlStore        *sqlstore.SqlStore
+	sqlStore        *sqlstore.SQLStore
 	Store           store.Store
 	WebSocketRouter *WebSocketRouter
 
@@ -166,7 +166,7 @@ type Server struct {
 
 	phase2PermissionsMigrationComplete bool
 
-	HTTPService httpservice.HTTPService
+	httpService httpservice.HTTPService
 
 	ImageProxy *imageproxy.ImageProxy
 
@@ -305,10 +305,10 @@ func NewServer(options ...Option) (*Server, error) {
 		s.tracer = tracer
 	}
 
-	s.HTTPService = httpservice.MakeHTTPService(s)
-	s.pushNotificationClient = s.HTTPService.MakeClient(true)
+	s.httpService = httpservice.MakeHTTPService(s)
+	s.pushNotificationClient = s.HTTPService().MakeClient(true)
 
-	s.ImageProxy = imageproxy.MakeImageProxy(s, s.HTTPService, s.Log)
+	s.ImageProxy = imageproxy.MakeImageProxy(s, s.HTTPService(), s.Log)
 
 	if err := utils.TranslationsPreInit(); err != nil {
 		return nil, errors.Wrapf(err, "unable to load Mattermost translation files")
@@ -354,7 +354,7 @@ func NewServer(options ...Option) (*Server, error) {
 
 	if s.newStore == nil {
 		s.newStore = func() (store.Store, error) {
-			s.sqlStore = sqlstore.New(s.Config().SqlSettings, s.Metrics)
+			s.sqlStore = sqlstore.New(s.Config().SQLSettings, s.Metrics)
 
 			lcl, err2 := localcachelayer.NewLocalCacheLayer(
 				retrylayer.New(s.sqlStore),
@@ -785,7 +785,7 @@ func (s *Server) AppOptions() []AppOption {
 // Return Database type (postgres or mysql) and current version of Mattermost
 func (s *Server) DatabaseTypeAndMattermostVersion() (string, string) {
 	mattermostVersion, _ := s.Store.System().GetByName("Version")
-	return *s.Config().SqlSettings.DriverName, mattermostVersion.Value
+	return *s.Config().SQLSettings.DriverName, mattermostVersion.Value
 }
 
 // initLogging initializes and configures the logger. This may be called more than once.
@@ -2057,8 +2057,8 @@ func (s *Server) TelemetryID() string {
 	return s.telemetryService.TelemetryID
 }
 
-func (s *Server) HttpService() httpservice.HTTPService {
-	return s.HTTPService
+func (s *Server) HTTPService() httpservice.HTTPService {
+	return s.httpService
 }
 
 func (s *Server) SetLog(l *mlog.Logger) {

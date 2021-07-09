@@ -71,7 +71,7 @@ func testDoUploadFileRequest(t testing.TB, c *model.Client4, url string, blob []
 		req.Header.Set(model.HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	resp, err := c.HttpClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	defer closeBody(resp)

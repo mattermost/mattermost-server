@@ -52,7 +52,7 @@ func (s *Server) DoSecurityUpdateCheck() {
 		v.Set(PropSecurityID, s.TelemetryID())
 		v.Set(PropSecurityBuild, model.CurrentVersion+"."+model.BuildNumber)
 		v.Set(PropSecurityEnterpriseReady, model.BuildEnterpriseReady)
-		v.Set(PropSecurityDatabase, *s.Config().SqlSettings.DriverName)
+		v.Set(PropSecurityDatabase, *s.Config().SQLSettings.DriverName)
 		v.Set(PropSecurityOS, runtime.GOOS)
 
 		if props[model.SystemRanUnitTests] != "" {

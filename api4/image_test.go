@@ -22,7 +22,7 @@ func TestGetImage(t *testing.T) {
 	defer th.TearDown()
 
 	// Prevent the test client from following a redirect
-	th.Client.HttpClient.CheckRedirect = func(*http.Request, []*http.Request) error {
+	th.Client.HTTPClient.CheckRedirect = func(*http.Request, []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 
@@ -37,7 +37,7 @@ func TestGetImage(t *testing.T) {
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
-		resp, err := th.Client.HttpClient.Do(r)
+		resp, err := th.Client.HTTPClient.Do(r)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, imageURL, resp.Header.Get("Location"))
@@ -58,7 +58,7 @@ func TestGetImage(t *testing.T) {
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
-		resp, err := th.Client.HttpClient.Do(r)
+		resp, err := th.Client.HTTPClient.Do(r)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 		assert.Equal(t, proxiedURL, resp.Header.Get("Location"))
@@ -85,7 +85,7 @@ func TestGetImage(t *testing.T) {
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
-		resp, err := th.Client.HttpClient.Do(r)
+		resp, err := th.Client.HTTPClient.Do(r)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -98,7 +98,7 @@ func TestGetImage(t *testing.T) {
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
-		resp, err = th.Client.HttpClient.Do(r)
+		resp, err = th.Client.HTTPClient.Do(r)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 
@@ -110,7 +110,7 @@ func TestGetImage(t *testing.T) {
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
-		resp, err = th.Client.HttpClient.Do(r)
+		resp, err = th.Client.HTTPClient.Do(r)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -119,7 +119,7 @@ func TestGetImage(t *testing.T) {
 		require.NoError(t, err)
 		r.Header.Set(model.HeaderAuth, th.Client.AuthType+" "+th.Client.AuthToken)
 
-		resp, err = th.Client.HttpClient.Do(r)
+		resp, err = th.Client.HTTPClient.Do(r)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})

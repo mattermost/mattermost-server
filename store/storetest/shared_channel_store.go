@@ -15,7 +15,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-func TestSharedChannelStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestSharedChannelStore(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("SaveSharedChannel", func(t *testing.T) { testSaveSharedChannel(t, ss) })
 	t.Run("GetSharedChannel", func(t *testing.T) { testGetSharedChannel(t, ss) })
 	t.Run("HasSharedChannel", func(t *testing.T) { testHasSharedChannel(t, ss) })

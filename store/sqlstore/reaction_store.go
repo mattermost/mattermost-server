@@ -14,12 +14,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-type SqlReactionStore struct {
-	*SqlStore
+type SQLReactionStore struct {
+	*SQLStore
 }
 
-func newSqlReactionStore(sqlStore *SqlStore) store.ReactionStore {
-	s := &SqlReactionStore{sqlStore}
+func newSQLReactionStore(sqlStore *SQLStore) store.ReactionStore {
+	s := &SQLReactionStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Reaction{}, "Reactions").SetKeys(false, "PostId", "UserId", "EmojiName")
@@ -32,7 +32,7 @@ func newSqlReactionStore(sqlStore *SqlStore) store.ReactionStore {
 	return s
 }
 
-func (s *SqlReactionStore) Save(reaction *model.Reaction) (*model.Reaction, error) {
+func (s *SQLReactionStore) Save(reaction *model.Reaction) (*model.Reaction, error) {
 	reaction.PreSave()
 	if err := reaction.IsValid(); err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (s *SqlReactionStore) Save(reaction *model.Reaction) (*model.Reaction, erro
 	return reaction, nil
 }
 
-func (s *SqlReactionStore) Delete(reaction *model.Reaction) (*model.Reaction, error) {
+func (s *SQLReactionStore) Delete(reaction *model.Reaction) (*model.Reaction, error) {
 	reaction.PreUpdate()
 
 	transaction, err := s.GetMaster().Begin()
@@ -79,7 +79,7 @@ func (s *SqlReactionStore) Delete(reaction *model.Reaction) (*model.Reaction, er
 }
 
 // GetForPost returns all reactions associated with `postId` that are not deleted.
-func (s *SqlReactionStore) GetForPost(postID string, allowFromCache bool) ([]*model.Reaction, error) {
+func (s *SQLReactionStore) GetForPost(postID string, allowFromCache bool) ([]*model.Reaction, error) {
 	queryString, args, err := s.getQueryBuilder().
 		Select("UserId", "PostId", "EmojiName", "CreateAt", "COALESCE(UpdateAt, CreateAt) As UpdateAt",
 			"COALESCE(DeleteAt, 0) As DeleteAt", "RemoteId").
@@ -101,7 +101,7 @@ func (s *SqlReactionStore) GetForPost(postID string, allowFromCache bool) ([]*mo
 }
 
 // GetForPostSince returns all reactions associated with `postId` updated after `since`.
-func (s *SqlReactionStore) GetForPostSince(postID string, since int64, excludeRemoteID string, inclDeleted bool) ([]*model.Reaction, error) {
+func (s *SQLReactionStore) GetForPostSince(postID string, since int64, excludeRemoteID string, inclDeleted bool) ([]*model.Reaction, error) {
 	query := s.getQueryBuilder().
 		Select("UserId", "PostId", "EmojiName", "CreateAt", "COALESCE(UpdateAt, CreateAt) As UpdateAt",
 			"COALESCE(DeleteAt, 0) As DeleteAt", "RemoteId").
@@ -131,7 +131,7 @@ func (s *SqlReactionStore) GetForPostSince(postID string, since int64, excludeRe
 	return reactions, nil
 }
 
-func (s *SqlReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction, error) {
+func (s *SQLReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction, error) {
 	keys, params := MapStringsToQueryParams(postIDs, "postId")
 	var reactions []*model.Reaction
 
@@ -155,7 +155,7 @@ func (s *SqlReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction,
 	return reactions, nil
 }
 
-func (s *SqlReactionStore) DeleteAllWithEmojiName(emojiName string) error {
+func (s *SQLReactionStore) DeleteAllWithEmojiName(emojiName string) error {
 	var reactions []*model.Reaction
 	now := model.GetMillis()
 
@@ -210,7 +210,7 @@ func (s *SqlReactionStore) DeleteAllWithEmojiName(emojiName string) error {
 }
 
 // DeleteOrphanedRows removes entries from Reactions when a corresponding post no longer exists.
-func (s *SqlReactionStore) DeleteOrphanedRows(limit int) (deleted int64, err error) {
+func (s *SQLReactionStore) DeleteOrphanedRows(limit int) (deleted int64, err error) {
 	// We need the extra level of nesting to deal with MySQL's locking
 	const query = `
 	DELETE FROM Reactions WHERE PostId IN (
@@ -230,7 +230,7 @@ func (s *SqlReactionStore) DeleteOrphanedRows(limit int) (deleted int64, err err
 	return
 }
 
-func (s *SqlReactionStore) PermanentDeleteBatch(endTime int64, limit int64) (int64, error) {
+func (s *SQLReactionStore) PermanentDeleteBatch(endTime int64, limit int64) (int64, error) {
 	var query string
 	if s.DriverName() == "postgres" {
 		query = "DELETE from Reactions WHERE CreateAt = any (array (SELECT CreateAt FROM Reactions WHERE CreateAt < :EndTime LIMIT :Limit))"
@@ -250,7 +250,7 @@ func (s *SqlReactionStore) PermanentDeleteBatch(endTime int64, limit int64) (int
 	return rowsAffected, nil
 }
 
-func (s *SqlReactionStore) saveReactionAndUpdatePost(transaction *gorp.Transaction, reaction *model.Reaction) error {
+func (s *SQLReactionStore) saveReactionAndUpdatePost(transaction *gorp.Transaction, reaction *model.Reaction) error {
 	params := map[string]interface{}{
 		"UserId":    reaction.UserID,
 		"PostId":    reaction.PostID,
@@ -278,7 +278,7 @@ func (s *SqlReactionStore) saveReactionAndUpdatePost(transaction *gorp.Transacti
 				(UserId, PostId, EmojiName, CreateAt, UpdateAt, DeleteAt, RemoteId)
 			VALUES
 				(:UserId, :PostId, :EmojiName, :CreateAt, :UpdateAt, 0, :RemoteId)
-			ON CONFLICT (UserId, PostId, EmojiName) 
+			ON CONFLICT (UserId, PostId, EmojiName)
 				DO UPDATE SET UpdateAt = :UpdateAt, DeleteAt = 0, RemoteId = :RemoteId`, params); err != nil {
 			return err
 		}
@@ -300,7 +300,7 @@ func deleteReactionAndUpdatePost(transaction *gorp.Transaction, reaction *model.
 	if _, err := transaction.Exec(
 		`UPDATE
 			Reactions
-		SET 
+		SET
 			UpdateAt = :UpdateAt, DeleteAt = :DeleteAt, RemoteId = :RemoteId
 		WHERE
 			PostId = :PostId AND

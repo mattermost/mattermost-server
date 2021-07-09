@@ -62,10 +62,10 @@ type Response struct {
 type Client4 struct {
 	URL        string       // The location of the server, for example  "http://localhost:8065"
 	APIURL     string       // The api location of the server, for example "http://localhost:8065/api/v4"
-	HttpClient *http.Client // The http client
+	HTTPClient *http.Client // The http client
 	AuthToken  string
 	AuthType   string
-	HttpHeader map[string]string // Headers to be copied over for each request
+	HTTPHeader map[string]string // Headers to be copied over for each request
 
 	// TrueString is the string value sent to the server for true boolean query parameters.
 	trueString string
@@ -131,7 +131,7 @@ func NewAPIv4SocketClient(socketPath string) *Client4 {
 	}
 
 	client := NewAPIv4Client("http://_")
-	client.HttpClient = &http.Client{Transport: tr}
+	client.HTTPClient = &http.Client{Transport: tr}
 
 	return client
 }
@@ -635,13 +635,13 @@ func (c *Client4) doAPIRequestReader(method, url string, data io.Reader, headers
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	if c.HttpHeader != nil && len(c.HttpHeader) > 0 {
-		for k, v := range c.HttpHeader {
+	if c.HTTPHeader != nil && len(c.HTTPHeader) > 0 {
+		for k, v := range c.HTTPHeader {
 			rq.Header.Set(k, v)
 		}
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, NewAppError(url, "model.client.connecting.app_error", nil, err.Error(), 0)
 	}
@@ -676,7 +676,7 @@ func (c *Client4) doUploadFile(url string, body io.Reader, contentType string, c
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, BuildErrorResponse(rp, NewAppError(url, "model.client.connecting.app_error", nil, err.Error(), 0))
 	}
@@ -700,7 +700,7 @@ func (c *Client4) DoEmojiUploadFile(url string, data []byte, contentType string)
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, BuildErrorResponse(rp, NewAppError(url, "model.client.connecting.app_error", nil, err.Error(), 0))
 	}
@@ -724,7 +724,7 @@ func (c *Client4) DoUploadImportTeam(url string, data []byte, contentType string
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, BuildErrorResponse(rp, NewAppError(url, "model.client.connecting.app_error", nil, err.Error(), 0))
 	}
@@ -1537,7 +1537,7 @@ func (c *Client4) SetProfileImage(userID string, data []byte) (bool, *Response) 
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return false, &Response{StatusCode: http.StatusForbidden, Error: NewAppError(c.GetUserRoute(userID)+"/image", "model.client.connecting.app_error", nil, err.Error(), http.StatusForbidden)}
 	}
@@ -1786,7 +1786,7 @@ func (c *Client4) SetBotIconImage(botUserID string, data []byte) (bool, *Respons
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return false, &Response{StatusCode: http.StatusForbidden, Error: NewAppError(c.GetBotRoute(botUserID)+"/icon", "model.client.connecting.app_error", nil, err.Error(), http.StatusForbidden)}
 	}
@@ -2332,7 +2332,7 @@ func (c *Client4) SetTeamIcon(teamID string, data []byte) (bool, *Response) {
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		// set to http.StatusForbidden(403)
 		return false, &Response{StatusCode: http.StatusForbidden, Error: NewAppError(c.GetTeamRoute(teamID)+"/image", "model.client.connecting.app_error", nil, err.Error(), 403)}
@@ -3572,7 +3572,7 @@ func (c *Client4) UploadLicenseFile(data []byte) (bool, *Response) {
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return false, &Response{StatusCode: http.StatusForbidden, Error: NewAppError(c.GetLicenseRoute(), "model.client.connecting.app_error", nil, err.Error(), http.StatusForbidden)}
 	}
@@ -4001,7 +4001,7 @@ func (c *Client4) DownloadComplianceReport(reportID string) ([]byte, *Response) 
 		rq.Header.Set(HeaderAuth, "BEARER "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, &Response{Error: NewAppError("DownloadComplianceReport", "model.client.connecting.app_error", nil, err.Error(), http.StatusBadRequest)}
 	}
@@ -4376,7 +4376,7 @@ func (c *Client4) UploadBrandImage(data []byte) (bool, *Response) {
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return false, &Response{StatusCode: http.StatusForbidden, Error: NewAppError(c.GetBrandRoute()+"/image", "model.client.connecting.app_error", nil, err.Error(), http.StatusForbidden)}
 	}
@@ -4531,7 +4531,7 @@ func (c *Client4) GetOAuthAccessToken(data url.Values) (*AccessResponse, *Respon
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, &Response{StatusCode: http.StatusForbidden, Error: NewAppError(c.URL+"/oauth/access_token", "model.client.connecting.app_error", nil, err.Error(), 403)}
 	}
@@ -5392,7 +5392,7 @@ func (c *Client4) uploadPlugin(file io.Reader, force bool) (*Manifest, *Response
 		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
 	}
 
-	rp, err := c.HttpClient.Do(rq)
+	rp, err := c.HTTPClient.Do(rq)
 	if err != nil || rp == nil {
 		return nil, BuildErrorResponse(rp, NewAppError("UploadPlugin", "model.client.connecting.app_error", nil, err.Error(), 0))
 	}

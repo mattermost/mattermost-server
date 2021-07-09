@@ -54,7 +54,7 @@ func (ad *AccessData) IsValid() *AppError {
 		return NewAppError("AccessData.IsValid", "model.access.is_valid.refresh_token.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	if ad.RedirectURI == "" || len(ad.RedirectURI) > 256 || !IsValidHttpURL(ad.RedirectURI) {
+	if ad.RedirectURI == "" || len(ad.RedirectURI) > 256 || !IsValidHTTPURL(ad.RedirectURI) {
 		return NewAppError("AccessData.IsValid", "model.access.is_valid.redirect_uri.app_error", nil, "", http.StatusBadRequest)
 	}
 

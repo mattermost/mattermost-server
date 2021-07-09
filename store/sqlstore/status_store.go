@@ -17,12 +17,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlStatusStore struct {
-	*SqlStore
+type SQLStatusStore struct {
+	*SQLStore
 }
 
-func newSqlStatusStore(sqlStore *SqlStore) store.StatusStore {
-	s := &SqlStatusStore{sqlStore}
+func newSQLStatusStore(sqlStore *SQLStore) store.StatusStore {
+	s := &SQLStatusStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Status{}, "Status").SetKeys(false, "UserId")
@@ -35,11 +35,11 @@ func newSqlStatusStore(sqlStore *SqlStore) store.StatusStore {
 	return s
 }
 
-func (s SqlStatusStore) createIndexesIfNotExists() {
+func (s SQLStatusStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_status_status", "Status", "Status")
 }
 
-func (s SqlStatusStore) SaveOrUpdate(status *model.Status) error {
+func (s SQLStatusStore) SaveOrUpdate(status *model.Status) error {
 	if err := s.GetReplica().SelectOne(&model.Status{}, "SELECT * FROM Status WHERE UserId = :UserId", map[string]interface{}{"UserId": status.UserID}); err == nil {
 		if _, err := s.GetMaster().Update(status); err != nil {
 			return errors.Wrap(err, "failed to update Status")
@@ -54,7 +54,7 @@ func (s SqlStatusStore) SaveOrUpdate(status *model.Status) error {
 	return nil
 }
 
-func (s SqlStatusStore) Get(userID string) (*model.Status, error) {
+func (s SQLStatusStore) Get(userID string) (*model.Status, error) {
 	var status model.Status
 
 	if err := s.GetReplica().SelectOne(&status,
@@ -72,7 +72,7 @@ func (s SqlStatusStore) Get(userID string) (*model.Status, error) {
 	return &status, nil
 }
 
-func (s SqlStatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
+func (s SQLStatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
 	query := s.getQueryBuilder().
 		Select("UserId, Status, Manual, LastActivityAt").
 		From("Status").
@@ -102,7 +102,7 @@ func (s SqlStatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
 }
 
 // MySQL doesn't have support for RETURNING clause, so we use a transaction to get the updated rows.
-func (s SqlStatusStore) updateExpiredStatuses(t *gorp.Transaction) ([]*model.Status, error) {
+func (s SQLStatusStore) updateExpiredStatuses(t *gorp.Transaction) ([]*model.Status, error) {
 	var statuses []*model.Status
 	currUnixTime := time.Now().UTC().Unix()
 	selectQuery, selectParams, err := s.getQueryBuilder().
@@ -148,7 +148,7 @@ func (s SqlStatusStore) updateExpiredStatuses(t *gorp.Transaction) ([]*model.Sta
 	return statuses, nil
 }
 
-func (s SqlStatusStore) UpdateExpiredDNDStatuses() ([]*model.Status, error) {
+func (s SQLStatusStore) UpdateExpiredDNDStatuses() ([]*model.Status, error) {
 	if s.DriverName() == model.DatabaseDriverMysql {
 		transaction, err := s.GetMaster().Begin()
 		if err != nil {
@@ -214,14 +214,14 @@ func (s SqlStatusStore) UpdateExpiredDNDStatuses() ([]*model.Status, error) {
 	return statuses, nil
 }
 
-func (s SqlStatusStore) ResetAll() error {
+func (s SQLStatusStore) ResetAll() error {
 	if _, err := s.GetMaster().Exec("UPDATE Status SET Status = :Status WHERE Manual = false", map[string]interface{}{"Status": model.StatusOffline}); err != nil {
 		return errors.Wrap(err, "failed to update Statuses")
 	}
 	return nil
 }
 
-func (s SqlStatusStore) GetTotalActiveUsersCount() (int64, error) {
+func (s SQLStatusStore) GetTotalActiveUsersCount() (int64, error) {
 	time := model.GetMillis() - (1000 * 60 * 60 * 24)
 	count, err := s.GetReplica().SelectInt("SELECT COUNT(UserId) FROM Status WHERE LastActivityAt > :Time", map[string]interface{}{"Time": time})
 	if err != nil {
@@ -230,7 +230,7 @@ func (s SqlStatusStore) GetTotalActiveUsersCount() (int64, error) {
 	return count, nil
 }
 
-func (s SqlStatusStore) UpdateLastActivityAt(userID string, lastActivityAt int64) error {
+func (s SQLStatusStore) UpdateLastActivityAt(userID string, lastActivityAt int64) error {
 	if _, err := s.GetMaster().Exec("UPDATE Status SET LastActivityAt = :Time WHERE UserId = :UserId", map[string]interface{}{"UserId": userID, "Time": lastActivityAt}); err != nil {
 		return errors.Wrapf(err, "failed to update last activity for userId=%s", userID)
 	}

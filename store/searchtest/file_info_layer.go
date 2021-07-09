@@ -27,7 +27,7 @@ var searchFileInfoStoreTests = []searchTest{
 	{
 		Name: "Should be able to search for exact phrases in quotes",
 		Fn:   testFileInfoSearchExactPhraseInQuotes,
-		Tags: []string{EnginePostgres, EngineMySql, EngineElasticSearch},
+		Tags: []string{EnginePostgres, EngineMySQL, EngineElasticSearch},
 	},
 	{
 		Name: "Should be able to search for email addresses with or without quotes",
@@ -92,12 +92,12 @@ var searchFileInfoStoreTests = []searchTest{
 	{
 		Name: "Should be able to exclude messages that contain a serch term",
 		Fn:   testFileInfoFilterFilesWithATerm,
-		Tags: []string{EngineMySql, EnginePostgres},
+		Tags: []string{EngineMySQL, EnginePostgres},
 	},
 	{
 		Name: "Should be able to search using boolean operators",
 		Fn:   testFileInfoSearchUsingBooleanOperators,
-		Tags: []string{EngineMySql, EnginePostgres, EngineElasticSearch},
+		Tags: []string{EngineMySQL, EnginePostgres, EngineElasticSearch},
 	},
 	{
 		Name: "Should be able to search with combined filters",
@@ -107,7 +107,7 @@ var searchFileInfoStoreTests = []searchTest{
 	{
 		Name: "Should be able to ignore stop words",
 		Fn:   testFileInfoSearchIgnoringStopWords,
-		Tags: []string{EngineMySql, EngineElasticSearch},
+		Tags: []string{EngineMySQL, EngineElasticSearch},
 	},
 	{
 		Name: "Should support search stemming",
@@ -138,12 +138,12 @@ var searchFileInfoStoreTests = []searchTest{
 	{
 		Name: "Should support terms with underscore",
 		Fn:   testFileInfoSupportTermsWithUnderscore,
-		Tags: []string{EngineMySql, EngineElasticSearch},
+		Tags: []string{EngineMySQL, EngineElasticSearch},
 	},
 	{
 		Name: "Should be able to search in deleted/archived channels",
 		Fn:   testFileInfoSearchInDeletedOrArchivedChannels,
-		Tags: []string{EngineMySql, EnginePostgres},
+		Tags: []string{EngineMySQL, EnginePostgres},
 	},
 	{
 		Name:        "Should be able to search terms with dashes",
@@ -160,7 +160,7 @@ var searchFileInfoStoreTests = []searchTest{
 	{
 		Name: "Should be able to search terms with underscores",
 		Fn:   testFileInfoSearchTermsWithUnderscores,
-		Tags: []string{EngineMySql, EngineElasticSearch},
+		Tags: []string{EngineMySQL, EngineElasticSearch},
 	},
 	{
 		Name: "Should be able to combine stemming and wildcards",
@@ -175,7 +175,7 @@ var searchFileInfoStoreTests = []searchTest{
 	{
 		Name: "Should not support slash as character separator",
 		Fn:   testFileInfoSlashShouldNotBeCharSeparator,
-		Tags: []string{EngineMySql, EngineElasticSearch},
+		Tags: []string{EngineMySQL, EngineElasticSearch},
 	},
 	{
 		Name: "Should be able to search emails without quoting them",

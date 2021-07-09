@@ -22,12 +22,12 @@ const (
 	MonthMilliseconds = 31 * DayMilliseconds
 )
 
-func cleanupStatusStore(t *testing.T, s SqlStore) {
+func cleanupStatusStore(t *testing.T, s SQLStore) {
 	_, execerr := s.GetMaster().ExecNoTimeout(` DELETE FROM Status `)
 	require.NoError(t, execerr)
 }
 
-func TestUserStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestUserStore(t *testing.T, ss store.Store, s SQLStore) {
 	users, err := ss.User().GetAll()
 	require.NoError(t, err, "failed cleaning up test users")
 
@@ -959,7 +959,7 @@ func testUserStoreGetProfilesInChannel(t *testing.T, ss store.Store) {
 	})
 }
 
-func testUserStoreGetProfilesInChannelByStatus(t *testing.T, ss store.Store, s SqlStore) {
+func testUserStoreGetProfilesInChannelByStatus(t *testing.T, ss store.Store, s SQLStore) {
 
 	cleanupStatusStore(t, s)
 
@@ -2368,7 +2368,7 @@ func testUserStoreUpdateMfaActive(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 }
 
-func testUserStoreGetRecentlyActiveUsersForTeam(t *testing.T, ss store.Store, s SqlStore) {
+func testUserStoreGetRecentlyActiveUsersForTeam(t *testing.T, ss store.Store, s SQLStore) {
 
 	cleanupStatusStore(t, s)
 
@@ -3874,7 +3874,7 @@ func testCount(t *testing.T, ss store.Store) {
 	}
 }
 
-func testUserStoreAnalyticsActiveCount(t *testing.T, ss store.Store, s SqlStore) {
+func testUserStoreAnalyticsActiveCount(t *testing.T, ss store.Store, s SQLStore) {
 
 	cleanupStatusStore(t, s)
 
@@ -3959,7 +3959,7 @@ func testUserStoreAnalyticsActiveCount(t *testing.T, ss store.Store, s SqlStore)
 	assert.Equal(t, int64(4), count)
 }
 
-func testUserStoreAnalyticsActiveCountForPeriod(t *testing.T, ss store.Store, s SqlStore) {
+func testUserStoreAnalyticsActiveCountForPeriod(t *testing.T, ss store.Store, s SQLStore) {
 
 	cleanupStatusStore(t, s)
 

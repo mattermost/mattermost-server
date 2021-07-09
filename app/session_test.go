@@ -374,7 +374,7 @@ func TestGetRemoteClusterSession(t *testing.T) {
 		CreatorID:    model.NewID(),
 	}
 
-	_, err := th.GetSqlStore().RemoteCluster().Save(&rc)
+	_, err := th.GetSQLStore().RemoteCluster().Save(&rc)
 	require.NoError(t, err)
 
 	t.Run("Valid remote token should return session", func(t *testing.T) {

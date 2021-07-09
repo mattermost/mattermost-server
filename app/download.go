@@ -27,7 +27,7 @@ func (a *App) DownloadFromURL(downloadURL string) ([]byte, error) {
 }
 
 func (s *Server) downloadFromURL(downloadURL string) ([]byte, error) {
-	if !model.IsValidHttpURL(downloadURL) {
+	if !model.IsValidHTTPURL(downloadURL) {
 		return nil, errors.Errorf("invalid url %s", downloadURL)
 	}
 
@@ -39,7 +39,7 @@ func (s *Server) downloadFromURL(downloadURL string) ([]byte, error) {
 		return nil, errors.Errorf("insecure url not allowed %s", downloadURL)
 	}
 
-	client := s.HTTPService.MakeClient(true)
+	client := s.HTTPService().MakeClient(true)
 	client.Timeout = HTTPRequestTimeout
 
 	var resp *http.Response

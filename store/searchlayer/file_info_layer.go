@@ -187,7 +187,7 @@ func (s SearchFileInfoStore) Search(paramsList []*model.SearchParams, userID, te
 		}
 	}
 
-	if *s.rootStore.getConfig().SqlSettings.DisableDatabaseSearch {
+	if *s.rootStore.getConfig().SQLSettings.DisableDatabaseSearch {
 		mlog.Debug("Returning empty results for file Search as the database search is disabled")
 		return model.NewFileInfoList(), nil
 	}

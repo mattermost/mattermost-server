@@ -1061,7 +1061,7 @@ func pluginAPIHookTest(t *testing.T, th *TestHelper, fileName string, id string,
 	if settingsSchema != "" {
 		schema = settingsSchema
 	}
-	th.App.srv.sqlStore = th.GetSqlStore()
+	th.App.srv.sqlStore = th.GetSQLStore()
 	setupPluginAPITest(t, code,
 		fmt.Sprintf(`{"id": "%v", "backend": {"executable": "backend.exe"}, "settings_schema": %v}`, id, schema),
 		id, th.App, th.Context)
@@ -1333,16 +1333,16 @@ func TestPluginAPIGetConfig(t *testing.T) {
 		assert.Equal(t, *config.GitLabSettings.Secret, model.FakeSetting)
 	}
 
-	assert.Equal(t, *config.SqlSettings.DataSource, model.FakeSetting)
-	assert.Equal(t, *config.SqlSettings.AtRestEncryptKey, model.FakeSetting)
+	assert.Equal(t, *config.SQLSettings.DataSource, model.FakeSetting)
+	assert.Equal(t, *config.SQLSettings.AtRestEncryptKey, model.FakeSetting)
 	assert.Equal(t, *config.ElasticsearchSettings.Password, model.FakeSetting)
 
-	for i := range config.SqlSettings.DataSourceReplicas {
-		assert.Equal(t, config.SqlSettings.DataSourceReplicas[i], model.FakeSetting)
+	for i := range config.SQLSettings.DataSourceReplicas {
+		assert.Equal(t, config.SQLSettings.DataSourceReplicas[i], model.FakeSetting)
 	}
 
-	for i := range config.SqlSettings.DataSourceSearchReplicas {
-		assert.Equal(t, config.SqlSettings.DataSourceSearchReplicas[i], model.FakeSetting)
+	for i := range config.SQLSettings.DataSourceSearchReplicas {
+		assert.Equal(t, config.SQLSettings.DataSourceSearchReplicas[i], model.FakeSetting)
 	}
 }
 
@@ -1370,16 +1370,16 @@ func TestPluginAPIGetUnsanitizedConfig(t *testing.T) {
 		assert.NotEqual(t, *config.GitLabSettings.Secret, model.FakeSetting)
 	}
 
-	assert.NotEqual(t, *config.SqlSettings.DataSource, model.FakeSetting)
-	assert.NotEqual(t, *config.SqlSettings.AtRestEncryptKey, model.FakeSetting)
+	assert.NotEqual(t, *config.SQLSettings.DataSource, model.FakeSetting)
+	assert.NotEqual(t, *config.SQLSettings.AtRestEncryptKey, model.FakeSetting)
 	assert.NotEqual(t, *config.ElasticsearchSettings.Password, model.FakeSetting)
 
-	for i := range config.SqlSettings.DataSourceReplicas {
-		assert.NotEqual(t, config.SqlSettings.DataSourceReplicas[i], model.FakeSetting)
+	for i := range config.SQLSettings.DataSourceReplicas {
+		assert.NotEqual(t, config.SQLSettings.DataSourceReplicas[i], model.FakeSetting)
 	}
 
-	for i := range config.SqlSettings.DataSourceSearchReplicas {
-		assert.NotEqual(t, config.SqlSettings.DataSourceSearchReplicas[i], model.FakeSetting)
+	for i := range config.SQLSettings.DataSourceSearchReplicas {
+		assert.NotEqual(t, config.SQLSettings.DataSourceSearchReplicas[i], model.FakeSetting)
 	}
 }
 

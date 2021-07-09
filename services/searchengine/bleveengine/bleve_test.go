@@ -24,8 +24,8 @@ import (
 type BleveEngineTestSuite struct {
 	suite.Suite
 
-	SQLSettings  *model.SqlSettings
-	SQLStore     *sqlstore.SqlStore
+	SQLSettings  *model.SQLSettings
+	SQLStore     *sqlstore.SQLStore
 	SearchEngine *searchengine.Broker
 	Store        *searchlayer.SearchStore
 	BleveEngine  *BleveEngine
@@ -49,7 +49,7 @@ func (s *BleveEngineTestSuite) setupStore() {
 	if driverName == "" {
 		driverName = model.DatabaseDriverPostgres
 	}
-	s.SQLSettings = storetest.MakeSqlSettings(driverName, false)
+	s.SQLSettings = storetest.MakeSQLSettings(driverName, false)
 	s.SQLStore = sqlstore.New(*s.SQLSettings, nil)
 
 	cfg := &model.Config{}
@@ -58,7 +58,7 @@ func (s *BleveEngineTestSuite) setupStore() {
 	cfg.BleveSettings.EnableSearching = model.NewBool(true)
 	cfg.BleveSettings.EnableAutocomplete = model.NewBool(true)
 	cfg.BleveSettings.IndexDir = model.NewString(s.IndexDir)
-	cfg.SqlSettings.DisableDatabaseSearch = model.NewBool(true)
+	cfg.SQLSettings.DisableDatabaseSearch = model.NewBool(true)
 
 	s.SearchEngine = searchengine.NewBroker(cfg, nil)
 	s.Store = searchlayer.NewSearchLayer(&testlib.TestStore{Store: s.SQLStore}, s.SearchEngine, cfg)
@@ -79,7 +79,7 @@ func (s *BleveEngineTestSuite) SetupSuite() {
 func (s *BleveEngineTestSuite) TearDownSuite() {
 	os.RemoveAll(s.IndexDir)
 	s.SQLStore.Close()
-	storetest.CleanupSqlSettings(s.SQLSettings)
+	storetest.CleanupSQLSettings(s.SQLSettings)
 }
 
 func (s *BleveEngineTestSuite) TestBleveSearchStoreTests() {

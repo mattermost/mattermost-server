@@ -14,12 +14,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlTokenStore struct {
-	*SqlStore
+type SQLTokenStore struct {
+	*SQLStore
 }
 
-func newSqlTokenStore(sqlStore *SqlStore) store.TokenStore {
-	s := &SqlTokenStore{sqlStore}
+func newSQLTokenStore(sqlStore *SQLStore) store.TokenStore {
+	s := &SQLTokenStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Token{}, "Tokens").SetKeys(false, "Token")
@@ -31,10 +31,10 @@ func newSqlTokenStore(sqlStore *SqlStore) store.TokenStore {
 	return s
 }
 
-func (s SqlTokenStore) createIndexesIfNotExists() {
+func (s SQLTokenStore) createIndexesIfNotExists() {
 }
 
-func (s SqlTokenStore) Save(token *model.Token) error {
+func (s SQLTokenStore) Save(token *model.Token) error {
 	if err := token.IsValid(); err != nil {
 		return err
 	}
@@ -45,14 +45,14 @@ func (s SqlTokenStore) Save(token *model.Token) error {
 	return nil
 }
 
-func (s SqlTokenStore) Delete(token string) error {
+func (s SQLTokenStore) Delete(token string) error {
 	if _, err := s.GetMaster().Exec("DELETE FROM Tokens WHERE Token = :Token", map[string]interface{}{"Token": token}); err != nil {
 		return errors.Wrapf(err, "failed to delete Token with value %s", token)
 	}
 	return nil
 }
 
-func (s SqlTokenStore) GetByToken(tokenString string) (*model.Token, error) {
+func (s SQLTokenStore) GetByToken(tokenString string) (*model.Token, error) {
 	token := &model.Token{}
 
 	if err := s.GetReplica().SelectOne(token, "SELECT * FROM Tokens WHERE Token = :Token", map[string]interface{}{"Token": tokenString}); err != nil {
@@ -66,7 +66,7 @@ func (s SqlTokenStore) GetByToken(tokenString string) (*model.Token, error) {
 	return token, nil
 }
 
-func (s SqlTokenStore) Cleanup() {
+func (s SQLTokenStore) Cleanup() {
 	mlog.Debug("Cleaning up token store.")
 	deltime := model.GetMillis() - model.MaxTokenExipryTime
 	if _, err := s.GetMaster().Exec("DELETE FROM Tokens WHERE CreateAt < :DelTime", map[string]interface{}{"DelTime": deltime}); err != nil {
@@ -74,7 +74,7 @@ func (s SqlTokenStore) Cleanup() {
 	}
 }
 
-func (s SqlTokenStore) RemoveAllTokensByType(tokenType string) error {
+func (s SQLTokenStore) RemoveAllTokensByType(tokenType string) error {
 	if _, err := s.GetMaster().Exec("DELETE FROM Tokens WHERE Type = :TokenType", map[string]interface{}{"TokenType": tokenType}); err != nil {
 		return errors.Wrapf(err, "failed to remove all Tokens with Type=%s", tokenType)
 	}

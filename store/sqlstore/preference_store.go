@@ -14,12 +14,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-type SqlPreferenceStore struct {
-	*SqlStore
+type SQLPreferenceStore struct {
+	*SQLStore
 }
 
-func newSqlPreferenceStore(sqlStore *SqlStore) store.PreferenceStore {
-	s := &SqlPreferenceStore{sqlStore}
+func newSQLPreferenceStore(sqlStore *SQLStore) store.PreferenceStore {
+	s := &SQLPreferenceStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Preference{}, "Preferences").SetKeys(false, "UserId", "Category", "Name")
@@ -32,12 +32,12 @@ func newSqlPreferenceStore(sqlStore *SqlStore) store.PreferenceStore {
 	return s
 }
 
-func (s SqlPreferenceStore) createIndexesIfNotExists() {
+func (s SQLPreferenceStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_preferences_category", "Preferences", "Category")
 	s.CreateIndexIfNotExists("idx_preferences_name", "Preferences", "Name")
 }
 
-func (s SqlPreferenceStore) deleteUnusedFeatures() {
+func (s SQLPreferenceStore) deleteUnusedFeatures() {
 	mlog.Debug("Deleting any unused pre-release features")
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
@@ -52,7 +52,7 @@ func (s SqlPreferenceStore) deleteUnusedFeatures() {
 	}
 }
 
-func (s SqlPreferenceStore) Save(preferences *model.Preferences) error {
+func (s SQLPreferenceStore) Save(preferences *model.Preferences) error {
 	// wrap in a transaction so that if one fails, everything fails
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
@@ -74,7 +74,7 @@ func (s SqlPreferenceStore) Save(preferences *model.Preferences) error {
 	return nil
 }
 
-func (s SqlPreferenceStore) save(transaction *gorp.Transaction, preference *model.Preference) error {
+func (s SQLPreferenceStore) save(transaction *gorp.Transaction, preference *model.Preference) error {
 	preference.PreUpdate()
 
 	if err := preference.IsValid(); err != nil {
@@ -125,7 +125,7 @@ func (s SqlPreferenceStore) save(transaction *gorp.Transaction, preference *mode
 	return store.NewErrNotImplemented("failed to update preference because of missing driver")
 }
 
-func (s SqlPreferenceStore) insert(transaction *gorp.Transaction, preference *model.Preference) error {
+func (s SQLPreferenceStore) insert(transaction *gorp.Transaction, preference *model.Preference) error {
 	if err := transaction.Insert(preference); err != nil {
 		if IsUniqueConstraintError(err, []string{"UserId", "preferences_pkey"}) {
 			return store.NewErrInvalidInput("Preference", "<userId, category, name>", fmt.Sprintf("<%s, %s, %s>", preference.UserID, preference.Category, preference.Name))
@@ -136,7 +136,7 @@ func (s SqlPreferenceStore) insert(transaction *gorp.Transaction, preference *mo
 	return nil
 }
 
-func (s SqlPreferenceStore) update(transaction *gorp.Transaction, preference *model.Preference) error {
+func (s SQLPreferenceStore) update(transaction *gorp.Transaction, preference *model.Preference) error {
 	if _, err := transaction.Update(preference); err != nil {
 		return errors.Wrapf(err, "failed to update Preference with userId=%s, category=%s, name=%s", preference.UserID, preference.Category, preference.Name)
 	}
@@ -144,7 +144,7 @@ func (s SqlPreferenceStore) update(transaction *gorp.Transaction, preference *mo
 	return nil
 }
 
-func (s SqlPreferenceStore) Get(userID string, category string, name string) (*model.Preference, error) {
+func (s SQLPreferenceStore) Get(userID string, category string, name string) (*model.Preference, error) {
 	var preference *model.Preference
 	query, args, err := s.getQueryBuilder().
 		Select("*").
@@ -164,7 +164,7 @@ func (s SqlPreferenceStore) Get(userID string, category string, name string) (*m
 	return preference, nil
 }
 
-func (s SqlPreferenceStore) GetCategory(userID string, category string) (model.Preferences, error) {
+func (s SQLPreferenceStore) GetCategory(userID string, category string) (model.Preferences, error) {
 	var preferences model.Preferences
 	query, args, err := s.getQueryBuilder().
 		Select("*").
@@ -182,7 +182,7 @@ func (s SqlPreferenceStore) GetCategory(userID string, category string) (model.P
 
 }
 
-func (s SqlPreferenceStore) GetAll(userID string) (model.Preferences, error) {
+func (s SQLPreferenceStore) GetAll(userID string) (model.Preferences, error) {
 	var preferences model.Preferences
 	query, args, err := s.getQueryBuilder().
 		Select("*").
@@ -198,7 +198,7 @@ func (s SqlPreferenceStore) GetAll(userID string) (model.Preferences, error) {
 	return preferences, nil
 }
 
-func (s SqlPreferenceStore) PermanentDeleteByUser(userID string) error {
+func (s SQLPreferenceStore) PermanentDeleteByUser(userID string) error {
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
 		Where(sq.Eq{"UserId": userID}).ToSql()
@@ -211,7 +211,7 @@ func (s SqlPreferenceStore) PermanentDeleteByUser(userID string) error {
 	return nil
 }
 
-func (s SqlPreferenceStore) Delete(userID, category, name string) error {
+func (s SQLPreferenceStore) Delete(userID, category, name string) error {
 
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
@@ -230,7 +230,7 @@ func (s SqlPreferenceStore) Delete(userID, category, name string) error {
 	return nil
 }
 
-func (s SqlPreferenceStore) DeleteCategory(userID string, category string) error {
+func (s SQLPreferenceStore) DeleteCategory(userID string, category string) error {
 
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
@@ -248,7 +248,7 @@ func (s SqlPreferenceStore) DeleteCategory(userID string, category string) error
 	return nil
 }
 
-func (s SqlPreferenceStore) DeleteCategoryAndName(category string, name string) error {
+func (s SQLPreferenceStore) DeleteCategoryAndName(category string, name string) error {
 	sql, args, err := s.getQueryBuilder().
 		Delete("Preferences").
 		Where(sq.Eq{"Name": name}).
@@ -267,7 +267,7 @@ func (s SqlPreferenceStore) DeleteCategoryAndName(category string, name string) 
 
 // DeleteOrphanedRows removes entries from Preferences (flagged post) when a
 // corresponding post no longer exists.
-func (s *SqlPreferenceStore) DeleteOrphanedRows(limit int) (deleted int64, err error) {
+func (s *SQLPreferenceStore) DeleteOrphanedRows(limit int) (deleted int64, err error) {
 	// We need the extra level of nesting to deal with MySQL's locking
 	const query = `
 	DELETE FROM Preferences WHERE Name IN (
@@ -287,7 +287,7 @@ func (s *SqlPreferenceStore) DeleteOrphanedRows(limit int) (deleted int64, err e
 	return
 }
 
-func (s SqlPreferenceStore) CleanupFlagsBatch(limit int64) (int64, error) {
+func (s SQLPreferenceStore) CleanupFlagsBatch(limit int64) (int64, error) {
 	if limit < 0 {
 		// uint64 does not throw an error, it overflows if it is negative.
 		// it is better to manually check here, or change the function type to uint64

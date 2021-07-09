@@ -362,7 +362,7 @@ func TestCheckIntegrity(t *testing.T) {
 
 func TestCheckParentChildIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		t.Run("should receive an error", func(t *testing.T) {
 			config := relationalCheckConfig{
 				parentName:   "NotValid",
@@ -379,7 +379,7 @@ func TestCheckParentChildIntegrity(t *testing.T) {
 
 func TestCheckChannelsCommandWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -407,7 +407,7 @@ func TestCheckChannelsCommandWebhooksIntegrity(t *testing.T) {
 
 func TestCheckChannelsChannelMemberHistoryIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -437,7 +437,7 @@ func TestCheckChannelsChannelMemberHistoryIntegrity(t *testing.T) {
 
 func TestCheckChannelsChannelMembersIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -465,7 +465,7 @@ func TestCheckChannelsChannelMembersIntegrity(t *testing.T) {
 
 func TestCheckChannelsIncomingWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -493,7 +493,7 @@ func TestCheckChannelsIncomingWebhooksIntegrity(t *testing.T) {
 
 func TestCheckChannelsOutgoingWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -523,7 +523,7 @@ func TestCheckChannelsOutgoingWebhooksIntegrity(t *testing.T) {
 
 func TestCheckChannelsPostsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -550,7 +550,7 @@ func TestCheckChannelsPostsIntegrity(t *testing.T) {
 
 func TestCheckCommandsCommandWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -578,7 +578,7 @@ func TestCheckCommandsCommandWebhooksIntegrity(t *testing.T) {
 
 func TestCheckPostsFileInfoIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -606,7 +606,7 @@ func TestCheckPostsFileInfoIntegrity(t *testing.T) {
 
 func TestCheckPostsPostsParentIDIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -651,7 +651,7 @@ func TestCheckPostsPostsParentIDIntegrity(t *testing.T) {
 
 func TestCheckPostsPostsRootIDIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -681,7 +681,7 @@ func TestCheckPostsPostsRootIDIntegrity(t *testing.T) {
 
 func TestCheckPostsReactionsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -708,7 +708,7 @@ func TestCheckPostsReactionsIntegrity(t *testing.T) {
 
 func TestCheckSchemesChannelsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -739,7 +739,7 @@ func TestCheckSchemesChannelsIntegrity(t *testing.T) {
 
 func TestCheckSchemesTeamsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -770,7 +770,7 @@ func TestCheckSchemesTeamsIntegrity(t *testing.T) {
 
 func TestCheckSessionsAuditsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -801,7 +801,7 @@ func TestCheckSessionsAuditsIntegrity(t *testing.T) {
 
 func TestCheckTeamsChannelsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -877,7 +877,7 @@ func TestCheckTeamsChannelsIntegrity(t *testing.T) {
 
 func TestCheckTeamsCommandsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -905,7 +905,7 @@ func TestCheckTeamsCommandsIntegrity(t *testing.T) {
 
 func TestCheckTeamsIncomingWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -933,7 +933,7 @@ func TestCheckTeamsIncomingWebhooksIntegrity(t *testing.T) {
 
 func TestCheckTeamsOutgoingWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -961,7 +961,7 @@ func TestCheckTeamsOutgoingWebhooksIntegrity(t *testing.T) {
 
 func TestCheckTeamsTeamMembersIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -989,7 +989,7 @@ func TestCheckTeamsTeamMembersIntegrity(t *testing.T) {
 
 func TestCheckUsersAuditsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1019,7 +1019,7 @@ func TestCheckUsersAuditsIntegrity(t *testing.T) {
 
 func TestCheckUsersCommandWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1047,7 +1047,7 @@ func TestCheckUsersCommandWebhooksIntegrity(t *testing.T) {
 
 func TestCheckUsersChannelsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1074,7 +1074,7 @@ func TestCheckUsersChannelsIntegrity(t *testing.T) {
 
 func TestCheckUsersChannelMemberHistoryIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1104,7 +1104,7 @@ func TestCheckUsersChannelMemberHistoryIntegrity(t *testing.T) {
 
 func TestCheckUsersChannelMembersIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1134,7 +1134,7 @@ func TestCheckUsersChannelMembersIntegrity(t *testing.T) {
 
 func TestCheckUsersCommandsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1162,7 +1162,7 @@ func TestCheckUsersCommandsIntegrity(t *testing.T) {
 
 func TestCheckUsersCompliancesIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1192,7 +1192,7 @@ func TestCheckUsersCompliancesIntegrity(t *testing.T) {
 
 func TestCheckUsersEmojiIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1222,7 +1222,7 @@ func TestCheckUsersEmojiIntegrity(t *testing.T) {
 
 func TestCheckUsersFileInfoIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1252,7 +1252,7 @@ func TestCheckUsersFileInfoIntegrity(t *testing.T) {
 
 func TestCheckUsersIncomingWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1280,7 +1280,7 @@ func TestCheckUsersIncomingWebhooksIntegrity(t *testing.T) {
 
 func TestCheckUsersOAuthAccessDataIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1310,7 +1310,7 @@ func TestCheckUsersOAuthAccessDataIntegrity(t *testing.T) {
 
 func TestCheckUsersOAuthAppsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1340,7 +1340,7 @@ func TestCheckUsersOAuthAppsIntegrity(t *testing.T) {
 
 func TestCheckUsersOAuthAuthDataIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1370,7 +1370,7 @@ func TestCheckUsersOAuthAuthDataIntegrity(t *testing.T) {
 
 func TestCheckUsersOutgoingWebhooksIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1398,7 +1398,7 @@ func TestCheckUsersOutgoingWebhooksIntegrity(t *testing.T) {
 
 func TestCheckUsersPostsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1425,7 +1425,7 @@ func TestCheckUsersPostsIntegrity(t *testing.T) {
 
 func TestCheckUsersPreferencesIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1471,7 +1471,7 @@ func TestCheckUsersPreferencesIntegrity(t *testing.T) {
 
 func TestCheckUsersReactionsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1500,7 +1500,7 @@ func TestCheckUsersReactionsIntegrity(t *testing.T) {
 
 func TestCheckUsersSessionsIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1528,7 +1528,7 @@ func TestCheckUsersSessionsIntegrity(t *testing.T) {
 
 func TestCheckUsersStatusIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1557,7 +1557,7 @@ func TestCheckUsersStatusIntegrity(t *testing.T) {
 
 func TestCheckUsersTeamMembersIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {
@@ -1587,7 +1587,7 @@ func TestCheckUsersTeamMembersIntegrity(t *testing.T) {
 
 func TestCheckUsersUserAccessTokensIntegrity(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		store := ss.(*SqlStore)
+		store := ss.(*SQLStore)
 		dbmap := store.GetMaster()
 
 		t.Run("should generate a report with no records", func(t *testing.T) {

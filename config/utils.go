@@ -54,29 +54,29 @@ func desanitize(actual, target *model.Config) {
 		target.OpenIDSettings.Secret = actual.OpenIDSettings.Secret
 	}
 
-	if *target.SqlSettings.DataSource == model.FakeSetting {
-		*target.SqlSettings.DataSource = *actual.SqlSettings.DataSource
+	if *target.SQLSettings.DataSource == model.FakeSetting {
+		*target.SQLSettings.DataSource = *actual.SQLSettings.DataSource
 	}
-	if *target.SqlSettings.AtRestEncryptKey == model.FakeSetting {
-		target.SqlSettings.AtRestEncryptKey = actual.SqlSettings.AtRestEncryptKey
+	if *target.SQLSettings.AtRestEncryptKey == model.FakeSetting {
+		target.SQLSettings.AtRestEncryptKey = actual.SQLSettings.AtRestEncryptKey
 	}
 
 	if *target.ElasticsearchSettings.Password == model.FakeSetting {
 		*target.ElasticsearchSettings.Password = *actual.ElasticsearchSettings.Password
 	}
 
-	if len(target.SqlSettings.DataSourceReplicas) == len(actual.SqlSettings.DataSourceReplicas) {
-		for i, value := range target.SqlSettings.DataSourceReplicas {
+	if len(target.SQLSettings.DataSourceReplicas) == len(actual.SQLSettings.DataSourceReplicas) {
+		for i, value := range target.SQLSettings.DataSourceReplicas {
 			if value == model.FakeSetting {
-				target.SqlSettings.DataSourceReplicas[i] = actual.SqlSettings.DataSourceReplicas[i]
+				target.SQLSettings.DataSourceReplicas[i] = actual.SQLSettings.DataSourceReplicas[i]
 			}
 		}
 	}
 
-	if len(target.SqlSettings.DataSourceSearchReplicas) == len(actual.SqlSettings.DataSourceSearchReplicas) {
-		for i, value := range target.SqlSettings.DataSourceSearchReplicas {
+	if len(target.SQLSettings.DataSourceSearchReplicas) == len(actual.SQLSettings.DataSourceSearchReplicas) {
+		for i, value := range target.SQLSettings.DataSourceSearchReplicas {
 			if value == model.FakeSetting {
-				target.SqlSettings.DataSourceSearchReplicas[i] = actual.SqlSettings.DataSourceSearchReplicas[i]
+				target.SQLSettings.DataSourceSearchReplicas[i] = actual.SQLSettings.DataSourceSearchReplicas[i]
 			}
 		}
 	}

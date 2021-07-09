@@ -15,10 +15,10 @@ import (
 )
 
 type sqlRemoteClusterStore struct {
-	*SqlStore
+	*SQLStore
 }
 
-func newSqlRemoteClusterStore(sqlStore *SqlStore) store.RemoteClusterStore {
+func newSQLRemoteClusterStore(sqlStore *SQLStore) store.RemoteClusterStore {
 	s := &sqlRemoteClusterStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {

@@ -12,10 +12,10 @@ import (
 )
 
 type sqlClusterDiscoveryStore struct {
-	*SqlStore
+	*SQLStore
 }
 
-func newSqlClusterDiscoveryStore(sqlStore *SqlStore) store.ClusterDiscoveryStore {
+func newSQLClusterDiscoveryStore(sqlStore *SQLStore) store.ClusterDiscoveryStore {
 	s := &sqlClusterDiscoveryStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {

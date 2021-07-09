@@ -19,7 +19,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/utils"
 )
 
-func TestPostStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestPostStore(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("SaveMultiple", func(t *testing.T) { testPostStoreSaveMultiple(t, ss) })
 	t.Run("Save", func(t *testing.T) { testPostStoreSave(t, ss) })
 	t.Run("SaveAndUpdateChannelMsgCounts", func(t *testing.T) { testPostStoreSaveChannelMsgCounts(t, ss) })
@@ -1858,7 +1858,7 @@ func testPostCountsByDay(t *testing.T, ss store.Store) {
 	assert.GreaterOrEqual(t, r2, int64(1))
 }
 
-func testPostStoreGetFlaggedPostsForTeam(t *testing.T, ss store.Store, s SqlStore) {
+func testPostStoreGetFlaggedPostsForTeam(t *testing.T, ss store.Store, s SQLStore) {
 	c1 := &model.Channel{}
 	c1.TeamID = model.NewID()
 	c1.DisplayName = "Channel1"
@@ -2944,7 +2944,7 @@ func testPostStoreGetRepliesForExport(t *testing.T, ss store.Store) {
 
 }
 
-func testPostStoreGetDirectPostParentsForExportAfter(t *testing.T, ss store.Store, s SqlStore) {
+func testPostStoreGetDirectPostParentsForExportAfter(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}
@@ -2998,7 +2998,7 @@ func testPostStoreGetDirectPostParentsForExportAfter(t *testing.T, ss store.Stor
 	s.GetMaster().Exec("TRUNCATE Channels")
 }
 
-func testPostStoreGetDirectPostParentsForExportAfterDeleted(t *testing.T, ss store.Store, s SqlStore) {
+func testPostStoreGetDirectPostParentsForExportAfterDeleted(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}
@@ -3064,7 +3064,7 @@ func testPostStoreGetDirectPostParentsForExportAfterDeleted(t *testing.T, ss sto
 	s.GetMaster().Exec("TRUNCATE Channels")
 }
 
-func testPostStoreGetDirectPostParentsForExportAfterBatched(t *testing.T, ss store.Store, s SqlStore) {
+func testPostStoreGetDirectPostParentsForExportAfterBatched(t *testing.T, ss store.Store, s SQLStore) {
 	teamID := model.NewID()
 
 	o1 := model.Channel{}
@@ -3183,7 +3183,7 @@ func testHasAutoResponsePostByUserSince(t *testing.T, ss store.Store) {
 	})
 }
 
-func testGetPostsSinceForSync(t *testing.T, ss store.Store, s SqlStore) {
+func testGetPostsSinceForSync(t *testing.T, ss store.Store, s SQLStore) {
 	// create some posts.
 	channelID := model.NewID()
 	remoteID := model.NewString(model.NewID())

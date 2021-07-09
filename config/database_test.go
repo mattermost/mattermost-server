@@ -365,7 +365,7 @@ func TestDatabaseStoreGetEnivironmentOverrides(t *testing.T) {
 		require.NoError(t, err)
 		defer ds.Close()
 
-		assert.Equal(t, []string{}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{}, ds.Get().SQLSettings.DataSourceReplicas)
 		assert.Empty(t, ds.GetEnvironmentOverrides())
 
 		os.Setenv("MM_SQLSETTINGS_DATASOURCEREPLICAS", "user:pwd@db:5432/test-db")
@@ -375,7 +375,7 @@ func TestDatabaseStoreGetEnivironmentOverrides(t *testing.T) {
 		require.NoError(t, err)
 		defer ds.Close()
 
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SQLSettings.DataSourceReplicas)
 		assert.Equal(t, map[string]interface{}{"SqlSettings": map[string]interface{}{"DataSourceReplicas": true}}, ds.GetEnvironmentOverrides())
 	})
 
@@ -390,7 +390,7 @@ func TestDatabaseStoreGetEnivironmentOverrides(t *testing.T) {
 		require.NoError(t, err)
 		defer ds.Close()
 
-		assert.Equal(t, []string{}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{}, ds.Get().SQLSettings.DataSourceReplicas)
 		assert.Empty(t, ds.GetEnvironmentOverrides())
 
 		os.Setenv("MM_SQLSETTINGS_DATASOURCEREPLICAS", "user:pwd@db:5432/test-db user:pwd@db2:5433/test-db2 user:pwd@db3:5434/test-db3")
@@ -400,7 +400,7 @@ func TestDatabaseStoreGetEnivironmentOverrides(t *testing.T) {
 		require.NoError(t, err)
 		defer ds.Close()
 
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db", "user:pwd@db2:5433/test-db2", "user:pwd@db3:5434/test-db3"}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db", "user:pwd@db2:5433/test-db2", "user:pwd@db3:5434/test-db3"}, ds.Get().SQLSettings.DataSourceReplicas)
 		assert.Equal(t, map[string]interface{}{"SqlSettings": map[string]interface{}{"DataSourceReplicas": true}}, ds.GetEnvironmentOverrides())
 	})
 }
@@ -782,21 +782,21 @@ func TestDatabaseStoreLoad(t *testing.T) {
 		require.NoError(t, err)
 		defer ds.Close()
 
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SQLSettings.DataSourceReplicas)
 
 		_, _, err = ds.Set(ds.Get())
 		require.NoError(t, err)
 
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SQLSettings.DataSourceReplicas)
 		assert.Equal(t, map[string]interface{}{"SqlSettings": map[string]interface{}{"DataSourceReplicas": true}}, ds.GetEnvironmentOverrides())
 		// check that in DB config does not include overwritten variable
 		_, actualConfig := getActualDatabaseConfig(t)
-		assert.Equal(t, []string{}, actualConfig.SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{}, actualConfig.SQLSettings.DataSourceReplicas)
 	})
 
 	t.Run("do not persist environment variables - string slice beginning with slice of three", func(t *testing.T) {
 		modifiedMinimalConfig := minimalConfig.Clone()
-		modifiedMinimalConfig.SqlSettings.DataSourceReplicas = []string{"user:pwd@db:5432/test-db", "user:pwd@db2:5433/test-db2", "user:pwd@db3:5434/test-db3"}
+		modifiedMinimalConfig.SQLSettings.DataSourceReplicas = []string{"user:pwd@db:5432/test-db", "user:pwd@db2:5433/test-db2", "user:pwd@db3:5434/test-db3"}
 		_, tearDown := setupConfigDatabase(t, modifiedMinimalConfig, nil)
 		defer tearDown()
 
@@ -807,16 +807,16 @@ func TestDatabaseStoreLoad(t *testing.T) {
 		require.NoError(t, err)
 		defer ds.Close()
 
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SQLSettings.DataSourceReplicas)
 
 		_, _, err = ds.Set(ds.Get())
 		require.NoError(t, err)
 
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db"}, ds.Get().SQLSettings.DataSourceReplicas)
 		assert.Equal(t, map[string]interface{}{"SqlSettings": map[string]interface{}{"DataSourceReplicas": true}}, ds.GetEnvironmentOverrides())
 		// check that in DB config does not include overwritten variable
 		_, actualConfig := getActualDatabaseConfig(t)
-		assert.Equal(t, []string{"user:pwd@db:5432/test-db", "user:pwd@db2:5433/test-db2", "user:pwd@db3:5434/test-db3"}, actualConfig.SqlSettings.DataSourceReplicas)
+		assert.Equal(t, []string{"user:pwd@db:5432/test-db", "user:pwd@db2:5433/test-db2", "user:pwd@db3:5434/test-db3"}, actualConfig.SQLSettings.DataSourceReplicas)
 	})
 
 	t.Run("invalid", func(t *testing.T) {

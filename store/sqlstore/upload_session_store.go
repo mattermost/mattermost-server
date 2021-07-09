@@ -13,13 +13,13 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlUploadSessionStore struct {
-	*SqlStore
+type SQLUploadSessionStore struct {
+	*SQLStore
 }
 
-func newSqlUploadSessionStore(sqlStore *SqlStore) store.UploadSessionStore {
-	s := &SqlUploadSessionStore{
-		SqlStore: sqlStore,
+func newSQLUploadSessionStore(sqlStore *SQLStore) store.UploadSessionStore {
+	s := &SQLUploadSessionStore{
+		SQLStore: sqlStore,
 	}
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.UploadSession{}, "UploadSessions").SetKeys(false, "Id")
@@ -35,13 +35,13 @@ func newSqlUploadSessionStore(sqlStore *SqlStore) store.UploadSessionStore {
 	return s
 }
 
-func (us SqlUploadSessionStore) createIndexesIfNotExists() {
+func (us SQLUploadSessionStore) createIndexesIfNotExists() {
 	us.CreateIndexIfNotExists("idx_uploadsessions_user_id", "UploadSessions", "Type")
 	us.CreateIndexIfNotExists("idx_uploadsessions_create_at", "UploadSessions", "CreateAt")
 	us.CreateIndexIfNotExists("idx_uploadsessions_user_id", "UploadSessions", "UserId")
 }
 
-func (us SqlUploadSessionStore) Save(session *model.UploadSession) (*model.UploadSession, error) {
+func (us SQLUploadSessionStore) Save(session *model.UploadSession) (*model.UploadSession, error) {
 	if session == nil {
 		return nil, errors.New("SqlUploadSessionStore.Save: session should not be nil")
 	}
@@ -55,7 +55,7 @@ func (us SqlUploadSessionStore) Save(session *model.UploadSession) (*model.Uploa
 	return session, nil
 }
 
-func (us SqlUploadSessionStore) Update(session *model.UploadSession) error {
+func (us SQLUploadSessionStore) Update(session *model.UploadSession) error {
 	if session == nil {
 		return errors.New("SqlUploadSessionStore.Update: session should not be nil")
 	}
@@ -71,7 +71,7 @@ func (us SqlUploadSessionStore) Update(session *model.UploadSession) error {
 	return nil
 }
 
-func (us SqlUploadSessionStore) Get(id string) (*model.UploadSession, error) {
+func (us SQLUploadSessionStore) Get(id string) (*model.UploadSession, error) {
 	if !model.IsValidID(id) {
 		return nil, errors.New("SqlUploadSessionStore.Get: id is not valid")
 	}
@@ -93,7 +93,7 @@ func (us SqlUploadSessionStore) Get(id string) (*model.UploadSession, error) {
 	return &session, nil
 }
 
-func (us SqlUploadSessionStore) GetForUser(userID string) ([]*model.UploadSession, error) {
+func (us SQLUploadSessionStore) GetForUser(userID string) ([]*model.UploadSession, error) {
 	query := us.getQueryBuilder().
 		Select("*").
 		From("UploadSessions").
@@ -110,7 +110,7 @@ func (us SqlUploadSessionStore) GetForUser(userID string) ([]*model.UploadSessio
 	return sessions, nil
 }
 
-func (us SqlUploadSessionStore) Delete(id string) error {
+func (us SQLUploadSessionStore) Delete(id string) error {
 	if !model.IsValidID(id) {
 		return errors.New("SqlUploadSessionStore.Delete: id is not valid")
 	}

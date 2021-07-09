@@ -16,12 +16,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlJobStore struct {
-	*SqlStore
+type SQLJobStore struct {
+	*SQLStore
 }
 
-func newSqlJobStore(sqlStore *SqlStore) store.JobStore {
-	s := &SqlJobStore{sqlStore}
+func newSQLJobStore(sqlStore *SQLStore) store.JobStore {
+	s := &SQLJobStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Job{}, "Jobs").SetKeys(false, "Id")
@@ -34,18 +34,18 @@ func newSqlJobStore(sqlStore *SqlStore) store.JobStore {
 	return s
 }
 
-func (jss SqlJobStore) createIndexesIfNotExists() {
+func (jss SQLJobStore) createIndexesIfNotExists() {
 	jss.CreateIndexIfNotExists("idx_jobs_type", "Jobs", "Type")
 }
 
-func (jss SqlJobStore) Save(job *model.Job) (*model.Job, error) {
+func (jss SQLJobStore) Save(job *model.Job) (*model.Job, error) {
 	if err := jss.GetMaster().Insert(job); err != nil {
 		return nil, errors.Wrap(err, "failed to save Job")
 	}
 	return job, nil
 }
 
-func (jss SqlJobStore) UpdateOptimistically(job *model.Job, currentStatus string) (bool, error) {
+func (jss SQLJobStore) UpdateOptimistically(job *model.Job, currentStatus string) (bool, error) {
 	query, args, err := jss.getQueryBuilder().
 		Update("Jobs").
 		Set("LastActivityAt", model.GetMillis()).
@@ -74,7 +74,7 @@ func (jss SqlJobStore) UpdateOptimistically(job *model.Job, currentStatus string
 	return true, nil
 }
 
-func (jss SqlJobStore) UpdateStatus(id string, status string) (*model.Job, error) {
+func (jss SQLJobStore) UpdateStatus(id string, status string) (*model.Job, error) {
 	job := &model.Job{
 		ID:             id,
 		Status:         status,
@@ -90,7 +90,7 @@ func (jss SqlJobStore) UpdateStatus(id string, status string) (*model.Job, error
 	return job, nil
 }
 
-func (jss SqlJobStore) UpdateStatusOptimistically(id string, currentStatus string, newStatus string) (bool, error) {
+func (jss SQLJobStore) UpdateStatusOptimistically(id string, currentStatus string, newStatus string) (bool, error) {
 	builder := jss.getQueryBuilder().
 		Update("Jobs").
 		Set("LastActivityAt", model.GetMillis()).
@@ -120,7 +120,7 @@ func (jss SqlJobStore) UpdateStatusOptimistically(id string, currentStatus strin
 	return true, nil
 }
 
-func (jss SqlJobStore) Get(id string) (*model.Job, error) {
+func (jss SQLJobStore) Get(id string) (*model.Job, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
 		From("Jobs").
@@ -138,7 +138,7 @@ func (jss SqlJobStore) Get(id string) (*model.Job, error) {
 	return status, nil
 }
 
-func (jss SqlJobStore) GetAllPage(offset int, limit int) ([]*model.Job, error) {
+func (jss SQLJobStore) GetAllPage(offset int, limit int) ([]*model.Job, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
 		From("Jobs").
@@ -156,7 +156,7 @@ func (jss SqlJobStore) GetAllPage(offset int, limit int) ([]*model.Job, error) {
 	return statuses, nil
 }
 
-func (jss SqlJobStore) GetAllByTypesPage(jobTypes []string, offset int, limit int) ([]*model.Job, error) {
+func (jss SQLJobStore) GetAllByTypesPage(jobTypes []string, offset int, limit int) ([]*model.Job, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
 		From("Jobs").
@@ -175,7 +175,7 @@ func (jss SqlJobStore) GetAllByTypesPage(jobTypes []string, offset int, limit in
 	return jobs, nil
 }
 
-func (jss SqlJobStore) GetAllByType(jobType string) ([]*model.Job, error) {
+func (jss SQLJobStore) GetAllByType(jobType string) ([]*model.Job, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
 		From("Jobs").
@@ -191,7 +191,7 @@ func (jss SqlJobStore) GetAllByType(jobType string) ([]*model.Job, error) {
 	return statuses, nil
 }
 
-func (jss SqlJobStore) GetAllByTypePage(jobType string, offset int, limit int) ([]*model.Job, error) {
+func (jss SQLJobStore) GetAllByTypePage(jobType string, offset int, limit int) ([]*model.Job, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
 		From("Jobs").
@@ -210,7 +210,7 @@ func (jss SqlJobStore) GetAllByTypePage(jobType string, offset int, limit int) (
 	return statuses, nil
 }
 
-func (jss SqlJobStore) GetAllByStatus(status string) ([]*model.Job, error) {
+func (jss SQLJobStore) GetAllByStatus(status string) ([]*model.Job, error) {
 	var statuses []*model.Job
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
@@ -227,11 +227,11 @@ func (jss SqlJobStore) GetAllByStatus(status string) ([]*model.Job, error) {
 	return statuses, nil
 }
 
-func (jss SqlJobStore) GetNewestJobByStatusAndType(status string, jobType string) (*model.Job, error) {
+func (jss SQLJobStore) GetNewestJobByStatusAndType(status string, jobType string) (*model.Job, error) {
 	return jss.GetNewestJobByStatusesAndType([]string{status}, jobType)
 }
 
-func (jss SqlJobStore) GetNewestJobByStatusesAndType(status []string, jobType string) (*model.Job, error) {
+func (jss SQLJobStore) GetNewestJobByStatusesAndType(status []string, jobType string) (*model.Job, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("*").
 		From("Jobs").
@@ -252,7 +252,7 @@ func (jss SqlJobStore) GetNewestJobByStatusesAndType(status []string, jobType st
 	return job, nil
 }
 
-func (jss SqlJobStore) GetCountByStatusAndType(status string, jobType string) (int64, error) {
+func (jss SQLJobStore) GetCountByStatusAndType(status string, jobType string) (int64, error) {
 	query, args, err := jss.getQueryBuilder().
 		Select("COUNT(*)").
 		From("Jobs").
@@ -267,7 +267,7 @@ func (jss SqlJobStore) GetCountByStatusAndType(status string, jobType string) (i
 	return count, nil
 }
 
-func (jss SqlJobStore) Delete(id string) (string, error) {
+func (jss SQLJobStore) Delete(id string) (string, error) {
 	query, args, err := jss.getQueryBuilder().
 		Delete("Jobs").
 		Where(sq.Eq{"Id": id}).ToSql()

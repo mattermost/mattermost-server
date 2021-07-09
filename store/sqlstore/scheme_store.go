@@ -15,12 +15,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlSchemeStore struct {
-	*SqlStore
+type SQLSchemeStore struct {
+	*SQLStore
 }
 
-func newSqlSchemeStore(sqlStore *SqlStore) store.SchemeStore {
-	s := &SqlSchemeStore{sqlStore}
+func newSQLSchemeStore(sqlStore *SQLStore) store.SchemeStore {
+	s := &SQLSchemeStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Scheme{}, "Schemes").SetKeys(false, "Id")
@@ -40,13 +40,13 @@ func newSqlSchemeStore(sqlStore *SqlStore) store.SchemeStore {
 	return s
 }
 
-func (s SqlSchemeStore) createIndexesIfNotExists() {
+func (s SQLSchemeStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_schemes_channel_guest_role", "Schemes", "DefaultChannelGuestRole")
 	s.CreateIndexIfNotExists("idx_schemes_channel_user_role", "Schemes", "DefaultChannelUserRole")
 	s.CreateIndexIfNotExists("idx_schemes_channel_admin_role", "Schemes", "DefaultChannelAdminRole")
 }
 
-func (s *SqlSchemeStore) Save(scheme *model.Scheme) (*model.Scheme, error) {
+func (s *SQLSchemeStore) Save(scheme *model.Scheme) (*model.Scheme, error) {
 	if scheme.ID == "" {
 		transaction, err := s.GetMaster().Begin()
 		if err != nil {
@@ -81,11 +81,11 @@ func (s *SqlSchemeStore) Save(scheme *model.Scheme) (*model.Scheme, error) {
 	return scheme, nil
 }
 
-func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Transaction) (*model.Scheme, error) {
+func (s *SQLSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Transaction) (*model.Scheme, error) {
 	// Fetch the default system scheme roles to populate default permissions.
 	defaultRoleNames := []string{model.TeamAdminRoleID, model.TeamUserRoleID, model.TeamGuestRoleID, model.ChannelAdminRoleID, model.ChannelUserRoleID, model.ChannelGuestRoleID}
 	defaultRoles := make(map[string]*model.Role)
-	roles, err := s.SqlStore.Role().GetByNames(defaultRoleNames)
+	roles, err := s.SQLStore.Role().GetByNames(defaultRoleNames)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Tr
 			SchemeManaged: true,
 		}
 
-		savedRole, err := s.SqlStore.Role().(*SqlRoleStore).createRole(teamAdminRole, transaction)
+		savedRole, err := s.SQLStore.Role().(*SQLRoleStore).createRole(teamAdminRole, transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +135,7 @@ func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Tr
 			SchemeManaged: true,
 		}
 
-		savedRole, err = s.SqlStore.Role().(*SqlRoleStore).createRole(teamUserRole, transaction)
+		savedRole, err = s.SQLStore.Role().(*SQLRoleStore).createRole(teamUserRole, transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -149,7 +149,7 @@ func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Tr
 			SchemeManaged: true,
 		}
 
-		savedRole, err = s.SqlStore.Role().(*SqlRoleStore).createRole(teamGuestRole, transaction)
+		savedRole, err = s.SQLStore.Role().(*SQLRoleStore).createRole(teamGuestRole, transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +169,7 @@ func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Tr
 			channelAdminRole.Permissions = []string{}
 		}
 
-		savedRole, err := s.SqlStore.Role().(*SqlRoleStore).createRole(channelAdminRole, transaction)
+		savedRole, err := s.SQLStore.Role().(*SQLRoleStore).createRole(channelAdminRole, transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -187,7 +187,7 @@ func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Tr
 			channelUserRole.Permissions = filterModerated(channelUserRole.Permissions)
 		}
 
-		savedRole, err = s.SqlStore.Role().(*SqlRoleStore).createRole(channelUserRole, transaction)
+		savedRole, err = s.SQLStore.Role().(*SQLRoleStore).createRole(channelUserRole, transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +205,7 @@ func (s *SqlSchemeStore) createScheme(scheme *model.Scheme, transaction *gorp.Tr
 			channelGuestRole.Permissions = filterModerated(channelGuestRole.Permissions)
 		}
 
-		savedRole, err = s.SqlStore.Role().(*SqlRoleStore).createRole(channelGuestRole, transaction)
+		savedRole, err = s.SQLStore.Role().(*SQLRoleStore).createRole(channelGuestRole, transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -241,7 +241,7 @@ func filterModerated(permissions []string) []string {
 	return filteredPermissions
 }
 
-func (s *SqlSchemeStore) Get(schemeID string) (*model.Scheme, error) {
+func (s *SQLSchemeStore) Get(schemeID string) (*model.Scheme, error) {
 	var scheme model.Scheme
 	if err := s.GetReplica().SelectOne(&scheme, "SELECT * from Schemes WHERE Id = :Id", map[string]interface{}{"Id": schemeID}); err != nil {
 		if err == sql.ErrNoRows {
@@ -253,7 +253,7 @@ func (s *SqlSchemeStore) Get(schemeID string) (*model.Scheme, error) {
 	return &scheme, nil
 }
 
-func (s *SqlSchemeStore) GetByName(schemeName string) (*model.Scheme, error) {
+func (s *SQLSchemeStore) GetByName(schemeName string) (*model.Scheme, error) {
 	var scheme model.Scheme
 
 	if err := s.GetReplica().SelectOne(&scheme, "SELECT * from Schemes WHERE Name = :Name", map[string]interface{}{"Name": schemeName}); err != nil {
@@ -266,7 +266,7 @@ func (s *SqlSchemeStore) GetByName(schemeName string) (*model.Scheme, error) {
 	return &scheme, nil
 }
 
-func (s *SqlSchemeStore) Delete(schemeID string) (*model.Scheme, error) {
+func (s *SQLSchemeStore) Delete(schemeID string) (*model.Scheme, error) {
 	// Get the scheme
 	var scheme model.Scheme
 	if err := s.GetMaster().SelectOne(&scheme, "SELECT * from Schemes WHERE Id = :Id", map[string]interface{}{"Id": schemeID}); err != nil {
@@ -328,7 +328,7 @@ func (s *SqlSchemeStore) Delete(schemeID string) (*model.Scheme, error) {
 	return &scheme, nil
 }
 
-func (s *SqlSchemeStore) GetAllPage(scope string, offset int, limit int) ([]*model.Scheme, error) {
+func (s *SQLSchemeStore) GetAllPage(scope string, offset int, limit int) ([]*model.Scheme, error) {
 	var schemes []*model.Scheme
 
 	scopeClause := ""
@@ -343,7 +343,7 @@ func (s *SqlSchemeStore) GetAllPage(scope string, offset int, limit int) ([]*mod
 	return schemes, nil
 }
 
-func (s *SqlSchemeStore) PermanentDeleteAll() error {
+func (s *SQLSchemeStore) PermanentDeleteAll() error {
 	if _, err := s.GetMaster().Exec("DELETE from Schemes"); err != nil {
 		return errors.Wrap(err, "failed to delete Schemes")
 	}
@@ -351,7 +351,7 @@ func (s *SqlSchemeStore) PermanentDeleteAll() error {
 	return nil
 }
 
-func (s *SqlSchemeStore) CountByScope(scope string) (int64, error) {
+func (s *SQLSchemeStore) CountByScope(scope string) (int64, error) {
 	count, err := s.GetReplica().SelectInt("SELECT count(*) FROM Schemes WHERE Scope = :Scope AND DeleteAt = 0", map[string]interface{}{"Scope": scope})
 	if err != nil {
 		return int64(0), errors.Wrap(err, "failed to count Schemes by scope")
@@ -359,7 +359,7 @@ func (s *SqlSchemeStore) CountByScope(scope string) (int64, error) {
 	return count, nil
 }
 
-func (s *SqlSchemeStore) CountWithoutPermission(schemeScope, permissionID string, roleScope model.RoleScope, roleType model.RoleType) (int64, error) {
+func (s *SQLSchemeStore) CountWithoutPermission(schemeScope, permissionID string, roleScope model.RoleScope, roleType model.RoleType) (int64, error) {
 	joinCol := fmt.Sprintf("Default%s%sRole", roleScope, roleType)
 	query := fmt.Sprintf(`
 		SELECT

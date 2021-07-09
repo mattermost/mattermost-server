@@ -19,12 +19,12 @@ const (
 	defaultPluginKeyFetchLimit = 10
 )
 
-type SqlPluginStore struct {
-	*SqlStore
+type SQLPluginStore struct {
+	*SQLStore
 }
 
-func newSqlPluginStore(sqlStore *SqlStore) store.PluginStore {
-	s := &SqlPluginStore{sqlStore}
+func newSQLPluginStore(sqlStore *SQLStore) store.PluginStore {
+	s := &SQLPluginStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.PluginKeyValue{}, "PluginKeyValueStore").SetKeys(false, "PluginId", "Key")
@@ -36,10 +36,10 @@ func newSqlPluginStore(sqlStore *SqlStore) store.PluginStore {
 	return s
 }
 
-func (ps SqlPluginStore) createIndexesIfNotExists() {
+func (ps SQLPluginStore) createIndexesIfNotExists() {
 }
 
-func (ps SqlPluginStore) SaveOrUpdate(kv *model.PluginKeyValue) (*model.PluginKeyValue, error) {
+func (ps SQLPluginStore) SaveOrUpdate(kv *model.PluginKeyValue) (*model.PluginKeyValue, error) {
 	if err := kv.IsValid(); err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (ps SqlPluginStore) SaveOrUpdate(kv *model.PluginKeyValue) (*model.PluginKe
 	return kv, nil
 }
 
-func (ps SqlPluginStore) CompareAndSet(kv *model.PluginKeyValue, oldValue []byte) (bool, error) {
+func (ps SQLPluginStore) CompareAndSet(kv *model.PluginKeyValue, oldValue []byte) (bool, error) {
 	if err := kv.IsValid(); err != nil {
 		return false, err
 	}
@@ -198,7 +198,7 @@ func (ps SqlPluginStore) CompareAndSet(kv *model.PluginKeyValue, oldValue []byte
 	return true, nil
 }
 
-func (ps SqlPluginStore) CompareAndDelete(kv *model.PluginKeyValue, oldValue []byte) (bool, error) {
+func (ps SQLPluginStore) CompareAndDelete(kv *model.PluginKeyValue, oldValue []byte) (bool, error) {
 	if err := kv.IsValid(); err != nil {
 		return false, err
 	}
@@ -237,7 +237,7 @@ func (ps SqlPluginStore) CompareAndDelete(kv *model.PluginKeyValue, oldValue []b
 	return true, nil
 }
 
-func (ps SqlPluginStore) SetWithOptions(pluginID string, key string, value []byte, opt model.PluginKVSetOptions) (bool, error) {
+func (ps SQLPluginStore) SetWithOptions(pluginID string, key string, value []byte, opt model.PluginKVSetOptions) (bool, error) {
 	if err := opt.IsValid(); err != nil {
 		return false, err
 	}
@@ -259,7 +259,7 @@ func (ps SqlPluginStore) SetWithOptions(pluginID string, key string, value []byt
 	return savedKv != nil, nil
 }
 
-func (ps SqlPluginStore) Get(pluginID, key string) (*model.PluginKeyValue, error) {
+func (ps SQLPluginStore) Get(pluginID, key string) (*model.PluginKeyValue, error) {
 	currentTime := model.GetMillis()
 	query := ps.getQueryBuilder().Select("PluginId, PKey, PValue, ExpireAt").
 		From("PluginKeyValueStore").
@@ -283,7 +283,7 @@ func (ps SqlPluginStore) Get(pluginID, key string) (*model.PluginKeyValue, error
 	return &kv, nil
 }
 
-func (ps SqlPluginStore) Delete(pluginID, key string) error {
+func (ps SQLPluginStore) Delete(pluginID, key string) error {
 	query := ps.getQueryBuilder().
 		Delete("PluginKeyValueStore").
 		Where(sq.Eq{"PluginId": pluginID}).
@@ -300,7 +300,7 @@ func (ps SqlPluginStore) Delete(pluginID, key string) error {
 	return nil
 }
 
-func (ps SqlPluginStore) DeleteAllForPlugin(pluginID string) error {
+func (ps SQLPluginStore) DeleteAllForPlugin(pluginID string) error {
 	query := ps.getQueryBuilder().
 		Delete("PluginKeyValueStore").
 		Where(sq.Eq{"PluginId": pluginID})
@@ -316,7 +316,7 @@ func (ps SqlPluginStore) DeleteAllForPlugin(pluginID string) error {
 	return nil
 }
 
-func (ps SqlPluginStore) DeleteAllExpired() error {
+func (ps SQLPluginStore) DeleteAllExpired() error {
 	currentTime := model.GetMillis()
 	query := ps.getQueryBuilder().
 		Delete("PluginKeyValueStore").
@@ -334,7 +334,7 @@ func (ps SqlPluginStore) DeleteAllExpired() error {
 	return nil
 }
 
-func (ps SqlPluginStore) List(pluginID string, offset int, limit int) ([]string, error) {
+func (ps SQLPluginStore) List(pluginID string, offset int, limit int) ([]string, error) {
 	if limit <= 0 {
 		limit = defaultPluginKeyFetchLimit
 	}

@@ -49,7 +49,7 @@ func log(message string) {
 
 // MySQLSettings returns the database settings to connect to the MySQL unittesting database.
 // The database name is generated randomly and must be created before use.
-func MySQLSettings(withReplica bool) *model.SqlSettings {
+func MySQLSettings(withReplica bool) *model.SQLSettings {
 	dsn := getEnv("TEST_DATABASE_MYSQL_DSN", defaultMysqlDSN)
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
@@ -69,7 +69,7 @@ func MySQLSettings(withReplica bool) *model.SqlSettings {
 
 // PostgresSQLSettings returns the database settings to connect to the PostgreSQL unittesting database.
 // The database name is generated randomly and must be created before use.
-func PostgreSQLSettings() *model.SqlSettings {
+func PostgreSQLSettings() *model.SQLSettings {
 	dsn := getEnv("TEST_DATABASE_POSTGRESQL_DSN", defaultPostgresqlDSN)
 	dsnURL, err := url.Parse(dsn)
 	if err != nil {
@@ -132,8 +132,8 @@ func postgreSQLDSNDatabase(dsn string) string {
 	return path.Base(dsnURL.Path)
 }
 
-func databaseSettings(driver, dataSource string) *model.SqlSettings {
-	settings := &model.SqlSettings{
+func databaseSettings(driver, dataSource string) *model.SQLSettings {
+	settings := &model.SQLSettings{
 		DriverName:                  &driver,
 		DataSource:                  &dataSource,
 		DataSourceReplicas:          []string{},
@@ -156,7 +156,7 @@ func databaseSettings(driver, dataSource string) *model.SqlSettings {
 }
 
 // execAsRoot executes the given sql as root against the testing database
-func execAsRoot(settings *model.SqlSettings, sqlCommand string) error {
+func execAsRoot(settings *model.SQLSettings, sqlCommand string) error {
 	var dsn string
 	var driver = *settings.DriverName
 
@@ -191,8 +191,8 @@ func replaceMySQLDatabaseName(dsn, newDBName string) string {
 }
 
 // MakeSqlSettings creates a randomly named database and returns the corresponding sql settings
-func MakeSqlSettings(driver string, withReplica bool) *model.SqlSettings {
-	var settings *model.SqlSettings
+func MakeSQLSettings(driver string, withReplica bool) *model.SQLSettings {
+	var settings *model.SQLSettings
 	var dbName string
 
 	switch driver {
@@ -233,7 +233,7 @@ func MakeSqlSettings(driver string, withReplica bool) *model.SqlSettings {
 	return settings
 }
 
-func CleanupSqlSettings(settings *model.SqlSettings) {
+func CleanupSQLSettings(settings *model.SQLSettings) {
 	var driver = *settings.DriverName
 	var dbName string
 

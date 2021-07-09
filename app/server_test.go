@@ -74,12 +74,12 @@ func TestReadReplicaDisabledBasedOnLicense(t *testing.T) {
 	} else {
 		dsn = os.Getenv("TEST_DATABASE_MYSQL_DSN")
 	}
-	cfg.SqlSettings = *storetest.MakeSqlSettings(driverName, false)
+	cfg.SQLSettings = *storetest.MakeSQLSettings(driverName, false)
 	if dsn != "" {
-		cfg.SqlSettings.DataSource = &dsn
+		cfg.SQLSettings.DataSource = &dsn
 	}
-	cfg.SqlSettings.DataSourceReplicas = []string{*cfg.SqlSettings.DataSource}
-	cfg.SqlSettings.DataSourceSearchReplicas = []string{*cfg.SqlSettings.DataSource}
+	cfg.SQLSettings.DataSourceReplicas = []string{*cfg.SQLSettings.DataSource}
+	cfg.SQLSettings.DataSourceSearchReplicas = []string{*cfg.SQLSettings.DataSource}
 
 	t.Run("Read Replicas with no License", func(t *testing.T) {
 		s, err := NewServer(func(server *Server) error {
@@ -91,7 +91,7 @@ func TestReadReplicaDisabledBasedOnLicense(t *testing.T) {
 		require.NoError(t, err)
 		defer s.Shutdown()
 		require.Same(t, s.sqlStore.GetMaster(), s.sqlStore.GetReplica())
-		require.Len(t, s.Config().SqlSettings.DataSourceReplicas, 1)
+		require.Len(t, s.Config().SQLSettings.DataSourceReplicas, 1)
 	})
 
 	t.Run("Read Replicas With License", func(t *testing.T) {
@@ -104,7 +104,7 @@ func TestReadReplicaDisabledBasedOnLicense(t *testing.T) {
 		require.NoError(t, err)
 		defer s.Shutdown()
 		require.NotSame(t, s.sqlStore.GetMaster(), s.sqlStore.GetReplica())
-		require.Len(t, s.Config().SqlSettings.DataSourceReplicas, 1)
+		require.Len(t, s.Config().SQLSettings.DataSourceReplicas, 1)
 	})
 
 	t.Run("Search Replicas with no License", func(t *testing.T) {
@@ -117,7 +117,7 @@ func TestReadReplicaDisabledBasedOnLicense(t *testing.T) {
 		require.NoError(t, err)
 		defer s.Shutdown()
 		require.Same(t, s.sqlStore.GetMaster(), s.sqlStore.GetSearchReplica())
-		require.Len(t, s.Config().SqlSettings.DataSourceSearchReplicas, 1)
+		require.Len(t, s.Config().SQLSettings.DataSourceSearchReplicas, 1)
 	})
 
 	t.Run("Search Replicas With License", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestReadReplicaDisabledBasedOnLicense(t *testing.T) {
 		require.NoError(t, err)
 		defer s.Shutdown()
 		require.NotSame(t, s.sqlStore.GetMaster(), s.sqlStore.GetSearchReplica())
-		require.Len(t, s.Config().SqlSettings.DataSourceSearchReplicas, 1)
+		require.Len(t, s.Config().SQLSettings.DataSourceSearchReplicas, 1)
 	})
 }
 

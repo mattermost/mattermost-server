@@ -165,7 +165,7 @@ func (o *OutgoingWebhook) IsValid() *AppError {
 	}
 
 	for _, callback := range o.CallbackURLs {
-		if !IsValidHttpURL(callback) {
+		if !IsValidHTTPURL(callback) {
 			return NewAppError("OutgoingWebhook.IsValid", "model.outgoing_hook.is_valid.url.app_error", nil, "", http.StatusBadRequest)
 		}
 	}

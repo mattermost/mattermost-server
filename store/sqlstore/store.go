@@ -95,7 +95,7 @@ const (
 	ExitAlterPrimaryKey          = 139
 )
 
-type SqlStoreStores struct {
+type SQLStoreStores struct {
 	team                 store.TeamStore
 	channel              store.ChannelStore
 	post                 store.PostStore
@@ -135,7 +135,7 @@ type SqlStoreStores struct {
 	sharedchannel        store.SharedChannelStore
 }
 
-type SqlStore struct {
+type SQLStore struct {
 	// rrCounter and srCounter should be kept first.
 	// See https://github.com/mattermost/mattermost-server/v5/pull/7281
 	rrCounter         int64
@@ -144,8 +144,8 @@ type SqlStore struct {
 	Replicas          []*gorp.DbMap
 	searchReplicas    []*gorp.DbMap
 	replicaLagHandles []*dbsql.DB
-	stores            SqlStoreStores
-	settings          *model.SqlSettings
+	stores            SQLStoreStores
+	settings          *model.SQLSettings
 	lockedToMaster    bool
 	context           context.Context
 	license           *model.License
@@ -169,8 +169,8 @@ func (t *TraceOnAdapter) Printf(format string, v ...interface{}) {
 	mlog.Debug(newString)
 }
 
-func New(settings model.SqlSettings, metrics einterfaces.MetricsInterface) *SqlStore {
-	store := &SqlStore{
+func New(settings model.SQLSettings, metrics einterfaces.MetricsInterface) *SQLStore {
+	store := &SQLStore{
 		rrCounter: 0,
 		srCounter: 0,
 		settings:  &settings,
@@ -202,43 +202,43 @@ func New(settings model.SqlSettings, metrics einterfaces.MetricsInterface) *SqlS
 		os.Exit(ExitGenericFailure)
 	}
 
-	store.stores.team = newSqlTeamStore(store)
-	store.stores.channel = newSqlChannelStore(store, metrics)
-	store.stores.post = newSqlPostStore(store, metrics)
-	store.stores.retentionPolicy = newSqlRetentionPolicyStore(store, metrics)
-	store.stores.user = newSqlUserStore(store, metrics)
-	store.stores.bot = newSqlBotStore(store, metrics)
-	store.stores.audit = newSqlAuditStore(store)
-	store.stores.cluster = newSqlClusterDiscoveryStore(store)
-	store.stores.remoteCluster = newSqlRemoteClusterStore(store)
-	store.stores.compliance = newSqlComplianceStore(store)
-	store.stores.session = newSqlSessionStore(store)
-	store.stores.oauth = newSqlOAuthStore(store)
-	store.stores.system = newSqlSystemStore(store)
-	store.stores.webhook = newSqlWebhookStore(store, metrics)
-	store.stores.command = newSqlCommandStore(store)
-	store.stores.commandWebhook = newSqlCommandWebhookStore(store)
-	store.stores.preference = newSqlPreferenceStore(store)
-	store.stores.license = newSqlLicenseStore(store)
-	store.stores.token = newSqlTokenStore(store)
-	store.stores.emoji = newSqlEmojiStore(store, metrics)
-	store.stores.status = newSqlStatusStore(store)
-	store.stores.fileInfo = newSqlFileInfoStore(store, metrics)
-	store.stores.uploadSession = newSqlUploadSessionStore(store)
-	store.stores.thread = newSqlThreadStore(store)
-	store.stores.job = newSqlJobStore(store)
-	store.stores.userAccessToken = newSqlUserAccessTokenStore(store)
-	store.stores.channelMemberHistory = newSqlChannelMemberHistoryStore(store)
-	store.stores.plugin = newSqlPluginStore(store)
-	store.stores.TermsOfService = newSqlTermsOfServiceStore(store, metrics)
-	store.stores.UserTermsOfService = newSqlUserTermsOfServiceStore(store)
-	store.stores.linkMetadata = newSqlLinkMetadataStore(store)
-	store.stores.sharedchannel = newSqlSharedChannelStore(store)
-	store.stores.reaction = newSqlReactionStore(store)
-	store.stores.role = newSqlRoleStore(store)
-	store.stores.scheme = newSqlSchemeStore(store)
-	store.stores.group = newSqlGroupStore(store)
-	store.stores.productNotices = newSqlProductNoticesStore(store)
+	store.stores.team = newSQLTeamStore(store)
+	store.stores.channel = newSQLChannelStore(store, metrics)
+	store.stores.post = newSQLPostStore(store, metrics)
+	store.stores.retentionPolicy = newSQLRetentionPolicyStore(store, metrics)
+	store.stores.user = newSQLUserStore(store, metrics)
+	store.stores.bot = newSQLBotStore(store, metrics)
+	store.stores.audit = newSQLAuditStore(store)
+	store.stores.cluster = newSQLClusterDiscoveryStore(store)
+	store.stores.remoteCluster = newSQLRemoteClusterStore(store)
+	store.stores.compliance = newSQLComplianceStore(store)
+	store.stores.session = newSQLSessionStore(store)
+	store.stores.oauth = newSQLOAuthStore(store)
+	store.stores.system = newSQLSystemStore(store)
+	store.stores.webhook = newSQLWebhookStore(store, metrics)
+	store.stores.command = newSQLCommandStore(store)
+	store.stores.commandWebhook = newSQLCommandWebhookStore(store)
+	store.stores.preference = newSQLPreferenceStore(store)
+	store.stores.license = newSQLLicenseStore(store)
+	store.stores.token = newSQLTokenStore(store)
+	store.stores.emoji = newSQLEmojiStore(store, metrics)
+	store.stores.status = newSQLStatusStore(store)
+	store.stores.fileInfo = newSQLFileInfoStore(store, metrics)
+	store.stores.uploadSession = newSQLUploadSessionStore(store)
+	store.stores.thread = newSQLThreadStore(store)
+	store.stores.job = newSQLJobStore(store)
+	store.stores.userAccessToken = newSQLUserAccessTokenStore(store)
+	store.stores.channelMemberHistory = newSQLChannelMemberHistoryStore(store)
+	store.stores.plugin = newSQLPluginStore(store)
+	store.stores.TermsOfService = newSQLTermsOfServiceStore(store, metrics)
+	store.stores.UserTermsOfService = newSQLUserTermsOfServiceStore(store)
+	store.stores.linkMetadata = newSQLLinkMetadataStore(store)
+	store.stores.sharedchannel = newSQLSharedChannelStore(store)
+	store.stores.reaction = newSQLReactionStore(store)
+	store.stores.role = newSQLRoleStore(store)
+	store.stores.scheme = newSQLSchemeStore(store)
+	store.stores.group = newSQLGroupStore(store)
+	store.stores.productNotices = newSQLProductNoticesStore(store)
 	err = store.GetMaster().CreateTablesIfNotExists()
 
 	if err != nil {
@@ -257,44 +257,44 @@ func New(settings model.SqlSettings, metrics einterfaces.MetricsInterface) *SqlS
 		os.Exit(ExitGenericFailure)
 	}
 
-	store.stores.channel.(*SqlChannelStore).createIndexesIfNotExists()
-	store.stores.post.(*SqlPostStore).createIndexesIfNotExists()
-	store.stores.retentionPolicy.(*SqlRetentionPolicyStore).createIndexesIfNotExists()
-	store.stores.thread.(*SqlThreadStore).createIndexesIfNotExists()
-	store.stores.user.(*SqlUserStore).createIndexesIfNotExists()
-	store.stores.bot.(*SqlBotStore).createIndexesIfNotExists()
-	store.stores.audit.(*SqlAuditStore).createIndexesIfNotExists()
-	store.stores.compliance.(*SqlComplianceStore).createIndexesIfNotExists()
-	store.stores.session.(*SqlSessionStore).createIndexesIfNotExists()
-	store.stores.oauth.(*SqlOAuthStore).createIndexesIfNotExists()
-	store.stores.system.(*SqlSystemStore).createIndexesIfNotExists()
-	store.stores.webhook.(*SqlWebhookStore).createIndexesIfNotExists()
-	store.stores.command.(*SqlCommandStore).createIndexesIfNotExists()
-	store.stores.commandWebhook.(*SqlCommandWebhookStore).createIndexesIfNotExists()
-	store.stores.preference.(*SqlPreferenceStore).createIndexesIfNotExists()
-	store.stores.license.(*SqlLicenseStore).createIndexesIfNotExists()
-	store.stores.token.(*SqlTokenStore).createIndexesIfNotExists()
-	store.stores.emoji.(*SqlEmojiStore).createIndexesIfNotExists()
-	store.stores.status.(*SqlStatusStore).createIndexesIfNotExists()
-	store.stores.fileInfo.(*SqlFileInfoStore).createIndexesIfNotExists()
-	store.stores.uploadSession.(*SqlUploadSessionStore).createIndexesIfNotExists()
-	store.stores.job.(*SqlJobStore).createIndexesIfNotExists()
-	store.stores.userAccessToken.(*SqlUserAccessTokenStore).createIndexesIfNotExists()
-	store.stores.plugin.(*SqlPluginStore).createIndexesIfNotExists()
-	store.stores.TermsOfService.(SqlTermsOfServiceStore).createIndexesIfNotExists()
-	store.stores.productNotices.(SqlProductNoticesStore).createIndexesIfNotExists()
-	store.stores.UserTermsOfService.(SqlUserTermsOfServiceStore).createIndexesIfNotExists()
-	store.stores.linkMetadata.(*SqlLinkMetadataStore).createIndexesIfNotExists()
-	store.stores.sharedchannel.(*SqlSharedChannelStore).createIndexesIfNotExists()
-	store.stores.group.(*SqlGroupStore).createIndexesIfNotExists()
-	store.stores.scheme.(*SqlSchemeStore).createIndexesIfNotExists()
+	store.stores.channel.(*SQLChannelStore).createIndexesIfNotExists()
+	store.stores.post.(*SQLPostStore).createIndexesIfNotExists()
+	store.stores.retentionPolicy.(*SQLRetentionPolicyStore).createIndexesIfNotExists()
+	store.stores.thread.(*SQLThreadStore).createIndexesIfNotExists()
+	store.stores.user.(*SQLUserStore).createIndexesIfNotExists()
+	store.stores.bot.(*SQLBotStore).createIndexesIfNotExists()
+	store.stores.audit.(*SQLAuditStore).createIndexesIfNotExists()
+	store.stores.compliance.(*SQLComplianceStore).createIndexesIfNotExists()
+	store.stores.session.(*SQLSessionStore).createIndexesIfNotExists()
+	store.stores.oauth.(*SQLOAuthStore).createIndexesIfNotExists()
+	store.stores.system.(*SQLSystemStore).createIndexesIfNotExists()
+	store.stores.webhook.(*SQLWebhookStore).createIndexesIfNotExists()
+	store.stores.command.(*SQLCommandStore).createIndexesIfNotExists()
+	store.stores.commandWebhook.(*SQLCommandWebhookStore).createIndexesIfNotExists()
+	store.stores.preference.(*SQLPreferenceStore).createIndexesIfNotExists()
+	store.stores.license.(*SQLLicenseStore).createIndexesIfNotExists()
+	store.stores.token.(*SQLTokenStore).createIndexesIfNotExists()
+	store.stores.emoji.(*SQLEmojiStore).createIndexesIfNotExists()
+	store.stores.status.(*SQLStatusStore).createIndexesIfNotExists()
+	store.stores.fileInfo.(*SQLFileInfoStore).createIndexesIfNotExists()
+	store.stores.uploadSession.(*SQLUploadSessionStore).createIndexesIfNotExists()
+	store.stores.job.(*SQLJobStore).createIndexesIfNotExists()
+	store.stores.userAccessToken.(*SQLUserAccessTokenStore).createIndexesIfNotExists()
+	store.stores.plugin.(*SQLPluginStore).createIndexesIfNotExists()
+	store.stores.TermsOfService.(SQLTermsOfServiceStore).createIndexesIfNotExists()
+	store.stores.productNotices.(SQLProductNoticesStore).createIndexesIfNotExists()
+	store.stores.UserTermsOfService.(SQLUserTermsOfServiceStore).createIndexesIfNotExists()
+	store.stores.linkMetadata.(*SQLLinkMetadataStore).createIndexesIfNotExists()
+	store.stores.sharedchannel.(*SQLSharedChannelStore).createIndexesIfNotExists()
+	store.stores.group.(*SQLGroupStore).createIndexesIfNotExists()
+	store.stores.scheme.(*SQLSchemeStore).createIndexesIfNotExists()
 	store.stores.remoteCluster.(*sqlRemoteClusterStore).createIndexesIfNotExists()
-	store.stores.preference.(*SqlPreferenceStore).deleteUnusedFeatures()
+	store.stores.preference.(*SQLPreferenceStore).deleteUnusedFeatures()
 
 	return store
 }
 
-func setupConnection(connType string, dataSource string, settings *model.SqlSettings) *gorp.DbMap {
+func setupConnection(connType string, dataSource string, settings *model.SQLSettings) *gorp.DbMap {
 	db, err := dbsql.Open(*settings.DriverName, dataSource)
 	if err != nil {
 		mlog.Critical("Failed to open SQL connection to err.", mlog.Err(err))
@@ -343,7 +343,7 @@ func setupConnection(connType string, dataSource string, settings *model.SqlSett
 	return dbMap
 }
 
-func getDBMap(settings *model.SqlSettings, db *dbsql.DB) *gorp.DbMap {
+func getDBMap(settings *model.SQLSettings, db *dbsql.DB) *gorp.DbMap {
 	connectionTimeout := time.Duration(*settings.QueryTimeout) * time.Second
 	var dbMap *gorp.DbMap
 	switch *settings.DriverName {
@@ -373,15 +373,15 @@ func getDBMap(settings *model.SqlSettings, db *dbsql.DB) *gorp.DbMap {
 	return dbMap
 }
 
-func (ss *SqlStore) SetContext(context context.Context) {
+func (ss *SQLStore) SetContext(context context.Context) {
 	ss.context = context
 }
 
-func (ss *SqlStore) Context() context.Context {
+func (ss *SQLStore) Context() context.Context {
 	return ss.context
 }
 
-func (ss *SqlStore) initConnection() {
+func (ss *SQLStore) initConnection() {
 	dataSource := *ss.settings.DataSource
 	if ss.DriverName() == model.DatabaseDriverMysql {
 		// TODO: We ignore the readTimeout datasource parameter for MySQL since QueryTimeout
@@ -423,11 +423,11 @@ func (ss *SqlStore) initConnection() {
 	}
 }
 
-func (ss *SqlStore) DriverName() string {
+func (ss *SQLStore) DriverName() string {
 	return *ss.settings.DriverName
 }
 
-func (ss *SqlStore) GetCurrentSchemaVersion() string {
+func (ss *SQLStore) GetCurrentSchemaVersion() string {
 	version, _ := ss.GetMaster().SelectStr("SELECT Value FROM Systems WHERE Name='Version'")
 	return version
 }
@@ -435,7 +435,7 @@ func (ss *SqlStore) GetCurrentSchemaVersion() string {
 // GetDbVersion returns the version of the database being used.
 // If numerical is set to true, it attempts to return a numerical version string
 // that can be parsed by callers.
-func (ss *SqlStore) GetDbVersion(numerical bool) (string, error) {
+func (ss *SQLStore) GetDbVersion(numerical bool) (string, error) {
 	var sqlVersion string
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		if numerical {
@@ -458,11 +458,11 @@ func (ss *SqlStore) GetDbVersion(numerical bool) (string, error) {
 
 }
 
-func (ss *SqlStore) GetMaster() *gorp.DbMap {
+func (ss *SQLStore) GetMaster() *gorp.DbMap {
 	return ss.master
 }
 
-func (ss *SqlStore) GetSearchReplica() *gorp.DbMap {
+func (ss *SQLStore) GetSearchReplica() *gorp.DbMap {
 	ss.licenseMutex.RLock()
 	license := ss.license
 	ss.licenseMutex.RUnlock()
@@ -478,7 +478,7 @@ func (ss *SqlStore) GetSearchReplica() *gorp.DbMap {
 	return ss.searchReplicas[rrNum]
 }
 
-func (ss *SqlStore) GetReplica() *gorp.DbMap {
+func (ss *SQLStore) GetReplica() *gorp.DbMap {
 	ss.licenseMutex.RLock()
 	license := ss.license
 	ss.licenseMutex.RUnlock()
@@ -490,13 +490,13 @@ func (ss *SqlStore) GetReplica() *gorp.DbMap {
 	return ss.Replicas[rrNum]
 }
 
-func (ss *SqlStore) TotalMasterDbConnections() int {
+func (ss *SQLStore) TotalMasterDbConnections() int {
 	return ss.GetMaster().Db.Stats().OpenConnections
 }
 
 // ReplicaLagAbs queries all the replica databases to get the absolute replica lag value
 // and updates the Prometheus metric with it.
-func (ss *SqlStore) ReplicaLagAbs() error {
+func (ss *SQLStore) ReplicaLagAbs() error {
 	for i, item := range ss.settings.ReplicaLagSettings {
 		if item.QueryAbsoluteLag == nil || *item.QueryAbsoluteLag == "" {
 			continue
@@ -515,7 +515,7 @@ func (ss *SqlStore) ReplicaLagAbs() error {
 
 // ReplicaLagAbs queries all the replica databases to get the time-based replica lag value
 // and updates the Prometheus metric with it.
-func (ss *SqlStore) ReplicaLagTime() error {
+func (ss *SQLStore) ReplicaLagTime() error {
 	for i, item := range ss.settings.ReplicaLagSettings {
 		if item.QueryTimeLag == nil || *item.QueryTimeLag == "" {
 			continue
@@ -532,7 +532,7 @@ func (ss *SqlStore) ReplicaLagTime() error {
 	return nil
 }
 
-func (ss *SqlStore) TotalReadDbConnections() int {
+func (ss *SQLStore) TotalReadDbConnections() int {
 	if len(ss.settings.DataSourceReplicas) == 0 {
 		return 0
 	}
@@ -545,7 +545,7 @@ func (ss *SqlStore) TotalReadDbConnections() int {
 	return count
 }
 
-func (ss *SqlStore) TotalSearchDbConnections() int {
+func (ss *SQLStore) TotalSearchDbConnections() int {
 	if len(ss.settings.DataSourceSearchReplicas) == 0 {
 		return 0
 	}
@@ -558,7 +558,7 @@ func (ss *SqlStore) TotalSearchDbConnections() int {
 	return count
 }
 
-func (ss *SqlStore) MarkSystemRanUnitTests() {
+func (ss *SQLStore) MarkSystemRanUnitTests() {
 	props, err := ss.System().Get()
 	if err != nil {
 		return
@@ -571,7 +571,7 @@ func (ss *SqlStore) MarkSystemRanUnitTests() {
 	}
 }
 
-func (ss *SqlStore) DoesTableExist(tableName string) bool {
+func (ss *SQLStore) DoesTableExist(tableName string) bool {
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		count, err := ss.GetMaster().SelectInt(
 			`SELECT count(relname) FROM pg_class WHERE relname=$1`,
@@ -616,7 +616,7 @@ func (ss *SqlStore) DoesTableExist(tableName string) bool {
 	}
 }
 
-func (ss *SqlStore) DoesColumnExist(tableName string, columnName string) bool {
+func (ss *SQLStore) DoesColumnExist(tableName string, columnName string) bool {
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		count, err := ss.GetMaster().SelectInt(
 			`SELECT COUNT(0)
@@ -672,7 +672,7 @@ func (ss *SqlStore) DoesColumnExist(tableName string, columnName string) bool {
 }
 
 // GetColumnInfo returns data type information about the given column.
-func (ss *SqlStore) GetColumnInfo(tableName, columnName string) (*ColumnInfo, error) {
+func (ss *SQLStore) GetColumnInfo(tableName, columnName string) (*ColumnInfo, error) {
 	var columnInfo ColumnInfo
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		err := ss.GetMaster().SelectOne(&columnInfo,
@@ -705,7 +705,7 @@ func (ss *SqlStore) GetColumnInfo(tableName, columnName string) (*ColumnInfo, er
 
 // IsVarchar returns true if the column type matches one of the varchar types
 // either in MySQL or PostgreSQL.
-func (ss *SqlStore) IsVarchar(columnType string) bool {
+func (ss *SQLStore) IsVarchar(columnType string) bool {
 	if ss.DriverName() == model.DatabaseDriverPostgres && columnType == "character varying" {
 		return true
 	}
@@ -717,7 +717,7 @@ func (ss *SqlStore) IsVarchar(columnType string) bool {
 	return false
 }
 
-func (ss *SqlStore) DoesTriggerExist(triggerName string) bool {
+func (ss *SQLStore) DoesTriggerExist(triggerName string) bool {
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		count, err := ss.GetMaster().SelectInt(`
 			SELECT
@@ -763,7 +763,7 @@ func (ss *SqlStore) DoesTriggerExist(triggerName string) bool {
 	}
 }
 
-func (ss *SqlStore) CreateColumnIfNotExists(tableName string, columnName string, mySqlColType string, postgresColType string, defaultValue string) bool {
+func (ss *SQLStore) CreateColumnIfNotExists(tableName string, columnName string, mySQLColType string, postgresColType string, defaultValue string) bool {
 
 	if ss.DoesColumnExist(tableName, columnName) {
 		return false
@@ -780,7 +780,7 @@ func (ss *SqlStore) CreateColumnIfNotExists(tableName string, columnName string,
 		return true
 
 	} else if ss.DriverName() == model.DatabaseDriverMysql {
-		_, err := ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " ADD " + columnName + " " + mySqlColType + " DEFAULT '" + defaultValue + "'")
+		_, err := ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " ADD " + columnName + " " + mySQLColType + " DEFAULT '" + defaultValue + "'")
 		if err != nil {
 			mlog.Critical("Failed to create column", mlog.Err(err))
 			time.Sleep(time.Second)
@@ -797,7 +797,7 @@ func (ss *SqlStore) CreateColumnIfNotExists(tableName string, columnName string,
 	}
 }
 
-func (ss *SqlStore) CreateColumnIfNotExistsNoDefault(tableName string, columnName string, mySqlColType string, postgresColType string) bool {
+func (ss *SQLStore) CreateColumnIfNotExistsNoDefault(tableName string, columnName string, mySQLColType string, postgresColType string) bool {
 
 	if ss.DoesColumnExist(tableName, columnName) {
 		return false
@@ -814,7 +814,7 @@ func (ss *SqlStore) CreateColumnIfNotExistsNoDefault(tableName string, columnNam
 		return true
 
 	} else if ss.DriverName() == model.DatabaseDriverMysql {
-		_, err := ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " ADD " + columnName + " " + mySqlColType)
+		_, err := ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " ADD " + columnName + " " + mySQLColType)
 		if err != nil {
 			mlog.Critical("Failed to create column", mlog.Err(err))
 			time.Sleep(time.Second)
@@ -831,7 +831,7 @@ func (ss *SqlStore) CreateColumnIfNotExistsNoDefault(tableName string, columnNam
 	}
 }
 
-func (ss *SqlStore) RemoveColumnIfExists(tableName string, columnName string) bool {
+func (ss *SQLStore) RemoveColumnIfExists(tableName string, columnName string) bool {
 
 	if !ss.DoesColumnExist(tableName, columnName) {
 		return false
@@ -847,7 +847,7 @@ func (ss *SqlStore) RemoveColumnIfExists(tableName string, columnName string) bo
 	return true
 }
 
-func (ss *SqlStore) RemoveTableIfExists(tableName string) bool {
+func (ss *SQLStore) RemoveTableIfExists(tableName string) bool {
 	if !ss.DoesTableExist(tableName) {
 		return false
 	}
@@ -862,7 +862,7 @@ func (ss *SqlStore) RemoveTableIfExists(tableName string) bool {
 	return true
 }
 
-func (ss *SqlStore) RenameColumnIfExists(tableName string, oldColumnName string, newColumnName string, colType string) bool {
+func (ss *SQLStore) RenameColumnIfExists(tableName string, oldColumnName string, newColumnName string, colType string) bool {
 	if !ss.DoesColumnExist(tableName, oldColumnName) {
 		return false
 	}
@@ -883,7 +883,7 @@ func (ss *SqlStore) RenameColumnIfExists(tableName string, oldColumnName string,
 	return true
 }
 
-func (ss *SqlStore) GetMaxLengthOfColumnIfExists(tableName string, columnName string) string {
+func (ss *SQLStore) GetMaxLengthOfColumnIfExists(tableName string, columnName string) string {
 	if !ss.DoesColumnExist(tableName, columnName) {
 		return ""
 	}
@@ -905,14 +905,14 @@ func (ss *SqlStore) GetMaxLengthOfColumnIfExists(tableName string, columnName st
 	return result
 }
 
-func (ss *SqlStore) AlterColumnTypeIfExists(tableName string, columnName string, mySqlColType string, postgresColType string) bool {
+func (ss *SQLStore) AlterColumnTypeIfExists(tableName string, columnName string, mySQLColType string, postgresColType string) bool {
 	if !ss.DoesColumnExist(tableName, columnName) {
 		return false
 	}
 
 	var err error
 	if ss.DriverName() == model.DatabaseDriverMysql {
-		_, err = ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " MODIFY " + columnName + " " + mySqlColType)
+		_, err = ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " MODIFY " + columnName + " " + mySQLColType)
 	} else if ss.DriverName() == model.DatabaseDriverPostgres {
 		_, err = ss.GetMaster().ExecNoTimeout("ALTER TABLE " + strings.ToLower(tableName) + " ALTER COLUMN " + strings.ToLower(columnName) + " TYPE " + postgresColType)
 	}
@@ -926,7 +926,7 @@ func (ss *SqlStore) AlterColumnTypeIfExists(tableName string, columnName string,
 	return true
 }
 
-func (ss *SqlStore) RemoveDefaultIfColumnExists(tableName, columnName string) bool {
+func (ss *SQLStore) RemoveDefaultIfColumnExists(tableName, columnName string) bool {
 	if !ss.DoesColumnExist(tableName, columnName) {
 		return false
 	}
@@ -942,7 +942,7 @@ func (ss *SqlStore) RemoveDefaultIfColumnExists(tableName, columnName string) bo
 	return true
 }
 
-func (ss *SqlStore) AlterDefaultIfColumnExists(tableName string, columnName string, mySqlColDefault *string, postgresColDefault *string) bool {
+func (ss *SQLStore) AlterDefaultIfColumnExists(tableName string, columnName string, mySQLColDefault *string, postgresColDefault *string) bool {
 	if !ss.DoesColumnExist(tableName, columnName) {
 		return false
 	}
@@ -950,11 +950,11 @@ func (ss *SqlStore) AlterDefaultIfColumnExists(tableName string, columnName stri
 	var defaultValue string
 	if ss.DriverName() == model.DatabaseDriverMysql {
 		// Some column types in MySQL cannot have defaults, so don't try to configure anything.
-		if mySqlColDefault == nil {
+		if mySQLColDefault == nil {
 			return true
 		}
 
-		defaultValue = *mySqlColDefault
+		defaultValue = *mySQLColDefault
 	} else if ss.DriverName() == model.DatabaseDriverPostgres {
 		// Postgres doesn't have the same limitation, but preserve the interface.
 		if postgresColDefault == nil {
@@ -987,7 +987,7 @@ func (ss *SqlStore) AlterDefaultIfColumnExists(tableName string, columnName stri
 	return true
 }
 
-func (ss *SqlStore) AlterPrimaryKey(tableName string, columnNames []string) bool {
+func (ss *SQLStore) AlterPrimaryKey(tableName string, columnNames []string) bool {
 	var currentPrimaryKey string
 	var err error
 	// get the current primary key as a comma separated list of columns
@@ -1045,31 +1045,31 @@ func (ss *SqlStore) AlterPrimaryKey(tableName string, columnNames []string) bool
 	return true
 }
 
-func (ss *SqlStore) CreateUniqueIndexIfNotExists(indexName string, tableName string, columnName string) bool {
+func (ss *SQLStore) CreateUniqueIndexIfNotExists(indexName string, tableName string, columnName string) bool {
 	return ss.createIndexIfNotExists(indexName, tableName, []string{columnName}, IndexTypeDefault, true)
 }
 
-func (ss *SqlStore) CreateIndexIfNotExists(indexName string, tableName string, columnName string) bool {
+func (ss *SQLStore) CreateIndexIfNotExists(indexName string, tableName string, columnName string) bool {
 	return ss.createIndexIfNotExists(indexName, tableName, []string{columnName}, IndexTypeDefault, false)
 }
 
-func (ss *SqlStore) CreateCompositeIndexIfNotExists(indexName string, tableName string, columnNames []string) bool {
+func (ss *SQLStore) CreateCompositeIndexIfNotExists(indexName string, tableName string, columnNames []string) bool {
 	return ss.createIndexIfNotExists(indexName, tableName, columnNames, IndexTypeDefault, false)
 }
 
-func (ss *SqlStore) CreateUniqueCompositeIndexIfNotExists(indexName string, tableName string, columnNames []string) bool {
+func (ss *SQLStore) CreateUniqueCompositeIndexIfNotExists(indexName string, tableName string, columnNames []string) bool {
 	return ss.createIndexIfNotExists(indexName, tableName, columnNames, IndexTypeDefault, true)
 }
 
-func (ss *SqlStore) CreateFullTextIndexIfNotExists(indexName string, tableName string, columnName string) bool {
+func (ss *SQLStore) CreateFullTextIndexIfNotExists(indexName string, tableName string, columnName string) bool {
 	return ss.createIndexIfNotExists(indexName, tableName, []string{columnName}, IndexTypeFullText, false)
 }
 
-func (ss *SqlStore) CreateFullTextFuncIndexIfNotExists(indexName string, tableName string, function string) bool {
+func (ss *SQLStore) CreateFullTextFuncIndexIfNotExists(indexName string, tableName string, function string) bool {
 	return ss.createIndexIfNotExists(indexName, tableName, []string{function}, IndexTypeFullTextFunc, false)
 }
 
-func (ss *SqlStore) createIndexIfNotExists(indexName string, tableName string, columnNames []string, indexType string, unique bool) bool {
+func (ss *SQLStore) createIndexIfNotExists(indexName string, tableName string, columnNames []string, indexType string, unique bool) bool {
 
 	uniqueStr := ""
 	if unique {
@@ -1142,7 +1142,7 @@ func (ss *SqlStore) createIndexIfNotExists(indexName string, tableName string, c
 	return true
 }
 
-func (ss *SqlStore) CreateForeignKeyIfNotExists(
+func (ss *SQLStore) CreateForeignKeyIfNotExists(
 	tableName, columnName, refTableName, refColumnName string,
 	onDeleteCascade bool,
 ) (err error) {
@@ -1166,7 +1166,7 @@ func (ss *SqlStore) CreateForeignKeyIfNotExists(
 	return
 }
 
-func (ss *SqlStore) RemoveIndexIfExists(indexName string, tableName string) bool {
+func (ss *SQLStore) RemoveIndexIfExists(indexName string, tableName string) bool {
 
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		_, err := ss.GetMaster().SelectStr("SELECT $1::regclass", indexName)
@@ -1246,7 +1246,7 @@ func IsUniqueConstraintError(err error, indexName []string) bool {
 	return unique && field
 }
 
-func (ss *SqlStore) GetAllConns() []*gorp.DbMap {
+func (ss *SQLStore) GetAllConns() []*gorp.DbMap {
 	all := make([]*gorp.DbMap, len(ss.Replicas)+1)
 	copy(all, ss.Replicas)
 	all[len(ss.Replicas)] = ss.master
@@ -1255,7 +1255,7 @@ func (ss *SqlStore) GetAllConns() []*gorp.DbMap {
 
 // RecycleDBConnections closes active connections by setting the max conn lifetime
 // to d, and then resets them back to their original duration.
-func (ss *SqlStore) RecycleDBConnections(d time.Duration) {
+func (ss *SQLStore) RecycleDBConnections(d time.Duration) {
 	// Get old time.
 	originalDuration := time.Duration(*ss.settings.ConnMaxLifetimeMilliseconds) * time.Millisecond
 	// Set the max lifetimes for all connections.
@@ -1270,7 +1270,7 @@ func (ss *SqlStore) RecycleDBConnections(d time.Duration) {
 	}
 }
 
-func (ss *SqlStore) Close() {
+func (ss *SQLStore) Close() {
 	ss.master.Db.Close()
 	for _, replica := range ss.Replicas {
 		replica.Db.Close()
@@ -1281,167 +1281,167 @@ func (ss *SqlStore) Close() {
 	}
 }
 
-func (ss *SqlStore) LockToMaster() {
+func (ss *SQLStore) LockToMaster() {
 	ss.lockedToMaster = true
 }
 
-func (ss *SqlStore) UnlockFromMaster() {
+func (ss *SQLStore) UnlockFromMaster() {
 	ss.lockedToMaster = false
 }
 
-func (ss *SqlStore) Team() store.TeamStore {
+func (ss *SQLStore) Team() store.TeamStore {
 	return ss.stores.team
 }
 
-func (ss *SqlStore) Channel() store.ChannelStore {
+func (ss *SQLStore) Channel() store.ChannelStore {
 	return ss.stores.channel
 }
 
-func (ss *SqlStore) Post() store.PostStore {
+func (ss *SQLStore) Post() store.PostStore {
 	return ss.stores.post
 }
 
-func (ss *SqlStore) RetentionPolicy() store.RetentionPolicyStore {
+func (ss *SQLStore) RetentionPolicy() store.RetentionPolicyStore {
 	return ss.stores.retentionPolicy
 }
 
-func (ss *SqlStore) User() store.UserStore {
+func (ss *SQLStore) User() store.UserStore {
 	return ss.stores.user
 }
 
-func (ss *SqlStore) Bot() store.BotStore {
+func (ss *SQLStore) Bot() store.BotStore {
 	return ss.stores.bot
 }
 
-func (ss *SqlStore) Session() store.SessionStore {
+func (ss *SQLStore) Session() store.SessionStore {
 	return ss.stores.session
 }
 
-func (ss *SqlStore) Audit() store.AuditStore {
+func (ss *SQLStore) Audit() store.AuditStore {
 	return ss.stores.audit
 }
 
-func (ss *SqlStore) ClusterDiscovery() store.ClusterDiscoveryStore {
+func (ss *SQLStore) ClusterDiscovery() store.ClusterDiscoveryStore {
 	return ss.stores.cluster
 }
 
-func (ss *SqlStore) RemoteCluster() store.RemoteClusterStore {
+func (ss *SQLStore) RemoteCluster() store.RemoteClusterStore {
 	return ss.stores.remoteCluster
 }
 
-func (ss *SqlStore) Compliance() store.ComplianceStore {
+func (ss *SQLStore) Compliance() store.ComplianceStore {
 	return ss.stores.compliance
 }
 
-func (ss *SqlStore) OAuth() store.OAuthStore {
+func (ss *SQLStore) OAuth() store.OAuthStore {
 	return ss.stores.oauth
 }
 
-func (ss *SqlStore) System() store.SystemStore {
+func (ss *SQLStore) System() store.SystemStore {
 	return ss.stores.system
 }
 
-func (ss *SqlStore) Webhook() store.WebhookStore {
+func (ss *SQLStore) Webhook() store.WebhookStore {
 	return ss.stores.webhook
 }
 
-func (ss *SqlStore) Command() store.CommandStore {
+func (ss *SQLStore) Command() store.CommandStore {
 	return ss.stores.command
 }
 
-func (ss *SqlStore) CommandWebhook() store.CommandWebhookStore {
+func (ss *SQLStore) CommandWebhook() store.CommandWebhookStore {
 	return ss.stores.commandWebhook
 }
 
-func (ss *SqlStore) Preference() store.PreferenceStore {
+func (ss *SQLStore) Preference() store.PreferenceStore {
 	return ss.stores.preference
 }
 
-func (ss *SqlStore) License() store.LicenseStore {
+func (ss *SQLStore) License() store.LicenseStore {
 	return ss.stores.license
 }
 
-func (ss *SqlStore) Token() store.TokenStore {
+func (ss *SQLStore) Token() store.TokenStore {
 	return ss.stores.token
 }
 
-func (ss *SqlStore) Emoji() store.EmojiStore {
+func (ss *SQLStore) Emoji() store.EmojiStore {
 	return ss.stores.emoji
 }
 
-func (ss *SqlStore) Status() store.StatusStore {
+func (ss *SQLStore) Status() store.StatusStore {
 	return ss.stores.status
 }
 
-func (ss *SqlStore) FileInfo() store.FileInfoStore {
+func (ss *SQLStore) FileInfo() store.FileInfoStore {
 	return ss.stores.fileInfo
 }
 
-func (ss *SqlStore) UploadSession() store.UploadSessionStore {
+func (ss *SQLStore) UploadSession() store.UploadSessionStore {
 	return ss.stores.uploadSession
 }
 
-func (ss *SqlStore) Reaction() store.ReactionStore {
+func (ss *SQLStore) Reaction() store.ReactionStore {
 	return ss.stores.reaction
 }
 
-func (ss *SqlStore) Job() store.JobStore {
+func (ss *SQLStore) Job() store.JobStore {
 	return ss.stores.job
 }
 
-func (ss *SqlStore) UserAccessToken() store.UserAccessTokenStore {
+func (ss *SQLStore) UserAccessToken() store.UserAccessTokenStore {
 	return ss.stores.userAccessToken
 }
 
-func (ss *SqlStore) ChannelMemberHistory() store.ChannelMemberHistoryStore {
+func (ss *SQLStore) ChannelMemberHistory() store.ChannelMemberHistoryStore {
 	return ss.stores.channelMemberHistory
 }
 
-func (ss *SqlStore) Plugin() store.PluginStore {
+func (ss *SQLStore) Plugin() store.PluginStore {
 	return ss.stores.plugin
 }
 
-func (ss *SqlStore) Thread() store.ThreadStore {
+func (ss *SQLStore) Thread() store.ThreadStore {
 	return ss.stores.thread
 }
 
-func (ss *SqlStore) Role() store.RoleStore {
+func (ss *SQLStore) Role() store.RoleStore {
 	return ss.stores.role
 }
 
-func (ss *SqlStore) TermsOfService() store.TermsOfServiceStore {
+func (ss *SQLStore) TermsOfService() store.TermsOfServiceStore {
 	return ss.stores.TermsOfService
 }
 
-func (ss *SqlStore) ProductNotices() store.ProductNoticesStore {
+func (ss *SQLStore) ProductNotices() store.ProductNoticesStore {
 	return ss.stores.productNotices
 }
 
-func (ss *SqlStore) UserTermsOfService() store.UserTermsOfServiceStore {
+func (ss *SQLStore) UserTermsOfService() store.UserTermsOfServiceStore {
 	return ss.stores.UserTermsOfService
 }
 
-func (ss *SqlStore) Scheme() store.SchemeStore {
+func (ss *SQLStore) Scheme() store.SchemeStore {
 	return ss.stores.scheme
 }
 
-func (ss *SqlStore) Group() store.GroupStore {
+func (ss *SQLStore) Group() store.GroupStore {
 	return ss.stores.group
 }
 
-func (ss *SqlStore) LinkMetadata() store.LinkMetadataStore {
+func (ss *SQLStore) LinkMetadata() store.LinkMetadataStore {
 	return ss.stores.linkMetadata
 }
 
-func (ss *SqlStore) SharedChannel() store.SharedChannelStore {
+func (ss *SQLStore) SharedChannel() store.SharedChannelStore {
 	return ss.stores.sharedchannel
 }
 
-func (ss *SqlStore) DropAllTables() {
+func (ss *SQLStore) DropAllTables() {
 	ss.master.TruncateTables()
 }
 
-func (ss *SqlStore) getQueryBuilder() sq.StatementBuilderType {
+func (ss *SQLStore) getQueryBuilder() sq.StatementBuilderType {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Question)
 	if ss.DriverName() == model.DatabaseDriverPostgres {
 		builder = builder.PlaceholderFormat(sq.Dollar)
@@ -1449,23 +1449,23 @@ func (ss *SqlStore) getQueryBuilder() sq.StatementBuilderType {
 	return builder
 }
 
-func (ss *SqlStore) CheckIntegrity() <-chan model.IntegrityCheckResult {
+func (ss *SQLStore) CheckIntegrity() <-chan model.IntegrityCheckResult {
 	results := make(chan model.IntegrityCheckResult)
 	go CheckRelationalIntegrity(ss, results)
 	return results
 }
 
-func (ss *SqlStore) UpdateLicense(license *model.License) {
+func (ss *SQLStore) UpdateLicense(license *model.License) {
 	ss.licenseMutex.Lock()
 	defer ss.licenseMutex.Unlock()
 	ss.license = license
 }
 
-func (ss *SqlStore) GetLicense() *model.License {
+func (ss *SQLStore) GetLicense() *model.License {
 	return ss.license
 }
 
-func (ss *SqlStore) migrate(direction migrationDirection) error {
+func (ss *SQLStore) migrate(direction migrationDirection) error {
 	var driver database.Driver
 	var err error
 
@@ -1532,7 +1532,7 @@ func (ss *SqlStore) migrate(direction migrationDirection) error {
 	return nil
 }
 
-func (ss *SqlStore) appendMultipleStatementsFlag(dataSource string) (string, error) {
+func (ss *SQLStore) appendMultipleStatementsFlag(dataSource string) (string, error) {
 	// We need to tell the MySQL driver that we want to use multiStatements
 	// in order to make migrations work.
 	if ss.DriverName() == model.DatabaseDriverMysql {

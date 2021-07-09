@@ -31,12 +31,12 @@ var searchChannelStoreTests = []searchTest{
 	{
 		Name: "Should be able to autocomplete a channel by a part of its name when has parts splitted by _ character",
 		Fn:   testAutocompleteChannelByNameSplittedWithUnderscoreChar,
-		Tags: []string{EngineMySql, EngineElasticSearch, EngineBleve},
+		Tags: []string{EngineMySQL, EngineElasticSearch, EngineBleve},
 	},
 	{
 		Name: "Should be able to autocomplete a channel by a part of its display name when has parts splitted by whitespace character",
 		Fn:   testAutocompleteChannelByDisplayNameSplittedByWhitespaces,
-		Tags: []string{EngineMySql, EngineElasticSearch, EngineBleve},
+		Tags: []string{EngineMySQL, EngineElasticSearch, EngineBleve},
 	},
 	{
 		Name: "Should be able to autocomplete retrieving all channels if the term is empty",

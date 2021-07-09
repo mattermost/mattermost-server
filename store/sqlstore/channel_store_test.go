@@ -17,7 +17,7 @@ import (
 )
 
 func TestChannelStore(t *testing.T) {
-	StoreTestWithSqlStore(t, storetest.TestChannelStore)
+	StoreTestWithSQLStore(t, storetest.TestChannelStore)
 }
 
 func TestSearchChannelStore(t *testing.T) {
@@ -27,8 +27,8 @@ func TestSearchChannelStore(t *testing.T) {
 func TestChannelSearchQuerySQLInjection(t *testing.T) {
 	for _, st := range storeTypes {
 		t.Run(st.Name, func(t *testing.T) {
-			s := &SqlChannelStore{
-				SqlStore: st.SqlStore,
+			s := &SQLChannelStore{
+				SQLStore: st.SQLStore,
 			}
 
 			opts := store.ChannelSearchOpts{Term: "'or'1'=sleep(3))); -- -"}

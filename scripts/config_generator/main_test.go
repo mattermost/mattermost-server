@@ -26,7 +26,7 @@ func TestDefaultsGenerator(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, json.Unmarshal(b, &config))
 	require.True(t, *config.ServiceSettings.DisableLegacyMFA)
-	require.Equal(t, *config.SqlSettings.AtRestEncryptKey, "")
+	require.Equal(t, *config.SQLSettings.AtRestEncryptKey, "")
 	require.Equal(t, *config.FileSettings.PublicLinkSalt, "")
 
 	require.Equal(t, *config.Office365Settings.Scope, model.Office365SettingsDefaultScope)

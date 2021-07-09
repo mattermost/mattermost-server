@@ -29,7 +29,7 @@ func (p *MyPlugin) OnConfigurationChange() error {
 }
 
 func (p *MyPlugin) MessageWillBePosted(_ *plugin.Context, _ *model.Post) (*model.Post, string) {
-	store := sqlstore.New(p.API.GetUnsanitizedConfig().SqlSettings, nil)
+	store := sqlstore.New(p.API.GetUnsanitizedConfig().SQLSettings, nil)
 	store.GetMaster().Db.Close()
 
 	for _, isMaster := range []bool{true, false} {

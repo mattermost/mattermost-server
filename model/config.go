@@ -117,7 +117,7 @@ const (
 	TeamSettingsDefaultCustomDescriptionText = ""
 	TeamSettingsDefaultUserStatusAwayTimeout = 300
 
-	SqlSettingsDefaultDataSource = "postgres://mmuser:mostest@localhost/mattermost_test?sslmode=disable&connect_timeout=10"
+	SQLSettingsDefaultDataSource = "postgres://mmuser:mostest@localhost/mattermost_test?sslmode=disable&connect_timeout=10"
 
 	FileSettingsDefaultDirectory = "./data/"
 
@@ -1122,7 +1122,7 @@ type ReplicaLagSettings struct {
 	QueryTimeLag     *string `access:"environment,write_restrictable,cloud_restrictable"` // telemetry: none
 }
 
-type SqlSettings struct {
+type SQLSettings struct {
 	DriverName                  *string               `access:"environment_database,write_restrictable,cloud_restrictable"`
 	DataSource                  *string               `access:"environment_database,write_restrictable,cloud_restrictable"` // telemetry: none
 	DataSourceReplicas          []string              `access:"environment_database,write_restrictable,cloud_restrictable"`
@@ -1138,13 +1138,13 @@ type SqlSettings struct {
 	ReplicaLagSettings          []*ReplicaLagSettings `access:"environment_database,write_restrictable,cloud_restrictable"` // telemetry: none
 }
 
-func (s *SqlSettings) SetDefaults(isUpdate bool) {
+func (s *SQLSettings) SetDefaults(isUpdate bool) {
 	if s.DriverName == nil {
 		s.DriverName = NewString(DatabaseDriverPostgres)
 	}
 
 	if s.DataSource == nil {
-		s.DataSource = NewString(SqlSettingsDefaultDataSource)
+		s.DataSource = NewString(SQLSettingsDefaultDataSource)
 	}
 
 	if s.DataSourceReplicas == nil {
@@ -3113,7 +3113,7 @@ type Config struct {
 	ServiceSettings           ServiceSettings
 	TeamSettings              TeamSettings
 	ClientRequirements        ClientRequirements
-	SqlSettings               SqlSettings
+	SQLSettings               SQLSettings
 	LogSettings               LogSettings
 	ExperimentalAuditSettings ExperimentalAuditSettings
 	NotificationLogSettings   NotificationLogSettings
@@ -3218,7 +3218,7 @@ func (o *Config) SetDefaults() {
 		}
 	}
 
-	o.SqlSettings.SetDefaults(isUpdate)
+	o.SQLSettings.SetDefaults(isUpdate)
 	o.FileSettings.SetDefaults(isUpdate)
 	o.EmailSettings.SetDefaults(isUpdate)
 	o.PrivacySettings.setDefaults()
@@ -3279,7 +3279,7 @@ func (o *Config) IsValid() *AppError {
 		return err
 	}
 
-	if err := o.SqlSettings.isValid(); err != nil {
+	if err := o.SQLSettings.isValid(); err != nil {
 		return err
 	}
 
@@ -3373,7 +3373,7 @@ func (s *TeamSettings) isValid() *AppError {
 	return nil
 }
 
-func (s *SqlSettings) isValid() *AppError {
+func (s *SQLSettings) isValid() *AppError {
 	if *s.AtRestEncryptKey != "" && len(*s.AtRestEncryptKey) < 32 {
 		return NewAppError("Config.IsValid", "model.config.is_valid.encrypt_sql.app_error", nil, "", http.StatusBadRequest)
 	}
@@ -3527,11 +3527,11 @@ func (s *LdapSettings) isValid() *AppError {
 
 func (s *SamlSettings) isValid() *AppError {
 	if *s.Enable {
-		if *s.IDpURL == "" || !IsValidHttpURL(*s.IDpURL) {
+		if *s.IDpURL == "" || !IsValidHTTPURL(*s.IDpURL) {
 			return NewAppError("Config.IsValid", "model.config.is_valid.saml_idp_url.app_error", nil, "", http.StatusBadRequest)
 		}
 
-		if *s.IDpDescriptorURL == "" || !IsValidHttpURL(*s.IDpDescriptorURL) {
+		if *s.IDpDescriptorURL == "" || !IsValidHTTPURL(*s.IDpDescriptorURL) {
 			return NewAppError("Config.IsValid", "model.config.is_valid.saml_idp_descriptor_url.app_error", nil, "", http.StatusBadRequest)
 		}
 
@@ -3552,7 +3552,7 @@ func (s *SamlSettings) isValid() *AppError {
 		}
 
 		if *s.Verify {
-			if *s.AssertionConsumerServiceURL == "" || !IsValidHttpURL(*s.AssertionConsumerServiceURL) {
+			if *s.AssertionConsumerServiceURL == "" || !IsValidHTTPURL(*s.AssertionConsumerServiceURL) {
 				return NewAppError("Config.IsValid", "model.config.is_valid.saml_assertion_consumer_service_url.app_error", nil, "", http.StatusBadRequest)
 			}
 		}
@@ -3886,17 +3886,17 @@ func (o *Config) Sanitize() {
 		*o.OpenIDSettings.Secret = FakeSetting
 	}
 
-	*o.SqlSettings.DataSource = FakeSetting
-	*o.SqlSettings.AtRestEncryptKey = FakeSetting
+	*o.SQLSettings.DataSource = FakeSetting
+	*o.SQLSettings.AtRestEncryptKey = FakeSetting
 
 	*o.ElasticsearchSettings.Password = FakeSetting
 
-	for i := range o.SqlSettings.DataSourceReplicas {
-		o.SqlSettings.DataSourceReplicas[i] = FakeSetting
+	for i := range o.SQLSettings.DataSourceReplicas {
+		o.SQLSettings.DataSourceReplicas[i] = FakeSetting
 	}
 
-	for i := range o.SqlSettings.DataSourceSearchReplicas {
-		o.SqlSettings.DataSourceSearchReplicas[i] = FakeSetting
+	for i := range o.SQLSettings.DataSourceSearchReplicas {
+		o.SQLSettings.DataSourceSearchReplicas[i] = FakeSetting
 	}
 
 	if o.MessageExportSettings.GlobalRelaySettings.SmtpPassword != nil && *o.MessageExportSettings.GlobalRelaySettings.SmtpPassword != "" {

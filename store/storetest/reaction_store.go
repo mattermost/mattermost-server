@@ -18,7 +18,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store/retrylayer"
 )
 
-func TestReactionStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestReactionStore(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("ReactionSave", func(t *testing.T) { testReactionSave(t, ss) })
 	t.Run("ReactionDelete", func(t *testing.T) { testReactionDelete(t, ss) })
 	t.Run("ReactionGetForPost", func(t *testing.T) { testReactionGetForPost(t, ss) })
@@ -272,7 +272,7 @@ func testReactionGetForPost(t *testing.T, ss store.Store) {
 	}
 }
 
-func testReactionGetForPostSince(t *testing.T, ss store.Store, s SqlStore) {
+func testReactionGetForPostSince(t *testing.T, ss store.Store, s SQLStore) {
 	now := model.GetMillis()
 	later := now + 1800000 // add 30 minutes
 	remoteID := model.NewID()
@@ -382,7 +382,7 @@ func testReactionGetForPostSince(t *testing.T, ss store.Store, s SqlStore) {
 	})
 }
 
-func forceUpdateAt(reaction *model.Reaction, updateAt int64, s SqlStore) error {
+func forceUpdateAt(reaction *model.Reaction, updateAt int64, s SQLStore) error {
 	params := map[string]interface{}{
 		"UserId":    reaction.UserID,
 		"PostId":    reaction.PostID,
@@ -416,7 +416,7 @@ func forceUpdateAt(reaction *model.Reaction, updateAt int64, s SqlStore) error {
 	return nil
 }
 
-func forceNULL(reaction *model.Reaction, s SqlStore) error {
+func forceNULL(reaction *model.Reaction, s SQLStore) error {
 	if _, err := s.GetMaster().Exec(`UPDATE Reactions SET UpdateAt = NULL WHERE UpdateAt = 0`); err != nil {
 		return err
 	}
@@ -426,7 +426,7 @@ func forceNULL(reaction *model.Reaction, s SqlStore) error {
 	return nil
 }
 
-func testReactionDeleteAllWithEmojiName(t *testing.T, ss store.Store, s SqlStore) {
+func testReactionDeleteAllWithEmojiName(t *testing.T, ss store.Store, s SQLStore) {
 	emojiToDelete := model.NewID()
 
 	post, err1 := ss.Post().Save(&model.Post{

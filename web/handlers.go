@@ -328,13 +328,13 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if c.App.Metrics() != nil {
-			c.App.Metrics().IncrementHttpError()
+			c.App.Metrics().IncrementHTTPError()
 		}
 	}
 
 	statusCode = strconv.Itoa(w.(*responseWriterWrapper).StatusCode())
 	if c.App.Metrics() != nil {
-		c.App.Metrics().IncrementHttpRequest()
+		c.App.Metrics().IncrementHTTPRequest()
 
 		if r.URL.Path != model.APIURLSuffix+"/websocket" {
 			elapsed := float64(time.Since(now)) / float64(time.Second)

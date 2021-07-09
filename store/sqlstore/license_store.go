@@ -13,12 +13,12 @@ import (
 
 // SqlLicenseStore encapsulates the database writes and reads for
 // model.LicenseRecord objects.
-type SqlLicenseStore struct {
-	*SqlStore
+type SQLLicenseStore struct {
+	*SQLStore
 }
 
-func newSqlLicenseStore(sqlStore *SqlStore) store.LicenseStore {
-	ls := &SqlLicenseStore{sqlStore}
+func newSQLLicenseStore(sqlStore *SQLStore) store.LicenseStore {
+	ls := &SQLLicenseStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.LicenseRecord{}, "Licenses").SetKeys(false, "Id")
@@ -29,7 +29,7 @@ func newSqlLicenseStore(sqlStore *SqlStore) store.LicenseStore {
 	return ls
 }
 
-func (ls SqlLicenseStore) createIndexesIfNotExists() {
+func (ls SQLLicenseStore) createIndexesIfNotExists() {
 }
 
 // Save validates and stores the license instance in the database. The Id
@@ -38,7 +38,7 @@ func (ls SqlLicenseStore) createIndexesIfNotExists() {
 // database it returns the license stored in the database. If not, it saves the
 // new database and returns the created license with the CreateAt field
 // updated.
-func (ls SqlLicenseStore) Save(license *model.LicenseRecord) (*model.LicenseRecord, error) {
+func (ls SQLLicenseStore) Save(license *model.LicenseRecord) (*model.LicenseRecord, error) {
 	license.PreSave()
 	if err := license.IsValid(); err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (ls SqlLicenseStore) Save(license *model.LicenseRecord) (*model.LicenseReco
 // Get obtains the license with the provided id parameter from the database.
 // If the license doesn't exist it returns a model.AppError with
 // http.StatusNotFound in the StatusCode field.
-func (ls SqlLicenseStore) Get(id string) (*model.LicenseRecord, error) {
+func (ls SQLLicenseStore) Get(id string) (*model.LicenseRecord, error) {
 	obj, err := ls.GetReplica().Get(model.LicenseRecord{}, id)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get License with licenseId=%s", id)
@@ -76,7 +76,7 @@ func (ls SqlLicenseStore) Get(id string) (*model.LicenseRecord, error) {
 	return obj.(*model.LicenseRecord), nil
 }
 
-func (ls SqlLicenseStore) GetAll() ([]*model.LicenseRecord, error) {
+func (ls SQLLicenseStore) GetAll() ([]*model.LicenseRecord, error) {
 	query := ls.getQueryBuilder().
 		Select("*").
 		From("Licenses")

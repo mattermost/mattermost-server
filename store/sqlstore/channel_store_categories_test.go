@@ -10,5 +10,5 @@ import (
 )
 
 func TestChannelStoreCategories(t *testing.T) {
-	StoreTestWithSqlStore(t, storetest.TestChannelStoreCategories)
+	StoreTestWithSQLStore(t, storetest.TestChannelStoreCategories)
 }

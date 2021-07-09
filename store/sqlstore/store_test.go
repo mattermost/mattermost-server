@@ -27,8 +27,8 @@ import (
 
 type storeType struct {
 	Name        string
-	SqlSettings *model.SqlSettings
-	SqlStore    *SqlStore
+	SQLSettings *model.SQLSettings
+	SQLStore    *SQLStore
 	Store       store.Store
 }
 
@@ -37,7 +37,7 @@ var storeTypes []*storeType
 func newStoreType(name, driver string) *storeType {
 	return &storeType{
 		Name:        name,
-		SqlSettings: storetest.MakeSqlSettings(driver, false),
+		SQLSettings: storetest.MakeSQLSettings(driver, false),
 	}
 }
 
@@ -70,14 +70,14 @@ func StoreTestWithSearchTestEngine(t *testing.T, f func(*testing.T, store.Store,
 	for _, st := range storeTypes {
 		st := st
 		searchTestEngine := &searchtest.SearchTestEngine{
-			Driver: *st.SqlSettings.DriverName,
+			Driver: *st.SQLSettings.DriverName,
 		}
 
 		t.Run(st.Name, func(t *testing.T) { f(t, st.Store, searchTestEngine) })
 	}
 }
 
-func StoreTestWithSqlStore(t *testing.T, f func(*testing.T, store.Store, storetest.SqlStore)) {
+func StoreTestWithSQLStore(t *testing.T, f func(*testing.T, store.Store, storetest.SQLStore)) {
 	defer func() {
 		if err := recover(); err != nil {
 			tearDownStores()
@@ -90,7 +90,7 @@ func StoreTestWithSqlStore(t *testing.T, f func(*testing.T, store.Store, storete
 			if testing.Short() {
 				t.SkipNow()
 			}
-			f(t, st.Store, st.SqlStore)
+			f(t, st.Store, st.SQLStore)
 		})
 	}
 }
@@ -127,8 +127,8 @@ func initStores() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			st.SqlStore = New(*st.SqlSettings, nil)
-			st.Store = st.SqlStore
+			st.SQLStore = New(*st.SQLSettings, nil)
+			st.Store = st.SQLStore
 			st.Store.DropAllTables()
 			st.Store.MarkSystemRanUnitTests()
 		}()
@@ -151,8 +151,8 @@ func tearDownStores() {
 				if st.Store != nil {
 					st.Store.Close()
 				}
-				if st.SqlSettings != nil {
-					storetest.CleanupSqlSettings(st.SqlSettings)
+				if st.SQLSettings != nil {
+					storetest.CleanupSQLSettings(st.SQLSettings)
 				}
 				wg.Done()
 			}()
@@ -165,11 +165,11 @@ func tearDownStores() {
 // before the fix in MM-28397.
 // Keeping it here to help avoiding future regressions.
 func TestStoreLicenseRace(t *testing.T) {
-	settings := makeSqlSettings(model.DatabaseDriverPostgres)
+	settings := makeSQLSettings(model.DatabaseDriverPostgres)
 	store := New(*settings, nil)
 	defer func() {
 		store.Close()
-		storetest.CleanupSqlSettings(settings)
+		storetest.CleanupSQLSettings(settings)
 	}()
 
 	wg := sync.WaitGroup{}
@@ -251,7 +251,7 @@ func TestGetReplica(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Description+" with license", func(t *testing.T) {
 
-			settings := makeSqlSettings(model.DatabaseDriverPostgres)
+			settings := makeSQLSettings(model.DatabaseDriverPostgres)
 			dataSourceReplicas := []string{}
 			dataSourceSearchReplicas := []string{}
 			for i := 0; i < testCase.DataSourceReplicaNum; i++ {
@@ -266,7 +266,7 @@ func TestGetReplica(t *testing.T) {
 			store := New(*settings, nil)
 			defer func() {
 				store.Close()
-				storetest.CleanupSqlSettings(settings)
+				storetest.CleanupSQLSettings(settings)
 			}()
 
 			store.UpdateLicense(&model.License{})
@@ -321,7 +321,7 @@ func TestGetReplica(t *testing.T) {
 
 		t.Run(testCase.Description+" without license", func(t *testing.T) {
 
-			settings := makeSqlSettings(model.DatabaseDriverPostgres)
+			settings := makeSQLSettings(model.DatabaseDriverPostgres)
 			dataSourceReplicas := []string{}
 			dataSourceSearchReplicas := []string{}
 			for i := 0; i < testCase.DataSourceReplicaNum; i++ {
@@ -336,7 +336,7 @@ func TestGetReplica(t *testing.T) {
 			store := New(*settings, nil)
 			defer func() {
 				store.Close()
-				storetest.CleanupSqlSettings(settings)
+				storetest.CleanupSQLSettings(settings)
 			}()
 
 			replicas := make(map[*gorp.DbMap]bool)
@@ -396,7 +396,7 @@ func TestGetDbVersion(t *testing.T) {
 	for _, driver := range testDrivers {
 		t.Run("Should return db version for "+driver, func(t *testing.T) {
 			t.Parallel()
-			settings := makeSqlSettings(driver)
+			settings := makeSQLSettings(driver)
 			store := New(*settings, nil)
 
 			version, err := store.GetDbVersion(false)
@@ -415,7 +415,7 @@ func TestUpAndDownMigrations(t *testing.T) {
 	for _, driver := range testDrivers {
 		t.Run("Should be reversible for "+driver, func(t *testing.T) {
 			t.Parallel()
-			settings := makeSqlSettings(driver)
+			settings := makeSQLSettings(driver)
 			store := New(*settings, nil)
 			defer store.Close()
 
@@ -493,7 +493,7 @@ func TestGetAllConns(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.Description, func(t *testing.T) {
 			t.Parallel()
-			settings := makeSqlSettings(model.DatabaseDriverPostgres)
+			settings := makeSQLSettings(model.DatabaseDriverPostgres)
 			dataSourceReplicas := []string{}
 			dataSourceSearchReplicas := []string{}
 			for i := 0; i < testCase.DataSourceReplicaNum; i++ {
@@ -508,7 +508,7 @@ func TestGetAllConns(t *testing.T) {
 			store := New(*settings, nil)
 			defer func() {
 				store.Close()
-				storetest.CleanupSqlSettings(settings)
+				storetest.CleanupSQLSettings(settings)
 			}()
 
 			assert.Len(t, store.GetAllConns(), testCase.ExpectedNumConnections)
@@ -565,7 +565,7 @@ func TestReplicaLagQuery(t *testing.T) {
 	}
 
 	for _, driver := range testDrivers {
-		settings := makeSqlSettings(driver)
+		settings := makeSQLSettings(driver)
 		var query string
 		var tableName string
 		// Just any random query which returns a row in (string, int) format.
@@ -589,7 +589,7 @@ func TestReplicaLagQuery(t *testing.T) {
 		mockMetrics.On("SetReplicaLagAbsolute", tableName, float64(1))
 		mockMetrics.On("SetReplicaLagTime", tableName, float64(1))
 
-		store := &SqlStore{
+		store := &SQLStore{
 			rrCounter: 0,
 			srCounter: 0,
 			settings:  settings,
@@ -597,7 +597,7 @@ func TestReplicaLagQuery(t *testing.T) {
 		}
 
 		store.initConnection()
-		store.stores.post = newSqlPostStore(store, mockMetrics)
+		store.stores.post = newSQLPostStore(store, mockMetrics)
 		err := store.GetMaster().CreateTablesIfNotExists()
 		require.NoError(t, err)
 
@@ -639,7 +639,7 @@ func TestAppendMultipleStatementsFlagMysql(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Scenario, func(t *testing.T) {
-			store := &SqlStore{settings: &model.SqlSettings{DriverName: &tc.Driver, DataSource: &tc.DSN}}
+			store := &SQLStore{settings: &model.SQLSettings{DriverName: &tc.Driver, DataSource: &tc.DSN}}
 			res, err := store.appendMultipleStatementsFlag(*store.settings.DataSource)
 			require.NoError(t, err)
 			assert.Equal(t, tc.ExpectedDSN, res)
@@ -647,12 +647,12 @@ func TestAppendMultipleStatementsFlagMysql(t *testing.T) {
 	}
 }
 
-func makeSqlSettings(driver string) *model.SqlSettings {
+func makeSQLSettings(driver string) *model.SQLSettings {
 	switch driver {
 	case model.DatabaseDriverPostgres:
-		return storetest.MakeSqlSettings(driver, false)
+		return storetest.MakeSQLSettings(driver, false)
 	case model.DatabaseDriverMysql:
-		return storetest.MakeSqlSettings(driver, false)
+		return storetest.MakeSQLSettings(driver, false)
 	}
 
 	return nil
@@ -660,7 +660,7 @@ func makeSqlSettings(driver string) *model.SqlSettings {
 
 func TestExecNoTimeout(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		sqlStore := ss.(*SqlStore)
+		sqlStore := ss.(*SQLStore)
 		var query string
 		timeout := sqlStore.master.QueryTimeout
 		sqlStore.master.QueryTimeout = 1
@@ -678,7 +678,7 @@ func TestExecNoTimeout(t *testing.T) {
 }
 
 func TestMySQLReadTimeout(t *testing.T) {
-	settings := makeSqlSettings(model.DatabaseDriverMysql)
+	settings := makeSQLSettings(model.DatabaseDriverMysql)
 	dataSource := *settings.DataSource
 	config, err := mysql.ParseDSN(dataSource)
 	require.NoError(t, err)
@@ -687,7 +687,7 @@ func TestMySQLReadTimeout(t *testing.T) {
 	dataSource = config.FormatDSN()
 	settings.DataSource = &dataSource
 
-	store := &SqlStore{
+	store := &SQLStore{
 		settings: settings,
 	}
 	store.initConnection()
@@ -699,7 +699,7 @@ func TestMySQLReadTimeout(t *testing.T) {
 
 func TestRemoveIndexIfExists(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
-		sqlStore := ss.(*SqlStore)
+		sqlStore := ss.(*SQLStore)
 
 		_, err := sqlStore.GetMaster().ExecNoTimeout(`CREATE INDEX idx_posts_create_at ON Posts (CreateAt)`)
 		require.Error(t, err)
@@ -725,7 +725,7 @@ func TestAlterDefaultIfColumnExists(t *testing.T) {
 	StoreTest(t, func(t *testing.T, ss store.Store) {
 		var query string
 		def := new(string)
-		sqlStore := ss.(*SqlStore)
+		sqlStore := ss.(*SQLStore)
 
 		t.Run("non existent table", func(t *testing.T) {
 			ok := sqlStore.AlterDefaultIfColumnExists("NotExistent", "NotExistent", nil, nil)

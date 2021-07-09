@@ -28,13 +28,13 @@ func TestDesanitize(t *testing.T) {
 	actual.EmailSettings.SMTPPassword = model.NewString("smtp_password")
 	actual.GitLabSettings.Secret = model.NewString("secret")
 	actual.OpenIDSettings.Secret = model.NewString("secret")
-	actual.SqlSettings.DataSource = model.NewString("data_source")
-	actual.SqlSettings.AtRestEncryptKey = model.NewString("at_rest_encrypt_key")
+	actual.SQLSettings.DataSource = model.NewString("data_source")
+	actual.SQLSettings.AtRestEncryptKey = model.NewString("at_rest_encrypt_key")
 	actual.ElasticsearchSettings.Password = model.NewString("password")
-	actual.SqlSettings.DataSourceReplicas = append(actual.SqlSettings.DataSourceReplicas, "replica0")
-	actual.SqlSettings.DataSourceReplicas = append(actual.SqlSettings.DataSourceReplicas, "replica1")
-	actual.SqlSettings.DataSourceSearchReplicas = append(actual.SqlSettings.DataSourceSearchReplicas, "search_replica0")
-	actual.SqlSettings.DataSourceSearchReplicas = append(actual.SqlSettings.DataSourceSearchReplicas, "search_replica1")
+	actual.SQLSettings.DataSourceReplicas = append(actual.SQLSettings.DataSourceReplicas, "replica0")
+	actual.SQLSettings.DataSourceReplicas = append(actual.SQLSettings.DataSourceReplicas, "replica1")
+	actual.SQLSettings.DataSourceSearchReplicas = append(actual.SQLSettings.DataSourceSearchReplicas, "search_replica0")
+	actual.SQLSettings.DataSourceSearchReplicas = append(actual.SQLSettings.DataSourceSearchReplicas, "search_replica1")
 
 	target := &model.Config{}
 	target.SetDefaults()
@@ -50,11 +50,11 @@ func TestDesanitize(t *testing.T) {
 	target.EmailSettings.SMTPPassword = model.NewString(model.FakeSetting)
 	target.GitLabSettings.Secret = model.NewString(model.FakeSetting)
 	target.OpenIDSettings.Secret = model.NewString(model.FakeSetting)
-	target.SqlSettings.DataSource = model.NewString(model.FakeSetting)
-	target.SqlSettings.AtRestEncryptKey = model.NewString(model.FakeSetting)
+	target.SQLSettings.DataSource = model.NewString(model.FakeSetting)
+	target.SQLSettings.AtRestEncryptKey = model.NewString(model.FakeSetting)
 	target.ElasticsearchSettings.Password = model.NewString(model.FakeSetting)
-	target.SqlSettings.DataSourceReplicas = []string{model.FakeSetting, model.FakeSetting}
-	target.SqlSettings.DataSourceSearchReplicas = []string{model.FakeSetting, model.FakeSetting}
+	target.SQLSettings.DataSourceReplicas = []string{model.FakeSetting, model.FakeSetting}
+	target.SQLSettings.DataSourceSearchReplicas = []string{model.FakeSetting, model.FakeSetting}
 
 	actualClone := actual.Clone()
 	desanitize(actual, target)
@@ -71,11 +71,11 @@ func TestDesanitize(t *testing.T) {
 	assert.Equal(t, *actual.EmailSettings.SMTPPassword, *target.EmailSettings.SMTPPassword)
 	assert.Equal(t, *actual.GitLabSettings.Secret, *target.GitLabSettings.Secret)
 	assert.Equal(t, *actual.OpenIDSettings.Secret, *target.OpenIDSettings.Secret)
-	assert.Equal(t, *actual.SqlSettings.DataSource, *target.SqlSettings.DataSource)
-	assert.Equal(t, *actual.SqlSettings.AtRestEncryptKey, *target.SqlSettings.AtRestEncryptKey)
+	assert.Equal(t, *actual.SQLSettings.DataSource, *target.SQLSettings.DataSource)
+	assert.Equal(t, *actual.SQLSettings.AtRestEncryptKey, *target.SQLSettings.AtRestEncryptKey)
 	assert.Equal(t, *actual.ElasticsearchSettings.Password, *target.ElasticsearchSettings.Password)
-	assert.Equal(t, actual.SqlSettings.DataSourceReplicas, target.SqlSettings.DataSourceReplicas)
-	assert.Equal(t, actual.SqlSettings.DataSourceSearchReplicas, target.SqlSettings.DataSourceSearchReplicas)
+	assert.Equal(t, actual.SQLSettings.DataSourceReplicas, target.SQLSettings.DataSourceReplicas)
+	assert.Equal(t, actual.SQLSettings.DataSourceSearchReplicas, target.SQLSettings.DataSourceSearchReplicas)
 	assert.Equal(t, actual.ServiceSettings.SplitKey, target.ServiceSettings.SplitKey)
 }
 
@@ -296,7 +296,7 @@ func TestEqual(t *testing.T) {
 	t.Run("diff", func(t *testing.T) {
 		old := minimalConfig.Clone()
 		new := minimalConfig.Clone()
-		new.SqlSettings = model.SqlSettings{}
+		new.SQLSettings = model.SQLSettings{}
 		diff, err := equal(old, new)
 		require.NoError(t, err)
 		require.True(t, diff)

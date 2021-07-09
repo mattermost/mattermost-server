@@ -41,15 +41,15 @@ func botFromModel(b *model.Bot) *bot {
 // SqlBotStore is a store for managing bots in the database.
 // Bots are otherwise normal users with extra metadata record in the Bots table. The primary key
 // for a bot matches the primary key value for corresponding User record.
-type SqlBotStore struct {
-	*SqlStore
+type SQLBotStore struct {
+	*SQLStore
 	metrics einterfaces.MetricsInterface
 }
 
 // newSqlBotStore creates an instance of SqlBotStore, registering the table schema in question.
-func newSqlBotStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) store.BotStore {
-	us := &SqlBotStore{
-		SqlStore: sqlStore,
+func newSQLBotStore(sqlStore *SQLStore, metrics einterfaces.MetricsInterface) store.BotStore {
+	us := &SQLBotStore{
+		SQLStore: sqlStore,
 		metrics:  metrics,
 	}
 
@@ -63,14 +63,14 @@ func newSqlBotStore(sqlStore *SqlStore, metrics einterfaces.MetricsInterface) st
 	return us
 }
 
-func (us SqlBotStore) createIndexesIfNotExists() {
+func (us SQLBotStore) createIndexesIfNotExists() {
 }
 
 // Get fetches the given bot in the database.
-func (us SqlBotStore) Get(botUserID string, includeDeleted bool) (*model.Bot, error) {
-	var excludeDeletedSql = "AND b.DeleteAt = 0"
+func (us SQLBotStore) Get(botUserID string, includeDeleted bool) (*model.Bot, error) {
+	var excludeDeletedSQL = "AND b.DeleteAt = 0"
 	if includeDeleted {
-		excludeDeletedSql = ""
+		excludeDeletedSQL = ""
 	}
 
 	query := `
@@ -90,7 +90,7 @@ func (us SqlBotStore) Get(botUserID string, includeDeleted bool) (*model.Bot, er
 			Users u ON (u.Id = b.UserId)
 		WHERE
 			b.UserId = :user_id
-			` + excludeDeletedSql + `
+			` + excludeDeletedSQL + `
 	`
 
 	var bot *model.Bot
@@ -104,14 +104,14 @@ func (us SqlBotStore) Get(botUserID string, includeDeleted bool) (*model.Bot, er
 }
 
 // GetAll fetches from all bots in the database.
-func (us SqlBotStore) GetAll(options *model.BotGetOptions) ([]*model.Bot, error) {
+func (us SQLBotStore) GetAll(options *model.BotGetOptions) ([]*model.Bot, error) {
 	params := map[string]interface{}{
 		"offset": options.Page * options.PerPage,
 		"limit":  options.PerPage,
 	}
 
 	var conditions []string
-	var conditionsSql string
+	var conditionsSQL string
 	var additionalJoin string
 
 	if !options.IncludeDeleted {
@@ -127,7 +127,7 @@ func (us SqlBotStore) GetAll(options *model.BotGetOptions) ([]*model.Bot, error)
 	}
 
 	if len(conditions) > 0 {
-		conditionsSql = "WHERE " + strings.Join(conditions, " AND ")
+		conditionsSQL = "WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	sql := `
@@ -146,7 +146,7 @@ func (us SqlBotStore) GetAll(options *model.BotGetOptions) ([]*model.Bot, error)
 			JOIN
 			    Users u ON (u.Id = b.UserId)
 			` + additionalJoin + `
-			` + conditionsSql + `
+			` + conditionsSQL + `
 			ORDER BY
 			    b.CreateAt ASC,
 			    u.Username ASC
@@ -166,7 +166,7 @@ func (us SqlBotStore) GetAll(options *model.BotGetOptions) ([]*model.Bot, error)
 
 // Save persists a new bot to the database.
 // It assumes the corresponding user was saved via the user store.
-func (us SqlBotStore) Save(bot *model.Bot) (*model.Bot, error) {
+func (us SQLBotStore) Save(bot *model.Bot) (*model.Bot, error) {
 	bot = bot.Clone()
 	bot.PreSave()
 
@@ -183,7 +183,7 @@ func (us SqlBotStore) Save(bot *model.Bot) (*model.Bot, error) {
 
 // Update persists an updated bot to the database.
 // It assumes the corresponding user was updated via the user store.
-func (us SqlBotStore) Update(bot *model.Bot) (*model.Bot, error) {
+func (us SQLBotStore) Update(bot *model.Bot) (*model.Bot, error) {
 	bot = bot.Clone()
 
 	bot.PreUpdate()
@@ -214,7 +214,7 @@ func (us SqlBotStore) Update(bot *model.Bot) (*model.Bot, error) {
 
 // PermanentDelete removes the bot from the database altogether.
 // If the corresponding user is to be deleted, it must be done via the user store.
-func (us SqlBotStore) PermanentDelete(botUserID string) error {
+func (us SQLBotStore) PermanentDelete(botUserID string) error {
 	query := "DELETE FROM Bots WHERE UserId = :user_id"
 	if _, err := us.GetMaster().Exec(query, map[string]interface{}{"user_id": botUserID}); err != nil {
 		return store.NewErrInvalidInput("Bot", "UserId", botUserID)

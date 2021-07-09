@@ -25,10 +25,10 @@ import (
 )
 
 type MainHelper struct {
-	Settings         *model.SqlSettings
+	Settings         *model.SQLSettings
 	Store            store.Store
 	SearchEngine     *searchengine.Broker
-	SQLStore         *sqlstore.SqlStore
+	SQLStore         *sqlstore.SQLStore
 	ClusterInterface *FakeClusterInterface
 
 	status           int
@@ -107,7 +107,7 @@ func (h *MainHelper) setupStore(withReadReplica bool) {
 		driverName = model.DatabaseDriverPostgres
 	}
 
-	h.Settings = storetest.MakeSqlSettings(driverName, withReadReplica)
+	h.Settings = storetest.MakeSQLSettings(driverName, withReadReplica)
 	h.replicas = h.Settings.DataSourceReplicas
 
 	config := &model.Config{}
@@ -203,7 +203,7 @@ func (h *MainHelper) Close() error {
 		h.SQLStore.Close()
 	}
 	if h.Settings != nil {
-		storetest.CleanupSqlSettings(h.Settings)
+		storetest.CleanupSQLSettings(h.Settings)
 	}
 	if h.testResourcePath != "" {
 		os.RemoveAll(h.testResourcePath)
@@ -218,7 +218,7 @@ func (h *MainHelper) Close() error {
 	return nil
 }
 
-func (h *MainHelper) GetSQLSettings() *model.SqlSettings {
+func (h *MainHelper) GetSQLSettings() *model.SQLSettings {
 	if h.Settings == nil {
 		panic("MainHelper not initialized with database access.")
 	}
@@ -234,7 +234,7 @@ func (h *MainHelper) GetStore() store.Store {
 	return h.Store
 }
 
-func (h *MainHelper) GetSQLStore() *sqlstore.SqlStore {
+func (h *MainHelper) GetSQLStore() *sqlstore.SQLStore {
 	if h.SQLStore == nil {
 		panic("MainHelper not initialized with sql store.")
 	}

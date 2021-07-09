@@ -125,7 +125,7 @@ func TestEnsureInstallationDate(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
-			sqlStore := th.GetSqlStore()
+			sqlStore := th.GetSQLStore()
 			sqlStore.GetMaster().Exec("DELETE FROM Users")
 
 			for _, createAt := range tc.UsersCreationDates {

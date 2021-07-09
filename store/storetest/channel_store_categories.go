@@ -16,7 +16,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-func TestChannelStoreCategories(t *testing.T, ss store.Store, s SqlStore) {
+func TestChannelStoreCategories(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("CreateInitialSidebarCategories", func(t *testing.T) { testCreateInitialSidebarCategories(t, ss) })
 	t.Run("CreateSidebarCategory", func(t *testing.T) { testCreateSidebarCategory(t, ss) })
 	t.Run("GetSidebarCategory", func(t *testing.T) { testGetSidebarCategory(t, ss, s) })
@@ -540,7 +540,7 @@ func testCreateSidebarCategory(t *testing.T, ss store.Store) {
 	})
 }
 
-func testGetSidebarCategory(t *testing.T, ss store.Store, s SqlStore) {
+func testGetSidebarCategory(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("should return a custom category with its Channels field set", func(t *testing.T) {
 		userID := model.NewID()
 		teamID := model.NewID()
@@ -1722,7 +1722,7 @@ func setupInitialSidebarCategories(t *testing.T, ss store.Store) (string, string
 	return userID, teamID
 }
 
-func testClearSidebarOnTeamLeave(t *testing.T, ss store.Store, s SqlStore) {
+func testClearSidebarOnTeamLeave(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("should delete all sidebar categories and channels on the team", func(t *testing.T) {
 		userID, teamID := setupInitialSidebarCategories(t, ss)
 
@@ -1901,7 +1901,7 @@ func testClearSidebarOnTeamLeave(t *testing.T, ss store.Store, s SqlStore) {
 	})
 }
 
-func testDeleteSidebarCategory(t *testing.T, ss store.Store, s SqlStore) {
+func testDeleteSidebarCategory(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("should correctly remove an empty category", func(t *testing.T) {
 		userID, teamID := setupInitialSidebarCategories(t, ss)
 		defer ss.User().PermanentDelete(userID)

@@ -55,10 +55,10 @@ func TestDeleteUnusedFeatures(t *testing.T) {
 		err := ss.Preference().Save(&features)
 		require.NoError(t, err)
 
-		ss.Preference().(*SqlPreferenceStore).deleteUnusedFeatures()
+		ss.Preference().(*SQLPreferenceStore).deleteUnusedFeatures()
 
 		//make sure features with value "false" have actually been deleted from the database
-		if val, err := ss.Preference().(*SqlPreferenceStore).GetReplica().SelectInt(`SELECT COUNT(*)
+		if val, err := ss.Preference().(*SQLPreferenceStore).GetReplica().SelectInt(`SELECT COUNT(*)
                             FROM Preferences
                     WHERE Category = :Category
                     AND Value = :Val
@@ -69,7 +69,7 @@ func TestDeleteUnusedFeatures(t *testing.T) {
 		}
 		//
 		// make sure features with value "true" remain saved
-		if val, err := ss.Preference().(*SqlPreferenceStore).GetReplica().SelectInt(`SELECT COUNT(*)
+		if val, err := ss.Preference().(*SQLPreferenceStore).GetReplica().SelectInt(`SELECT COUNT(*)
                             FROM Preferences
                     WHERE Category = :Category
                     AND Value = :Val

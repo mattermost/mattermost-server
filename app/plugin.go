@@ -554,7 +554,7 @@ func (s *Server) getPrepackagedPlugin(pluginID, version string) (*plugin.Prepack
 func (s *Server) getRemoteMarketplacePlugin(pluginID, version string) (*model.BaseMarketplacePlugin, *model.AppError) {
 	marketplaceClient, err := marketplace.NewClient(
 		*s.Config().PluginSettings.MarketplaceURL,
-		s.HTTPService,
+		s.HTTPService(),
 	)
 	if err != nil {
 		return nil, model.NewAppError("GetMarketplacePlugin", "app.plugin.marketplace_client.app_error", nil, err.Error(), http.StatusInternalServerError)

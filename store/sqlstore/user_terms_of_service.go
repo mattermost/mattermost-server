@@ -12,12 +12,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlUserTermsOfServiceStore struct {
-	*SqlStore
+type SQLUserTermsOfServiceStore struct {
+	*SQLStore
 }
 
-func newSqlUserTermsOfServiceStore(sqlStore *SqlStore) store.UserTermsOfServiceStore {
-	s := SqlUserTermsOfServiceStore{sqlStore}
+func newSQLUserTermsOfServiceStore(sqlStore *SQLStore) store.UserTermsOfServiceStore {
+	s := SQLUserTermsOfServiceStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.UserTermsOfService{}, "UserTermsOfService").SetKeys(false, "UserId")
@@ -28,10 +28,10 @@ func newSqlUserTermsOfServiceStore(sqlStore *SqlStore) store.UserTermsOfServiceS
 	return s
 }
 
-func (s SqlUserTermsOfServiceStore) createIndexesIfNotExists() {
+func (s SQLUserTermsOfServiceStore) createIndexesIfNotExists() {
 }
 
-func (s SqlUserTermsOfServiceStore) GetByUser(userID string) (*model.UserTermsOfService, error) {
+func (s SQLUserTermsOfServiceStore) GetByUser(userID string) (*model.UserTermsOfService, error) {
 	var userTermsOfService *model.UserTermsOfService
 
 	err := s.GetReplica().SelectOne(&userTermsOfService, "SELECT * FROM UserTermsOfService WHERE UserId = :userId", map[string]interface{}{"userId": userID})
@@ -44,7 +44,7 @@ func (s SqlUserTermsOfServiceStore) GetByUser(userID string) (*model.UserTermsOf
 	return userTermsOfService, nil
 }
 
-func (s SqlUserTermsOfServiceStore) Save(userTermsOfService *model.UserTermsOfService) (*model.UserTermsOfService, error) {
+func (s SQLUserTermsOfServiceStore) Save(userTermsOfService *model.UserTermsOfService) (*model.UserTermsOfService, error) {
 	userTermsOfService.PreSave()
 
 	if err := userTermsOfService.IsValid(); err != nil {
@@ -65,7 +65,7 @@ func (s SqlUserTermsOfServiceStore) Save(userTermsOfService *model.UserTermsOfSe
 	return userTermsOfService, nil
 }
 
-func (s SqlUserTermsOfServiceStore) Delete(userID, termsOfServiceID string) error {
+func (s SQLUserTermsOfServiceStore) Delete(userID, termsOfServiceID string) error {
 	if _, err := s.GetMaster().Exec("DELETE FROM UserTermsOfService WHERE UserId = :UserId AND TermsOfServiceId = :TermsOfServiceId", map[string]interface{}{"UserId": userID, "TermsOfServiceId": termsOfServiceID}); err != nil {
 		return errors.Wrapf(err, "failed to delete UserTermsOfService with userId=%s and termsOfServiceId=%s", userID, termsOfServiceID)
 	}

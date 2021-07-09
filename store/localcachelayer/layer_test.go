@@ -16,8 +16,8 @@ import (
 
 type storeType struct {
 	Name        string
-	SqlSettings *model.SqlSettings
-	SqlStore    *sqlstore.SqlStore
+	SQLSettings *model.SQLSettings
+	SQLStore    *sqlstore.SQLStore
 	Store       store.Store
 }
 
@@ -26,7 +26,7 @@ var storeTypes []*storeType
 func newStoreType(name, driver string) *storeType {
 	return &storeType{
 		Name:        name,
-		SqlSettings: storetest.MakeSqlSettings(driver, false),
+		SQLSettings: storetest.MakeSQLSettings(driver, false),
 	}
 }
 
@@ -48,7 +48,7 @@ func StoreTest(t *testing.T, f func(*testing.T, store.Store)) {
 	}
 }
 
-func StoreTestWithSqlStore(t *testing.T, f func(*testing.T, store.Store, storetest.SqlStore)) {
+func StoreTestWithSQLStore(t *testing.T, f func(*testing.T, store.Store, storetest.SQLStore)) {
 	defer func() {
 		if err := recover(); err != nil {
 			tearDownStores()
@@ -61,7 +61,7 @@ func StoreTestWithSqlStore(t *testing.T, f func(*testing.T, store.Store, storete
 			if testing.Short() {
 				t.SkipNow()
 			}
-			f(t, st.Store, st.SqlStore)
+			f(t, st.Store, st.SQLStore)
 		})
 	}
 }
@@ -98,8 +98,8 @@ func initStores() {
 		go func() {
 			var err error
 			defer wg.Done()
-			st.SqlStore = sqlstore.New(*st.SqlSettings, nil)
-			st.Store, err = NewLocalCacheLayer(st.SqlStore, nil, nil, getMockCacheProvider())
+			st.SQLStore = sqlstore.New(*st.SQLSettings, nil)
+			st.Store, err = NewLocalCacheLayer(st.SQLStore, nil, nil, getMockCacheProvider())
 			if err != nil {
 				panic(err)
 			}
@@ -125,8 +125,8 @@ func tearDownStores() {
 				if st.Store != nil {
 					st.Store.Close()
 				}
-				if st.SqlSettings != nil {
-					storetest.CleanupSqlSettings(st.SqlSettings)
+				if st.SQLSettings != nil {
+					storetest.CleanupSQLSettings(st.SQLSettings)
 				}
 				wg.Done()
 			}()

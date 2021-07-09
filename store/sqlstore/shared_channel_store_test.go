@@ -10,5 +10,5 @@ import (
 )
 
 func TestSharedChannelStore(t *testing.T) {
-	StoreTestWithSqlStore(t, storetest.TestSharedChannelStore)
+	StoreTestWithSQLStore(t, storetest.TestSharedChannelStore)
 }

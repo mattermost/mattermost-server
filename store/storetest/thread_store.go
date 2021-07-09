@@ -15,7 +15,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-func TestThreadStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestThreadStore(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("ThreadStorePopulation", func(t *testing.T) { testThreadStorePopulation(t, ss) })
 	t.Run("ThreadStorePermanentDeleteBatchForRetentionPolicies", func(t *testing.T) {
 		testThreadStorePermanentDeleteBatchForRetentionPolicies(t, ss)

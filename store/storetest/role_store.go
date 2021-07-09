@@ -15,7 +15,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-func TestRoleStore(t *testing.T, ss store.Store, s SqlStore) {
+func TestRoleStore(t *testing.T, ss store.Store, s SQLStore) {
 	t.Run("Save", func(t *testing.T) { testRoleStoreSave(t, ss) })
 	t.Run("Get", func(t *testing.T) { testRoleStoreGet(t, ss) })
 	t.Run("GetAll", func(t *testing.T) { testRoleStoreGetAll(t, ss) })
@@ -517,7 +517,7 @@ func testRoleStoreLowerScopedChannelSchemeRoles(t *testing.T, ss store.Store) {
 	})
 }
 
-func testRoleStoreChannelHigherScopedPermissionsBlankTeamSchemeChannelGuest(t *testing.T, ss store.Store, s SqlStore) {
+func testRoleStoreChannelHigherScopedPermissionsBlankTeamSchemeChannelGuest(t *testing.T, ss store.Store, s SQLStore) {
 	teamScheme := &model.Scheme{
 		DisplayName: model.NewID(),
 		Name:        model.NewID(),

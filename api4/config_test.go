@@ -48,12 +48,12 @@ func TestGetConfig(t *testing.T) {
 		if *cfg.GitLabSettings.Secret != model.FakeSetting && *cfg.GitLabSettings.Secret != "" {
 			require.FailNow(t, "did not sanitize properly")
 		}
-		require.Equal(t, model.FakeSetting, *cfg.SqlSettings.DataSource, "did not sanitize properly")
-		require.Equal(t, model.FakeSetting, *cfg.SqlSettings.AtRestEncryptKey, "did not sanitize properly")
-		if !strings.Contains(strings.Join(cfg.SqlSettings.DataSourceReplicas, " "), model.FakeSetting) && len(cfg.SqlSettings.DataSourceReplicas) != 0 {
+		require.Equal(t, model.FakeSetting, *cfg.SQLSettings.DataSource, "did not sanitize properly")
+		require.Equal(t, model.FakeSetting, *cfg.SQLSettings.AtRestEncryptKey, "did not sanitize properly")
+		if !strings.Contains(strings.Join(cfg.SQLSettings.DataSourceReplicas, " "), model.FakeSetting) && len(cfg.SQLSettings.DataSourceReplicas) != 0 {
 			require.FailNow(t, "did not sanitize properly")
 		}
-		if !strings.Contains(strings.Join(cfg.SqlSettings.DataSourceSearchReplicas, " "), model.FakeSetting) && len(cfg.SqlSettings.DataSourceSearchReplicas) != 0 {
+		if !strings.Contains(strings.Join(cfg.SQLSettings.DataSourceSearchReplicas, " "), model.FakeSetting) && len(cfg.SQLSettings.DataSourceSearchReplicas) != 0 {
 			require.FailNow(t, "did not sanitize properly")
 		}
 	})
@@ -702,7 +702,7 @@ func TestPatchConfig(t *testing.T) {
 
 			updatedConfig, _ := client.PatchConfig(&config)
 
-			assert.Equal(t, model.FakeSetting, *updatedConfig.SqlSettings.DataSource)
+			assert.Equal(t, model.FakeSetting, *updatedConfig.SQLSettings.DataSource)
 		})
 
 		t.Run("not allowing to toggle enable uploads for plugin via api", func(t *testing.T) {

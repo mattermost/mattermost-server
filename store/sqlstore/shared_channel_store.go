@@ -18,13 +18,13 @@ const (
 	DefaultGetUsersForSyncLimit = 100
 )
 
-type SqlSharedChannelStore struct {
-	*SqlStore
+type SQLSharedChannelStore struct {
+	*SQLStore
 }
 
-func newSqlSharedChannelStore(sqlStore *SqlStore) store.SharedChannelStore {
-	s := &SqlSharedChannelStore{
-		SqlStore: sqlStore,
+func newSQLSharedChannelStore(sqlStore *SQLStore) store.SharedChannelStore {
+	s := &SQLSharedChannelStore{
+		SQLStore: sqlStore,
 	}
 
 	for _, db := range sqlStore.GetAllConns() {
@@ -64,12 +64,12 @@ func newSqlSharedChannelStore(sqlStore *SqlStore) store.SharedChannelStore {
 	return s
 }
 
-func (s SqlSharedChannelStore) createIndexesIfNotExists() {
+func (s SQLSharedChannelStore) createIndexesIfNotExists() {
 	s.CreateIndexIfNotExists("idx_sharedchannelusers_remote_id", "SharedChannelUsers", "RemoteId")
 }
 
 // Save inserts a new shared channel record.
-func (s SqlSharedChannelStore) Save(sc *model.SharedChannel) (*model.SharedChannel, error) {
+func (s SQLSharedChannelStore) Save(sc *model.SharedChannel) (*model.SharedChannel, error) {
 	sc.PreSave()
 	if err := sc.IsValid(); err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (s SqlSharedChannelStore) Save(sc *model.SharedChannel) (*model.SharedChann
 }
 
 // Get fetches a shared channel by channel_id.
-func (s SqlSharedChannelStore) Get(channelID string) (*model.SharedChannel, error) {
+func (s SQLSharedChannelStore) Get(channelID string) (*model.SharedChannel, error) {
 	var sc model.SharedChannel
 
 	query := s.getQueryBuilder().
@@ -128,7 +128,7 @@ func (s SqlSharedChannelStore) Get(channelID string) (*model.SharedChannel, erro
 }
 
 // HasChannel returns whether a given channelID is a shared channel or not.
-func (s SqlSharedChannelStore) HasChannel(channelID string) (bool, error) {
+func (s SQLSharedChannelStore) HasChannel(channelID string) (bool, error) {
 	builder := s.getQueryBuilder().
 		Select("1").
 		Prefix("SELECT EXISTS (").
@@ -149,7 +149,7 @@ func (s SqlSharedChannelStore) HasChannel(channelID string) (bool, error) {
 }
 
 // GetAll fetches a paginated list of shared channels filtered by SharedChannelSearchOpts.
-func (s SqlSharedChannelStore) GetAll(offset, limit int, opts model.SharedChannelFilterOpts) ([]*model.SharedChannel, error) {
+func (s SQLSharedChannelStore) GetAll(offset, limit int, opts model.SharedChannelFilterOpts) ([]*model.SharedChannel, error) {
 	if opts.ExcludeHome && opts.ExcludeRemote {
 		return nil, errors.New("cannot exclude home and remote shared channels")
 	}
@@ -186,7 +186,7 @@ func (s SqlSharedChannelStore) GetAll(offset, limit int, opts model.SharedChanne
 }
 
 // GetAllCount returns the number of shared channels that would be fetched using SharedChannelSearchOpts.
-func (s SqlSharedChannelStore) GetAllCount(opts model.SharedChannelFilterOpts) (int64, error) {
+func (s SQLSharedChannelStore) GetAllCount(opts model.SharedChannelFilterOpts) (int64, error) {
 	if opts.ExcludeHome && opts.ExcludeRemote {
 		return 0, errors.New("cannot exclude home and remote shared channels")
 	}
@@ -204,7 +204,7 @@ func (s SqlSharedChannelStore) GetAllCount(opts model.SharedChannelFilterOpts) (
 	return count, nil
 }
 
-func (s SqlSharedChannelStore) getSharedChannelsQuery(opts model.SharedChannelFilterOpts, forCount bool) sq.SelectBuilder {
+func (s SQLSharedChannelStore) getSharedChannelsQuery(opts model.SharedChannelFilterOpts, forCount bool) sq.SelectBuilder {
 	var selectStr string
 	if forCount {
 		selectStr = "count(sc.ChannelId)"
@@ -236,7 +236,7 @@ func (s SqlSharedChannelStore) getSharedChannelsQuery(opts model.SharedChannelFi
 }
 
 // Update updates the shared channel.
-func (s SqlSharedChannelStore) Update(sc *model.SharedChannel) (*model.SharedChannel, error) {
+func (s SQLSharedChannelStore) Update(sc *model.SharedChannel) (*model.SharedChannel, error) {
 	if err := sc.IsValid(); err != nil {
 		return nil, err
 	}
@@ -254,7 +254,7 @@ func (s SqlSharedChannelStore) Update(sc *model.SharedChannel) (*model.SharedCha
 
 // Delete deletes a single shared channel plus associated SharedChannelRemotes.
 // Returns true if shared channel found and deleted, false if not found.
-func (s SqlSharedChannelStore) Delete(channelID string) (bool, error) {
+func (s SQLSharedChannelStore) Delete(channelID string) (bool, error) {
 	transaction, err := s.GetMaster().Begin()
 	if err != nil {
 		return false, errors.Wrap(err, "DeleteSharedChannel: begin_transaction")
@@ -308,7 +308,7 @@ func (s SqlSharedChannelStore) Delete(channelID string) (bool, error) {
 }
 
 // SaveRemote inserts a new shared channel remote record.
-func (s SqlSharedChannelStore) SaveRemote(remote *model.SharedChannelRemote) (*model.SharedChannelRemote, error) {
+func (s SQLSharedChannelStore) SaveRemote(remote *model.SharedChannelRemote) (*model.SharedChannelRemote, error) {
 	remote.PreSave()
 	if err := remote.IsValid(); err != nil {
 		return nil, err
@@ -326,7 +326,7 @@ func (s SqlSharedChannelStore) SaveRemote(remote *model.SharedChannelRemote) (*m
 }
 
 // Update updates the shared channel remote.
-func (s SqlSharedChannelStore) UpdateRemote(remote *model.SharedChannelRemote) (*model.SharedChannelRemote, error) {
+func (s SQLSharedChannelStore) UpdateRemote(remote *model.SharedChannelRemote) (*model.SharedChannelRemote, error) {
 	if err := remote.IsValid(); err != nil {
 		return nil, err
 	}
@@ -343,7 +343,7 @@ func (s SqlSharedChannelStore) UpdateRemote(remote *model.SharedChannelRemote) (
 }
 
 // GetRemote fetches a shared channel remote by id.
-func (s SqlSharedChannelStore) GetRemote(id string) (*model.SharedChannelRemote, error) {
+func (s SQLSharedChannelStore) GetRemote(id string) (*model.SharedChannelRemote, error) {
 	var remote model.SharedChannelRemote
 
 	query := s.getQueryBuilder().
@@ -366,7 +366,7 @@ func (s SqlSharedChannelStore) GetRemote(id string) (*model.SharedChannelRemote,
 }
 
 // GetRemoteByIds fetches a shared channel remote by channel id and remote cluster id.
-func (s SqlSharedChannelStore) GetRemoteByIDs(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
+func (s SQLSharedChannelStore) GetRemoteByIDs(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
 	var remote model.SharedChannelRemote
 
 	query := s.getQueryBuilder().
@@ -390,7 +390,7 @@ func (s SqlSharedChannelStore) GetRemoteByIDs(channelID string, remoteID string)
 }
 
 // GetRemotes fetches all shared channel remotes associated with channel_id.
-func (s SqlSharedChannelStore) GetRemotes(opts model.SharedChannelRemoteFilterOpts) ([]*model.SharedChannelRemote, error) {
+func (s SQLSharedChannelStore) GetRemotes(opts model.SharedChannelRemoteFilterOpts) ([]*model.SharedChannelRemote, error) {
 	var remotes []*model.SharedChannelRemote
 
 	query := s.getQueryBuilder().
@@ -424,7 +424,7 @@ func (s SqlSharedChannelStore) GetRemotes(opts model.SharedChannelRemoteFilterOp
 }
 
 // HasRemote returns whether a given remoteId and channelId are present in the shared channel remotes or not.
-func (s SqlSharedChannelStore) HasRemote(channelID string, remoteID string) (bool, error) {
+func (s SQLSharedChannelStore) HasRemote(channelID string, remoteID string) (bool, error) {
 	builder := s.getQueryBuilder().
 		Select("1").
 		Prefix("SELECT EXISTS (").
@@ -447,7 +447,7 @@ func (s SqlSharedChannelStore) HasRemote(channelID string, remoteID string) (boo
 
 // GetRemoteForUser returns a remote cluster for the given userId only if the user belongs to at least one channel
 // shared with the remote.
-func (s SqlSharedChannelStore) GetRemoteForUser(remoteID string, userID string) (*model.RemoteCluster, error) {
+func (s SQLSharedChannelStore) GetRemoteForUser(remoteID string, userID string) (*model.RemoteCluster, error) {
 	builder := s.getQueryBuilder().
 		Select("rc.*").
 		From("RemoteClusters AS rc").
@@ -472,7 +472,7 @@ func (s SqlSharedChannelStore) GetRemoteForUser(remoteID string, userID string) 
 }
 
 // UpdateRemoteCursor updates the LastPostUpdateAt timestamp and LastPostId for the specified SharedChannelRemote.
-func (s SqlSharedChannelStore) UpdateRemoteCursor(id string, cursor model.GetPostsSinceForSyncCursor) error {
+func (s SQLSharedChannelStore) UpdateRemoteCursor(id string, cursor model.GetPostsSinceForSyncCursor) error {
 	squery, args, err := s.getQueryBuilder().
 		Update("SharedChannelRemotes").
 		Set("LastPostUpdateAt", cursor.LastPostUpdateAt).
@@ -500,7 +500,7 @@ func (s SqlSharedChannelStore) UpdateRemoteCursor(id string, cursor model.GetPos
 
 // DeleteRemote deletes a single shared channel remote.
 // Returns true if remote found and deleted, false if not found.
-func (s SqlSharedChannelStore) DeleteRemote(id string) (bool, error) {
+func (s SQLSharedChannelStore) DeleteRemote(id string) (bool, error) {
 	squery, args, err := s.getQueryBuilder().
 		Delete("SharedChannelRemotes").
 		Where(sq.Eq{"Id": id}).
@@ -524,7 +524,7 @@ func (s SqlSharedChannelStore) DeleteRemote(id string) (bool, error) {
 
 // GetRemotesStatus returns the status for each remote invited to the
 // specified shared channel.
-func (s SqlSharedChannelStore) GetRemotesStatus(channelID string) ([]*model.SharedChannelRemoteStatus, error) {
+func (s SQLSharedChannelStore) GetRemotesStatus(channelID string) ([]*model.SharedChannelRemoteStatus, error) {
 	var status []*model.SharedChannelRemoteStatus
 
 	query := s.getQueryBuilder().
@@ -549,7 +549,7 @@ func (s SqlSharedChannelStore) GetRemotesStatus(channelID string) ([]*model.Shar
 }
 
 // SaveUser inserts a new shared channel user record to the SharedChannelUsers table.
-func (s SqlSharedChannelStore) SaveUser(scUser *model.SharedChannelUser) (*model.SharedChannelUser, error) {
+func (s SQLSharedChannelStore) SaveUser(scUser *model.SharedChannelUser) (*model.SharedChannelUser, error) {
 	scUser.PreSave()
 	if err := scUser.IsValid(); err != nil {
 		return nil, err
@@ -562,7 +562,7 @@ func (s SqlSharedChannelStore) SaveUser(scUser *model.SharedChannelUser) (*model
 }
 
 // GetSingleUser fetches a shared channel user based on userID, channelID and remoteID.
-func (s SqlSharedChannelStore) GetSingleUser(userID string, channelID string, remoteID string) (*model.SharedChannelUser, error) {
+func (s SQLSharedChannelStore) GetSingleUser(userID string, channelID string, remoteID string) (*model.SharedChannelUser, error) {
 	var scu model.SharedChannelUser
 
 	squery, args, err := s.getQueryBuilder().
@@ -587,7 +587,7 @@ func (s SqlSharedChannelStore) GetSingleUser(userID string, channelID string, re
 }
 
 // GetUsersForUser fetches all shared channel user records based on userID.
-func (s SqlSharedChannelStore) GetUsersForUser(userID string) ([]*model.SharedChannelUser, error) {
+func (s SQLSharedChannelStore) GetUsersForUser(userID string) ([]*model.SharedChannelUser, error) {
 	squery, args, err := s.getQueryBuilder().
 		Select("*").
 		From("SharedChannelUsers").
@@ -610,7 +610,7 @@ func (s SqlSharedChannelStore) GetUsersForUser(userID string) ([]*model.SharedCh
 
 // GetUsersForSync fetches all shared channel users that need to be synchronized, meaning their
 // `SharedChannelUsers.LastSyncAt` is less than or equal to `User.UpdateAt`.
-func (s SqlSharedChannelStore) GetUsersForSync(filter model.GetUsersForSyncFilter) ([]*model.User, error) {
+func (s SQLSharedChannelStore) GetUsersForSync(filter model.GetUsersForSyncFilter) ([]*model.User, error) {
 	if filter.Limit <= 0 {
 		filter.Limit = DefaultGetUsersForSyncLimit
 	}
@@ -650,7 +650,7 @@ func (s SqlSharedChannelStore) GetUsersForSync(filter model.GetUsersForSyncFilte
 }
 
 // UpdateUserLastSyncAt updates the LastSyncAt timestamp for the specified SharedChannelUser.
-func (s SqlSharedChannelStore) UpdateUserLastSyncAt(userID string, channelID string, remoteID string) error {
+func (s SQLSharedChannelStore) UpdateUserLastSyncAt(userID string, channelID string, remoteID string) error {
 	args := map[string]interface{}{"UserId": userID, "ChannelId": channelID, "RemoteId": remoteID}
 
 	var query string
@@ -660,7 +660,7 @@ func (s SqlSharedChannelStore) UpdateUserLastSyncAt(userID string, channelID str
 			SharedChannelUsers AS scu
 		SET
 			LastSyncAt = GREATEST(Users.UpdateAt, Users.LastPictureUpdate)
-		FROM 
+		FROM
 			Users
 		WHERE
 			Users.Id = scu.UserId AND scu.UserId = :UserId AND scu.ChannelId = :ChannelId AND scu.RemoteId = :RemoteId
@@ -697,7 +697,7 @@ func (s SqlSharedChannelStore) UpdateUserLastSyncAt(userID string, channelID str
 }
 
 // SaveAttachment inserts a new shared channel file attachment record to the SharedChannelFiles table.
-func (s SqlSharedChannelStore) SaveAttachment(attachment *model.SharedChannelAttachment) (*model.SharedChannelAttachment, error) {
+func (s SQLSharedChannelStore) SaveAttachment(attachment *model.SharedChannelAttachment) (*model.SharedChannelAttachment, error) {
 	attachment.PreSave()
 	if err := attachment.IsValid(); err != nil {
 		return nil, err
@@ -711,7 +711,7 @@ func (s SqlSharedChannelStore) SaveAttachment(attachment *model.SharedChannelAtt
 
 // UpsertAttachment inserts a new shared channel file attachment record to the SharedChannelFiles table or updates its
 // LastSyncAt.
-func (s SqlSharedChannelStore) UpsertAttachment(attachment *model.SharedChannelAttachment) (string, error) {
+func (s SQLSharedChannelStore) UpsertAttachment(attachment *model.SharedChannelAttachment) (string, error) {
 	attachment.PreSave()
 	if err := attachment.IsValid(); err != nil {
 		return "", err
@@ -743,7 +743,7 @@ func (s SqlSharedChannelStore) UpsertAttachment(attachment *model.SharedChannelA
 				(Id, FileId, RemoteId, CreateAt, LastSyncAt)
 			VALUES
 				(:Id, :FileId, :RemoteId, :CreateAt, :LastSyncAt)
-			ON CONFLICT (Id) 
+			ON CONFLICT (Id)
 				DO UPDATE SET LastSyncAt = :LastSyncAt`, params); err != nil {
 			return "", err
 		}
@@ -752,7 +752,7 @@ func (s SqlSharedChannelStore) UpsertAttachment(attachment *model.SharedChannelA
 }
 
 // GetAttachment fetches a shared channel file attachment record based on file_id and remoteId.
-func (s SqlSharedChannelStore) GetAttachment(fileID string, remoteID string) (*model.SharedChannelAttachment, error) {
+func (s SQLSharedChannelStore) GetAttachment(fileID string, remoteID string) (*model.SharedChannelAttachment, error) {
 	var attachment model.SharedChannelAttachment
 
 	squery, args, err := s.getQueryBuilder().
@@ -776,7 +776,7 @@ func (s SqlSharedChannelStore) GetAttachment(fileID string, remoteID string) (*m
 }
 
 // UpdateAttachmentLastSyncAt updates the LastSyncAt timestamp for the specified SharedChannelAttachment.
-func (s SqlSharedChannelStore) UpdateAttachmentLastSyncAt(id string, syncTime int64) error {
+func (s SQLSharedChannelStore) UpdateAttachmentLastSyncAt(id string, syncTime int64) error {
 	squery, args, err := s.getQueryBuilder().
 		Update("SharedChannelAttachments").
 		Set("LastSyncAt", syncTime).

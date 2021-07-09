@@ -183,7 +183,7 @@ func (s SearchPostStore) SearchPostsInTeamForUser(paramsList []*model.SearchPara
 		}
 	}
 
-	if *s.rootStore.getConfig().SqlSettings.DisableDatabaseSearch {
+	if *s.rootStore.getConfig().SQLSettings.DisableDatabaseSearch {
 		mlog.Debug("Returning empty results for post SearchPostsInTeam as the database search is disabled")
 		return &model.PostSearchResults{PostList: model.NewPostList(), Matches: model.PostSearchMatches{}}, nil
 	}

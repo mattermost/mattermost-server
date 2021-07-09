@@ -13,12 +13,12 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
-type SqlComplianceStore struct {
-	*SqlStore
+type SQLComplianceStore struct {
+	*SQLStore
 }
 
-func newSqlComplianceStore(sqlStore *SqlStore) store.ComplianceStore {
-	s := &SqlComplianceStore{sqlStore}
+func newSQLComplianceStore(sqlStore *SQLStore) store.ComplianceStore {
+	s := &SQLComplianceStore{sqlStore}
 
 	for _, db := range sqlStore.GetAllConns() {
 		table := db.AddTableWithName(model.Compliance{}, "Compliances").SetKeys(false, "Id")
@@ -34,10 +34,10 @@ func newSqlComplianceStore(sqlStore *SqlStore) store.ComplianceStore {
 	return s
 }
 
-func (s SqlComplianceStore) createIndexesIfNotExists() {
+func (s SQLComplianceStore) createIndexesIfNotExists() {
 }
 
-func (s SqlComplianceStore) Save(compliance *model.Compliance) (*model.Compliance, error) {
+func (s SQLComplianceStore) Save(compliance *model.Compliance) (*model.Compliance, error) {
 	compliance.PreSave()
 	if err := compliance.IsValid(); err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (s SqlComplianceStore) Save(compliance *model.Compliance) (*model.Complianc
 	return compliance, nil
 }
 
-func (s SqlComplianceStore) Update(compliance *model.Compliance) (*model.Compliance, error) {
+func (s SQLComplianceStore) Update(compliance *model.Compliance) (*model.Compliance, error) {
 	if err := compliance.IsValid(); err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (s SqlComplianceStore) Update(compliance *model.Compliance) (*model.Complia
 	return compliance, nil
 }
 
-func (s SqlComplianceStore) GetAll(offset, limit int) (model.Compliances, error) {
+func (s SQLComplianceStore) GetAll(offset, limit int) (model.Compliances, error) {
 	query := "SELECT * FROM Compliances ORDER BY CreateAt DESC LIMIT :Limit OFFSET :Offset"
 
 	var compliances model.Compliances
@@ -70,7 +70,7 @@ func (s SqlComplianceStore) GetAll(offset, limit int) (model.Compliances, error)
 	return compliances, nil
 }
 
-func (s SqlComplianceStore) Get(id string) (*model.Compliance, error) {
+func (s SQLComplianceStore) Get(id string) (*model.Compliance, error) {
 	obj, err := s.GetReplica().Get(model.Compliance{}, id)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get Compliance with id=%s", id)
@@ -81,7 +81,7 @@ func (s SqlComplianceStore) Get(id string) (*model.Compliance, error) {
 	return obj.(*model.Compliance), nil
 }
 
-func (s SqlComplianceStore) ComplianceExport(job *model.Compliance, cursor model.ComplianceExportCursor, limit int) ([]*model.CompliancePost, model.ComplianceExportCursor, error) {
+func (s SQLComplianceStore) ComplianceExport(job *model.Compliance, cursor model.ComplianceExportCursor, limit int) ([]*model.CompliancePost, model.ComplianceExportCursor, error) {
 	props := map[string]interface{}{"EndTime": job.EndAt, "Limit": limit}
 
 	keywordQuery := ""
@@ -242,7 +242,7 @@ func (s SqlComplianceStore) ComplianceExport(job *model.Compliance, cursor model
 	return append(channelPosts, directMessagePosts...), cursor, nil
 }
 
-func (s SqlComplianceStore) MessageExport(cursor model.MessageExportCursor, limit int) ([]*model.MessageExport, model.MessageExportCursor, error) {
+func (s SQLComplianceStore) MessageExport(cursor model.MessageExportCursor, limit int) ([]*model.MessageExport, model.MessageExportCursor, error) {
 	props := map[string]interface{}{
 		"LastPostUpdateAt": cursor.LastPostUpdateAt,
 		"LastPostId":       cursor.LastPostID,

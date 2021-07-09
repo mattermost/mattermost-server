@@ -91,12 +91,12 @@ func (_m *MetricsInterface) IncrementFilesSearchCounter() {
 }
 
 // IncrementHttpError provides a mock function with given fields:
-func (_m *MetricsInterface) IncrementHttpError() {
+func (_m *MetricsInterface) IncrementHTTPError() {
 	_m.Called()
 }
 
 // IncrementHttpRequest provides a mock function with given fields:
-func (_m *MetricsInterface) IncrementHttpRequest() {
+func (_m *MetricsInterface) IncrementHTTPRequest() {
 	_m.Called()
 }
 

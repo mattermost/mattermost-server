@@ -541,7 +541,7 @@ func (a *App) Cloud() einterfaces.CloudInterface {
 	return a.srv.Cloud
 }
 func (a *App) HTTPService() httpservice.HTTPService {
-	return a.srv.HTTPService
+	return a.srv.httpService
 }
 func (a *App) ImageProxy() *imageproxy.ImageProxy {
 	return a.srv.ImageProxy

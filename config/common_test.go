@@ -27,7 +27,7 @@ func init() {
 		ServiceSettings: model.ServiceSettings{
 			SiteURL: model.NewString("http://minimal"),
 		},
-		SqlSettings: model.SqlSettings{
+		SQLSettings: model.SQLSettings{
 			AtRestEncryptKey: model.NewString("abcdefghijklmnopqrstuvwxyz0123456789"),
 		},
 		FileSettings: model.FileSettings{
@@ -53,7 +53,7 @@ func init() {
 		ServiceSettings: model.ServiceSettings{
 			SiteURL: model.NewString("http://trailingslash/"),
 		},
-		SqlSettings: model.SqlSettings{
+		SQLSettings: model.SQLSettings{
 			AtRestEncryptKey: model.NewString("abcdefghijklmnopqrstuvwxyz0123456789"),
 		},
 		FileSettings: model.FileSettings{

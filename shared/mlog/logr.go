@@ -181,7 +181,7 @@ func newSyslogTarget(name string, t *LogTarget, filter logr.Filter, formatter lo
 }
 
 func newTCPTarget(name string, t *LogTarget, filter logr.Filter, formatter logr.Formatter) (logr.Target, error) {
-	options := &TcpParams{}
+	options := &TCPParams{}
 	if err := json.Unmarshal(t.Options, options); err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func newTCPTarget(name string, t *LogTarget, filter logr.Filter, formatter logr.
 	if options.Port == 0 {
 		return nil, fmt.Errorf("missing 'Port' option for target %s", name)
 	}
-	return NewTcpTarget(filter, formatter, options, t.MaxQueueSize)
+	return NewTCPTarget(filter, formatter, options, t.MaxQueueSize)
 }
 
 func checkFileWritable(filename string) error {

@@ -27,7 +27,7 @@ import (
 const (
 	ConnSecurityNone     = ""
 	ConnSecurityPlain    = "PLAIN"
-	ConnSecurityTls      = "TLS"
+	ConnSecurityTLS      = "TLS"
 	ConnSecurityStarttls = "STARTTLS"
 
 	ImageDriverLocal = "local"
@@ -100,8 +100,8 @@ const (
 	SitenameMaxLength = 30
 
 	ServiceSettingsDefaultSiteURL          = "http://localhost:8065"
-	ServiceSettingsDefaultTlsCertFile      = ""
-	ServiceSettingsDefaultTlsKeyFile       = ""
+	ServiceSettingsDefaultTLSCertFile      = ""
+	ServiceSettingsDefaultTLSKeyFile       = ""
 	ServiceSettingsDefaultReadTimeout      = 300
 	ServiceSettingsDefaultWriteTimeout     = 300
 	ServiceSettingsDefaultIdleTimeout      = 60
@@ -477,11 +477,11 @@ func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 	}
 
 	if s.TLSKeyFile == nil {
-		s.TLSKeyFile = NewString(ServiceSettingsDefaultTlsKeyFile)
+		s.TLSKeyFile = NewString(ServiceSettingsDefaultTLSKeyFile)
 	}
 
 	if s.TLSCertFile == nil {
-		s.TLSCertFile = NewString(ServiceSettingsDefaultTlsCertFile)
+		s.TLSCertFile = NewString(ServiceSettingsDefaultTLSCertFile)
 	}
 
 	if s.TLSMinVer == nil {
@@ -2855,8 +2855,8 @@ func (s *PluginSettings) SetDefaults(ls LogSettings) {
 
 type GlobalRelayMessageExportSettings struct {
 	CustomerType      *string `access:"compliance_compliance_export"` // must be either A9 or A10, dictates SMTP server url
-	SmtpUsername      *string `access:"compliance_compliance_export"`
-	SmtpPassword      *string `access:"compliance_compliance_export"`
+	SMTPUsername      *string `access:"compliance_compliance_export"`
+	SMTPPassword      *string `access:"compliance_compliance_export"`
 	EmailAddress      *string `access:"compliance_compliance_export"` // the address to send messages to
 	SMTPServerTimeout *int    `access:"compliance_compliance_export"`
 }
@@ -2865,11 +2865,11 @@ func (s *GlobalRelayMessageExportSettings) SetDefaults() {
 	if s.CustomerType == nil {
 		s.CustomerType = NewString(GlobalrelayCustomerTypeA9)
 	}
-	if s.SmtpUsername == nil {
-		s.SmtpUsername = NewString("")
+	if s.SMTPUsername == nil {
+		s.SMTPUsername = NewString("")
 	}
-	if s.SmtpPassword == nil {
-		s.SmtpPassword = NewString("")
+	if s.SMTPPassword == nil {
+		s.SMTPPassword = NewString("")
 	}
 	if s.EmailAddress == nil {
 		s.EmailAddress = NewString("")
@@ -3430,7 +3430,7 @@ func (s *FileSettings) isValid() *AppError {
 }
 
 func (s *EmailSettings) isValid() *AppError {
-	if !(*s.ConnectionSecurity == ConnSecurityNone || *s.ConnectionSecurity == ConnSecurityTls || *s.ConnectionSecurity == ConnSecurityStarttls || *s.ConnectionSecurity == ConnSecurityPlain) {
+	if !(*s.ConnectionSecurity == ConnSecurityNone || *s.ConnectionSecurity == ConnSecurityTLS || *s.ConnectionSecurity == ConnSecurityStarttls || *s.ConnectionSecurity == ConnSecurityPlain) {
 		return NewAppError("Config.IsValid", "model.config.is_valid.email_security.app_error", nil, "", http.StatusBadRequest)
 	}
 
@@ -3466,7 +3466,7 @@ func (s *RateLimitSettings) isValid() *AppError {
 }
 
 func (s *LdapSettings) isValid() *AppError {
-	if !(*s.ConnectionSecurity == ConnSecurityNone || *s.ConnectionSecurity == ConnSecurityTls || *s.ConnectionSecurity == ConnSecurityStarttls) {
+	if !(*s.ConnectionSecurity == ConnSecurityNone || *s.ConnectionSecurity == ConnSecurityTLS || *s.ConnectionSecurity == ConnSecurityStarttls) {
 		return NewAppError("Config.IsValid", "model.config.is_valid.ldap_security.app_error", nil, "", http.StatusBadRequest)
 	}
 
@@ -3601,11 +3601,11 @@ func (s *SamlSettings) isValid() *AppError {
 }
 
 func (s *ServiceSettings) isValid() *AppError {
-	if !(*s.ConnectionSecurity == ConnSecurityNone || *s.ConnectionSecurity == ConnSecurityTls) {
+	if !(*s.ConnectionSecurity == ConnSecurityNone || *s.ConnectionSecurity == ConnSecurityTLS) {
 		return NewAppError("Config.IsValid", "model.config.is_valid.webserver_security.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	if *s.ConnectionSecurity == ConnSecurityTls && !*s.UseLetsEncrypt {
+	if *s.ConnectionSecurity == ConnSecurityTLS && !*s.UseLetsEncrypt {
 		appErr := NewAppError("Config.IsValid", "model.config.is_valid.tls_cert_file_missing.app_error", nil, "", http.StatusBadRequest)
 
 		if *s.TLSCertFile == "" {
@@ -3796,9 +3796,9 @@ func (s *MessageExportSettings) isValid() *AppError {
 				// validating email addresses is hard - just make sure it contains an '@' sign
 				// see https://stackoverflow.com/questions/201323/using-a-regular-expression-to-validate-an-email-address
 				return NewAppError("Config.IsValid", "model.config.is_valid.message_export.global_relay.email_address.app_error", nil, "", http.StatusBadRequest)
-			} else if s.GlobalRelaySettings.SmtpUsername == nil || *s.GlobalRelaySettings.SmtpUsername == "" {
+			} else if s.GlobalRelaySettings.SMTPUsername == nil || *s.GlobalRelaySettings.SMTPUsername == "" {
 				return NewAppError("Config.IsValid", "model.config.is_valid.message_export.global_relay.smtp_username.app_error", nil, "", http.StatusBadRequest)
-			} else if s.GlobalRelaySettings.SmtpPassword == nil || *s.GlobalRelaySettings.SmtpPassword == "" {
+			} else if s.GlobalRelaySettings.SMTPPassword == nil || *s.GlobalRelaySettings.SMTPPassword == "" {
 				return NewAppError("Config.IsValid", "model.config.is_valid.message_export.global_relay.smtp_password.app_error", nil, "", http.StatusBadRequest)
 			}
 		}
@@ -3899,8 +3899,8 @@ func (o *Config) Sanitize() {
 		o.SQLSettings.DataSourceSearchReplicas[i] = FakeSetting
 	}
 
-	if o.MessageExportSettings.GlobalRelaySettings.SmtpPassword != nil && *o.MessageExportSettings.GlobalRelaySettings.SmtpPassword != "" {
-		*o.MessageExportSettings.GlobalRelaySettings.SmtpPassword = FakeSetting
+	if o.MessageExportSettings.GlobalRelaySettings.SMTPPassword != nil && *o.MessageExportSettings.GlobalRelaySettings.SMTPPassword != "" {
+		*o.MessageExportSettings.GlobalRelaySettings.SMTPPassword = FakeSetting
 	}
 
 	if o.ServiceSettings.GfycatAPISecret != nil && *o.ServiceSettings.GfycatAPISecret != "" {

@@ -21,7 +21,7 @@ const (
 	testPort = 18066
 )
 
-func TestNewTcpTarget(t *testing.T) {
+func TestNewTCPTarget(t *testing.T) {
 	target := LogTarget{
 		Type:         "tcp",
 		Format:       "json",

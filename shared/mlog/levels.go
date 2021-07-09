@@ -28,7 +28,7 @@ var (
 	LvlAuditCLI     = LogLevel{ID: 103, Name: "audit-cli"}
 
 	// used by the TCP log target
-	LvlTcpLogTarget = LogLevel{ID: 120, Name: "TcpLogTarget"}
+	LvlTCPLogTarget = LogLevel{ID: 120, Name: "TcpLogTarget"}
 
 	// used by Remote Cluster Service
 	LvlRemoteClusterServiceDebug = LogLevel{ID: 130, Name: "RemoteClusterServiceDebug"}

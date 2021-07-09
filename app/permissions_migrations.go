@@ -705,7 +705,7 @@ func (a *App) getAddEnvironmentSubsectionPermissions() (permissionsMap, error) {
 		model.PermissionSysconsoleReadEnvironmentElasticsearch.ID,
 		model.PermissionSysconsoleReadEnvironmentFileStorage.ID,
 		model.PermissionSysconsoleReadEnvironmentImageProxy.ID,
-		model.PermissionSysconsoleReadEnvironmentSmtp.ID,
+		model.PermissionSysconsoleReadEnvironmentSMTP.ID,
 		model.PermissionSysconsoleReadEnvironmentPushNotificationServer.ID,
 		model.PermissionSysconsoleReadEnvironmentHighAvailability.ID,
 		model.PermissionSysconsoleReadEnvironmentRateLimiting.ID,
@@ -720,7 +720,7 @@ func (a *App) getAddEnvironmentSubsectionPermissions() (permissionsMap, error) {
 		model.PermissionSysconsoleWriteEnvironmentElasticsearch.ID,
 		model.PermissionSysconsoleWriteEnvironmentFileStorage.ID,
 		model.PermissionSysconsoleWriteEnvironmentImageProxy.ID,
-		model.PermissionSysconsoleWriteEnvironmentSmtp.ID,
+		model.PermissionSysconsoleWriteEnvironmentSMTP.ID,
 		model.PermissionSysconsoleWriteEnvironmentPushNotificationServer.ID,
 		model.PermissionSysconsoleWriteEnvironmentHighAvailability.ID,
 		model.PermissionSysconsoleWriteEnvironmentRateLimiting.ID,
@@ -908,7 +908,7 @@ func (a *App) getAddTestEmailAncillaryPermission() (permissionsMap, error) {
 
 	// Give these ancillary permissions to anyone with WRITE_ENVIRONMENT_SMTP
 	transformations = append(transformations, permissionTransformation{
-		On:  permissionExists(model.PermissionSysconsoleWriteEnvironmentSmtp.ID),
+		On:  permissionExists(model.PermissionSysconsoleWriteEnvironmentSMTP.ID),
 		Add: []string{model.PermissionTestEmail.ID},
 	})
 

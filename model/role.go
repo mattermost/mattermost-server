@@ -89,7 +89,7 @@ func init() {
 		PermissionSysconsoleWriteEnvironmentFileStorage.ID: {
 			PermissionTestS3,
 		},
-		PermissionSysconsoleWriteEnvironmentSmtp.ID: {
+		PermissionSysconsoleWriteEnvironmentSMTP.ID: {
 			PermissionTestEmail,
 		},
 		PermissionSysconsoleReadReportingServerLogs.ID: {
@@ -216,7 +216,7 @@ func init() {
 		PermissionSysconsoleReadEnvironmentElasticsearch.ID,
 		PermissionSysconsoleReadEnvironmentFileStorage.ID,
 		PermissionSysconsoleReadEnvironmentImageProxy.ID,
-		PermissionSysconsoleReadEnvironmentSmtp.ID,
+		PermissionSysconsoleReadEnvironmentSMTP.ID,
 		PermissionSysconsoleReadEnvironmentPushNotificationServer.ID,
 		PermissionSysconsoleReadEnvironmentHighAvailability.ID,
 		PermissionSysconsoleReadEnvironmentRateLimiting.ID,
@@ -274,7 +274,7 @@ func init() {
 		PermissionSysconsoleReadEnvironmentElasticsearch.ID,
 		PermissionSysconsoleReadEnvironmentFileStorage.ID,
 		PermissionSysconsoleReadEnvironmentImageProxy.ID,
-		PermissionSysconsoleReadEnvironmentSmtp.ID,
+		PermissionSysconsoleReadEnvironmentSMTP.ID,
 		PermissionSysconsoleReadEnvironmentPushNotificationServer.ID,
 		PermissionSysconsoleReadEnvironmentHighAvailability.ID,
 		PermissionSysconsoleReadEnvironmentRateLimiting.ID,
@@ -287,7 +287,7 @@ func init() {
 		PermissionSysconsoleWriteEnvironmentElasticsearch.ID,
 		PermissionSysconsoleWriteEnvironmentFileStorage.ID,
 		PermissionSysconsoleWriteEnvironmentImageProxy.ID,
-		PermissionSysconsoleWriteEnvironmentSmtp.ID,
+		PermissionSysconsoleWriteEnvironmentSMTP.ID,
 		PermissionSysconsoleWriteEnvironmentPushNotificationServer.ID,
 		PermissionSysconsoleWriteEnvironmentHighAvailability.ID,
 		PermissionSysconsoleWriteEnvironmentRateLimiting.ID,

@@ -509,8 +509,8 @@ func TestMessageExportSettingsIsValidGlobalRelaySettingsInvalidCustomerType(t *t
 		GlobalRelaySettings: &GlobalRelayMessageExportSettings{
 			CustomerType: NewString("Invalid"),
 			EmailAddress: NewString("valid@mattermost.com"),
-			SmtpUsername: NewString("SomeUsername"),
-			SmtpPassword: NewString("SomePassword"),
+			SMTPUsername: NewString("SomeUsername"),
+			SMTPPassword: NewString("SomePassword"),
 		},
 	}
 
@@ -530,8 +530,8 @@ func TestMessageExportSettingsGlobalRelaySettings(t *testing.T) {
 			&GlobalRelayMessageExportSettings{
 				CustomerType: NewString(GlobalrelayCustomerTypeA9),
 				EmailAddress: NewString("invalidEmailAddress"),
-				SmtpUsername: NewString("SomeUsername"),
-				SmtpPassword: NewString("SomePassword"),
+				SMTPUsername: NewString("SomeUsername"),
+				SMTPPassword: NewString("SomePassword"),
 			},
 			false,
 		},
@@ -540,7 +540,7 @@ func TestMessageExportSettingsGlobalRelaySettings(t *testing.T) {
 			&GlobalRelayMessageExportSettings{
 				CustomerType: NewString(GlobalrelayCustomerTypeA10),
 				EmailAddress: NewString("valid@mattermost.com"),
-				SmtpPassword: NewString("SomePassword"),
+				SMTPPassword: NewString("SomePassword"),
 			},
 			false,
 		},
@@ -549,8 +549,8 @@ func TestMessageExportSettingsGlobalRelaySettings(t *testing.T) {
 			&GlobalRelayMessageExportSettings{
 				CustomerType: NewString(GlobalrelayCustomerTypeA10),
 				EmailAddress: NewString("valid@mattermost.com"),
-				SmtpUsername: NewString(""),
-				SmtpPassword: NewString("SomePassword"),
+				SMTPUsername: NewString(""),
+				SMTPPassword: NewString("SomePassword"),
 			},
 			false,
 		},
@@ -559,8 +559,8 @@ func TestMessageExportSettingsGlobalRelaySettings(t *testing.T) {
 			&GlobalRelayMessageExportSettings{
 				CustomerType: NewString(GlobalrelayCustomerTypeA10),
 				EmailAddress: NewString("valid@mattermost.com"),
-				SmtpUsername: NewString("SomeUsername"),
-				SmtpPassword: NewString(""),
+				SMTPUsername: NewString("SomeUsername"),
+				SMTPPassword: NewString(""),
 			},
 			false,
 		},
@@ -569,8 +569,8 @@ func TestMessageExportSettingsGlobalRelaySettings(t *testing.T) {
 			&GlobalRelayMessageExportSettings{
 				CustomerType: NewString(GlobalrelayCustomerTypeA9),
 				EmailAddress: NewString("valid@mattermost.com"),
-				SmtpUsername: NewString("SomeUsername"),
-				SmtpPassword: NewString("SomePassword"),
+				SMTPUsername: NewString("SomeUsername"),
+				SMTPPassword: NewString("SomePassword"),
 			},
 			true,
 		},

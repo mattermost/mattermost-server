@@ -34,8 +34,8 @@ type TestMessageExportSettings struct {
 
 type TestGlobalRelaySettings struct {
 	Customertype string
-	Smtpusername string
-	Smtppassword string
+	SMTPUsername string
+	SMTPPassword string
 }
 
 type TestServiceSettings struct {

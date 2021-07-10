@@ -14,7 +14,7 @@ type SharedChannelStore struct {
 	mock.Mock
 }
 
-// Delete provides a mock function with given fields: channelId
+// Delete provides a mock function with given fields: channelID
 func (_m *SharedChannelStore) Delete(channelID string) (bool, error) {
 	ret := _m.Called(channelID)
 
@@ -35,7 +35,7 @@ func (_m *SharedChannelStore) Delete(channelID string) (bool, error) {
 	return r0, r1
 }
 
-// DeleteRemote provides a mock function with given fields: remoteId
+// DeleteRemote provides a mock function with given fields: remoteID
 func (_m *SharedChannelStore) DeleteRemote(remoteID string) (bool, error) {
 	ret := _m.Called(remoteID)
 
@@ -56,7 +56,7 @@ func (_m *SharedChannelStore) DeleteRemote(remoteID string) (bool, error) {
 	return r0, r1
 }
 
-// Get provides a mock function with given fields: channelId
+// Get provides a mock function with given fields: channelID
 func (_m *SharedChannelStore) Get(channelID string) (*model.SharedChannel, error) {
 	ret := _m.Called(channelID)
 
@@ -123,7 +123,7 @@ func (_m *SharedChannelStore) GetAllCount(opts model.SharedChannelFilterOpts) (i
 	return r0, r1
 }
 
-// GetAttachment provides a mock function with given fields: fileId, remoteId
+// GetAttachment provides a mock function with given fields: fileID, remoteID
 func (_m *SharedChannelStore) GetAttachment(fileID string, remoteID string) (*model.SharedChannelAttachment, error) {
 	ret := _m.Called(fileID, remoteID)
 
@@ -169,7 +169,7 @@ func (_m *SharedChannelStore) GetRemote(id string) (*model.SharedChannelRemote, 
 	return r0, r1
 }
 
-// GetRemoteByIds provides a mock function with given fields: channelId, remoteId
+// GetRemoteByIDs provides a mock function with given fields: channelID, remoteID
 func (_m *SharedChannelStore) GetRemoteByIDs(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
 	ret := _m.Called(channelID, remoteID)
 
@@ -192,7 +192,7 @@ func (_m *SharedChannelStore) GetRemoteByIDs(channelID string, remoteID string) 
 	return r0, r1
 }
 
-// GetRemoteForUser provides a mock function with given fields: remoteId, userId
+// GetRemoteForUser provides a mock function with given fields: remoteID, userID
 func (_m *SharedChannelStore) GetRemoteForUser(remoteID string, userID string) (*model.RemoteCluster, error) {
 	ret := _m.Called(remoteID, userID)
 
@@ -238,7 +238,7 @@ func (_m *SharedChannelStore) GetRemotes(opts model.SharedChannelRemoteFilterOpt
 	return r0, r1
 }
 
-// GetRemotesStatus provides a mock function with given fields: channelId
+// GetRemotesStatus provides a mock function with given fields: channelID
 func (_m *SharedChannelStore) GetRemotesStatus(channelID string) ([]*model.SharedChannelRemoteStatus, error) {
 	ret := _m.Called(channelID)
 
@@ -351,7 +351,7 @@ func (_m *SharedChannelStore) HasChannel(channelID string) (bool, error) {
 	return r0, r1
 }
 
-// HasRemote provides a mock function with given fields: channelID, remoteId
+// HasRemote provides a mock function with given fields: channelID, remoteID
 func (_m *SharedChannelStore) HasRemote(channelID string, remoteID string) (bool, error) {
 	ret := _m.Called(channelID, remoteID)
 

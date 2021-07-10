@@ -661,7 +661,7 @@ func (_m *UserStore) GetNewUsersForTeam(teamID string, offset int, limit int, vi
 	return r0, r1
 }
 
-// GetProfileByGroupChannelIdsForUser provides a mock function with given fields: userID, channelIds
+// GetProfileByGroupChannelIDsForUser provides a mock function with given fields: userID, channelIDs
 func (_m *UserStore) GetProfileByGroupChannelIDsForUser(userID string, channelIDs []string) (map[string][]*model.User, error) {
 	ret := _m.Called(userID, channelIDs)
 
@@ -684,7 +684,7 @@ func (_m *UserStore) GetProfileByGroupChannelIDsForUser(userID string, channelID
 	return r0, r1
 }
 
-// GetProfileByIds provides a mock function with given fields: ctx, userIds, options, allowFromCache
+// GetProfileByIDs provides a mock function with given fields: ctx, userIDs, options, allowFromCache
 func (_m *UserStore) GetProfileByIDs(ctx context.Context, userIDs []string, options *store.UserGetByIDsOpts, allowFromCache bool) ([]*model.User, error) {
 	ret := _m.Called(ctx, userIDs, options, allowFromCache)
 
@@ -799,7 +799,7 @@ func (_m *UserStore) GetProfilesInChannelByStatus(options *model.UserGetOptions)
 	return r0, r1
 }
 
-// GetProfilesNotInChannel provides a mock function with given fields: teamID, channelId, groupConstrained, offset, limit, viewRestrictions
+// GetProfilesNotInChannel provides a mock function with given fields: teamID, channelID, groupConstrained, offset, limit, viewRestrictions
 func (_m *UserStore) GetProfilesNotInChannel(teamID string, channelID string, groupConstrained bool, offset int, limit int, viewRestrictions *model.ViewUsersRestrictions) ([]*model.User, error) {
 	ret := _m.Called(teamID, channelID, groupConstrained, offset, limit, viewRestrictions)
 

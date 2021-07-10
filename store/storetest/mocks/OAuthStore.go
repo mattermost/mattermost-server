@@ -74,7 +74,7 @@ func (_m *OAuthStore) GetAccessDataByRefreshToken(token string) (*model.AccessDa
 	return r0, r1
 }
 
-// GetAccessDataByUserForApp provides a mock function with given fields: userID, clientId
+// GetAccessDataByUserForApp provides a mock function with given fields: userID, clientID
 func (_m *OAuthStore) GetAccessDataByUserForApp(userID string, clientID string) ([]*model.AccessData, error) {
 	ret := _m.Called(userID, clientID)
 
@@ -212,7 +212,7 @@ func (_m *OAuthStore) GetAuthorizedApps(userID string, offset int, limit int) ([
 	return r0, r1
 }
 
-// GetPreviousAccessData provides a mock function with given fields: userID, clientId
+// GetPreviousAccessData provides a mock function with given fields: userID, clientID
 func (_m *OAuthStore) GetPreviousAccessData(userID string, clientID string) (*model.AccessData, error) {
 	ret := _m.Called(userID, clientID)
 

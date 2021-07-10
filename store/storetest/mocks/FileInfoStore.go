@@ -98,7 +98,7 @@ func (_m *FileInfoStore) Get(id string) (*model.FileInfo, error) {
 	return r0, r1
 }
 
-// GetByIds provides a mock function with given fields: ids
+// GetByIDs provides a mock function with given fields: ids
 func (_m *FileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, error) {
 	ret := _m.Called(ids)
 

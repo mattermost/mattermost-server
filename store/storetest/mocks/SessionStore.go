@@ -111,7 +111,7 @@ func (_m *SessionStore) GetSessionsExpired(thresholdMillis int64, mobileOnly boo
 	return r0, r1
 }
 
-// GetSessionsWithActiveDeviceIds provides a mock function with given fields: userID
+// GetSessionsWithActiveDeviceIDs provides a mock function with given fields: userID
 func (_m *SessionStore) GetSessionsWithActiveDeviceIDs(userID string) ([]*model.Session, error) {
 	ret := _m.Called(userID)
 
@@ -199,7 +199,7 @@ func (_m *SessionStore) Save(session *model.Session) (*model.Session, error) {
 	return r0, r1
 }
 
-// UpdateDeviceId provides a mock function with given fields: id, deviceID, expiresAt
+// UpdateDeviceID provides a mock function with given fields: id, deviceID, expiresAt
 func (_m *SessionStore) UpdateDeviceID(id string, deviceID string, expiresAt int64) (string, error) {
 	ret := _m.Called(id, deviceID, expiresAt)
 

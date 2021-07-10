@@ -14,7 +14,7 @@ type RemoteClusterStore struct {
 	mock.Mock
 }
 
-// Delete provides a mock function with given fields: remoteClusterId
+// Delete provides a mock function with given fields: remoteClusterID
 func (_m *RemoteClusterStore) Delete(remoteClusterID string) (bool, error) {
 	ret := _m.Called(remoteClusterID)
 
@@ -35,7 +35,7 @@ func (_m *RemoteClusterStore) Delete(remoteClusterID string) (bool, error) {
 	return r0, r1
 }
 
-// Get provides a mock function with given fields: remoteClusterId
+// Get provides a mock function with given fields: remoteClusterID
 func (_m *RemoteClusterStore) Get(remoteClusterID string) (*model.RemoteCluster, error) {
 	ret := _m.Called(remoteClusterID)
 
@@ -104,7 +104,7 @@ func (_m *RemoteClusterStore) Save(rc *model.RemoteCluster) (*model.RemoteCluste
 	return r0, r1
 }
 
-// SetLastPingAt provides a mock function with given fields: remoteClusterId
+// SetLastPingAt provides a mock function with given fields: remoteClusterID
 func (_m *RemoteClusterStore) SetLastPingAt(remoteClusterID string) error {
 	ret := _m.Called(remoteClusterID)
 
@@ -141,7 +141,7 @@ func (_m *RemoteClusterStore) Update(rc *model.RemoteCluster) (*model.RemoteClus
 	return r0, r1
 }
 
-// UpdateTopics provides a mock function with given fields: remoteClusterId, topics
+// UpdateTopics provides a mock function with given fields: remoteClusterID, topics
 func (_m *RemoteClusterStore) UpdateTopics(remoteClusterID string, topics string) (*model.RemoteCluster, error) {
 	ret := _m.Called(remoteClusterID, topics)
 

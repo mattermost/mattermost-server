@@ -236,7 +236,7 @@ func (_m *TeamStore) GetAllTeamListing() ([]*model.Team, error) {
 	return r0, r1
 }
 
-// GetByInviteId provides a mock function with given fields: inviteID
+// GetByInviteID provides a mock function with given fields: inviteID
 func (_m *TeamStore) GetByInviteID(inviteID string) (*model.Team, error) {
 	ret := _m.Called(inviteID)
 
@@ -420,7 +420,7 @@ func (_m *TeamStore) GetMembers(teamID string, offset int, limit int, teamMember
 	return r0, r1
 }
 
-// GetMembersByIds provides a mock function with given fields: teamID, userIds, restrictions
+// GetMembersByIDs provides a mock function with given fields: teamID, userIDs, restrictions
 func (_m *TeamStore) GetMembersByIDs(teamID string, userIDs []string, restrictions *model.ViewUsersRestrictions) ([]*model.TeamMember, error) {
 	ret := _m.Called(teamID, userIDs, restrictions)
 
@@ -489,7 +489,7 @@ func (_m *TeamStore) GetTeamsByScheme(schemeID string, offset int, limit int) ([
 	return r0, r1
 }
 
-// GetTeamsByUserId provides a mock function with given fields: userID
+// GetTeamsByUserID provides a mock function with given fields: userID
 func (_m *TeamStore) GetTeamsByUserID(userID string) ([]*model.Team, error) {
 	ret := _m.Called(userID)
 
@@ -579,7 +579,7 @@ func (_m *TeamStore) GetTotalMemberCount(teamID string, restrictions *model.View
 	return r0, r1
 }
 
-// GetUserTeamIds provides a mock function with given fields: userID, allowFromCache
+// GetUserTeamIDs provides a mock function with given fields: userID, allowFromCache
 func (_m *TeamStore) GetUserTeamIDs(userID string, allowFromCache bool) ([]string, error) {
 	ret := _m.Called(userID, allowFromCache)
 
@@ -623,7 +623,7 @@ func (_m *TeamStore) GroupSyncedTeamCount() (int64, error) {
 	return r0, r1
 }
 
-// InvalidateAllTeamIdsForUser provides a mock function with given fields: userID
+// InvalidateAllTeamIDsForUser provides a mock function with given fields: userID
 func (_m *TeamStore) InvalidateAllTeamIDsForUser(userID string) {
 	_m.Called(userID)
 }
@@ -707,7 +707,7 @@ func (_m *TeamStore) RemoveMember(teamID string, userID string) error {
 	return r0
 }
 
-// RemoveMembers provides a mock function with given fields: teamID, userIds
+// RemoveMembers provides a mock function with given fields: teamID, userIDs
 func (_m *TeamStore) RemoveMembers(teamID string, userIDs []string) error {
 	ret := _m.Called(teamID, userIDs)
 
@@ -1000,7 +1000,7 @@ func (_m *TeamStore) UpdateMultipleMembers(members []*model.TeamMember) ([]*mode
 	return r0, r1
 }
 
-// UserBelongsToTeams provides a mock function with given fields: userID, teamIds
+// UserBelongsToTeams provides a mock function with given fields: userID, teamIDs
 func (_m *TeamStore) UserBelongsToTeams(userID string, teamIDs []string) (bool, error) {
 	ret := _m.Called(userID, teamIDs)
 

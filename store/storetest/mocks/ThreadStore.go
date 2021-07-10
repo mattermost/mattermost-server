@@ -15,7 +15,7 @@ type ThreadStore struct {
 	mock.Mock
 }
 
-// CollectThreadsWithNewerReplies provides a mock function with given fields: userId, channelIds, timestamp
+// CollectThreadsWithNewerReplies provides a mock function with given fields: userID, channelIDs, timestamp
 func (_m *ThreadStore) CollectThreadsWithNewerReplies(userID string, channelIDs []string, timestamp int64) ([]string, error) {
 	ret := _m.Called(userID, channelIDs, timestamp)
 
@@ -52,7 +52,7 @@ func (_m *ThreadStore) Delete(postID string) error {
 	return r0
 }
 
-// DeleteMembershipForUser provides a mock function with given fields: userId, postID
+// DeleteMembershipForUser provides a mock function with given fields: userID, postID
 func (_m *ThreadStore) DeleteMembershipForUser(userID string, postID string) error {
 	ret := _m.Called(userID, postID)
 
@@ -110,7 +110,7 @@ func (_m *ThreadStore) Get(id string) (*model.Thread, error) {
 	return r0, r1
 }
 
-// GetMembershipForUser provides a mock function with given fields: userId, postID
+// GetMembershipForUser provides a mock function with given fields: userID, postID
 func (_m *ThreadStore) GetMembershipForUser(userID string, postID string) (*model.ThreadMembership, error) {
 	ret := _m.Called(userID, postID)
 
@@ -133,7 +133,7 @@ func (_m *ThreadStore) GetMembershipForUser(userID string, postID string) (*mode
 	return r0, r1
 }
 
-// GetMembershipsForUser provides a mock function with given fields: userId, teamID
+// GetMembershipsForUser provides a mock function with given fields: userID, teamID
 func (_m *ThreadStore) GetMembershipsForUser(userID string, teamID string) ([]*model.ThreadMembership, error) {
 	ret := _m.Called(userID, teamID)
 
@@ -225,7 +225,7 @@ func (_m *ThreadStore) GetThreadForUser(teamID string, threadMembership *model.T
 	return r0, r1
 }
 
-// GetThreadsForUser provides a mock function with given fields: userId, teamID, opts
+// GetThreadsForUser provides a mock function with given fields: userID, teamID, opts
 func (_m *ThreadStore) GetThreadsForUser(userID string, teamID string, opts model.GetUserThreadsOpts) (*model.Threads, error) {
 	ret := _m.Called(userID, teamID, opts)
 
@@ -491,7 +491,7 @@ func (_m *ThreadStore) UpdateMembership(membership *model.ThreadMembership) (*mo
 	return r0, r1
 }
 
-// UpdateUnreadsByChannel provides a mock function with given fields: userId, changedThreads, timestamp, updateViewedTimestamp
+// UpdateUnreadsByChannel provides a mock function with given fields: userID, changedThreads, timestamp, updateViewedTimestamp
 func (_m *ThreadStore) UpdateUnreadsByChannel(userID string, changedThreads []string, timestamp int64, updateViewedTimestamp bool) error {
 	ret := _m.Called(userID, changedThreads, timestamp, updateViewedTimestamp)
 

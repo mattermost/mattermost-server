@@ -14,7 +14,7 @@ type UserTermsOfServiceStore struct {
 	mock.Mock
 }
 
-// Delete provides a mock function with given fields: userID, termsOfServiceId
+// Delete provides a mock function with given fields: userID, termsOfServiceID
 func (_m *UserTermsOfServiceStore) Delete(userID string, termsOfServiceID string) error {
 	ret := _m.Called(userID, termsOfServiceID)
 

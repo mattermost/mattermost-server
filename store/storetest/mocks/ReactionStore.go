@@ -14,7 +14,7 @@ type ReactionStore struct {
 	mock.Mock
 }
 
-// BulkGetForPosts provides a mock function with given fields: postIds
+// BulkGetForPosts provides a mock function with given fields: postIDs
 func (_m *ReactionStore) BulkGetForPosts(postIDs []string) ([]*model.Reaction, error) {
 	ret := _m.Called(postIDs)
 
@@ -118,7 +118,7 @@ func (_m *ReactionStore) GetForPost(postID string, allowFromCache bool) ([]*mode
 	return r0, r1
 }
 
-// GetForPostSince provides a mock function with given fields: postId, since, excludeRemoteId, inclDeleted
+// GetForPostSince provides a mock function with given fields: postID, since, excludeRemoteID, inclDeleted
 func (_m *ReactionStore) GetForPostSince(postID string, since int64, excludeRemoteID string, inclDeleted bool) ([]*model.Reaction, error) {
 	ret := _m.Called(postID, since, excludeRemoteID, inclDeleted)
 

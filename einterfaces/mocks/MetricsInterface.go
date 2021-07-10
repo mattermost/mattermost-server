@@ -90,12 +90,12 @@ func (_m *MetricsInterface) IncrementFilesSearchCounter() {
 	_m.Called()
 }
 
-// IncrementHttpError provides a mock function with given fields:
+// IncrementHTTPError provides a mock function with given fields:
 func (_m *MetricsInterface) IncrementHTTPError() {
 	_m.Called()
 }
 
-// IncrementHttpRequest provides a mock function with given fields:
+// IncrementHTTPRequest provides a mock function with given fields:
 func (_m *MetricsInterface) IncrementHTTPRequest() {
 	_m.Called()
 }
@@ -235,7 +235,7 @@ func (_m *MetricsInterface) IncrementWebsocketReconnectEvent(eventType string) {
 	_m.Called(eventType)
 }
 
-// ObserveApiEndpointDuration provides a mock function with given fields: endpoint, method, statusCode, elapsed
+// ObserveAPIEndpointDuration provides a mock function with given fields: endpoint, method, statusCode, elapsed
 func (_m *MetricsInterface) ObserveAPIEndpointDuration(endpoint string, method string, statusCode string, elapsed float64) {
 	_m.Called(endpoint, method, statusCode, elapsed)
 }
@@ -255,7 +255,7 @@ func (_m *MetricsInterface) ObserveFilesSearchDuration(elapsed float64) {
 	_m.Called(elapsed)
 }
 
-// ObservePluginApiDuration provides a mock function with given fields: pluginID, apiName, success, elapsed
+// ObservePluginAPIDuration provides a mock function with given fields: pluginID, apiName, success, elapsed
 func (_m *MetricsInterface) ObservePluginAPIDuration(pluginID string, apiName string, success bool, elapsed float64) {
 	_m.Called(pluginID, apiName, success, elapsed)
 }

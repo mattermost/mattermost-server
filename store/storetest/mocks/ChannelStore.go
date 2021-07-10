@@ -674,7 +674,7 @@ func (_m *ChannelStore) GetChannelsBatchForIndexing(startTime int64, endTime int
 	return r0, r1
 }
 
-// GetChannelsByIds provides a mock function with given fields: channelIds, includeDeleted
+// GetChannelsByIDs provides a mock function with given fields: channelIDs, includeDeleted
 func (_m *ChannelStore) GetChannelsByIDs(channelIDs []string, includeDeleted bool) ([]*model.Channel, error) {
 	ret := _m.Called(channelIDs, includeDeleted)
 
@@ -960,7 +960,7 @@ func (_m *ChannelStore) GetMembers(channelID string, offset int, limit int) (*mo
 	return r0, r1
 }
 
-// GetMembersByChannelIds provides a mock function with given fields: channelIds, userID
+// GetMembersByChannelIDs provides a mock function with given fields: channelIDs, userID
 func (_m *ChannelStore) GetMembersByChannelIDs(channelIDs []string, userID string) (*model.ChannelMembers, error) {
 	ret := _m.Called(channelIDs, userID)
 
@@ -983,7 +983,7 @@ func (_m *ChannelStore) GetMembersByChannelIDs(channelIDs []string, userID strin
 	return r0, r1
 }
 
-// GetMembersByIds provides a mock function with given fields: channelID, userIds
+// GetMembersByIDs provides a mock function with given fields: channelID, userIDs
 func (_m *ChannelStore) GetMembersByIDs(channelID string, userIDs []string) (*model.ChannelMembers, error) {
 	ret := _m.Called(channelID, userIDs)
 
@@ -1142,7 +1142,7 @@ func (_m *ChannelStore) GetPrivateChannelsForTeam(teamID string, offset int, lim
 	return r0, r1
 }
 
-// GetPublicChannelsByIdsForTeam provides a mock function with given fields: teamID, channelIds
+// GetPublicChannelsByIDsForTeam provides a mock function with given fields: teamID, channelIDs
 func (_m *ChannelStore) GetPublicChannelsByIDsForTeam(teamID string, channelIDs []string) (*model.ChannelList, error) {
 	ret := _m.Called(teamID, channelIDs)
 
@@ -1508,7 +1508,7 @@ func (_m *ChannelStore) RemoveMember(channelID string, userID string) error {
 	return r0
 }
 
-// RemoveMembers provides a mock function with given fields: channelID, userIds
+// RemoveMembers provides a mock function with given fields: channelID, userIDs
 func (_m *ChannelStore) RemoveMembers(channelID string, userIDs []string) error {
 	ret := _m.Called(channelID, userIDs)
 
@@ -1801,7 +1801,7 @@ func (_m *ChannelStore) SetDeleteAt(channelID string, deleteAt int64, updateAt i
 	return r0
 }
 
-// SetShared provides a mock function with given fields: channelId, shared
+// SetShared provides a mock function with given fields: channelID, shared
 func (_m *ChannelStore) SetShared(channelID string, shared bool) error {
 	ret := _m.Called(channelID, shared)
 
@@ -1838,7 +1838,7 @@ func (_m *ChannelStore) Update(channel *model.Channel) (*model.Channel, error) {
 	return r0, r1
 }
 
-// UpdateLastViewedAt provides a mock function with given fields: channelIds, userID, updateThreads
+// UpdateLastViewedAt provides a mock function with given fields: channelIDs, userID, updateThreads
 func (_m *ChannelStore) UpdateLastViewedAt(channelIDs []string, userID string, updateThreads bool) (map[string]int64, error) {
 	ret := _m.Called(channelIDs, userID, updateThreads)
 
@@ -2018,7 +2018,7 @@ func (_m *ChannelStore) UpdateSidebarChannelsByPreferences(preferences *model.Pr
 	return r0
 }
 
-// UserBelongsToChannels provides a mock function with given fields: userID, channelIds
+// UserBelongsToChannels provides a mock function with given fields: userID, channelIDs
 func (_m *ChannelStore) UserBelongsToChannels(userID string, channelIDs []string) (bool, error) {
 	ret := _m.Called(userID, channelIDs)
 

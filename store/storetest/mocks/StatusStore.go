@@ -37,7 +37,7 @@ func (_m *StatusStore) Get(userID string) (*model.Status, error) {
 	return r0, r1
 }
 
-// GetByIds provides a mock function with given fields: userIds
+// GetByIDs provides a mock function with given fields: userIDs
 func (_m *StatusStore) GetByIDs(userIDs []string) ([]*model.Status, error) {
 	ret := _m.Called(userIDs)
 

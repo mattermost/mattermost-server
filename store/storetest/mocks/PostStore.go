@@ -356,7 +356,7 @@ func (_m *PostStore) GetPostAfterTime(channelID string, time int64, collapsedThr
 	return r0, r1
 }
 
-// GetPostIdAfterTime provides a mock function with given fields: channelID, time, collapsedThreads
+// GetPostIDAfterTime provides a mock function with given fields: channelID, time, collapsedThreads
 func (_m *PostStore) GetPostIDAfterTime(channelID string, time int64, collapsedThreads bool) (string, error) {
 	ret := _m.Called(channelID, time, collapsedThreads)
 
@@ -377,7 +377,7 @@ func (_m *PostStore) GetPostIDAfterTime(channelID string, time int64, collapsedT
 	return r0, r1
 }
 
-// GetPostIdBeforeTime provides a mock function with given fields: channelID, time, collapsedThreads
+// GetPostIDBeforeTime provides a mock function with given fields: channelID, time, collapsedThreads
 func (_m *PostStore) GetPostIDBeforeTime(channelID string, time int64, collapsedThreads bool) (string, error) {
 	ret := _m.Called(channelID, time, collapsedThreads)
 
@@ -490,7 +490,7 @@ func (_m *PostStore) GetPostsBefore(options model.GetPostsOptions) (*model.PostL
 	return r0, r1
 }
 
-// GetPostsByIds provides a mock function with given fields: postIds
+// GetPostsByIDs provides a mock function with given fields: postIDs
 func (_m *PostStore) GetPostsByIDs(postIDs []string) ([]*model.Post, error) {
 	ret := _m.Called(postIDs)
 
@@ -635,7 +635,7 @@ func (_m *PostStore) GetSingle(id string, inclDeleted bool) (*model.Post, error)
 	return r0, r1
 }
 
-// HasAutoResponsePostByUserSince provides a mock function with given fields: options, userId
+// HasAutoResponsePostByUserSince provides a mock function with given fields: options, userID
 func (_m *PostStore) HasAutoResponsePostByUserSince(options model.GetPostsSinceOptions, userID string) (bool, error) {
 	ret := _m.Called(options, userID)
 

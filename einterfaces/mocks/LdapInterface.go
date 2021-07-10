@@ -102,7 +102,7 @@ func (_m *LdapInterface) FirstLoginSync(c *request.Context, user *model.User, us
 	return r0
 }
 
-// GetADLdapIdFromSAMLId provides a mock function with given fields: authData
+// GetADLdapIDFromSAMLID provides a mock function with given fields: authData
 func (_m *LdapInterface) GetADLdapIDFromSAMLID(authData string) string {
 	ret := _m.Called(authData)
 
@@ -198,7 +198,7 @@ func (_m *LdapInterface) GetGroup(groupUID string) (*model.Group, *model.AppErro
 	return r0, r1
 }
 
-// GetSAMLIdFromADLdapId provides a mock function with given fields: authData
+// GetSAMLIDFromADLdapID provides a mock function with given fields: authData
 func (_m *LdapInterface) GetSAMLIDFromADLdapID(authData string) string {
 	ret := _m.Called(authData)
 

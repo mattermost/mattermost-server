@@ -11,7 +11,7 @@ type JSONSerializable struct {
 	mock.Mock
 }
 
-// ToJson provides a mock function with given fields:
+// ToJSON provides a mock function with given fields:
 func (_m *JSONSerializable) ToJSON() string {
 	ret := _m.Called()
 

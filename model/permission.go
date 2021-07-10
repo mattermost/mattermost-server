@@ -181,10 +181,10 @@ var PermissionSysconsoleWriteUserManagementPermissions *Permission
 var PermissionSysconsoleReadUserManagementSystemRoles *Permission
 var PermissionSysconsoleWriteUserManagementSystemRoles *Permission
 
-// DEPRECATED
+// PermissionSysconsoleReadEnvironment is deprecated
 var PermissionSysconsoleReadEnvironment *Permission
 
-// DEPRECATED
+// PermissionSysconsoleWriteEnvironment is deprecated
 var PermissionSysconsoleWriteEnvironment *Permission
 
 var PermissionSysconsoleReadEnvironmentWebServer *Permission
@@ -331,7 +331,7 @@ var PermissionSysconsoleWriteExperimentalFeatureFlags *Permission
 var PermissionSysconsoleReadExperimentalBleve *Permission
 var PermissionSysconsoleWriteExperimentalBleve *Permission
 
-// General permission that encompasses all system admin functions
+// PermissionManageSystem is a general permission that encompasses all system admin functions
 // in the future this could be broken up to allow access to some
 // admin functions but not others
 var PermissionManageSystem *Permission

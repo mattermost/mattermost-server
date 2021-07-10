@@ -7,15 +7,15 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
+	_ "image/gif"  // Registration for decoding
+	_ "image/jpeg" // Registration for decoding
+	_ "image/png"  // Registration for decoding
 	"io"
 	"sync"
 
-	_ "github.com/oov/psd"
-	_ "golang.org/x/image/bmp"
-	_ "golang.org/x/image/tiff"
+	_ "github.com/oov/psd"      // Registration for decoding
+	_ "golang.org/x/image/bmp"  // Registration for decoding
+	_ "golang.org/x/image/tiff" // Registration for decoding
 )
 
 // DecoderOptions holds configuration options for an image decoder.

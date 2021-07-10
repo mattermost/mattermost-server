@@ -6,7 +6,7 @@ package api4
 import (
 	"bytes"
 	"image"
-	_ "image/gif"
+	_ "image/gif" // Registration for decoding
 	"os"
 	"path/filepath"
 	"testing"

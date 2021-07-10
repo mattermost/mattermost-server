@@ -11,7 +11,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
 )
 
-// Default polling interval for jobs termination.
+// DefaultWatcherPollingInterval is the default polling interval for jobs termination.
 // (Defining as `var` rather than `const` allows tests to lower the interval.)
 var DefaultWatcherPollingInterval = 15000
 

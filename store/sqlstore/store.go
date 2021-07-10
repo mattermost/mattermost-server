@@ -23,10 +23,10 @@ import (
 	"github.com/golang-migrate/migrate/v4/database"
 	mysqlmigrate "github.com/golang-migrate/migrate/v4/database/mysql"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/golang-migrate/migrate/v4/source/file" // Allow loading migration from filesystem
 	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Load the Postgres driver
 	"github.com/mattermost/gorp"
 	"github.com/pkg/errors"
 

@@ -13,7 +13,7 @@ const (
 	LOWERCASE    = "abcdefghijklmnopqrstuvwxyz"
 )
 
-// Strings that should pass as acceptable posts
+// FuzzyStringsPosts are strings that should pass as acceptable posts
 var FuzzyStringsPosts = []string{
 	`**[1] - [Markdown Tests]**
 _italics_
@@ -366,7 +366,7 @@ This is a link to http://example.com.
 	"ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg@AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.com",
 }
 
-// Strings that should pass as acceptable team names
+// FuzzyStringsNames are strings that should pass as acceptable team names
 var FuzzyStringsNames = []string{
 	"*",
 	"?",
@@ -425,7 +425,7 @@ var FuzzyStringsNames = []string{
 	"H҉̵̞̟̠̖̗̘Ȅ̐̐̑̒̚OMI҉̵̞̟̠",
 }
 
-// Strings that should pass as acceptable emails
+// FuzzyStringsEmails are strings that should pass as acceptable emails
 var FuzzyStringsEmails = []string{
 	"sue@thatmightbe",
 	"sue@thatmightbe.c",

@@ -74,7 +74,7 @@ import (
 
 var MaxNotificationsPerChannelDefault int64 = 1000000
 
-// declaring this as var to allow overriding in tests
+// SentryDSN is declared as var to allow overriding in tests
 var SentryDSN = "placeholder_sentry_dsn"
 
 type Server struct {

@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	_ "net/http/pprof"
+	_ "net/http/pprof" // Enable pprof metrics
 	"sync"
 	"time"
 

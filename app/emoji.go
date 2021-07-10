@@ -12,7 +12,7 @@ import (
 	"image/color/palette"
 	"image/draw"
 	"image/gif"
-	_ "image/jpeg"
+	_ "image/jpeg" // Registration for decoding
 	"image/png"
 	"io"
 	"mime/multipart"

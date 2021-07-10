@@ -12,8 +12,8 @@ import (
 	"path"
 
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
+	_ "github.com/go-sql-driver/mysql" // Load the MySQL driver
+	_ "github.com/lib/pq"              // Load the Postgres driver
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-server/v5/model"

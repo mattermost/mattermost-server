@@ -12,10 +12,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 
-	// Load the MySQL driver
-	_ "github.com/go-sql-driver/mysql"
-	// Load the Postgres driver
-	_ "github.com/lib/pq"
+	_ "github.com/go-sql-driver/mysql" // Load the MySQL driver
+	_ "github.com/lib/pq"              // Load the Postgres driver
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"

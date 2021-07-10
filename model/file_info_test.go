@@ -6,8 +6,8 @@ package model
 import (
 	"bytes"
 	"encoding/base64"
-	_ "image/gif"
-	_ "image/png"
+	_ "image/gif" // Registration for decoding
+	_ "image/png" // Registration for decoding
 	"io/ioutil"
 	"strings"
 	"testing"

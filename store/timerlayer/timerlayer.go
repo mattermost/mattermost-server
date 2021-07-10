@@ -1024,7 +1024,7 @@ func (s *TimerLayerChannelStore) GetChannelsByIDs(channelIDs []string, includeDe
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetChannelsByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetChannelsByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -1232,7 +1232,7 @@ func (s *TimerLayerChannelStore) GetMembersByChannelIDs(channelIDs []string, use
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetMembersByChannelIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetMembersByChannelIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -1248,7 +1248,7 @@ func (s *TimerLayerChannelStore) GetMembersByIDs(channelID string, userIDs []str
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetMembersByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetMembersByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -1360,7 +1360,7 @@ func (s *TimerLayerChannelStore) GetPublicChannelsByIDsForTeam(teamID string, ch
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetPublicChannelsByIdsForTeam", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetPublicChannelsByIDsForTeam", success, elapsed)
 	}
 	return result, err
 }
@@ -2855,7 +2855,7 @@ func (s *TimerLayerFileInfoStore) GetByIDs(ids []string) ([]*model.FileInfo, err
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("FileInfoStore.GetByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("FileInfoStore.GetByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -3350,7 +3350,7 @@ func (s *TimerLayerGroupStore) GetAllGroupSyncablesByGroupID(groupID string, syn
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("GroupStore.GetAllGroupSyncablesByGroupId", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("GroupStore.GetAllGroupSyncablesByGroupID", success, elapsed)
 	}
 	return result, err
 }
@@ -4821,7 +4821,7 @@ func (s *TimerLayerPostStore) GetPostIDAfterTime(channelID string, time int64, c
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("PostStore.GetPostIdAfterTime", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("PostStore.GetPostIDAfterTime", success, elapsed)
 	}
 	return result, err
 }
@@ -4837,7 +4837,7 @@ func (s *TimerLayerPostStore) GetPostIDBeforeTime(channelID string, time int64, 
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("PostStore.GetPostIdBeforeTime", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("PostStore.GetPostIDBeforeTime", success, elapsed)
 	}
 	return result, err
 }
@@ -4917,7 +4917,7 @@ func (s *TimerLayerPostStore) GetPostsByIDs(postIDs []string) ([]*model.Post, er
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("PostStore.GetPostsByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("PostStore.GetPostsByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -6355,7 +6355,7 @@ func (s *TimerLayerSessionStore) GetSessionsWithActiveDeviceIDs(userID string) (
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("SessionStore.GetSessionsWithActiveDeviceIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("SessionStore.GetSessionsWithActiveDeviceIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -6435,7 +6435,7 @@ func (s *TimerLayerSessionStore) UpdateDeviceID(id string, deviceID string, expi
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("SessionStore.UpdateDeviceId", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("SessionStore.UpdateDeviceID", success, elapsed)
 	}
 	return result, err
 }
@@ -6643,7 +6643,7 @@ func (s *TimerLayerSharedChannelStore) GetRemoteByIDs(channelID string, remoteID
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("SharedChannelStore.GetRemoteByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("SharedChannelStore.GetRemoteByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -6963,7 +6963,7 @@ func (s *TimerLayerStatusStore) GetByIDs(userIDs []string) ([]*model.Status, err
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("StatusStore.GetByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("StatusStore.GetByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -7362,7 +7362,7 @@ func (s *TimerLayerTeamStore) GetByInviteID(inviteID string) (*model.Team, error
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetByInviteId", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetByInviteID", success, elapsed)
 	}
 	return result, err
 }
@@ -7490,7 +7490,7 @@ func (s *TimerLayerTeamStore) GetMembersByIDs(teamID string, userIDs []string, r
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetMembersByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetMembersByIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -7538,7 +7538,7 @@ func (s *TimerLayerTeamStore) GetTeamsByUserID(userID string) ([]*model.Team, er
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetTeamsByUserId", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetTeamsByUserID", success, elapsed)
 	}
 	return result, err
 }
@@ -7602,7 +7602,7 @@ func (s *TimerLayerTeamStore) GetUserTeamIDs(userID string, allowFromCache bool)
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetUserTeamIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.GetUserTeamIDs", success, elapsed)
 	}
 	return result, err
 }
@@ -7634,7 +7634,7 @@ func (s *TimerLayerTeamStore) InvalidateAllTeamIDsForUser(userID string) {
 		if true {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.InvalidateAllTeamIdsForUser", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("TeamStore.InvalidateAllTeamIDsForUser", success, elapsed)
 	}
 }
 
@@ -9039,7 +9039,7 @@ func (s *TimerLayerUserStore) GetProfileByGroupChannelIDsForUser(userID string, 
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("UserStore.GetProfileByGroupChannelIdsForUser", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("UserStore.GetProfileByGroupChannelIDsForUser", success, elapsed)
 	}
 	return result, err
 }
@@ -9055,7 +9055,7 @@ func (s *TimerLayerUserStore) GetProfileByIDs(ctx context.Context, userIDs []str
 		if err == nil {
 			success = "true"
 		}
-		s.Root.Metrics.ObserveStoreMethodDuration("UserStore.GetProfileByIds", success, elapsed)
+		s.Root.Metrics.ObserveStoreMethodDuration("UserStore.GetProfileByIDs", success, elapsed)
 	}
 	return result, err
 }

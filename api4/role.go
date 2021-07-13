@@ -29,10 +29,26 @@ var notAllowedPermissions = []string{
 }
 
 func (api *API) InitRole() {
+	api.BaseRoutes.Roles.Handle("", api.ApiSessionRequired(getAllRoles)).Methods("GET")
 	api.BaseRoutes.Roles.Handle("/{role_id:[A-Za-z0-9]+}", api.ApiSessionRequiredTrustRequester(getRole)).Methods("GET")
 	api.BaseRoutes.Roles.Handle("/name/{role_name:[a-z0-9_]+}", api.ApiSessionRequiredTrustRequester(getRoleByName)).Methods("GET")
 	api.BaseRoutes.Roles.Handle("/names", api.ApiSessionRequiredTrustRequester(getRolesByNames)).Methods("POST")
 	api.BaseRoutes.Roles.Handle("/{role_id:[A-Za-z0-9]+}/patch", api.ApiSessionRequired(patchRole)).Methods("PUT")
+}
+
+func getAllRoles(c *Context, w http.ResponseWriter, r *http.Request) {
+	if !c.App.SessionHasPermissionTo(*c.App.Session(), model.PERMISSION_MANAGE_SYSTEM) {
+		c.SetPermissionError(model.PERMISSION_MANAGE_SYSTEM)
+		return
+	}
+
+	roles, err := c.App.GetAllRoles()
+	if err != nil {
+		c.Err = err
+		return
+	}
+
+	w.Write([]byte(model.RoleListToJson(roles)))
 }
 
 func getRole(c *Context, w http.ResponseWriter, r *http.Request) {

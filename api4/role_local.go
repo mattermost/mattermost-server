@@ -4,6 +4,7 @@
 package api4
 
 func (api *API) InitRoleLocal() {
+	api.BaseRoutes.Roles.Handle("", api.ApiLocal(getAllRoles)).Methods("GET")
 	api.BaseRoutes.Roles.Handle("/{role_id:[A-Za-z0-9]+}", api.ApiLocal(getRole)).Methods("GET")
 	api.BaseRoutes.Roles.Handle("/name/{role_name:[a-z0-9_]+}", api.ApiLocal(getRoleByName)).Methods("GET")
 	api.BaseRoutes.Roles.Handle("/names", api.ApiLocal(getRolesByNames)).Methods("POST")

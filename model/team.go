@@ -26,7 +26,7 @@ const (
 )
 
 type Team struct {
-	ID                 string  `db:"id" json:"id"`
+	ID                 string  `db:"Id" json:"id"`
 	CreateAt           int64   `json:"create_at"`
 	UpdateAt           int64   `json:"update_at"`
 	DeleteAt           int64   `json:"delete_at"`
@@ -37,10 +37,10 @@ type Team struct {
 	Type               string  `json:"type"`
 	CompanyName        string  `json:"company_name"`
 	AllowedDomains     string  `json:"allowed_domains"`
-	InviteID           string  `json:"invite_id"`
+	InviteID           string  `db:"InviteId" json:"invite_id"`
 	AllowOpenInvite    bool    `json:"allow_open_invite"`
 	LastTeamIconUpdate int64   `json:"last_team_icon_update,omitempty"`
-	SchemeID           *string `json:"scheme_id"`
+	SchemeID           *string `db:"SchemeId" json:"scheme_id"`
 	GroupConstrained   *bool   `json:"group_constrained"`
 	PolicyID           *string `json:"policy_id" db:"-"`
 }

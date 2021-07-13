@@ -732,7 +732,7 @@ func TestUpdatePost(t *testing.T) {
 		rpost2, err := th.App.CreatePost(th.Context, &model.Post{
 			ChannelId: channel.Id,
 			Message:   "zz" + model.NewId() + "a",
-			Type:      model.PostTypeJoinLeave,
+			Type:      model.PostTypeJoinChannel,
 			UserId:    th.BasicUser.Id,
 		}, channel, false, true)
 		require.Nil(t, err)

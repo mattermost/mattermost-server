@@ -22,14 +22,12 @@ const (
 	PostTypeDefault                = ""
 	PostTypeSlackAttachment        = "slack_attachment"
 	PostTypeSystemGeneric          = "system_generic"
-	PostTypeJoinLeave              = "system_join_leave" // Deprecated, use PostJoinChannel or PostLeaveChannel instead
 	PostTypeJoinChannel            = "system_join_channel"
 	PostTypeGuestJoinChannel       = "system_guest_join_channel"
 	PostTypeLeaveChannel           = "system_leave_channel"
 	PostTypeJoinTeam               = "system_join_team"
 	PostTypeLeaveTeam              = "system_leave_team"
 	PostTypeAutoResponder          = "system_auto_responder"
-	PostTypeAddRemove              = "system_add_remove" // Deprecated, use PostAddToChannel or PostRemoveFromChannel instead
 	PostTypeAddToChannel           = "system_add_to_channel"
 	PostTypeAddGuestToChannel      = "system_add_guest_to_chan"
 	PostTypeRemoveFromChannel      = "system_remove_from_channel"
@@ -90,8 +88,9 @@ type Post struct {
 	// populate edit boxes if present.
 	MessageSource string `json:"message_source,omitempty" db:"-"`
 
-	Type          string          `json:"type"`
-	propsMu       sync.RWMutex    `db:"-"`       // Unexported mutex used to guard Post.Props.
+	Type    string       `json:"type"`
+	propsMu sync.RWMutex `db:"-"` // Unexported mutex used to guard Post.Props.
+	// Unfortunately, this cannot be unexported yet because gorp needs it.
 	Props         StringInterface `json:"props"` // Deprecated: use GetProps()
 	Hashtags      string          `json:"hashtags"`
 	Filenames     StringArray     `json:"filenames,omitempty"` // Deprecated, do not use this field any more
@@ -326,9 +325,7 @@ func (o *Post) IsValid(maxPostSize int) *AppError {
 	case
 		PostTypeDefault,
 		PostTypeSystemGeneric,
-		PostTypeJoinLeave,
 		PostTypeAutoResponder,
-		PostTypeAddRemove,
 		PostTypeJoinChannel,
 		PostTypeGuestJoinChannel,
 		PostTypeLeaveChannel,
@@ -488,9 +485,7 @@ func (o *Post) GetRemoteID() string {
 }
 
 func (o *Post) IsJoinLeaveMessage() bool {
-	return o.Type == PostTypeJoinLeave ||
-		o.Type == PostTypeAddRemove ||
-		o.Type == PostTypeJoinChannel ||
+	return o.Type == PostTypeJoinChannel ||
 		o.Type == PostTypeLeaveChannel ||
 		o.Type == PostTypeJoinTeam ||
 		o.Type == PostTypeLeaveTeam ||

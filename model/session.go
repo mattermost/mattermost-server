@@ -125,17 +125,6 @@ func (s *Session) IsExpired() bool {
 	return false
 }
 
-// Deprecated: SetExpireInDays is deprecated and should not be used.
-//             Use (*App).SetSessionExpireInDays instead which handles the
-//			   cases where the new ExpiresAt is not relative to CreateAt.
-func (s *Session) SetExpireInDays(days int) {
-	if s.CreateAt == 0 {
-		s.ExpiresAt = GetMillis() + (1000 * 60 * 60 * 24 * int64(days))
-	} else {
-		s.ExpiresAt = s.CreateAt + (1000 * 60 * 60 * 24 * int64(days))
-	}
-}
-
 func (s *Session) AddProp(key string, value string) {
 
 	if s.Props == nil {

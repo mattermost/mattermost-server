@@ -249,7 +249,7 @@ func TestFilterOutOfChannelMentions(t *testing.T) {
 
 	t.Run("should not return results for a system message", func(t *testing.T) {
 		post := &model.Post{
-			Type: model.PostTypeAddRemove,
+			Type: model.PostTypeAddToChannel,
 		}
 		potentialMentions := []string{user2.Username, user3.Username}
 

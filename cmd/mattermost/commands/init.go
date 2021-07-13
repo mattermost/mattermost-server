@@ -42,7 +42,7 @@ func initDBCommandContext(configDSN string, readOnlyConfigStore bool) (*app.App,
 	model.AppErrorInit(i18n.T)
 
 	s, err := app.NewServer(
-		app.Config(configDSN, false, readOnlyConfigStore, nil),
+		app.Config(configDSN, readOnlyConfigStore, nil),
 		app.StartSearchEngine,
 	)
 	if err != nil {

@@ -150,7 +150,7 @@ func (h *testHelper) execArgs(t *testing.T, args []string) []string {
 		ret = append(ret, "-test.coverprofile", filepath.Join(dir, strings.Join(baseParts, ".")))
 	}
 
-	ret = append(ret, "--", "--disableconfigwatch")
+	ret = append(ret, "--")
 
 	// Unless the test passes a `--config` of its own, create a temporary one from the default
 	// configuration with the current test database applied.

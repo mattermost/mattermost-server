@@ -61,8 +61,6 @@ type BackingStore interface {
 	// String describes the backing store for the config.
 	String() string
 
-	Watch(callback func()) error
-
 	// Close cleans up resources associated with the store.
 	Close() error
 }
@@ -80,24 +78,18 @@ func NewStoreFromBacking(backingStore BackingStore, customDefaults *model.Config
 		return nil, errors.Wrap(err, "unable to load on store creation")
 	}
 
-	if err := backingStore.Watch(func() {
-		store.Load()
-	}); err != nil {
-		return nil, errors.Wrap(err, "failed to watch backing store")
-	}
-
 	return store, nil
 }
 
 // NewStoreFromDSN creates and returns a new config store backed by either a database or file store
 // depending on the value of the given data source name string.
-func NewStoreFromDSN(dsn string, watch, readOnly bool, customDefaults *model.Config) (*Store, error) {
+func NewStoreFromDSN(dsn string, readOnly bool, customDefaults *model.Config) (*Store, error) {
 	var err error
 	var backingStore BackingStore
 	if IsDatabaseDSN(dsn) {
 		backingStore, err = NewDatabaseStore(dsn)
 	} else {
-		backingStore, err = NewFileStore(dsn, watch)
+		backingStore, err = NewFileStore(dsn)
 	}
 	if err != nil {
 		return nil, err

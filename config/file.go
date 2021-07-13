@@ -26,27 +26,19 @@ var (
 // It also uses the folder containing the configuration file for storing other configuration files.
 // Not to be used directly. Only to be used as a backing store for config.Store
 type FileStore struct {
-	path     string
-	watch    bool
-	watcher  *watcher
-	callback func()
+	path string
 }
 
 // NewFileStore creates a new instance of a config store backed by the given file path.
-//
-// If watch is true, any external changes to the file will force a reload.
-func NewFileStore(path string, watch bool) (fs *FileStore, err error) {
+func NewFileStore(path string) (fs *FileStore, err error) {
 	resolvedPath, err := resolveConfigFilePath(path)
 	if err != nil {
 		return nil, err
 	}
 
-	fs = &FileStore{
-		path:  resolvedPath,
-		watch: watch,
-	}
-
-	return fs, nil
+	return &FileStore{
+		path: resolvedPath,
+	}, nil
 }
 
 // resolveConfigFilePath attempts to resolve the given configuration file path to an absolute path.
@@ -103,12 +95,6 @@ func (fs *FileStore) Set(newCfg *model.Config) error {
 
 // persist writes the configuration to the configured file.
 func (fs *FileStore) persist(cfg *model.Config) error {
-	needsRestart := false
-	if fs.watcher != nil {
-		fs.stopWatcher()
-		needsRestart = true
-	}
-
 	b, err := marshalConfig(cfg)
 	if err != nil {
 		return errors.Wrap(err, "failed to serialize")
@@ -117,12 +103,6 @@ func (fs *FileStore) persist(cfg *model.Config) error {
 	err = ioutil.WriteFile(fs.path, b, 0600)
 	if err != nil {
 		return errors.Wrap(err, "failed to write file")
-	}
-
-	if fs.watch && needsRestart {
-		if err = fs.Watch(fs.callback); err != nil {
-			mlog.Error("failed to start config watcher", mlog.String("path", fs.path), mlog.Err(err))
-		}
 	}
 
 	return nil
@@ -215,34 +195,6 @@ func (fs *FileStore) RemoveFile(name string) error {
 	return nil
 }
 
-func (fs *FileStore) Watch(callback func()) error {
-	if fs.watcher != nil || !fs.watch {
-		return nil
-	}
-
-	fs.callback = callback
-	watcher, err := newWatcher(fs.path, callback)
-	if err != nil {
-		return err
-	}
-
-	fs.watcher = watcher
-
-	return nil
-}
-
-// stopWatcher stops any previously started watcher.
-func (fs *FileStore) stopWatcher() {
-	if fs.watcher == nil {
-		return
-	}
-
-	if err := fs.watcher.Close(); err != nil {
-		mlog.Error("failed to close watcher", mlog.Err(err))
-	}
-	fs.watcher = nil
-}
-
 // String returns the path to the file backing the config.
 func (fs *FileStore) String() string {
 	return "file://" + fs.path
@@ -250,7 +202,5 @@ func (fs *FileStore) String() string {
 
 // Close cleans up resources associated with the store.
 func (fs *FileStore) Close() error {
-	fs.stopWatcher()
-
 	return nil
 }

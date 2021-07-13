@@ -235,7 +235,7 @@ func NewServer(options ...Option) (*Server, error) {
 	}
 
 	if s.configStore == nil {
-		innerStore, err := config.NewFileStore("config.json", true)
+		innerStore, err := config.NewFileStore("config.json")
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load config")
 		}

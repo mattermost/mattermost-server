@@ -43,9 +43,9 @@ func StoreOverride(override interface{}) Option {
 // or a database connection string. It receives as well a set of
 // custom defaults that will be applied for any unset property of the
 // config loaded from the dsn on top of the normal defaults
-func Config(dsn string, watch, readOnly bool, configDefaults *model.Config) Option {
+func Config(dsn string, readOnly bool, configDefaults *model.Config) Option {
 	return func(s *Server) error {
-		configStore, err := config.NewStoreFromDSN(dsn, watch, readOnly, configDefaults)
+		configStore, err := config.NewStoreFromDSN(dsn, readOnly, configDefaults)
 		if err != nil {
 			return errors.Wrap(err, "failed to apply Config option")
 		}

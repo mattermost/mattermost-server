@@ -36,7 +36,7 @@ func TestPlugin(t *testing.T) {
 	output = th.CheckCommand(t, "plugin", "enable", "testplugin")
 	assert.Contains(t, output, "Enabled plugin: testplugin")
 
-	fs, err := config.NewFileStore(th.ConfigPath(), false)
+	fs, err := config.NewFileStore(th.ConfigPath())
 	require.NoError(t, err)
 	cfsStore, err := config.NewStoreFromBacking(fs, nil, false)
 	require.NoError(t, err)
@@ -46,7 +46,7 @@ func TestPlugin(t *testing.T) {
 
 	output = th.CheckCommand(t, "plugin", "disable", "testplugin")
 	assert.Contains(t, output, "Disabled plugin: testplugin")
-	fs, err = config.NewFileStore(th.ConfigPath(), false)
+	fs, err = config.NewFileStore(th.ConfigPath())
 	require.NoError(t, err)
 	cfsStore, err = config.NewStoreFromBacking(fs, nil, false)
 	require.NoError(t, err)

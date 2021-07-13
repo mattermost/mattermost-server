@@ -9,13 +9,13 @@ import (
 
 // Migrate migrates SAML keys, certificates, and other config files from one store to another given their data source names.
 func Migrate(from, to string) error {
-	source, err := NewStoreFromDSN(from, false, false, nil)
+	source, err := NewStoreFromDSN(from, false, nil)
 	if err != nil {
 		return errors.Wrapf(err, "failed to access source config %s", from)
 	}
 	defer source.Close()
 
-	destination, err := NewStoreFromDSN(to, false, false, nil)
+	destination, err := NewStoreFromDSN(to, false, nil)
 	if err != nil {
 		return errors.Wrapf(err, "failed to access destination config %s", to)
 	}

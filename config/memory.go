@@ -118,8 +118,3 @@ func (ms *MemoryStore) String() string {
 func (ms *MemoryStore) Close() error {
 	return nil
 }
-
-// Watch nothing on memory store
-func (ms *MemoryStore) Watch(_ func()) error {
-	return nil
-}

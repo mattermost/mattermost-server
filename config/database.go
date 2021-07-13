@@ -346,8 +346,3 @@ func (ds *DatabaseStore) String() string {
 func (ds *DatabaseStore) Close() error {
 	return ds.db.Close()
 }
-
-// Watch nothing on memory store
-func (ds *DatabaseStore) Watch(_ func()) error {
-	return nil
-}

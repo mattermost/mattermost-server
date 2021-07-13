@@ -475,17 +475,20 @@ func (g *apiRPCClient) PluginHTTP(request *http.Request) *http.Response {
 		RequestURI: request.RequestURI,
 	}
 
-	requestBody, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		log.Printf("RPC call to PluginHTTP API failed: %s", err.Error())
-		return nil
-	}
-	request.Body.Close()
-	request.Body = nil
-
 	_args := &Z_PluginHTTPArgs{
-		Request:     forwardedRequest,
-		RequestBody: requestBody,
+		Request: forwardedRequest,
+	}
+
+	if request.Body != nil {
+		requestBody, err := ioutil.ReadAll(request.Body)
+		if err != nil {
+			log.Printf("RPC call to PluginHTTP API failed: %s", err.Error())
+			return nil
+		}
+		request.Body.Close()
+		request.Body = nil
+
+		_args.RequestBody = requestBody
 	}
 
 	_returns := &Z_PluginHTTPReturns{}

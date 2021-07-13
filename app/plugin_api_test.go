@@ -1414,23 +1414,27 @@ func TestInterpluginPluginHTTP(t *testing.T) {
 		}
 
 		func (p *MyPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path != "/api/v2/test" {
-				return
-			}
+			switch r.URL.Path {
+			case "/api/v2/test":
+				if r.URL.Query().Get("abc") != "xyz" {
+					return
+				}
 
-			if r.URL.Query().Get("abc") != "xyz" {
-				return
-			}
+				if r.Header.Get("Mattermost-Plugin-ID") != "testplugininterclient" {
+					return
+				}
 
-			if r.Header.Get("Mattermost-Plugin-ID") != "testplugininterclient" {
-				return
+				buf := bytes.Buffer{}
+				buf.ReadFrom(r.Body)
+				resp := "we got:" + buf.String()
+				w.WriteHeader(598)
+				w.Write([]byte(resp))
+				if r.URL.Path != "/api/v2/test" {
+					return
+				}
+			case "/nobody":
+				w.WriteHeader(599)
 			}
-
-			buf := bytes.Buffer{}
-			buf.ReadFrom(r.Body)
-			resp := "we got:" + buf.String()
-			w.WriteHeader(598)
-			w.Write([]byte(resp))
 		}
 
 		func main() {
@@ -1474,7 +1478,26 @@ func TestInterpluginPluginHTTP(t *testing.T) {
 			if resp.StatusCode != 598 {
 				return nil, "wrong status " + string(respbody)
 			}
-			return nil, string(respbody)
+
+			if string(respbody) !=  "we got:This is the request" {
+				return nil, "wrong response " + string(respbody)
+			}
+
+			req, err = http.NewRequest("GET", "/testplugininterserver/nobody", nil)
+			if err != nil {
+				return nil, err.Error()
+			}
+
+			resp = p.API.PluginHTTP(req)
+			if resp == nil {
+				return nil, "Nil resp"
+			}
+
+			if resp.StatusCode != 599 {
+				return nil, "wrong status " + string(respbody)
+			}
+
+			return nil, "ok"
 		}
 
 		func main() {
@@ -1498,7 +1521,7 @@ func TestInterpluginPluginHTTP(t *testing.T) {
 	hooks, err := th.App.GetPluginsEnvironment().HooksForPlugin("testplugininterclient")
 	require.NoError(t, err)
 	_, ret := hooks.MessageWillBePosted(nil, nil)
-	assert.Equal(t, "we got:This is the request", ret)
+	assert.Equal(t, "ok", ret)
 }
 
 func TestApiMetrics(t *testing.T) {

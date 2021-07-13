@@ -2179,8 +2179,6 @@ func (s SqlChannelStore) UpdateLastViewedAt(channelIds []string, userId string, 
 func (s SqlChannelStore) CountPostsAfter(channelId string, timestamp int64, userId string) (int, int, error) {
 	joinLeavePostTypes := []string{
 		// These types correspond to the ones checked by Post.IsJoinLeaveMessage
-		model.PostTypeJoinLeave,
-		model.PostTypeAddRemove,
 		model.PostTypeJoinChannel,
 		model.PostTypeLeaveChannel,
 		model.PostTypeJoinTeam,

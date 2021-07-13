@@ -16,6 +16,7 @@ import (
 )
 
 func TestThreadStore(t *testing.T, ss store.Store, s SqlStore) {
+	t.Run("ThreadSQLOperations", func(t *testing.T) { testThreadSQLOperations(t, ss, s) })
 	t.Run("ThreadStorePopulation", func(t *testing.T) { testThreadStorePopulation(t, ss) })
 	t.Run("ThreadStorePermanentDeleteBatchForRetentionPolicies", func(t *testing.T) {
 		testThreadStorePermanentDeleteBatchForRetentionPolicies(t, ss)
@@ -418,6 +419,24 @@ func testThreadStorePopulation(t *testing.T, ss store.Store) {
 	})
 }
 
+func testThreadSQLOperations(t *testing.T, ss store.Store, s SqlStore) {
+	t.Run("Save", func(t *testing.T) {
+		threadToSave := &model.Thread{
+			PostId:       model.NewId(),
+			ChannelId:    model.NewId(),
+			LastReplyAt:  10,
+			ReplyCount:   5,
+			Participants: model.StringArray{model.NewId(), model.NewId()},
+		}
+		_, err := ss.Thread().Save(threadToSave)
+		require.NoError(t, err)
+
+		th, err := ss.Thread().Get(threadToSave.PostId)
+		require.NoError(t, err)
+		require.Equal(t, threadToSave, th)
+	})
+}
+
 func threadStoreCreateReply(t *testing.T, ss store.Store, channelID, postID string, createAt int64) *model.Post {
 	reply, err := ss.Post().Save(&model.Post{
 		ChannelId: channelID,
@@ -587,7 +606,7 @@ func testThreadStorePermanentDeleteBatchThreadMembershipsForRetentionPolicies(t 
 	require.Error(t, err, "thread membership should have been deleted by team policy")
 
 	// create a new thread membership
-	threadMembership = createThreadMembership(userID, post.Id)
+	createThreadMembership(userID, post.Id)
 
 	// Delete team policy and thread
 	err = ss.RetentionPolicy().Delete(teamPolicy.ID)

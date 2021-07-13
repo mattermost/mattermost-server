@@ -4,6 +4,7 @@
 package sqlstore
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -255,4 +256,152 @@ func TestMsgCountRootMigration(t *testing.T) {
 			})
 		})
 	}
+}
+
+func TestFixCRTCountsAndUnreads(t *testing.T) {
+	StoreTest(t, func(t *testing.T, ss store.Store) {
+		sqlStore := ss.(*SqlStore)
+
+		team := createTeam(ss)
+		uId1 := model.NewId()
+		uId2 := model.NewId()
+		c1, err := createChannelWithLastPostAt(ss, team.Id, uId1, 0, 0, 0)
+		require.NoError(t, err)
+		createChannelMemberWithLastViewAt(ss, c1.Id, uId1, 0)
+		createChannelMemberWithLastViewAt(ss, c1.Id, uId2, 0)
+
+		// Create a thread
+		// user2: root post 1
+		//   - user1: reply 1 to root post 1
+		//   - user2: reply 2 to root post 1
+		//   - user1: reply 3 to root post 1
+		//   - user2: reply 4 to root post 1
+		rootPost1 := createPostWithTimestamp(ss, c1.Id, uId2, "", "", 1)
+		lastReplyAt := int64(40)
+		_ = createPostWithTimestamp(ss, c1.Id, uId1, rootPost1.Id, rootPost1.Id, 10)
+		_ = createPostWithTimestamp(ss, c1.Id, uId2, rootPost1.Id, rootPost1.Id, 20)
+		_ = createPostWithTimestamp(ss, c1.Id, uId1, rootPost1.Id, rootPost1.Id, 30)
+		_ = createPostWithTimestamp(ss, c1.Id, uId2, rootPost1.Id, rootPost1.Id, lastReplyAt)
+
+		// Check created thread is good
+		goodThread1, err := ss.Thread().Get(rootPost1.Id)
+		require.NoError(t, err)
+		require.EqualValues(t, 4, goodThread1.ReplyCount)
+		require.EqualValues(t, lastReplyAt, goodThread1.LastReplyAt)
+		require.ElementsMatch(t, model.StringArray{uId1, uId2}, goodThread1.Participants)
+
+		// Create ThreadMembership
+		goodThreadMembership1, err := ss.Thread().SaveMembership(&model.ThreadMembership{
+			PostId:         rootPost1.Id,
+			UserId:         uId1,
+			Following:      true,
+			LastViewed:     lastReplyAt + 1,
+			LastUpdated:    lastReplyAt + 1,
+			UnreadMentions: 0,
+		})
+		require.NoError(t, err)
+		goodThreadMembership2, err := ss.Thread().SaveMembership(&model.ThreadMembership{
+			PostId:         rootPost1.Id,
+			UserId:         uId2,
+			Following:      true,
+			LastViewed:     lastReplyAt + 1,
+			LastUpdated:    lastReplyAt + 1,
+			UnreadMentions: 0,
+		})
+		require.NoError(t, err)
+
+		// Update channel last viewed at
+		// set channel as fully read for user1
+		_, err = ss.Channel().UpdateLastViewedAt([]string{c1.Id}, uId1, true)
+		require.NoError(t, err)
+		// for user2 set channel as read before the last post in thread
+		// user2's threadmembership wont change
+		cm2, err := ss.Channel().GetMember(context.Background(), c1.Id, uId2)
+		require.NoError(t, err)
+		cm2.LastViewedAt = lastReplyAt - 10
+		cm2, err = ss.Channel().UpdateMember(cm2)
+		require.NoError(t, err)
+
+		// Update ThreadMembership with bad data, as we might expect because
+		// of previous bugs or changed behaviour
+		badThreadMembership1 := *goodThreadMembership1
+		badThreadMembership1.LastViewed = 30
+		badThreadMembership1.UnreadMentions = 4
+		_, err = ss.Thread().UpdateMembership(&badThreadMembership1)
+		require.NoError(t, err)
+
+		// Run migration to fix threads and memberships
+		fixCRTThreadCountsAndUnreads(sqlStore)
+
+		// Check bad threadMemberships is fixed
+		fixedThreadMembership1, err := ss.Thread().GetMembershipForUser(uId1, rootPost1.Id)
+		require.NoError(t, err)
+		require.EqualValues(t, lastReplyAt, fixedThreadMembership1.LastViewed)
+		require.EqualValues(t, int64(0), fixedThreadMembership1.UnreadMentions)
+		require.NotEqual(t, goodThreadMembership1.LastUpdated, fixedThreadMembership1.LastUpdated)
+
+		// check good threadMembership is unchanged
+		fixedThreadMembership2, err := ss.Thread().GetMembershipForUser(uId2, rootPost1.Id)
+		require.NoError(t, err)
+		require.Equal(t, goodThreadMembership2, fixedThreadMembership2)
+	})
+}
+
+func TestFixCRTChannelUnreads(t *testing.T) {
+	StoreTest(t, func(t *testing.T, ss store.Store) {
+		sqlStore := ss.(*SqlStore)
+
+		team := createTeam(ss)
+		uId1 := model.NewId()
+		uId2 := model.NewId()
+		channelLastPostAt := int64(100)
+		channelMsgCount := int64(200)
+		channelMsgCountRoot := int64(100)
+		c1, err := createChannelWithLastPostAt(ss, team.Id, uId1, channelLastPostAt, channelMsgCount, channelMsgCountRoot)
+		require.NoError(t, err)
+
+		// Make a membership entry
+		cm1, err := ss.Channel().SaveMember(&model.ChannelMember{
+			ChannelId:        c1.Id,
+			UserId:           uId1,
+			LastViewedAt:     channelLastPostAt - 50,
+			NotifyProps:      model.GetDefaultChannelNotifyProps(),
+			MsgCount:         80,
+			MsgCountRoot:     40,
+			MentionCount:     5,
+			MentionCountRoot: 5,
+		})
+		require.NoError(t, err)
+
+		// make a bad membership entry
+		// LastViewed at newer than channel LastPostAt and with unreads and mentions
+		cm2, err := ss.Channel().SaveMember(&model.ChannelMember{
+			ChannelId:        c1.Id,
+			UserId:           uId2,
+			LastViewedAt:     channelLastPostAt + 50,
+			NotifyProps:      model.GetDefaultChannelNotifyProps(),
+			MsgCount:         80,
+			MsgCountRoot:     40,
+			MentionCount:     5,
+			MentionCountRoot: 5,
+		})
+		require.NoError(t, err)
+
+		fixCRTChannelMembershipCounts(sqlStore)
+
+		cm1AfterFix, err := ss.Channel().GetMember(context.Background(), c1.Id, uId1)
+		require.NoError(t, err)
+		// Migration should not affect this channelmembership
+		require.Equal(t, *cm1, *cm1AfterFix)
+
+		cm2AfterFix, err := ss.Channel().GetMember(context.Background(), c1.Id, uId2)
+		require.NoError(t, err)
+		// Check that the channelmembership is fixed
+		require.NotEqual(t, *cm2, *cm2AfterFix)
+		require.EqualValues(t, 0, cm2AfterFix.MentionCount)
+		require.EqualValues(t, 0, cm2AfterFix.MentionCountRoot)
+		require.Equal(t, channelMsgCount, cm2AfterFix.MsgCount)
+		require.Equal(t, channelMsgCountRoot, cm2AfterFix.MsgCountRoot)
+		require.NotEqual(t, cm2.LastUpdateAt, cm2AfterFix.LastUpdateAt)
+	})
 }

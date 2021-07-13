@@ -20,6 +20,7 @@ import (
 
 const (
 	CurrentSchemaVersion   = Version5370
+	Version5380            = "5.38.0"
 	Version5370            = "5.37.0"
 	Version5360            = "5.36.0"
 	Version5350            = "5.35.0"
@@ -210,6 +211,7 @@ func upgradeDatabase(sqlStore *SqlStore, currentModelVersionString string) error
 	upgradeDatabaseToVersion535(sqlStore)
 	upgradeDatabaseToVersion536(sqlStore)
 	upgradeDatabaseToVersion537(sqlStore)
+	upgradeDatabaseToVersion538(sqlStore)
 
 	return nil
 }
@@ -1209,5 +1211,71 @@ func upgradeDatabaseToVersion537(sqlStore *SqlStore) {
 		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "PrevStatus", "VARCHAR(32)", "VARCHAR(32)")
 
 		saveSchemaVersion(sqlStore, Version5370)
+	}
+}
+
+func upgradeDatabaseToVersion538(sqlStore *SqlStore) {
+	// TODO: uncomment when the time arrive to upgrade the DB for 5.38
+	// if shouldPerformUpgrade(sqlStore, Version5370, Version5380) {
+	fixCRTChannelMembershipCounts(sqlStore)
+	fixCRTThreadCountsAndUnreads(sqlStore)
+
+	// 	saveSchemaVersion(sqlStore, Version5380)
+	// }
+}
+
+// fixCRTThreadCountsAndUnreads Marks threads as read for users where the last
+// reply time of the thread is earlier than the time the user viewed the channel.
+// Marking a thread means setting the mention count to zero and setting the
+// last viewed at time of the the thread as the last viewed at time
+// of the channel
+func fixCRTThreadCountsAndUnreads(sqlStore *SqlStore) {
+	threadMembershipsCTE := `
+		SELECT PostId, UserId, ChannelMembers.LastViewedAt as CM_LastViewedAt, Threads.LastReplyAt
+		FROM Threads
+		INNER JOIN ChannelMembers on ChannelMembers.ChannelId = Threads.ChannelId
+		WHERE Threads.LastReplyAt <= ChannelMembers.LastViewedAt
+	`
+	updateThreadMembershipQuery := `
+		WITH q as (` + threadMembershipsCTE + `)
+		UPDATE ThreadMemberships set LastViewed = q.CM_LastViewedAt, UnreadMentions = 0, LastUpdated = :Now
+		FROM q WHERE ThreadMemberships.Postid = q.PostId AND ThreadMemberships.UserId = q.UserId
+	`
+	if sqlStore.DriverName() == model.DATABASE_DRIVER_MYSQL {
+		updateThreadMembershipQuery = `
+			UPDATE ThreadMemberships
+			INNER JOIN (` + threadMembershipsCTE + `) as q
+			ON ThreadMemberships.Postid = q.PostId AND ThreadMemberships.UserId = q.UserId
+			SET LastViewed = q.CM_LastViewedAt, UnreadMentions = 0, LastUpdated = :Now
+		`
+	}
+
+	if _, err := sqlStore.GetMaster().ExecNoTimeout(updateThreadMembershipQuery, map[string]interface{}{"Now": model.GetMillis()}); err != nil {
+		mlog.Error("Error updating lastviewedat and unreadmentions of threadmemberships", mlog.Err(err))
+	}
+}
+
+// fixCRTChannelMembershipCounts fixes the channel counts, i.e. the total message count,
+// total root message count, mention count, and mention count in root messages for users
+// who have viewed the channel after the last post in the channel
+func fixCRTChannelMembershipCounts(sqlStore *SqlStore) {
+	channelMembershipsCountsAndMentions := `
+		UPDATE ChannelMembers
+		SET MentionCount=0, MentionCountRoot=0, MsgCount=Channels.TotalMsgCount, MsgCountRoot=Channels.TotalMsgCountRoot, LastUpdateAt = :Now
+		FROM Channels
+		WHERE ChannelMembers.Channelid = Channels.Id AND ChannelMembers.LastViewedAt >= Channels.LastPostAt;
+	`
+
+	if sqlStore.DriverName() == model.DATABASE_DRIVER_MYSQL {
+		channelMembershipsCountsAndMentions = `
+			UPDATE ChannelMembers
+			INNER JOIN Channels on Channels.Id = ChannelMembers.ChannelId
+			SET MentionCount=0, MentionCountRoot=0, MsgCount=Channels.TotalMsgCount, MsgCountRoot=Channels.TotalMsgCountRoot, LastUpdateAt = :Now
+			WHERE ChannelMembers.LastViewedAt >= Channels.LastPostAt;
+		`
+	}
+
+	if _, err := sqlStore.GetMaster().ExecNoTimeout(channelMembershipsCountsAndMentions, map[string]interface{}{"Now": model.GetMillis()}); err != nil {
+		mlog.Error("Error updating counts and unreads for channelmemberships", mlog.Err(err))
 	}
 }

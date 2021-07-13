@@ -52,7 +52,7 @@ func threadToSlice(thread *model.Thread) []interface{} {
 		thread.ChannelId,
 		thread.LastReplyAt,
 		thread.ReplyCount,
-		thread.Participants,
+		model.ArrayToJson(thread.Participants),
 	}
 }
 

@@ -12,5 +12,4 @@ type Context struct {
 	IpAddress      string
 	AcceptLanguage string
 	UserAgent      string
-	SourcePluginId string // Deprecated: Use the "Mattermost-Plugin-ID" HTTP header instead
 }

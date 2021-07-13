@@ -69,9 +69,8 @@ func (a *App) ServeInterPluginRequest(w http.ResponseWriter, r *http.Request, so
 	}
 
 	context := &plugin.Context{
-		RequestId:      model.NewId(),
-		UserAgent:      r.UserAgent(),
-		SourcePluginId: sourcePluginId,
+		RequestId: model.NewId(),
+		UserAgent: r.UserAgent(),
 	}
 
 	r.Header.Set("Mattermost-Plugin-ID", sourcePluginId)

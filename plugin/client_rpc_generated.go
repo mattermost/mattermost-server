@@ -1306,6 +1306,63 @@ func (s *apiRPCServer) DeletePreferencesForUser(args *Z_DeletePreferencesForUser
 	return nil
 }
 
+type Z_CreateUserAccessTokenArgs struct {
+	A *model.UserAccessToken
+}
+
+type Z_CreateUserAccessTokenReturns struct {
+	A *model.UserAccessToken
+	B *model.AppError
+}
+
+func (g *apiRPCClient) CreateUserAccessToken(token *model.UserAccessToken) (*model.UserAccessToken, *model.AppError) {
+	_args := &Z_CreateUserAccessTokenArgs{token}
+	_returns := &Z_CreateUserAccessTokenReturns{}
+	if err := g.client.Call("Plugin.CreateUserAccessToken", _args, _returns); err != nil {
+		log.Printf("RPC call to CreateUserAccessToken API failed: %s", err.Error())
+	}
+	return _returns.A, _returns.B
+}
+
+func (s *apiRPCServer) CreateUserAccessToken(args *Z_CreateUserAccessTokenArgs, returns *Z_CreateUserAccessTokenReturns) error {
+	if hook, ok := s.impl.(interface {
+		CreateUserAccessToken(token *model.UserAccessToken) (*model.UserAccessToken, *model.AppError)
+	}); ok {
+		returns.A, returns.B = hook.CreateUserAccessToken(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API CreateUserAccessToken called but not implemented."))
+	}
+	return nil
+}
+
+type Z_RevokeUserAccessTokenArgs struct {
+	A string
+}
+
+type Z_RevokeUserAccessTokenReturns struct {
+	A *model.AppError
+}
+
+func (g *apiRPCClient) RevokeUserAccessToken(tokenID string) *model.AppError {
+	_args := &Z_RevokeUserAccessTokenArgs{tokenID}
+	_returns := &Z_RevokeUserAccessTokenReturns{}
+	if err := g.client.Call("Plugin.RevokeUserAccessToken", _args, _returns); err != nil {
+		log.Printf("RPC call to RevokeUserAccessToken API failed: %s", err.Error())
+	}
+	return _returns.A
+}
+
+func (s *apiRPCServer) RevokeUserAccessToken(args *Z_RevokeUserAccessTokenArgs, returns *Z_RevokeUserAccessTokenReturns) error {
+	if hook, ok := s.impl.(interface {
+		RevokeUserAccessToken(tokenID string) *model.AppError
+	}); ok {
+		returns.A = hook.RevokeUserAccessToken(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API RevokeUserAccessToken called but not implemented."))
+	}
+	return nil
+}
+
 type Z_GetTeamIconArgs struct {
 	A string
 }
@@ -5059,6 +5116,121 @@ func (s *apiRPCServer) DeleteCommand(args *Z_DeleteCommandArgs, returns *Z_Delet
 		returns.A = encodableError(returns.A)
 	} else {
 		return encodableError(fmt.Errorf("API DeleteCommand called but not implemented."))
+	}
+	return nil
+}
+
+type Z_CreateOAuthAppArgs struct {
+	A *model.OAuthApp
+}
+
+type Z_CreateOAuthAppReturns struct {
+	A *model.OAuthApp
+	B *model.AppError
+}
+
+func (g *apiRPCClient) CreateOAuthApp(app *model.OAuthApp) (*model.OAuthApp, *model.AppError) {
+	_args := &Z_CreateOAuthAppArgs{app}
+	_returns := &Z_CreateOAuthAppReturns{}
+	if err := g.client.Call("Plugin.CreateOAuthApp", _args, _returns); err != nil {
+		log.Printf("RPC call to CreateOAuthApp API failed: %s", err.Error())
+	}
+	return _returns.A, _returns.B
+}
+
+func (s *apiRPCServer) CreateOAuthApp(args *Z_CreateOAuthAppArgs, returns *Z_CreateOAuthAppReturns) error {
+	if hook, ok := s.impl.(interface {
+		CreateOAuthApp(app *model.OAuthApp) (*model.OAuthApp, *model.AppError)
+	}); ok {
+		returns.A, returns.B = hook.CreateOAuthApp(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API CreateOAuthApp called but not implemented."))
+	}
+	return nil
+}
+
+type Z_GetOAuthAppArgs struct {
+	A string
+}
+
+type Z_GetOAuthAppReturns struct {
+	A *model.OAuthApp
+	B *model.AppError
+}
+
+func (g *apiRPCClient) GetOAuthApp(appID string) (*model.OAuthApp, *model.AppError) {
+	_args := &Z_GetOAuthAppArgs{appID}
+	_returns := &Z_GetOAuthAppReturns{}
+	if err := g.client.Call("Plugin.GetOAuthApp", _args, _returns); err != nil {
+		log.Printf("RPC call to GetOAuthApp API failed: %s", err.Error())
+	}
+	return _returns.A, _returns.B
+}
+
+func (s *apiRPCServer) GetOAuthApp(args *Z_GetOAuthAppArgs, returns *Z_GetOAuthAppReturns) error {
+	if hook, ok := s.impl.(interface {
+		GetOAuthApp(appID string) (*model.OAuthApp, *model.AppError)
+	}); ok {
+		returns.A, returns.B = hook.GetOAuthApp(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API GetOAuthApp called but not implemented."))
+	}
+	return nil
+}
+
+type Z_UpdateOAuthAppArgs struct {
+	A *model.OAuthApp
+}
+
+type Z_UpdateOAuthAppReturns struct {
+	A *model.OAuthApp
+	B *model.AppError
+}
+
+func (g *apiRPCClient) UpdateOAuthApp(app *model.OAuthApp) (*model.OAuthApp, *model.AppError) {
+	_args := &Z_UpdateOAuthAppArgs{app}
+	_returns := &Z_UpdateOAuthAppReturns{}
+	if err := g.client.Call("Plugin.UpdateOAuthApp", _args, _returns); err != nil {
+		log.Printf("RPC call to UpdateOAuthApp API failed: %s", err.Error())
+	}
+	return _returns.A, _returns.B
+}
+
+func (s *apiRPCServer) UpdateOAuthApp(args *Z_UpdateOAuthAppArgs, returns *Z_UpdateOAuthAppReturns) error {
+	if hook, ok := s.impl.(interface {
+		UpdateOAuthApp(app *model.OAuthApp) (*model.OAuthApp, *model.AppError)
+	}); ok {
+		returns.A, returns.B = hook.UpdateOAuthApp(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API UpdateOAuthApp called but not implemented."))
+	}
+	return nil
+}
+
+type Z_DeleteOAuthAppArgs struct {
+	A string
+}
+
+type Z_DeleteOAuthAppReturns struct {
+	A *model.AppError
+}
+
+func (g *apiRPCClient) DeleteOAuthApp(appID string) *model.AppError {
+	_args := &Z_DeleteOAuthAppArgs{appID}
+	_returns := &Z_DeleteOAuthAppReturns{}
+	if err := g.client.Call("Plugin.DeleteOAuthApp", _args, _returns); err != nil {
+		log.Printf("RPC call to DeleteOAuthApp API failed: %s", err.Error())
+	}
+	return _returns.A
+}
+
+func (s *apiRPCServer) DeleteOAuthApp(args *Z_DeleteOAuthAppArgs, returns *Z_DeleteOAuthAppReturns) error {
+	if hook, ok := s.impl.(interface {
+		DeleteOAuthApp(appID string) *model.AppError
+	}); ok {
+		returns.A = hook.DeleteOAuthApp(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API DeleteOAuthApp called but not implemented."))
 	}
 	return nil
 }

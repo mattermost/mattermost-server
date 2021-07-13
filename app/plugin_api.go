@@ -284,6 +284,19 @@ func (api *PluginAPI) DeletePreferencesForUser(userID string, preferences []mode
 	return api.app.DeletePreferences(userID, preferences)
 }
 
+func (api *PluginAPI) CreateUserAccessToken(token *model.UserAccessToken) (*model.UserAccessToken, *model.AppError) {
+	return api.app.CreateUserAccessToken(token)
+}
+
+func (api *PluginAPI) RevokeUserAccessToken(tokenID string) *model.AppError {
+	accessToken, err := api.app.GetUserAccessToken(tokenID, false)
+	if err != nil {
+		return err
+	}
+
+	return api.app.RevokeUserAccessToken(accessToken)
+}
+
 func (api *PluginAPI) UpdateUser(user *model.User) (*model.User, *model.AppError) {
 	return api.app.UpdateUser(user, true)
 }
@@ -1087,6 +1100,27 @@ func (api *PluginAPI) DeleteCommand(commandID string) error {
 	}
 
 	return nil
+}
+
+func (api *PluginAPI) CreateOAuthApp(app *model.OAuthApp) (*model.OAuthApp, *model.AppError) {
+	return api.app.CreateOAuthApp(app)
+}
+
+func (api *PluginAPI) GetOAuthApp(appID string) (*model.OAuthApp, *model.AppError) {
+	return api.app.GetOAuthApp(appID)
+}
+
+func (api *PluginAPI) UpdateOAuthApp(app *model.OAuthApp) (*model.OAuthApp, *model.AppError) {
+	oldApp, err := api.GetOAuthApp(app.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return api.app.UpdateOauthApp(oldApp, app)
+}
+
+func (api *PluginAPI) DeleteOAuthApp(appID string) *model.AppError {
+	return api.app.DeleteOAuthApp(appID)
 }
 
 // PublishPluginClusterEvent broadcasts a plugin event to all other running instances of

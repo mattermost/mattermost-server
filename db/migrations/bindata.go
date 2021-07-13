@@ -60,6 +60,8 @@
 // mysql/000029_create_bots.up.sql
 // mysql/000030_create_user_access_tokens.down.sql
 // mysql/000030_create_user_access_tokens.up.sql
+// mysql/000031_create_remote_clusters.down.sql
+// mysql/000031_create_remote_clusters.up.sql
 // postgres/000001_create_teams.down.sql
 // postgres/000001_create_teams.up.sql
 // postgres/000002_create_team_members.down.sql
@@ -120,6 +122,8 @@
 // postgres/000029_create_bots.up.sql
 // postgres/000030_create_user_access_tokens.down.sql
 // postgres/000030_create_user_access_tokens.up.sql
+// postgres/000031_create_remote_clusters.down.sql
+// postgres/000031_create_remote_clusters.up.sql
 package migrations
 
 import (
@@ -1396,6 +1400,46 @@ func mysql000030_create_user_access_tokensUpSql() (*asset, error) {
 	return a, nil
 }
 
+var _mysql000031_create_remote_clustersDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\x09\xf2\x0f\x50\x08\x71\x74\xf2\x71\x55\xf0\x74\x53\x70\x8d\xf0\x0c\x0e\x09\x56\x08\x4a\xcd\xcd\x2f\x49\x75\xce\x29\x2d\x2e\x49\x2d\x2a\xb6\xe6\x02\x04\x00\x00\xff\xff\x60\x8c\x77\x74\x25\x00\x00\x00")
+
+func mysql000031_create_remote_clustersDownSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_mysql000031_create_remote_clustersDownSql,
+		"mysql/000031_create_remote_clusters.down.sql",
+	)
+}
+
+func mysql000031_create_remote_clustersDownSql() (*asset, error) {
+	bytes, err := mysql000031_create_remote_clustersDownSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "mysql/000031_create_remote_clusters.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _mysql000031_create_remote_clustersUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x84\x52\x5d\x8f\x9a\x40\x14\x7d\xe7\x57\xdc\x37\xa0\x31\x4d\xdd\xb4\xa6\x09\xb1\xe9\xec\x70\x8d\x93\xe2\x60\x67\x86\xd6\x7d\x22\xac\xde\x6e\x27\x15\xb4\x30\x26\xdb\x7f\xdf\x08\x48\xd4\xcd\xae\x2f\x24\x9c\x8f\x3b\x33\xe7\x1e\xae\x90\x19\x04\xc3\xee\x13\x04\x31\x03\x99\x1a\xc0\x95\xd0\x46\x83\xa2\x72\xe7\x88\x6f\x0f\x8d\xa3\xba\x81\xc0\x03\x80\x1e\x14\x1b\xf8\xc1\x14\x9f\x33\x15\xdc\x4d\xc2\xd6\x24\xb3\x24\x19\x9d\x49\x0c\x15\xe5\xa5\xac\x63\x65\x51\xd2\x80\x4e\x3e\x5e\x9b\x63\xdb\xec\xb7\xc5\xbf\x6b\x55\x47\x6a\xeb\x28\x53\xc9\x40\x8c\x27\x9f\x7b\x86\xd7\x54\x38\x62\x0e\x1e\xed\x93\xad\x5c\x07\x26\x45\xe3\x96\xb6\x7a\xba\x82\xcd\xee\x0f\x55\xb7\xef\x7f\xad\x3a\x99\xf7\x76\xdd\x0c\xf8\xa7\xf1\xdd\xf9\x0d\x76\xf5\x9b\xc9\x2c\x95\x58\x30\xf5\x00\xdf\xf0\x01\x82\x53\x92\xa3\x36\x92\xd0\x0b\x23\xcf\xd3\x68\xe0\xeb\xbe\xa6\x7d\x51\xd3\x46\xbb\xc2\x51\x49\x95\x83\x29\x04\x1a\x13\xe4\x06\xc4\xac\x5b\x43\xf7\x6d\x33\xe9\x08\x9e\x66\xd2\x04\xef\x42\x98\xa9\x74\x01\x42\xce\x52\xb5\x60\x46\xa4\x32\xd7\x7c\x8e\x0b\xf6\x5e\x1b\x66\x84\x36\x82\xeb\xc1\xfa\x73\x8e\x0a\xc1\x15\x8f\x5b\xca\xab\x63\xe0\x53\xf0\x2f\x97\xee\x0f\x5a\x26\xe3\x5e\xd9\xac\x7f\x53\x59\xc0\x14\x62\x66\xd8\x3d\xd3\x18\x84\x17\x2a\x5b\x6d\xe8\x79\x98\x57\xb7\xf3\xf2\x75\x3f\x30\x6f\xac\xa3\xfc\x50\x6f\xf3\x43\x65\xff\x1e\xa8\x3b\x20\x84\x2f\xf0\xa1\x8b\xc8\xef\xdf\x33\xf6\xfb\xff\xbe\xa0\x99\x14\xdf\x33\x04\x21\x63\x5c\xc1\x8d\xa1\x90\xca\x17\xe5\x3d\x2f\xe5\xe8\x54\xa4\xb6\x40\x61\xe4\x7b\xe1\x31\xfc\xa5\xc2\x25\x53\x08\xeb\xb6\x4b\xe2\xf8\x0c\xf1\x4b\xee\x1c\x3e\xdb\xc6\x35\x5d\xb0\x2f\x97\x13\x79\xb8\x42\x9e\x99\xd7\x7c\x91\x17\x23\x4b\x92\x94\x1f\x5f\xf1\xf6\x11\x91\xf7\x3f\x00\x00\xff\xff\x41\x6f\x79\xcc\x8e\x03\x00\x00")
+
+func mysql000031_create_remote_clustersUpSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_mysql000031_create_remote_clustersUpSql,
+		"mysql/000031_create_remote_clusters.up.sql",
+	)
+}
+
+func mysql000031_create_remote_clustersUpSql() (*asset, error) {
+	bytes, err := mysql000031_create_remote_clustersUpSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "mysql/000031_create_remote_clusters.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 var _postgres000001_create_teamsDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x94\xd0\xb1\x0e\xc2\x20\x10\x06\xe0\x9d\xa7\xe0\x3d\x98\xaa\xc5\xa4\x49\x6d\x4d\x5b\x93\x6e\x84\xc0\x45\x2f\xa1\x40\x80\xaa\x8f\x6f\x2c\x83\x6e\xc5\xf9\xbe\xff\x72\xff\x55\xed\xc4\x07\x3a\x55\x87\x96\xd3\x04\x72\x89\xb4\x1e\xfa\x0b\x3d\xf6\xed\xf5\xdc\xd1\xe6\x44\xf9\xdc\x8c\xd3\x48\xa5\x31\xee\xe9\x3c\x58\xb4\x0f\x4c\xc0\x48\x69\xd0\xc8\x98\x3e\x73\x54\xce\xae\x5e\xcb\x7f\xb2\x1a\xa2\x0a\xe8\x13\x3a\x5b\x1e\xba\x05\xb7\x7a\xe5\x6c\x4c\x41\xa2\x05\xcd\x08\xd9\x60\xd3\xd5\x7c\xfe\x71\xa8\x5f\x62\xdb\x23\x72\x25\x81\x9a\xed\xc9\x5c\x40\xc8\xb4\x2b\x55\x80\x42\xa9\xc1\x40\x99\x8c\xea\x0e\x4b\xbe\x33\xd3\xfc\x8c\x2f\xdd\x18\x23\xef\x00\x00\x00\xff\xff\x38\xaf\xff\x77\xd4\x01\x00\x00")
 
 func postgres000001_create_teamsDownSqlBytes() ([]byte, error) {
@@ -2596,6 +2640,46 @@ func postgres000030_create_user_access_tokensUpSql() (*asset, error) {
 	return a, nil
 }
 
+var _postgres000031_create_remote_clustersDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\x09\xf2\x0f\x50\x08\x71\x74\xf2\x71\x55\xf0\x74\x53\x70\x8d\xf0\x0c\x0e\x09\x56\x28\x4a\xcd\xcd\x2f\x49\x4d\xce\x29\x2d\x2e\x49\x2d\x2a\xb6\xe6\x02\x04\x00\x00\xff\xff\xcd\xf4\x15\x2c\x25\x00\x00\x00")
+
+func postgres000031_create_remote_clustersDownSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_postgres000031_create_remote_clustersDownSql,
+		"postgres/000031_create_remote_clusters.down.sql",
+	)
+}
+
+func postgres000031_create_remote_clustersDownSql() (*asset, error) {
+	bytes, err := postgres000031_create_remote_clustersDownSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "postgres/000031_create_remote_clusters.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _postgres000031_create_remote_clustersUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x84\x91\xbb\x4e\xc3\x30\x18\x85\x77\x3f\xc5\x3f\x26\x52\x16\x2a\xe8\xd2\xc9\x14\x23\x2c\x82\x0b\x6e\x82\xda\x29\x32\xe9\xaf\xca\xc2\x71\x82\x2f\x03\x6f\x8f\x68\x92\x2a\x04\x41\xd7\x73\x91\x8e\xbe\xb3\x96\x8c\x16\x0c\x0a\x7a\x9b\x33\xe0\xf7\x20\x36\x05\xb0\x1d\xdf\x16\x5b\x70\xd8\xb4\x01\x6b\x13\x7d\x40\xe7\x21\x21\x00\x30\x88\xfa\x00\xaf\x54\xae\x1f\xa8\x4c\x16\xcb\xf4\x54\x12\x65\x9e\x67\x93\x48\x40\xd5\xfc\x8c\xf5\xae\x55\x0d\x9e\xd5\xe5\xf5\xbc\x7c\xd0\xbe\x33\xea\x73\x9e\xea\x4d\xaf\x03\x46\x67\xce\xc6\xcd\xd5\x62\x70\x6a\x87\x2a\xa0\x0a\xf0\xa6\x8f\xda\x86\x5e\x34\xca\x87\x4e\xdb\xe3\x4c\x0e\xed\x3b\xda\xcb\xfb\xe7\xa9\xb1\xdc\xe9\xda\xff\xb5\xa0\x75\xff\x92\x79\x96\xfc\x89\xca\x3d\x3c\xb2\x3d\x24\x23\xc9\xec\x84\x24\x25\xe9\x8a\x90\xe1\x8d\x52\xf0\x97\x92\x01\x17\x77\x6c\x37\xcc\xa9\xc6\x1f\xaa\x6f\x08\x55\x74\xa6\x8a\x56\x7f\x44\x84\x8d\xf8\xf5\xd4\xf4\x81\x6c\xa4\x96\xae\xc8\x57\x00\x00\x00\xff\xff\xec\x6f\xad\x9a\xed\x01\x00\x00")
+
+func postgres000031_create_remote_clustersUpSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_postgres000031_create_remote_clustersUpSql,
+		"postgres/000031_create_remote_clusters.up.sql",
+	)
+}
+
+func postgres000031_create_remote_clustersUpSql() (*asset, error) {
+	bytes, err := postgres000031_create_remote_clustersUpSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "postgres/000031_create_remote_clusters.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -2708,6 +2792,8 @@ var _bindata = map[string]func() (*asset, error){
 	"mysql/000029_create_bots.up.sql":                           mysql000029_create_botsUpSql,
 	"mysql/000030_create_user_access_tokens.down.sql":           mysql000030_create_user_access_tokensDownSql,
 	"mysql/000030_create_user_access_tokens.up.sql":             mysql000030_create_user_access_tokensUpSql,
+	"mysql/000031_create_remote_clusters.down.sql":              mysql000031_create_remote_clustersDownSql,
+	"mysql/000031_create_remote_clusters.up.sql":                mysql000031_create_remote_clustersUpSql,
 	"postgres/000001_create_teams.down.sql":                     postgres000001_create_teamsDownSql,
 	"postgres/000001_create_teams.up.sql":                       postgres000001_create_teamsUpSql,
 	"postgres/000002_create_team_members.down.sql":              postgres000002_create_team_membersDownSql,
@@ -2768,6 +2854,8 @@ var _bindata = map[string]func() (*asset, error){
 	"postgres/000029_create_bots.up.sql":                        postgres000029_create_botsUpSql,
 	"postgres/000030_create_user_access_tokens.down.sql":        postgres000030_create_user_access_tokensDownSql,
 	"postgres/000030_create_user_access_tokens.up.sql":          postgres000030_create_user_access_tokensUpSql,
+	"postgres/000031_create_remote_clusters.down.sql":           postgres000031_create_remote_clustersDownSql,
+	"postgres/000031_create_remote_clusters.up.sql":             postgres000031_create_remote_clustersUpSql,
 }
 
 // AssetDir returns the file names below a certain
@@ -2872,6 +2960,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"000029_create_bots.up.sql":                        &bintree{mysql000029_create_botsUpSql, map[string]*bintree{}},
 		"000030_create_user_access_tokens.down.sql":        &bintree{mysql000030_create_user_access_tokensDownSql, map[string]*bintree{}},
 		"000030_create_user_access_tokens.up.sql":          &bintree{mysql000030_create_user_access_tokensUpSql, map[string]*bintree{}},
+		"000031_create_remote_clusters.down.sql":           &bintree{mysql000031_create_remote_clustersDownSql, map[string]*bintree{}},
+		"000031_create_remote_clusters.up.sql":             &bintree{mysql000031_create_remote_clustersUpSql, map[string]*bintree{}},
 	}},
 	"postgres": &bintree{nil, map[string]*bintree{
 		"000001_create_teams.down.sql":                     &bintree{postgres000001_create_teamsDownSql, map[string]*bintree{}},
@@ -2934,6 +3024,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"000029_create_bots.up.sql":                        &bintree{postgres000029_create_botsUpSql, map[string]*bintree{}},
 		"000030_create_user_access_tokens.down.sql":        &bintree{postgres000030_create_user_access_tokensDownSql, map[string]*bintree{}},
 		"000030_create_user_access_tokens.up.sql":          &bintree{postgres000030_create_user_access_tokensUpSql, map[string]*bintree{}},
+		"000031_create_remote_clusters.down.sql":           &bintree{postgres000031_create_remote_clustersDownSql, map[string]*bintree{}},
+		"000031_create_remote_clusters.up.sql":             &bintree{postgres000031_create_remote_clustersUpSql, map[string]*bintree{}},
 	}},
 }}
 

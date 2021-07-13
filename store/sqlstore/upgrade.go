@@ -848,8 +848,6 @@ func upgradeDatabaseToVersion531(sqlStore *SqlStore) {
 	}
 }
 
-const RemoteClusterSiteURLUniqueIndex = "remote_clusters_site_url_unique"
-
 func hasMissingMigrationsVersion532(sqlStore *SqlStore) bool {
 	scIdInfo, err := sqlStore.GetColumnInfo("Posts", "FileIds")
 	if err != nil {
@@ -928,11 +926,6 @@ func upgradeDatabaseToVersion535(sqlStore *SqlStore) {
 		if _, err := sqlStore.GetMaster().ExecNoTimeout("UPDATE UploadSessions SET RemoteId='', ReqFileId='' WHERE RemoteId IS NULL"); err != nil {
 			mlog.Error("Error updating RemoteId,ReqFileId in UploadsSession table", mlog.Err(err))
 		}
-		uniquenessColumns := []string{"SiteUrl", "RemoteTeamId"}
-		if sqlStore.DriverName() == model.DATABASE_DRIVER_MYSQL {
-			uniquenessColumns = []string{"RemoteTeamId", "SiteUrl(168)"}
-		}
-		sqlStore.CreateUniqueCompositeIndexIfNotExists(RemoteClusterSiteURLUniqueIndex, "RemoteClusters", uniquenessColumns)
 
 		rootCountMigration(sqlStore)
 

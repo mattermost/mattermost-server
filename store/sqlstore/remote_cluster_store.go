@@ -14,6 +14,8 @@ import (
 	"github.com/mattermost/mattermost-server/v5/store"
 )
 
+const RemoteClusterSiteURLUniqueIndex = "remote_clusters_site_url_unique"
+
 type sqlRemoteClusterStore struct {
 	*SqlStore
 }
@@ -179,9 +181,4 @@ func (s sqlRemoteClusterStore) SetLastPingAt(remoteClusterId string) error {
 }
 
 func (s *sqlRemoteClusterStore) createIndexesIfNotExists() {
-	uniquenessColumns := []string{"SiteUrl", "RemoteTeamId"}
-	if s.DriverName() == model.DATABASE_DRIVER_MYSQL {
-		uniquenessColumns = []string{"RemoteTeamId", "SiteUrl(168)"}
-	}
-	s.CreateUniqueCompositeIndexIfNotExists(RemoteClusterSiteURLUniqueIndex, "RemoteClusters", uniquenessColumns)
 }

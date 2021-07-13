@@ -254,7 +254,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	c.Logger = c.App.Log().With(
+	c.Logger = c.App.Log().WithCallerSkip(1).With(
 		mlog.String("path", c.AppContext.Path()),
 		mlog.String("request_id", c.AppContext.RequestId()),
 		mlog.String("ip_addr", c.AppContext.IpAddress()),

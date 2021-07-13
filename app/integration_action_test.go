@@ -69,6 +69,59 @@ func TestPostActionInvalidURL(t *testing.T) {
 	require.True(t, strings.Contains(err.Error(), "missing protocol scheme"))
 }
 
+func TestPostActionEmptyResponse(t *testing.T) {
+	t.Run("Empty response on post action", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		channel := th.BasicChannel
+
+		th.App.UpdateConfig(func(cfg *model.Config) {
+			*cfg.ServiceSettings.AllowedUntrustedInternalConnections = "localhost,127.0.0.1"
+		})
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+		defer ts.Close()
+
+		interactivePost := model.Post{
+			Message:       "Interactive post",
+			ChannelId:     channel.Id,
+			PendingPostId: model.NewId() + ":" + fmt.Sprint(model.GetMillis()),
+			UserId:        th.BasicUser.Id,
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{
+					{
+						Text: "hello",
+						Actions: []*model.PostAction{
+							{
+								Integration: &model.PostActionIntegration{
+									Context: model.StringInterface{
+										"s": "foo",
+										"n": 3,
+									},
+									URL: ts.URL,
+								},
+								Name:       "action",
+								Type:       "some_type",
+								DataSource: "some_source",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		post, err := th.App.CreatePostAsUser(th.Context, &interactivePost, "", true)
+		require.Nil(t, err)
+
+		attachments, ok := post.GetProp("attachments").([]*model.SlackAttachment)
+		require.True(t, ok)
+
+		_, err = th.App.DoPostAction(th.Context, post.Id, attachments[0].Actions[0].Id, th.BasicUser.Id, "")
+		require.Nil(t, err)
+	})
+}
+
 func TestPostAction(t *testing.T) {
 	testCases := []struct {
 		Description string

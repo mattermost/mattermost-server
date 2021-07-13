@@ -284,11 +284,9 @@ func (s *hooksRPCServer) OnActivate(args *Z_OnActivateArgs, returns *Z_OnActivat
 
 	if mmplugin, ok := s.impl.(interface {
 		SetAPI(api API)
-		SetHelpers(helpers Helpers)
 		SetDriver(driver Driver)
 	}); ok {
 		mmplugin.SetAPI(s.apiRPCClient)
-		mmplugin.SetHelpers(&HelpersImpl{API: s.apiRPCClient})
 		mmplugin.SetDriver(dbClient)
 	}
 

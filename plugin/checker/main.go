@@ -21,7 +21,6 @@ type checkFn func(pkgPath string) (result, error)
 
 var checks = []checkFn{
 	checkAPIVersionComments,
-	checkHelpersVersionComments,
 }
 
 func main() {

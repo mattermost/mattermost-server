@@ -12238,7 +12238,7 @@ func (a *OpenTracingAppLayer) PostWithProxyRemovedFromImageURLs(post *model.Post
 	return resultVar0
 }
 
-func (a *OpenTracingAppLayer) PreparePostForClient(originalPost *model.Post, isNewPost bool, isEditPost bool) *model.Post {
+func (a *OpenTracingAppLayer) PreparePostForClient(originalPost *model.Post, isNewPost bool, isEditPost bool, askingUserID string) *model.Post {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.PreparePostForClient")
 
@@ -12250,12 +12250,12 @@ func (a *OpenTracingAppLayer) PreparePostForClient(originalPost *model.Post, isN
 	}()
 
 	defer span.Finish()
-	resultVar0 := a.app.PreparePostForClient(originalPost, isNewPost, isEditPost)
+	resultVar0 := a.app.PreparePostForClient(originalPost, isNewPost, isEditPost, askingUserID)
 
 	return resultVar0
 }
 
-func (a *OpenTracingAppLayer) PreparePostListForClient(originalList *model.PostList) *model.PostList {
+func (a *OpenTracingAppLayer) PreparePostListForClient(originalList *model.PostList, askingUserID string) *model.PostList {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.PreparePostListForClient")
 
@@ -12267,7 +12267,7 @@ func (a *OpenTracingAppLayer) PreparePostListForClient(originalList *model.PostL
 	}()
 
 	defer span.Finish()
-	resultVar0 := a.app.PreparePostListForClient(originalList)
+	resultVar0 := a.app.PreparePostListForClient(originalList, askingUserID)
 
 	return resultVar0
 }

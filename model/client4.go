@@ -317,6 +317,10 @@ func (c *Client4) GetPostRoute(postId string) string {
 	return fmt.Sprintf(c.GetPostsRoute()+"/%v", postId)
 }
 
+func (c *Client4) GetPostsByIDsRoute() string {
+	return c.GetPostsRoute() + "/ids"
+}
+
 func (c *Client4) GetFilesRoute() string {
 	return "/files"
 }
@@ -2953,6 +2957,19 @@ func (c *Client4) GetPost(postId string, etag string) (*Post, *Response) {
 	}
 	defer closeBody(r)
 	return PostFromJson(r.Body), BuildResponse(r)
+}
+
+// GetPosts gets multiple posts by ID.
+func (c *Client4) GetPosts(postIDs []string) ([]*Post, *Response) {
+	jsonIDs, _ := json.Marshal(postIDs)
+	r, err := c.DoApiPost(c.GetPostsByIDsRoute(), string(jsonIDs))
+	if err != nil {
+		return nil, BuildErrorResponse(r, err)
+	}
+	defer closeBody(r)
+	var posts []*Post
+	json.NewDecoder(r.Body).Decode(&posts)
+	return posts, BuildResponse(r)
 }
 
 // DeletePost deletes a post from the provided post id string.

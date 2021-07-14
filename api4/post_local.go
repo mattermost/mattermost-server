@@ -5,6 +5,7 @@ package api4
 
 func (api *API) InitPostLocal() {
 	api.BaseRoutes.Post.Handle("", api.ApiLocal(getPost)).Methods("GET")
+	api.BaseRoutes.Posts.Handle("/ids", api.ApiLocal(getPosts)).Methods("POST")
 
 	api.BaseRoutes.PostsForChannel.Handle("", api.ApiLocal(getPostsForChannel)).Methods("GET")
 }

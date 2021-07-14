@@ -19,6 +19,7 @@ const (
 	LINK_METADATA_TYPE_IMAGE     LinkMetadataType = "image"
 	LINK_METADATA_TYPE_NONE      LinkMetadataType = "none"
 	LINK_METADATA_TYPE_OPENGRAPH LinkMetadataType = "opengraph"
+	LINK_METADATA_TYPE_PERMALINK LinkMetadataType = "permalink"
 	MAX_IMAGES                   int              = 5
 )
 
@@ -117,6 +118,8 @@ func (o *LinkMetadata) IsValid() *AppError {
 		if _, ok := o.Data.(*opengraph.OpenGraph); !ok {
 			return NewAppError("LinkMetadata.IsValid", "model.link_metadata.is_valid.data_type.app_error", nil, "", http.StatusBadRequest)
 		}
+	case LINK_METADATA_TYPE_PERMALINK:
+		// Intentionally blank; there's nothing to validate.
 	default:
 		return NewAppError("LinkMetadata.IsValid", "model.link_metadata.is_valid.type.app_error", nil, "", http.StatusBadRequest)
 	}
@@ -158,6 +161,12 @@ func (o *LinkMetadata) DeserializeDataToConcreteType() error {
 		json.Unmarshal(b, &og)
 
 		data = og
+	case LINK_METADATA_TYPE_PERMALINK:
+		permalink := &Permalink{}
+
+		err = json.Unmarshal(b, &permalink)
+
+		data = permalink
 	}
 
 	if err != nil {

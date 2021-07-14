@@ -689,7 +689,7 @@ func getPinnedPosts(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientPostList := c.App.PreparePostListForClient(posts)
+	clientPostList := c.App.PreparePostListForClient(posts, c.AppContext.Session().UserId)
 
 	w.Header().Set(model.HEADER_ETAG_SERVER, clientPostList.Etag())
 	w.Write([]byte(clientPostList.ToJson()))

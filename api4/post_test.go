@@ -1960,6 +1960,68 @@ func TestGetPost(t *testing.T) {
 	CheckNotFoundStatus(t, resp)
 }
 
+func TestGetPosts(t *testing.T) {
+	th := Setup(t).InitBasic()
+	defer th.TearDown()
+	// TODO: migrate this entirely to the subtest's client
+	// once the other methods are migrated too.
+	Client := th.Client
+
+	var privatePost *model.Post
+	th.TestForAllClients(t, func(t *testing.T, c *model.Client4) {
+		t.Helper()
+
+		posts, resp := c.GetPosts([]string{th.BasicPost.Id})
+		CheckNoError(t, resp)
+
+		require.Equal(t, th.BasicPost.Id, posts[0].Id, "post ids don't match")
+		require.Len(t, posts, 1)
+
+		posts, resp = c.GetPosts([]string{""})
+		CheckNoError(t, resp)
+		require.Len(t, posts, 0)
+
+		posts, resp = c.GetPosts([]string{"junk"})
+		CheckNoError(t, resp)
+		require.Len(t, posts, 0)
+
+		posts, resp = c.GetPosts([]string{model.NewId()})
+		CheckNoError(t, resp)
+		require.Len(t, posts, 0)
+
+		Client.RemoveUserFromChannel(th.BasicChannel.Id, th.BasicUser.Id)
+
+		// Channel is public, should be able to read post
+		posts, resp = c.GetPosts([]string{th.BasicPost.Id})
+		CheckNoError(t, resp)
+		require.Equal(t, th.BasicPost.Id, posts[0].Id, "post ids don't match")
+		require.Len(t, posts, 1)
+
+		privatePost = th.CreatePostWithClient(Client, th.BasicPrivateChannel)
+	})
+
+	Client.RemoveUserFromChannel(th.BasicPrivateChannel.Id, th.BasicUser.Id)
+
+	// Channel is private, should not be able to read post
+	posts, resp := Client.GetPosts([]string{privatePost.Id})
+	CheckNoError(t, resp)
+	require.Len(t, posts, 0)
+
+	// But local client should.
+	posts, resp = th.LocalClient.GetPosts([]string{privatePost.Id})
+	CheckNoError(t, resp)
+	require.Len(t, posts, 1)
+
+	Client.Logout()
+
+	// Normal client should get unauthorized, but local client should get 404.
+	_, resp = Client.GetPosts([]string{model.NewId()})
+	CheckUnauthorizedStatus(t, resp)
+
+	_, resp = th.LocalClient.GetPosts([]string{model.NewId()})
+	CheckNoError(t, resp)
+}
+
 func TestDeletePost(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()

@@ -303,6 +303,7 @@ type ServiceSettings struct {
 	GoogleDeveloperKey                                *string  `access:"site_posts,write_restrictable,cloud_restrictable"`
 	DEPRECATED_DO_NOT_USE_EnableOnlyAdminIntegrations *bool    `json:"EnableOnlyAdminIntegrations" mapstructure:"EnableOnlyAdminIntegrations"` // Deprecated: do not use
 	EnableLinkPreviews                                *bool    `access:"site_posts"`
+	EnablePermalinkPreviews                           *bool    `access:"site_posts"`
 	RestrictLinkPreviews                              *string  `access:"site_posts"`
 	EnableTesting                                     *bool    `access:"environment_developer,write_restrictable,cloud_restrictable"`
 	EnableDeveloper                                   *bool    `access:"environment_developer,write_restrictable,cloud_restrictable"`
@@ -410,6 +411,10 @@ func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 
 	if s.EnableLinkPreviews == nil {
 		s.EnableLinkPreviews = NewBool(true)
+	}
+
+	if s.EnablePermalinkPreviews == nil {
+		s.EnablePermalinkPreviews = NewBool(true)
 	}
 
 	if s.RestrictLinkPreviews == nil {

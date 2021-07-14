@@ -351,7 +351,12 @@ func (a *App) CreatePost(c *request.Context, post *model.Post, channel *model.Ch
 
 	// Normally, we would let the API layer call PreparePostForClient, but we do it here since it also needs
 	// to be done when we send the post over the websocket in handlePostEvents
-	rpost = a.PreparePostForClient(rpost, true, false)
+	rpost = a.PreparePostForClient(rpost, true, false, c.Session().UserId)
+
+	rpost, nErr = a.addPostPreviewProp(rpost)
+	if nErr != nil {
+		return nil, model.NewAppError("CreatePost", "app.post.save.app_error", nil, nErr.Error(), http.StatusInternalServerError)
+	}
 
 	if err := a.handlePostEvents(c, rpost, user, channel, triggerWebhooks, parentPostList, setOnline); err != nil {
 		mlog.Warn("Failed to handle post events", mlog.Err(err))
@@ -363,6 +368,19 @@ func (a *App) CreatePost(c *request.Context, post *model.Post, channel *model.Ch
 	}
 
 	return rpost, nil
+}
+
+func (a *App) addPostPreviewProp(post *model.Post) (*model.Post, error) {
+	for _, embed := range post.Metadata.Embeds {
+		if embed.Type == model.POST_EMBED_PERMALINK {
+			updatedPost := post.Clone()
+			if previewPost, ok := embed.Data.(*model.PreviewPost); ok {
+				updatedPost.AddProp(model.POST_PROPS_PREVIEWED_POST, previewPost.PostID)
+				return a.Srv().Store.Post().Update(updatedPost, post)
+			}
+		}
+	}
+	return post, nil
 }
 
 func (a *App) attachFilesToPost(post *model.Post) *model.AppError {
@@ -496,7 +514,7 @@ func (a *App) SendEphemeralPost(userID string, post *model.Post) *model.Post {
 
 	post.GenerateActionIds()
 	message := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_EPHEMERAL_MESSAGE, "", post.ChannelId, userID, nil)
-	post = a.PreparePostForClient(post, true, false)
+	post = a.PreparePostForClient(post, true, false, userID)
 	post = model.AddPostActionCookies(post, a.PostActionCookieSecret())
 	message.Add("post", post.ToJson())
 	a.Publish(message)
@@ -514,7 +532,7 @@ func (a *App) UpdateEphemeralPost(userID string, post *model.Post) *model.Post {
 
 	post.GenerateActionIds()
 	message := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_POST_EDITED, "", post.ChannelId, userID, nil)
-	post = a.PreparePostForClient(post, true, false)
+	post = a.PreparePostForClient(post, true, false, userID)
 	post = model.AddPostActionCookies(post, a.PostActionCookieSecret())
 	message.Add("post", post.ToJson())
 	a.Publish(message)
@@ -647,12 +665,17 @@ func (a *App) UpdatePost(c *request.Context, post *model.Post, safeUpdate bool) 
 		})
 	}
 
-	rpost = a.PreparePostForClient(rpost, false, true)
+	rpost = a.PreparePostForClient(rpost, false, true, c.Session().UserId)
 
 	// Ensure IsFollowing is nil since this updated post will be broadcast to all users
 	// and we don't want to have to populate it for every single user and broadcast to each
 	// individually.
 	rpost.IsFollowing = nil
+
+	rpost, nErr = a.addPostPreviewProp(rpost)
+	if nErr != nil {
+		return nil, model.NewAppError("UpdatePost", "app.post.update.app_error", nil, nErr.Error(), http.StatusInternalServerError)
+	}
 
 	message := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_POST_EDITED, "", rpost.ChannelId, "", nil)
 	message.Add("post", rpost.ToJson())
@@ -1046,7 +1069,7 @@ func (a *App) DeletePost(postID, deleteByID string) (*model.Post, *model.AppErro
 		}
 	}
 
-	postData := a.PreparePostForClient(post, false, false).ToJson()
+	postData := a.PreparePostForClient(post, false, false, deleteByID).ToJson()
 
 	userMessage := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_POST_DELETED, "", post.ChannelId, "", nil)
 	userMessage.Add("post", postData)

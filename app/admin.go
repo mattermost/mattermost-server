@@ -176,6 +176,7 @@ func (s *Server) InvalidateAllCachesSkipSend() {
 	s.Store.Post().ClearCaches()
 	s.Store.FileInfo().ClearCaches()
 	s.Store.Webhook().ClearCaches()
+	linkCache.Purge()
 	s.LoadLicense()
 }
 

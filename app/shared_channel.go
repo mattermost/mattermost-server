@@ -22,7 +22,7 @@ func (a *App) checkChannelNotShared(channelId string) error {
 	if _, err := a.GetSharedChannel(channelId); err == nil {
 		var errNotFound *store.ErrNotFound
 		if errors.As(err, &errNotFound) {
-			return errors.New("channel is already shared.")
+			return errors.New("channel is already shared")
 		}
 		return fmt.Errorf("cannot find channel: %w", err)
 	}
@@ -33,7 +33,7 @@ func (a *App) checkChannelIsShared(channelId string) error {
 	if _, err := a.GetSharedChannel(channelId); err != nil {
 		var errNotFound *store.ErrNotFound
 		if errors.As(err, &errNotFound) {
-			return errors.New("channel is not shared.")
+			return errors.New("channel is not shared")
 		}
 		return fmt.Errorf("cannot find channel: %w", err)
 	}
@@ -45,13 +45,13 @@ func (a *App) CheckCanInviteToSharedChannel(channelId string) error {
 	if err != nil {
 		var errNotFound *store.ErrNotFound
 		if errors.As(err, &errNotFound) {
-			return errors.New("channel is not shared.")
+			return errors.New("channel is not shared")
 		}
 		return fmt.Errorf("cannot find channel: %w", err)
 	}
 
 	if !sc.Home {
-		return errors.New("channel is homed on a remote cluster.")
+		return errors.New("channel is homed on a remote cluster")
 	}
 	return nil
 }

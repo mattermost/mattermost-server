@@ -86,7 +86,7 @@ func (rl *RateLimiter) RateLimitWriter(key string, w http.ResponseWriter) bool {
 
 	if limited {
 		mlog.Debug("Denied due to throttling settings code=429", mlog.String("key", key))
-		http.Error(w, "limit exceeded", 429)
+		http.Error(w, "limit exceeded", http.StatusTooManyRequests)
 	}
 
 	return limited

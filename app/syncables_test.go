@@ -168,7 +168,7 @@ func TestCreateDefaultMemberships(t *testing.T) {
 
 	// update AutoAdd to true
 	scienceTeamGroupSyncable.AutoAdd = true
-	scienceTeamGroupSyncable, err = th.App.UpdateGroupSyncable(scienceTeamGroupSyncable)
+	_, err = th.App.UpdateGroupSyncable(scienceTeamGroupSyncable)
 	if err != nil {
 		t.Errorf("error updating group syncable: %s", err.Error())
 	}

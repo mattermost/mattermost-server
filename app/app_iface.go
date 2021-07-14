@@ -889,8 +889,8 @@ type AppIface interface {
 	PostUpdateChannelPurposeMessage(c *request.Context, userID string, channel *model.Channel, oldChannelPurpose string, newChannelPurpose string) *model.AppError
 	PostWithProxyAddedToImageURLs(post *model.Post) *model.Post
 	PostWithProxyRemovedFromImageURLs(post *model.Post) *model.Post
-	PreparePostForClient(originalPost *model.Post, isNewPost bool, isEditPost bool) *model.Post
-	PreparePostListForClient(originalList *model.PostList) *model.PostList
+	PreparePostForClient(originalPost *model.Post, isNewPost bool, isEditPost bool, askingUserID string) *model.Post
+	PreparePostListForClient(originalList *model.PostList, askingUserID string) *model.PostList
 	ProcessSlackText(text string) string
 	Publish(message *model.WebSocketEvent)
 	PublishUserTyping(userID, channelID, parentId string) *model.AppError

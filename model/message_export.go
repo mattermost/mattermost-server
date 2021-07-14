@@ -3,6 +3,8 @@
 
 package model
 
+import "encoding/json"
+
 type MessageExport struct {
 	TeamId          *string
 	TeamName        *string
@@ -33,4 +35,16 @@ type MessageExport struct {
 type MessageExportCursor struct {
 	LastPostUpdateAt int64
 	LastPostId       string
+}
+
+// PreviewID returns the value of the post's previewed_post prop, if present, or an empty string.
+func (m *MessageExport) PreviewID() string {
+	var previewID string
+	props := map[string]interface{}{}
+	if m.PostProps != nil && json.Unmarshal([]byte(*m.PostProps), &props) == nil {
+		if val, ok := props[POST_PROPS_PREVIEWED_POST]; ok {
+			previewID = val.(string)
+		}
+	}
+	return previewID
 }

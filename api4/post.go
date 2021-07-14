@@ -18,6 +18,7 @@ import (
 func (api *API) InitPost() {
 	api.BaseRoutes.Posts.Handle("", api.ApiSessionRequired(createPost)).Methods("POST")
 	api.BaseRoutes.Post.Handle("", api.ApiSessionRequired(getPost)).Methods("GET")
+	api.BaseRoutes.Posts.Handle("/ids", api.ApiSessionRequired(getPosts)).Methods("POST")
 	api.BaseRoutes.Post.Handle("", api.ApiSessionRequired(deletePost)).Methods("DELETE")
 	api.BaseRoutes.Posts.Handle("/ephemeral", api.ApiSessionRequired(createEphemeralPost)).Methods("POST")
 	api.BaseRoutes.Post.Handle("/thread", api.ApiSessionRequired(getPostThread)).Methods("GET")
@@ -125,7 +126,7 @@ func createEphemeralPost(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	rp = model.AddPostActionCookies(rp, c.App.PostActionCookieSecret())
-	rp = c.App.PreparePostForClient(rp, true, false)
+	rp = c.App.PreparePostForClient(rp, true, false, c.AppContext.Session().UserId)
 	w.Write([]byte(rp.ToJson()))
 }
 
@@ -211,7 +212,7 @@ func getPostsForChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.App.AddCursorIdsForPostList(list, afterPost, beforePost, since, page, perPage, collapsedThreads)
-	clientPostList := c.App.PreparePostListForClient(list)
+	clientPostList := c.App.PreparePostListForClient(list, c.AppContext.Session().UserId)
 
 	w.Write([]byte(clientPostList.ToJson()))
 }
@@ -267,7 +268,7 @@ func getPostsForChannelAroundLastUnread(c *Context, w http.ResponseWriter, r *ht
 	postList.NextPostId = c.App.GetNextPostIdFromPostList(postList, collapsedThreads)
 	postList.PrevPostId = c.App.GetPrevPostIdFromPostList(postList, collapsedThreads)
 
-	clientPostList := c.App.PreparePostListForClient(postList)
+	clientPostList := c.App.PreparePostListForClient(postList, c.AppContext.Session().UserId)
 
 	if etag != "" {
 		w.Header().Set(model.HEADER_ETAG_SERVER, etag)
@@ -329,7 +330,7 @@ func getFlaggedPostsForUser(c *Context, w http.ResponseWriter, r *http.Request) 
 	}
 
 	pl.SortByCreateAt()
-	w.Write([]byte(c.App.PreparePostListForClient(pl).ToJson()))
+	w.Write([]byte(c.App.PreparePostListForClient(pl, c.AppContext.Session().UserId).ToJson()))
 }
 
 func getPost(c *Context, w http.ResponseWriter, r *http.Request) {
@@ -362,7 +363,7 @@ func getPost(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	post = c.App.PreparePostForClient(post, false, false)
+	post = c.App.PreparePostForClient(post, false, false, c.AppContext.Session().UserId)
 
 	if c.HandleEtag(post.Etag(), "Get Post", w, r) {
 		return
@@ -370,6 +371,57 @@ func getPost(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(model.HEADER_ETAG_SERVER, post.Etag())
 	w.Write([]byte(post.ToJson()))
+}
+
+func getPosts(c *Context, w http.ResponseWriter, r *http.Request) {
+	var postIDs []string
+	json.NewDecoder(r.Body).Decode(&postIDs)
+	if postIDs == nil {
+		c.SetInvalidParam("post_ids")
+		return
+	}
+
+	var posts []*model.Post
+
+	for _, postID := range postIDs {
+		post, err := c.App.GetSinglePost(postID)
+		if err != nil {
+			if err.StatusCode == http.StatusNotFound {
+				continue
+			} else {
+				c.Err = err
+				return
+			}
+		}
+
+		channel, err := c.App.GetChannel(post.ChannelId)
+		if err != nil {
+			c.Err = err
+			return
+		}
+
+		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), channel.Id, model.PERMISSION_READ_CHANNEL) {
+			if channel.Type == model.CHANNEL_OPEN {
+				if !c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), channel.TeamId, model.PERMISSION_READ_PUBLIC_CHANNEL) {
+					continue
+				}
+			} else {
+				continue
+			}
+		}
+
+		post = c.App.PreparePostForClient(post, false, false, c.AppContext.Session().UserId)
+
+		posts = append(posts, post)
+	}
+
+	b, err := json.Marshal(posts)
+	if err != nil {
+		c.Err = model.NewAppError("getPosts", "api.post.search_posts.invalid_body.app_error", nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write(b)
 }
 
 func deletePost(c *Context, w http.ResponseWriter, _ *http.Request) {
@@ -452,7 +504,7 @@ func getPostThread(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientPostList := c.App.PreparePostListForClient(list)
+	clientPostList := c.App.PreparePostListForClient(list, c.AppContext.Session().UserId)
 
 	w.Header().Set(model.HEADER_ETAG_SERVER, clientPostList.Etag())
 
@@ -523,7 +575,7 @@ func searchPosts(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientPostList := c.App.PreparePostListForClient(results.PostList)
+	clientPostList := c.App.PreparePostListForClient(results.PostList, c.AppContext.Session().UserId)
 
 	results = model.MakePostSearchResults(clientPostList, results.Matches)
 

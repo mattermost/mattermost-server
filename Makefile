@@ -6,6 +6,7 @@ ifeq ($(OS),Windows_NT)
 	PLATFORM := Windows
 else
 	PLATFORM := $(shell uname)
+	ARCH := $(shell uname -m)
 endif
 
 # Set an environment variable on Linux used to resolve `docker.host.internal` inconsistencies with
@@ -119,6 +120,14 @@ PLUGIN_PACKAGES += mattermost-plugin-welcomebot-v1.2.0
 PLUGIN_PACKAGES += mattermost-plugin-zoom-v1.5.0
 PLUGIN_PACKAGES += focalboard-v0.7.3
 
+ifneq (Darwin,$(PLATFORM))
+	DOCKER_MAKEFILE := ./docker-compose.makefile.yml
+else ifeq (arm64, $(ARCH))
+	DOCKER_MAKEFILE := ./docker-compose.makefile.m1.yml
+else
+	DOCKER_MAKEFILE := ./docker-compose.makefile.yml
+endif
+
 # Prepares the enterprise build if exists. The IGNORE stuff is a hack to get the Makefile to execute the commands outside a target
 ifeq ($(BUILD_ENTERPRISE_READY),true)
 	IGNORE:=$(shell echo Enterprise build selected, preparing)
@@ -173,9 +182,9 @@ else ifeq ($(MM_NO_DOCKER),true)
 else
 	@echo Starting docker containers
 
-	$(GO) run ./build/docker-compose-generator/main.go $(ENABLED_DOCKER_SERVICES) | docker-compose -f docker-compose.makefile.yml -f /dev/stdin run --rm start_dependencies
-ifneq (,$(findstring openldap,$(ENABLED_DOCKER_SERVICES)))
-	cat tests/${LDAP_DATA}-data.ldif | docker-compose -f docker-compose.makefile.yml exec -T openldap bash -c 'ldapadd -x -D "cn=admin,dc=mm,dc=test,dc=com" -w mostest || true';
+	$(GO) run ./build/docker-compose-generator/main.go $(ENABLED_DOCKER_SERVICES) | docker-compose -f $(DOCKER_MAKEFILE) -f /dev/stdin run --rm start_dependencies
+ifneq (,$(findstring openldap, $(ENABLED_DOCKER_SERVICES)))
+	cat tests/${LDAP_DATA}-data.ldif | docker-compose -f $(DOCKER_MAKEFILE) exec -T openldap bash -c 'ldapadd -x -D "cn=admin,dc=mm,dc=test,dc=com" -w mostest || true';
 endif
 ifneq (,$(findstring mysql-read-replica,$(ENABLED_DOCKER_SERVICES)))
 	./scripts/replica-mysql-config.sh

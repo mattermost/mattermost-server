@@ -1,0 +1,62 @@
+version: '2.4'
+services:
+  mysql:
+    container_name: mattermost-mysql
+    platform: "linux/x86_64"
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: mysql
+  postgres:
+    container_name: mattermost-postgres
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: postgres
+  minio:
+    container_name: mattermost-minio
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: minio
+  inbucket:
+    container_name: mattermost-inbucket
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: inbucket
+  openldap:
+    container_name: mattermost-openldap
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: openldap
+  elasticsearch:
+    container_name: mattermost-elasticsearch
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: elasticsearch
+  dejavu:
+    container_name: mattermost-dejavu
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: dejavu
+  keycloak:
+    container_name: mattermost-saml
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: keycloak
+  prometheus:
+    container_name: mattermost-prometheus
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: prometheus
+  grafana:
+    container_name: mattermost-grafana
+    extends:
+        file: ./docker-compose.makefile.yml
+        service: grafana
+
+networks:
+  mm-test:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.254.0/24
+          ip_range: 192.168.254.0/24

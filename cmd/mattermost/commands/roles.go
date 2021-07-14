@@ -5,6 +5,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -84,6 +85,16 @@ func makeSystemAdminCmdF(command *cobra.Command, args []string) error {
 			return errUpdate
 		}
 
+		if !systemUser && !systemAdmin {
+			CommandPrintln(fmt.Sprintf("System user and system admin roles assigned to user %q. Current roles are %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		} else if systemUser && !systemAdmin {
+			CommandPrintln(fmt.Sprintf("System admin role assigned to user %q. Current roles are %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		} else if !systemUser && systemAdmin {
+			CommandPrintln(fmt.Sprintf("System user role assigned to user %q. Current roles are %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		} else {
+			CommandPrintln(fmt.Sprintf("No roles assinged to user %q. Current roles are %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		}
+
 		auditRec := a.MakeAuditRecord("makeSystemAdmin", audit.Success)
 		auditRec.AddMeta("user", user)
 		auditRec.AddMeta("update", updatedUser)
@@ -109,6 +120,7 @@ func makeMemberCmdF(command *cobra.Command, args []string) error {
 			return errors.New("Unable to find user '" + args[i] + "'")
 		}
 
+		systemAdmin := false
 		systemUser := false
 		var newRoles []string
 
@@ -116,6 +128,7 @@ func makeMemberCmdF(command *cobra.Command, args []string) error {
 		for _, role := range roles {
 			switch role {
 			case model.SYSTEM_ADMIN_ROLE_ID:
+				systemAdmin = true
 			default:
 				if role == model.SYSTEM_USER_ROLE_ID {
 					systemUser = true
@@ -131,6 +144,16 @@ func makeMemberCmdF(command *cobra.Command, args []string) error {
 		updatedUser, errUpdate := a.UpdateUserRoles(user.Id, strings.Join(newRoles, " "), true)
 		if errUpdate != nil {
 			return errUpdate
+		}
+
+		if systemUser && systemAdmin {
+			CommandPrintln(fmt.Sprintf("System admin role revoked for user %q. Current roles are: %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		} else if !systemUser && systemAdmin {
+			CommandPrintln(fmt.Sprintf("System admin role revoked and system user role assigned to user %q. Current roles are: %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		} else if !systemUser && !systemAdmin {
+			CommandPrintln(fmt.Sprintf("System user role assigned to user %q. Current roles are: %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
+		} else {
+			CommandPrintln(fmt.Sprintf("No roles revoked or assigned to user %q. Current roles are: %s", args[i], strings.Replace(updatedUser.Roles, " ", ", ", -1)))
 		}
 
 		auditRec := a.MakeAuditRecord("makeMember", audit.Success)

@@ -773,7 +773,7 @@ func deleteUserCmdF(command *cobra.Command, args []string) error {
 		}
 
 		if user.IsBot {
-			if err := a.PermanentDeleteBot(user.Id); err != nil {
+			if err := a.PermanentDeleteBot(&request.Context{}, user.Id); err != nil {
 				return err
 			}
 		} else {

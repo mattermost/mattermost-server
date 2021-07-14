@@ -1402,7 +1402,7 @@ func TestAddUserToChannel(t *testing.T) {
 	defer th.App.PermanentDeleteUser(th.Context, &user1)
 	bot := th.CreateBot()
 	botUser, _ := th.App.GetUser(bot.UserId)
-	defer th.App.PermanentDeleteBot(botUser.Id)
+	defer th.App.PermanentDeleteBot(th.Context, botUser.Id)
 
 	th.App.AddTeamMember(th.Context, th.BasicTeam.Id, ruser1.Id)
 	th.App.AddTeamMember(th.Context, th.BasicTeam.Id, bot.UserId)
@@ -1484,7 +1484,7 @@ func TestRemoveUserFromChannel(t *testing.T) {
 
 	bot := th.CreateBot()
 	botUser, _ := th.App.GetUser(bot.UserId)
-	defer th.App.PermanentDeleteBot(botUser.Id)
+	defer th.App.PermanentDeleteBot(th.Context, botUser.Id)
 
 	th.App.AddTeamMember(th.Context, th.BasicTeam.Id, ruser.Id)
 	th.App.AddTeamMember(th.Context, th.BasicTeam.Id, bot.UserId)

@@ -205,7 +205,7 @@ func TestUpdateActiveBotsSideEffect(t *testing.T) {
 		OwnerId:     th.BasicUser.Id,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 	// Automatic deactivation disabled
 	th.App.UpdateConfig(func(cfg *model.Config) {

@@ -924,7 +924,7 @@ func (api *PluginAPI) UpdateBotActive(userID string, active bool) (*model.Bot, *
 }
 
 func (api *PluginAPI) PermanentDeleteBot(userID string) *model.AppError {
-	return api.app.PermanentDeleteBot(userID)
+	return api.app.PermanentDeleteBot(api.ctx, userID)
 }
 
 func (api *PluginAPI) GetBotIconImage(userID string) ([]byte, *model.AppError) {

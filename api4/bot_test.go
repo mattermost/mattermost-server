@@ -73,7 +73,7 @@ func TestCreateBot(t *testing.T) {
 
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 		require.Equal(t, bot.Username, createdBot.Username)
 		require.Equal(t, bot.DisplayName, createdBot.DisplayName)
 		require.Equal(t, bot.Description, createdBot.Description)
@@ -118,7 +118,7 @@ func TestCreateBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 		th.App.UpdateUserRoles(bot.UserId, model.TEAM_USER_ROLE_ID+" "+model.SYSTEM_USER_ACCESS_TOKEN_ROLE_ID, false)
 
 		rtoken, resp := th.Client.CreateUserAccessToken(bot.UserId, "test token")
@@ -165,7 +165,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot created by a user",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 			botPatch := &model.BotPatch{
@@ -187,7 +187,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot created by system admin user",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBotSystemAdmin.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBotSystemAdmin.UserId)
 
 		th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 			botPatch := &model.BotPatch{
@@ -219,7 +219,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		_, resp = th.Client.PatchBot(createdBot.UserId, &model.BotPatch{})
 		CheckErrorMessage(t, resp, "store.sql_bot.get.missing.app_error")
@@ -242,7 +242,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		_, resp = th.Client.PatchBot(createdBot.UserId, &model.BotPatch{})
 		CheckErrorMessage(t, resp, "api.context.permissions.app_error")
@@ -265,7 +265,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP(GenerateTestUsername()),
@@ -314,7 +314,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP(GenerateTestUsername()),
@@ -344,7 +344,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP(GenerateTestUsername()),
@@ -374,7 +374,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP(GenerateTestUsername()),
@@ -410,7 +410,7 @@ func TestPatchBot(t *testing.T) {
 
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username: sToP(GenerateTestUsername()),
@@ -442,7 +442,7 @@ func TestPatchBot(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		r, err := th.Client.DoApiPut(th.Client.GetBotRoute(createdBot.UserId), `{"creator_id":"`+th.BasicUser2.Id+`"}`)
 		require.Nil(t, err)
@@ -472,7 +472,7 @@ func TestGetBot(t *testing.T) {
 		Description: "the first bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot1.UserId)
 
 	bot2, resp := th.SystemAdminClient.CreateBot(&model.Bot{
 		Username:    GenerateTestUsername(),
@@ -480,14 +480,14 @@ func TestGetBot(t *testing.T) {
 		Description: "the second bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot2.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot2.UserId)
 
 	deletedBot, resp := th.SystemAdminClient.CreateBot(&model.Bot{
 		Username:    GenerateTestUsername(),
 		Description: "a deleted bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(deletedBot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, deletedBot.UserId)
 	deletedBot, resp = th.SystemAdminClient.DisableBot(deletedBot.UserId)
 	CheckOKStatus(t, resp)
 
@@ -503,7 +503,7 @@ func TestGetBot(t *testing.T) {
 		Description: "a bot created by non-admin",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(myBot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, myBot.UserId)
 	th.RemovePermissionFromRole(model.PERMISSION_CREATE_BOT.Id, model.TEAM_USER_ROLE_ID)
 
 	t.Run("get unknown bot", func(t *testing.T) {
@@ -616,14 +616,14 @@ func TestGetBots(t *testing.T) {
 		Description: "the first bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot1.UserId)
 
 	deletedBot1, resp := th.SystemAdminClient.CreateBot(&model.Bot{
 		Username:    GenerateTestUsername(),
 		Description: "a deleted bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(deletedBot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, deletedBot1.UserId)
 	deletedBot1, resp = th.SystemAdminClient.DisableBot(deletedBot1.UserId)
 	CheckOKStatus(t, resp)
 
@@ -633,7 +633,7 @@ func TestGetBots(t *testing.T) {
 		Description: "the second bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot2.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot2.UserId)
 
 	bot3, resp := th.SystemAdminClient.CreateBot(&model.Bot{
 		Username:    GenerateTestUsername(),
@@ -641,14 +641,14 @@ func TestGetBots(t *testing.T) {
 		Description: "the third bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot3.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot3.UserId)
 
 	deletedBot2, resp := th.SystemAdminClient.CreateBot(&model.Bot{
 		Username:    GenerateTestUsername(),
 		Description: "a deleted bot",
 	})
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(deletedBot2.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, deletedBot2.UserId)
 	deletedBot2, resp = th.SystemAdminClient.DisableBot(deletedBot2.UserId)
 	CheckOKStatus(t, resp)
 
@@ -661,7 +661,7 @@ func TestGetBots(t *testing.T) {
 	})
 	CheckCreatedStatus(t, resp)
 	th.LoginBasic()
-	defer th.App.PermanentDeleteBot(orphanedBot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, orphanedBot.UserId)
 	// Automatic deactivation disabled
 	th.App.UpdateConfig(func(cfg *model.Config) {
 		*cfg.ServiceSettings.DisableBotsWhenOwnerIsDeactivated = false
@@ -882,7 +882,7 @@ func TestDisableBot(t *testing.T) {
 
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		_, resp = th.Client.DisableBot(createdBot.UserId)
 		CheckErrorMessage(t, resp, "store.sql_bot.get.missing.app_error")
@@ -907,7 +907,7 @@ func TestDisableBot(t *testing.T) {
 
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		_, resp = th.Client.DisableBot(createdBot.UserId)
 		CheckErrorMessage(t, resp, "api.context.permissions.app_error")
@@ -931,7 +931,7 @@ func TestDisableBot(t *testing.T) {
 				Description: "bot",
 			})
 			CheckCreatedStatus(t, resp)
-			defer th.App.PermanentDeleteBot(bot.UserId)
+			defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 			disabledBot, resp := client.DisableBot(bot.UserId)
 			CheckOKStatus(t, resp)
@@ -980,7 +980,7 @@ func TestEnableBot(t *testing.T) {
 
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		_, resp = th.SystemAdminClient.DisableBot(createdBot.UserId)
 		CheckOKStatus(t, resp)
@@ -1008,7 +1008,7 @@ func TestEnableBot(t *testing.T) {
 
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		_, resp = th.SystemAdminClient.DisableBot(createdBot.UserId)
 		CheckOKStatus(t, resp)
@@ -1035,7 +1035,7 @@ func TestEnableBot(t *testing.T) {
 				Description: "bot",
 			})
 			CheckCreatedStatus(t, resp)
-			defer th.App.PermanentDeleteBot(bot.UserId)
+			defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 			_, resp = th.SystemAdminClient.DisableBot(bot.UserId)
 			CheckOKStatus(t, resp)
@@ -1085,7 +1085,7 @@ func TestAssignBot(t *testing.T) {
 		}
 		bot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		before, resp := th.Client.GetBot(bot.UserId, "")
 		CheckOKStatus(t, resp)
@@ -1127,7 +1127,7 @@ func TestAssignBot(t *testing.T) {
 		}
 		createdBot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		th.LoginBasic2()
 
@@ -1158,7 +1158,7 @@ func TestAssignBot(t *testing.T) {
 		}
 		bot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		// Simulate custom role by just changing the system user role
 		th.AddPermissionToRole(model.PERMISSION_CREATE_BOT.Id, model.SYSTEM_USER_ROLE_ID)
@@ -1191,7 +1191,7 @@ func TestAssignBot(t *testing.T) {
 		}
 		bot, resp := th.Client.CreateBot(bot)
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		bot2, resp := th.Client.CreateBot(&model.Bot{
 			Username:    GenerateTestUsername(),
@@ -1200,7 +1200,7 @@ func TestAssignBot(t *testing.T) {
 		})
 
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(bot2.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot2.UserId)
 
 		_, resp = th.Client.AssignBot(bot.UserId, bot2.UserId)
 		CheckErrorMessage(t, resp, "api.context.permissions.app_error")
@@ -1228,7 +1228,7 @@ func TestSetBotIconImage(t *testing.T) {
 	}
 	bot, resp := th.Client.CreateBot(bot)
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 	badData, err := testutils.ReadTestFile("test.png")
 	require.NoError(t, err)
@@ -1297,7 +1297,7 @@ func TestGetBotIconImage(t *testing.T) {
 	}
 	bot, resp := th.Client.CreateBot(bot)
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 	// Get icon image for user with no icon
 	data, resp := th.Client.GetBotIconImage(bot.UserId)
@@ -1359,7 +1359,7 @@ func TestDeleteBotIconImage(t *testing.T) {
 	}
 	bot, resp := th.Client.CreateBot(bot)
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 	// Get icon image for user with no icon
 	data, resp := th.Client.GetBotIconImage(bot.UserId)
@@ -1420,7 +1420,7 @@ func TestConvertBotToUser(t *testing.T) {
 	}
 	bot, resp := th.Client.CreateBot(bot)
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(bot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 	_, resp = th.Client.ConvertBotToUser(bot.UserId, &model.UserPatch{}, false)
 	CheckBadRequestStatus(t, resp)

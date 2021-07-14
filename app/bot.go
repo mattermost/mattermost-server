@@ -360,18 +360,17 @@ func (a *App) UpdateBotActive(c *request.Context, botUserId string, active bool)
 }
 
 // PermanentDeleteBot permanently deletes a bot and its corresponding user.
-func (a *App) PermanentDeleteBot(botUserId string) *model.AppError {
-	if err := a.Srv().Store.Bot().PermanentDelete(botUserId); err != nil {
-		var invErr *store.ErrInvalidInput
-		switch {
-		case errors.As(err, &invErr):
-			return model.NewAppError("PermanentDeleteBot", "app.bot.permenent_delete.bad_id", map[string]interface{}{"user_id": invErr.Value}, invErr.Error(), http.StatusBadRequest)
-		default: // last fallback in case it doesn't map to an existing app error.
-			return model.NewAppError("PatchBot", "app.bot.permanent_delete.internal_error", nil, err.Error(), http.StatusInternalServerError)
-		}
+func (a *App) PermanentDeleteBot(c *request.Context, botUserId string) *model.AppError {
+	user, err := a.GetUser(botUserId)
+	if err != nil {
+		return err
 	}
 
-	if err := a.Srv().Store.User().PermanentDelete(botUserId); err != nil {
+	if !user.IsBot {
+		return model.NewAppError("PermanentDeleteBot", "app.bot.permenent_delete.bad_id", map[string]interface{}{"user_id": botUserId}, "invalid bot id", http.StatusBadRequest)
+	}
+
+	if err := a.PermanentDeleteUser(c, user); err != nil {
 		return model.NewAppError("PermanentDeleteBot", "app.user.permanent_delete.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 

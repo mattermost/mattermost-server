@@ -268,7 +268,7 @@ type AppIface interface {
 	// For internal requests, requests are routed directly to a plugin ServerHTTP hook
 	DoActionRequest(c *request.Context, rawURL string, body []byte) (*http.Response, *model.AppError)
 	// PermanentDeleteBot permanently deletes a bot and its corresponding user.
-	PermanentDeleteBot(botUserId string) *model.AppError
+	PermanentDeleteBot(c *request.Context, botUserId string) *model.AppError
 	// PopulateWebConnConfig checks if the connection id already exists in the hub,
 	// and if so, accordingly populates the other fields of the webconn.
 	PopulateWebConnConfig(s *model.Session, cfg *WebConnConfig, seqVal string) (*WebConnConfig, error)

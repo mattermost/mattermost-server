@@ -11933,7 +11933,7 @@ func (a *OpenTracingAppLayer) PermanentDeleteAllUsers(c *request.Context) *model
 	return resultVar0
 }
 
-func (a *OpenTracingAppLayer) PermanentDeleteBot(botUserId string) *model.AppError {
+func (a *OpenTracingAppLayer) PermanentDeleteBot(c *request.Context, botUserId string) *model.AppError {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.PermanentDeleteBot")
 
@@ -11945,7 +11945,7 @@ func (a *OpenTracingAppLayer) PermanentDeleteBot(botUserId string) *model.AppErr
 	}()
 
 	defer span.Finish()
-	resultVar0 := a.app.PermanentDeleteBot(botUserId)
+	resultVar0 := a.app.PermanentDeleteBot(c, botUserId)
 
 	if resultVar0 != nil {
 		span.LogFields(spanlog.Error(resultVar0))

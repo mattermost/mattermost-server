@@ -780,7 +780,7 @@ func TestGetBotUser(t *testing.T) {
 
 	createdBot, resp := th.Client.CreateBot(bot)
 	CheckCreatedStatus(t, resp)
-	defer th.App.PermanentDeleteBot(createdBot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 	botUser, resp := th.Client.GetUser(createdBot.UserId, "")
 	CheckNoError(t, resp)
@@ -3930,7 +3930,7 @@ func TestCreateUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		t.Run("without MANAGE_BOT permission", func(t *testing.T) {
 			th.RemovePermissionFromRole(model.PERMISSION_MANAGE_BOTS.Id, model.TEAM_USER_ROLE_ID)
@@ -3970,7 +3970,7 @@ func TestCreateUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		t.Run("only having MANAGE_BOTS permission", func(t *testing.T) {
 			_, resp = th.Client.CreateUserAccessToken(createdBot.UserId, "test token")
@@ -4071,7 +4071,7 @@ func TestGetUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.Client.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4117,7 +4117,7 @@ func TestGetUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.SystemAdminClient.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4339,7 +4339,7 @@ func TestRevokeUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.Client.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4382,7 +4382,7 @@ func TestRevokeUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.SystemAdminClient.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4457,7 +4457,7 @@ func TestDisableUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.Client.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4500,7 +4500,7 @@ func TestDisableUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.SystemAdminClient.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4585,7 +4585,7 @@ func TestEnableUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.Client.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)
@@ -4632,7 +4632,7 @@ func TestEnableUserAccessToken(t *testing.T) {
 			Description: "bot",
 		})
 		CheckCreatedStatus(t, resp)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		token, resp := th.SystemAdminClient.CreateUserAccessToken(createdBot.UserId, "test token")
 		CheckNoError(t, resp)

@@ -11,6 +11,8 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
 	"github.com/mattermost/mattermost-server/v5/store"
+
+	"time"
 )
 
 func (a *App) AddStatusCacheSkipClusterSend(status *model.Status) {
@@ -245,7 +247,38 @@ func (a *App) SetStatusOffline(userID string, manual bool) {
 		return // manually set status always overrides non-manual one
 	}
 
+	var MONS = status.MondayStart
+	var MONE = status.MondayEnd
+	var TUES = status.TuesdayStart
+	var TUEE = status.TuesdayEnd
+	var WEDS = status.WednesdayStart
+	var WEDE = status.WednesdayEnd
+	var THUS = status.ThursdayStart
+	var THUE = status.ThursdayEnd
+	var FRIS = status.FridayStart
+	var FRIE = status.FridayEnd
+	var SATS = status.SaturdayStart
+	var SATE = status.SaturdayEnd
+	var SUNS = status.SundayStart
+	var SUNE = status.SundayEnd
+	var MODE = status.Mode
+
 	status = &model.Status{UserId: userID, Status: model.STATUS_OFFLINE, Manual: manual, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	status.MondayStart = MONS
+	status.MondayEnd = MONE
+	status.TuesdayStart = TUES
+	status.TuesdayEnd = TUEE
+	status.WednesdayStart = WEDS
+	status.WednesdayEnd = WEDE
+	status.ThursdayStart = THUS
+	status.ThursdayEnd = THUE
+	status.FridayStart = FRIS
+	status.FridayEnd = FRIE
+	status.SaturdayStart = SATS
+	status.SaturdayEnd = SATE
+	status.SundayStart = SUNS
+	status.SundayEnd = SUNE
+	status.Mode = MODE
 
 	a.SaveAndBroadcastStatus(status)
 }
@@ -278,6 +311,111 @@ func (a *App) SetStatusAwayIfNeeded(userID string, manual bool) {
 	status.Status = model.STATUS_AWAY
 	status.Manual = manual
 	status.ActiveChannel = ""
+
+	a.SaveAndBroadcastStatus(status)
+}
+
+func (a *App) SetStatusDoNotDisturbSchedule(userId, currentDayOfTheWeek, currentTime string) {
+	currentStatus, err := a.GetStatus(userId)
+
+	if err != nil {
+		return
+	}
+	startTime := ""
+	endTime := ""
+
+	switch currentDayOfTheWeek {
+	case "Mon":
+		startTime = currentStatus.MondayStart
+		endTime = currentStatus.MondayEnd
+	case "Tue":
+		startTime = currentStatus.TuesdayStart
+		endTime = currentStatus.TuesdayEnd
+	case "Wed":
+		startTime = currentStatus.WednesdayStart
+		endTime = currentStatus.WednesdayEnd
+	case "Thu":
+		startTime = currentStatus.ThursdayStart
+		endTime = currentStatus.ThursdayEnd
+	case "Fri":
+		startTime = currentStatus.FridayStart
+		endTime = currentStatus.FridayEnd
+	case "Sat":
+		startTime = currentStatus.SaturdayStart
+		endTime = currentStatus.SaturdayEnd
+	case "Sun":
+		startTime = currentStatus.SundayStart
+		endTime = currentStatus.SundayEnd
+	}
+
+	if startTime == "" && endTime == "" {
+		return
+	}
+
+	newLayout := "15:04"
+	check, _ := time.Parse(newLayout, currentTime)
+	start, _ := time.Parse(newLayout, startTime)
+	end, _ := time.Parse(newLayout, endTime)
+
+	if a.InTimeSpan(start, end, check) {
+		a.SetStatusOnline(userId, true)
+	} else {
+		a.SetStatusDoNotDisturbScheduled(userId)
+	}
+}
+
+func (a *App) InTimeSpan(start, end, check time.Time) bool {
+	if check.After(end) {
+		return false
+	}
+	if end.After(start) {
+		return check.After(start)
+	}
+	return check.Before(start)
+}
+
+func (a *App) SetStatusSchedule(userId, mondayStart, mondayEnd, tuesdayStart, tuesdayEnd, wednesdayStart, wednesdayEnd, thursdayStart, thursdayEnd, fridayStart, fridayEnd, saturdayStart, saturdayEnd, sundayStart, sundayEnd string, mode int64) {
+	if !*a.Config().ServiceSettings.EnableUserStatuses {
+		return
+	}
+	status, err := a.GetStatus(userId)
+
+	if err != nil {
+		return
+	}
+
+	status.MondayStart = mondayStart
+	status.MondayEnd = mondayEnd
+	status.TuesdayStart = tuesdayStart
+	status.TuesdayEnd = tuesdayEnd
+	status.WednesdayStart = wednesdayStart
+	status.WednesdayEnd = wednesdayEnd
+	status.ThursdayStart = thursdayStart
+	status.ThursdayEnd = thursdayEnd
+	status.FridayStart = fridayStart
+	status.FridayEnd = fridayEnd
+	status.SaturdayStart = saturdayStart
+	status.SaturdayEnd = saturdayEnd
+	status.SundayStart = sundayStart
+	status.SundayEnd = sundayEnd
+	status.Mode = mode
+
+	a.SaveAndBroadcastStatus(status)
+}
+
+func (a *App) SetStatusDoNotDisturbScheduled(userID string) {
+	if !*a.Config().ServiceSettings.EnableUserStatuses {
+		return
+	}
+
+	status, err := a.GetStatus(userID)
+
+	if err != nil {
+		return
+	}
+
+	status.Status = model.STATUS_DND
+	status.Manual = true
 
 	a.SaveAndBroadcastStatus(status)
 }

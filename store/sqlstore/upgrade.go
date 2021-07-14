@@ -1088,6 +1088,27 @@ func upgradeDatabaseToVersion536(sqlStore *SqlStore) {
 		sqlStore.CreateColumnIfNotExists("SharedChannelRemotes", "LastPostUpdateAt", "bigint", "bigint", "0")
 		sqlStore.CreateColumnIfNotExists("SharedChannelRemotes", "LastPostId", "VARCHAR(26)", "VARCHAR(26)", "")
 
+		// timed dnd status support
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "DNDEndTime", "BIGINT", "BIGINT")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "PrevStatus", "VARCHAR(32)", "VARCHAR(32)")
+		// custom dnd status support
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "MondayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "MondayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "TuesdayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "TuesdayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "WednesdayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "WednesdayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "ThursdayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "ThursdayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "FridayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "FridayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "SaturdayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "SaturdayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "SundayStart", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "SundayEnd", "VARCHAR(32)", "VARCHAR(32)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "Mode", "BIGINT", "BIGINT")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "CurrentTime", "VARCHAR(16)", "VARCHAR(16)")
+		sqlStore.CreateColumnIfNotExistsNoDefault("Status", "DayOfTheWeek", "VARCHAR(16)", "VARCHAR(16)")
 		saveSchemaVersion(sqlStore, Version5360)
 	}
 }

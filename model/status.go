@@ -27,6 +27,23 @@ type Status struct {
 	ActiveChannel  string `json:"active_channel,omitempty" db:"-"`
 	DNDEndTime     int64  `json:"dnd_end_time"`
 	PrevStatus     string `json:"-"`
+	MondayStart    string `json:"monday_start"`
+	MondayEnd      string `json:"monday_end"`
+	TuesdayStart   string `json:"tuesday_start"`
+	TuesdayEnd     string `json:"tuesday_end"`
+	WednesdayStart string `json:"wednesday_start"`
+	WednesdayEnd   string `json:"wednesday_end"`
+	ThursdayStart  string `json:"thursday_start"`
+	ThursdayEnd    string `json:"thursday_end"`
+	FridayStart    string `json:"friday_start"`
+	FridayEnd      string `json:"friday_end"`
+	SaturdayStart  string `json:"saturday_start"`
+	SaturdayEnd    string `json:"saturday_end"`
+	SundayStart    string `json:"sunday_start"`
+	SundayEnd      string `json:"sunday_end"`
+	Mode           int64  `json:"mode"`
+	CurrentTime    string `json:"current_time"`
+	DayOfTheWeek   string `json:"day_of_the_week"`
 }
 
 func (o *Status) ToJson() string {

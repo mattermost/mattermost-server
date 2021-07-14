@@ -823,6 +823,7 @@ type AppIface interface {
 	ImageProxyAdder() func(string) string
 	ImageProxyRemover() (f func(string) string)
 	ImportPermissions(jsonl io.Reader) error
+	InTimeSpan(start, end, check time.Time) bool
 	InitPlugins(c *request.Context, pluginDir, webappPluginDir string)
 	InstallPluginFromData(data model.PluginEventData)
 	InvalidateAllEmailInvites() *model.AppError
@@ -1011,9 +1012,12 @@ type AppIface interface {
 	SetServer(srv *Server)
 	SetStatusAwayIfNeeded(userID string, manual bool)
 	SetStatusDoNotDisturb(userID string)
+	SetStatusDoNotDisturbSchedule(userId, currentDayOfTheWeek, currentTime string)
+	SetStatusDoNotDisturbScheduled(userID string)
 	SetStatusOffline(userID string, manual bool)
 	SetStatusOnline(userID string, manual bool)
 	SetStatusOutOfOffice(userID string)
+	SetStatusSchedule(userId, mondayStart, mondayEnd, tuesdayStart, tuesdayEnd, wednesdayStart, wednesdayEnd, thursdayStart, thursdayEnd, fridayStart, fridayEnd, saturdayStart, saturdayEnd, sundayStart, sundayEnd string, mode int64)
 	SetTeamIcon(teamID string, imageData *multipart.FileHeader) *model.AppError
 	SetTeamIconFromFile(team *model.Team, file io.Reader) *model.AppError
 	SetTeamIconFromMultiPartFile(teamID string, file multipart.File) *model.AppError

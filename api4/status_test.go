@@ -68,6 +68,13 @@ func TestGetUserStatus(t *testing.T) {
 		assert.Equal(t, "online", userStatus.Status)
 	})
 
+	t.Run("update schedules", func(t *testing.T) {
+		th.App.SetStatusSchedule(th.BasicUser.Id, "09:00", "18:00", "09:00", "18:00", "09:00", "18:00", "09:00", "18:00", "09:00", "18:00", "09:00", "18:00", "09:00", "18:00", 1)
+		userStatus, resp := Client.GetUserStatus(th.BasicUser.Id, "")
+		CheckNoError(t, resp)
+		assert.Equal(t, "09:00", userStatus.MondayStart)
+	})
+
 	t.Run("back to offline status", func(t *testing.T) {
 		th.App.SetStatusOffline(th.BasicUser.Id, true)
 		userStatus, resp := Client.GetUserStatus(th.BasicUser.Id, "")

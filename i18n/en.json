@@ -6084,7 +6084,7 @@
   },
   {
     "id": "app.system.warn_metric.bot_description",
-    "translation": "[Learn more about the Mattermost Advisor](https://about.mattermost.com/default-channel-handle-documentation)"
+    "translation": "[Learn more about the Mattermost Advisor](https://docs.mattermost.com/administration/notices.html#admin-advisor-notices)"
   },
   {
     "id": "app.system.warn_metric.bot_displayname",

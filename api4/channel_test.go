@@ -2593,6 +2593,13 @@ func TestUpdateChannelMemberSchemeRoles(t *testing.T) {
 	_, resp = SystemAdminClient.UpdateChannelMemberSchemeRoles(th.BasicChannel.Id, "ASDF", s4)
 	CheckBadRequestStatus(t, resp)
 
+	th.RemovePermissionFromRole(model.PERMISSION_MANAGE_PUBLIC_CHANNEL_MEMBERS.Id, model.CHANNEL_USER_ROLE_ID)
+
+	_, resp = th.Client.UpdateChannelMemberSchemeRoles(th.BasicChannel.Id, th.BasicUser2.Id, s4)
+	CheckForbiddenStatus(t, resp)
+
+	th.AddPermissionToRole(model.PERMISSION_MANAGE_PUBLIC_CHANNEL_MEMBERS.Id, model.CHANNEL_ADMIN_ROLE_ID)
+
 	th.LoginBasic2()
 	_, resp = th.Client.UpdateChannelMemberSchemeRoles(th.BasicChannel.Id, th.BasicUser.Id, s4)
 	CheckForbiddenStatus(t, resp)
@@ -2600,6 +2607,7 @@ func TestUpdateChannelMemberSchemeRoles(t *testing.T) {
 	SystemAdminClient.Logout()
 	_, resp = SystemAdminClient.UpdateChannelMemberSchemeRoles(th.BasicChannel.Id, th.SystemAdminUser.Id, s4)
 	CheckUnauthorizedStatus(t, resp)
+
 }
 
 func TestUpdateChannelNotifyProps(t *testing.T) {

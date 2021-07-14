@@ -166,7 +166,12 @@ func (a *App) bulkImport(c *request.Context, jsonlReader io.Reader, attachmentsR
 
 		var line LineImportData
 		if err := decoder.Decode(&line); err != nil {
-			return model.NewAppError("BulkImport", "app.import.bulk_import.json_decode.error", nil, err.Error(), http.StatusBadRequest), lineNumber
+			appErr := model.NewAppError("BulkImport", "app.import.bulk_import.json_decode.error", nil, "", http.StatusBadRequest)
+			if dryRun {
+				mlog.Warn(appErr.Where, mlog.Err(appErr))
+			} else {
+				return appErr, lineNumber
+			}
 		}
 
 		if len(attachedFiles) > 0 && line.Post != nil && line.Post.Attachments != nil {
@@ -186,11 +191,19 @@ func (a *App) bulkImport(c *request.Context, jsonlReader io.Reader, attachmentsR
 		if lineNumber == 1 {
 			importDataFileVersion, appErr := processImportDataFileVersionLine(line)
 			if appErr != nil {
+				if dryRun {
+					mlog.Warn(appErr.Where, mlog.Err(appErr))
+				}
 				return appErr, lineNumber
 			}
 
+			appErr = model.NewAppError("BulkImport", "app.import.bulk_import.unsupported_version.error", nil, "", http.StatusBadRequest)
 			if importDataFileVersion != 1 {
-				return model.NewAppError("BulkImport", "app.import.bulk_import.unsupported_version.error", nil, "", http.StatusBadRequest), lineNumber
+				if dryRun {
+					mlog.Warn(appErr.Where, mlog.Err(appErr))
+				} else {
+					return appErr, lineNumber
+				}
 			}
 			lastLineType = line.Type
 			continue
@@ -206,50 +219,56 @@ func (a *App) bulkImport(c *request.Context, jsonlReader io.Reader, attachmentsR
 				// Check no errors occurred while waiting for the queue to empty.
 				if len(errorsChan) != 0 {
 					err := <-errorsChan
-					if stopOnError(err) {
+					if !dryRun && stopOnError(err) {
 						return err.Error, err.LineNumber
 					}
+					mlog.Warn("Large image import error", mlog.Err(err.Error))
 				}
 			}
+		}
 
-			// Set up the workers and channel for this type.
-			lastLineType = line.Type
-			linesChan = make(chan LineImportWorkerData, workers)
-			for i := 0; i < workers; i++ {
-				wg.Add(1)
-				go a.bulkImportWorker(c, dryRun, &wg, linesChan, errorsChan)
-			}
+		// Set up the workers and channel for this type.
+		lastLineType = line.Type
+		linesChan = make(chan LineImportWorkerData, workers)
+		for i := 0; i < workers; i++ {
+			wg.Add(1)
+			go a.bulkImportWorker(c, dryRun, &wg, linesChan, errorsChan)
 		}
 
 		select {
 		case linesChan <- LineImportWorkerData{line, lineNumber}:
 		case err := <-errorsChan:
-			if stopOnError(err) {
+			if !dryRun && stopOnError(err) {
 				close(linesChan)
 				wg.Wait()
 				return err.Error, err.LineNumber
 			}
+			mlog.Warn("Large image import error", mlog.Err(err.Error))
+		}
+
+		// No more lines. Clear out the worker queue before continuing.
+		if linesChan != nil {
+			close(linesChan)
+		}
+		wg.Wait()
+
+		// Check no errors occurred while waiting for the queue to empty.
+		if len(errorsChan) != 0 {
+			err := <-errorsChan
+			if !dryRun && stopOnError(err) {
+				return err.Error, err.LineNumber
+			}
+			mlog.Warn("Large image import error", mlog.Err(err.Error))
+		}
+		if err := scanner.Err(); err != nil {
+			appErr := model.NewAppError("BulkImport", "app.import.bulk_import.file_scan.error", nil, err.Error(), http.StatusInternalServerError)
+			if dryRun {
+				mlog.Warn(appErr.Where, mlog.Err(appErr))
+			} else {
+				return appErr, 0
+			}
 		}
 	}
-
-	// No more lines. Clear out the worker queue before continuing.
-	if linesChan != nil {
-		close(linesChan)
-	}
-	wg.Wait()
-
-	// Check no errors occurred while waiting for the queue to empty.
-	if len(errorsChan) != 0 {
-		err := <-errorsChan
-		if stopOnError(err) {
-			return err.Error, err.LineNumber
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return model.NewAppError("BulkImport", "app.import.bulk_import.file_scan.error", nil, err.Error(), http.StatusInternalServerError), 0
-	}
-
 	return nil, 0
 }
 

@@ -273,6 +273,10 @@ func configSetCmdF(command *cobra.Command, args []string) error {
 }
 
 func configMigrateCmdF(command *cobra.Command, args []string) error {
+	if err := utils.TranslationsPreInit(); err != nil {
+		return errors.Wrap(err, "failed to load translations while migrating config")
+	}
+
 	from := args[0]
 	to := args[1]
 

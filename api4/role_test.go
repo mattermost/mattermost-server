@@ -240,22 +240,10 @@ func TestPatchRole(t *testing.T) {
 	_, resp = th.Client.PatchRole(role.Id, patch)
 	CheckForbiddenStatus(t, resp)
 
-	// Check a change that the license would not allow.
 	patch = &model.RolePatch{
 		Permissions: &[]string{"manage_system", "manage_incoming_webhooks", "manage_outgoing_webhooks"},
 	}
 
-	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
-		_, resp := client.PatchRole(role.Id, patch)
-		CheckNotImplementedStatus(t, resp)
-	})
-
-	// Add a license.
-	license := model.NewTestLicense()
-	license.Features.GuestAccountsPermissions = model.NewBool(false)
-	th.App.Srv().SetLicense(license)
-
-	// Try again, should succeed
 	th.TestForSystemAdminAndLocal(t, func(t *testing.T, client *model.Client4) {
 		received, resp := client.PatchRole(role.Id, patch)
 		CheckNoError(t, resp)

@@ -55,6 +55,7 @@ func setupTestHelper(dbStore store.Store, enterprise bool, includeCacheLayer boo
 	}
 	*config.PluginSettings.Directory = filepath.Join(tempWorkspace, "plugins")
 	*config.PluginSettings.ClientDirectory = filepath.Join(tempWorkspace, "webapp")
+	*config.PluginSettings.AutomaticPrepackagedPlugins = false
 	*config.LogSettings.EnableSentry = false // disable error reporting during tests
 	memoryStore.Set(config)
 
@@ -133,7 +134,6 @@ func setup(tb testing.TB) *TestHelper {
 	if testing.Short() {
 		tb.SkipNow()
 	}
-	tb.Skip("MM-36947")
 	dbStore := mainHelper.GetStore()
 	dbStore.DropAllTables()
 	dbStore.MarkSystemRanUnitTests()

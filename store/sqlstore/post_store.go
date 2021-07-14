@@ -598,13 +598,19 @@ func (s *SqlPostStore) Get(ctx context.Context, id string, skipFetchThreads, col
 
 func (s *SqlPostStore) GetSingle(id string, inclDeleted bool) (*model.Post, error) {
 	query := s.getQueryBuilder().
-		Select("*").
+		Select("p.*").
+		From("Posts p").
+		Where(sq.Eq{"p.Id": id})
+
+	replyCountSubQuery := s.getQueryBuilder().
+		Select("COUNT(Posts.Id)").
 		From("Posts").
-		Where(sq.Eq{"Id": id})
+		Where(sq.Expr("Posts.RootId = (CASE WHEN p.RootId = '' THEN p.Id ELSE p.RootId END) AND Posts.DeleteAt = 0"))
 
 	if !inclDeleted {
-		query = query.Where(sq.Eq{"DeleteAt": 0})
+		query = query.Where(sq.Eq{"p.DeleteAt": 0})
 	}
+	query = query.Column(sq.Alias(replyCountSubQuery, "ReplyCount"))
 
 	queryString, args, err := query.ToSql()
 	if err != nil {

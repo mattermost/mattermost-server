@@ -471,12 +471,34 @@ func testPostStoreGetSingle(t *testing.T, ss store.Store) {
 	o2, err = ss.Post().Save(o2)
 	require.NoError(t, err)
 
+	o3 := &model.Post{}
+	o3.ChannelId = o1.ChannelId
+	o3.UserId = o1.UserId
+	o3.Message = "zz" + model.NewId() + "d"
+	o3.RootId = o1.Id
+
+	o4 := &model.Post{}
+	o4.ChannelId = o1.ChannelId
+	o4.UserId = o1.UserId
+	o4.Message = "zz" + model.NewId() + "e"
+	o4.RootId = o1.Id
+
+	o3, err = ss.Post().Save(o3)
+	require.NoError(t, err)
+
+	o4, err = ss.Post().Save(o4)
+	require.NoError(t, err)
+
 	err = ss.Post().Delete(o2.Id, model.GetMillis(), o2.UserId)
+	require.NoError(t, err)
+
+	err = ss.Post().Delete(o4.Id, model.GetMillis(), o4.UserId)
 	require.NoError(t, err)
 
 	post, err := ss.Post().GetSingle(o1.Id, false)
 	require.NoError(t, err)
 	require.Equal(t, post.CreateAt, o1.CreateAt, "invalid returned post")
+	require.Equal(t, int64(1), post.ReplyCount, "wrong replyCount computed")
 
 	post, err = ss.Post().GetSingle(o2.Id, false)
 	require.Error(t, err, "should not return deleted post")
@@ -485,6 +507,7 @@ func testPostStoreGetSingle(t *testing.T, ss store.Store) {
 	require.NoError(t, err)
 	require.Equal(t, post.CreateAt, o2.CreateAt, "invalid returned post")
 	require.NotZero(t, post.DeleteAt, "DeleteAt should be non-zero")
+	require.Zero(t, post.ReplyCount, "Post without replies should return zero ReplyCount")
 
 	_, err = ss.Post().GetSingle("123", false)
 	require.Error(t, err, "Missing id should have failed")

@@ -1089,6 +1089,31 @@ type API interface {
 	//
 	// Minimum server version: 5.36
 	RequestTrialLicense(requesterID string, users int, termsAccepted bool, receiveEmailsAccepted bool) *model.AppError
+
+	// Apps Section
+
+	// AppsCacheSet stores a set of apps objects for a key,
+	// @tag Apps
+	// Minimum server version: 5.4
+	AppsCacheSet(appID string, objs map[string][][]byte) *model.AppError
+
+	// AppsCacheGet retrieves a value based on the key. Returns nil for non-existent keys.
+	//
+	// @tag Apps
+	// Minimum server version: 5.4
+	AppsCacheGet(appID string, key string) ([][]byte, *model.AppError)
+
+	// AppsCacheDelete removes an entry in the apps cache. Returns nil for non-existent keys.
+	//
+	// @tag Apps
+	// Minimum server version: 5.4
+	AppsCacheDelete(appID string, key string) *model.AppError
+
+	// AppsCacheDeleteAll removes all entries in the cache.
+	//
+	// @tag Apps
+	// Minimum server version: 5.4
+	AppsCacheDeleteAll(appID string) *model.AppError
 }
 
 var handshake = plugin.HandshakeConfig{

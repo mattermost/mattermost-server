@@ -13,12 +13,15 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/app/request"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/services/cache"
 	"github.com/mattermost/mattermost-server/v5/shared/i18n"
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
+	"github.com/pkg/errors"
 )
 
 type PluginAPI struct {
@@ -1155,4 +1158,82 @@ func (api *PluginAPI) RequestTrialLicense(requesterID string, users int, termsAc
 	}
 
 	return api.app.Srv().RequestTrialLicense(trialLicenseRequest)
+}
+
+func (api *PluginAPI) AppsCacheSet(appID string, objs map[string][][]byte) *model.AppError {
+	if _, ok := api.app.Srv().appsCache[appID]; !ok {
+		if err := api.createCache(appID); err != nil {
+			return model.NewAppError("AppsCacheSet", "app.plugin.apps_cache_create.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+		}
+	}
+
+	for key, value := range objs {
+		if err := (*api.app.Srv().appsCache[appID]).Set(key, value); err != nil {
+			model.NewAppError("AppsCacheSet", "app.plugin.apps_cache_set.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+		}
+	}
+	return nil
+}
+
+func (api *PluginAPI) AppsCacheGet(appID string, key string) ([][]byte, *model.AppError) {
+	if _, ok := api.app.Srv().appsCache[appID]; !ok {
+		if err := api.createCache(appID); err != nil {
+			return nil, model.NewAppError("AppsCacheGet", "app.plugin.apps_cache_create.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+		}
+		return nil, nil
+	}
+
+	cached := [][]byte{}
+	if err := (*api.app.Srv().appsCache[appID]).Get(key, &cached); err != nil {
+		return nil, model.NewAppError("AppsCacheGet", "app.plugin.apps_cache_get.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+	}
+
+	return cached, nil
+}
+
+func (api *PluginAPI) AppsCacheDelete(appID string, key string) *model.AppError {
+	if _, ok := api.app.Srv().appsCache[appID]; !ok {
+		return model.NewAppError("AppsCacheDelete", "app.plugin.apps_cache_not_available.app_error", nil, appID, http.StatusInternalServerError)
+	}
+
+	if err := (*api.app.Srv().appsCache[appID]).Remove(key); err != nil {
+		return model.NewAppError("AppsCacheDelete", "app.plugin.apps_cache_delete.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+	}
+
+	return nil
+}
+
+func (api *PluginAPI) AppsCacheDeleteAll(appID string) *model.AppError {
+	if appID == "" { //when appID is not specified, we empty caches for all apps
+		for key := range api.app.Srv().appsCache {
+			if err := (*api.app.Srv().appsCache[key]).Purge(); err != nil {
+				return model.NewAppError("AppsCacheDeleteAll", "app.plugin.apps_cache_delete.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+			}
+		}
+	} else {
+		if _, ok := api.app.Srv().appsCache[appID]; !ok {
+			return model.NewAppError("AppsCacheDeleteAll", "app.plugin.apps_cache_not_available.app_error", nil, appID, http.StatusInternalServerError)
+		}
+
+		if err := (*api.app.Srv().appsCache[appID]).Purge(); err != nil {
+			return model.NewAppError("AppsCacheDeleteAll", "app.plugin.apps_cache_delete.app_error", nil, appID+" "+err.Error(), http.StatusInternalServerError)
+		}
+	}
+	return nil
+}
+
+func (api *PluginAPI) createCache(appID string) error {
+	c, err := api.app.Srv().CacheProvider.NewCache(&cache.CacheOptions{
+		Size:           model.STATUS_CACHE_SIZE,
+		Striped:        true,
+		StripedBuckets: maxInt(runtime.NumCPU()-1, 1),
+	})
+
+	if err != nil {
+		return errors.Wrap(err, "Unable to create apps cache")
+	}
+
+	api.app.Srv().appsCache[appID] = &c
+
+	return nil
 }

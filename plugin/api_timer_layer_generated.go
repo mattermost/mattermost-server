@@ -1155,3 +1155,31 @@ func (api *apiTimerLayer) RequestTrialLicense(requesterID string, users int, ter
 	api.recordTime(startTime, "RequestTrialLicense", _returnsA == nil)
 	return _returnsA
 }
+
+func (api *apiTimerLayer) AppsCacheSet(appID string, objs map[string][][]byte) *model.AppError {
+	startTime := timePkg.Now()
+	_returnsA := api.apiImpl.AppsCacheSet(appID, objs)
+	api.recordTime(startTime, "AppsCacheSet", _returnsA == nil)
+	return _returnsA
+}
+
+func (api *apiTimerLayer) AppsCacheGet(appID string, key string) ([][]byte, *model.AppError) {
+	startTime := timePkg.Now()
+	_returnsA, _returnsB := api.apiImpl.AppsCacheGet(appID, key)
+	api.recordTime(startTime, "AppsCacheGet", _returnsB == nil)
+	return _returnsA, _returnsB
+}
+
+func (api *apiTimerLayer) AppsCacheDelete(appID string, key string) *model.AppError {
+	startTime := timePkg.Now()
+	_returnsA := api.apiImpl.AppsCacheDelete(appID, key)
+	api.recordTime(startTime, "AppsCacheDelete", _returnsA == nil)
+	return _returnsA
+}
+
+func (api *apiTimerLayer) AppsCacheDeleteAll(appID string) *model.AppError {
+	startTime := timePkg.Now()
+	_returnsA := api.apiImpl.AppsCacheDeleteAll(appID)
+	api.recordTime(startTime, "AppsCacheDeleteAll", _returnsA == nil)
+	return _returnsA
+}

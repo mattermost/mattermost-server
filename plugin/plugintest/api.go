@@ -93,6 +93,79 @@ func (_m *API) AddUserToChannel(channelId string, userID string, asUserId string
 	return r0, r1
 }
 
+// AppsCacheDelete provides a mock function with given fields: appID, key
+func (_m *API) AppsCacheDelete(appID string, key string) *model.AppError {
+	ret := _m.Called(appID, key)
+
+	var r0 *model.AppError
+	if rf, ok := ret.Get(0).(func(string, string) *model.AppError); ok {
+		r0 = rf(appID, key)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.AppError)
+		}
+	}
+
+	return r0
+}
+
+// AppsCacheDeleteAll provides a mock function with given fields: appID
+func (_m *API) AppsCacheDeleteAll(appID string) *model.AppError {
+	ret := _m.Called(appID)
+
+	var r0 *model.AppError
+	if rf, ok := ret.Get(0).(func(string) *model.AppError); ok {
+		r0 = rf(appID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.AppError)
+		}
+	}
+
+	return r0
+}
+
+// AppsCacheGet provides a mock function with given fields: appID, key
+func (_m *API) AppsCacheGet(appID string, key string) ([][]byte, *model.AppError) {
+	ret := _m.Called(appID, key)
+
+	var r0 [][]byte
+	if rf, ok := ret.Get(0).(func(string, string) [][]byte); ok {
+		r0 = rf(appID, key)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([][]byte)
+		}
+	}
+
+	var r1 *model.AppError
+	if rf, ok := ret.Get(1).(func(string, string) *model.AppError); ok {
+		r1 = rf(appID, key)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*model.AppError)
+		}
+	}
+
+	return r0, r1
+}
+
+// AppsCacheSet provides a mock function with given fields: appID, objs
+func (_m *API) AppsCacheSet(appID string, objs map[string][][]byte) *model.AppError {
+	ret := _m.Called(appID, objs)
+
+	var r0 *model.AppError
+	if rf, ok := ret.Get(0).(func(string, map[string][][]byte) *model.AppError); ok {
+		r0 = rf(appID, objs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.AppError)
+		}
+	}
+
+	return r0
+}
+
 // CopyFileInfos provides a mock function with given fields: userID, fileIds
 func (_m *API) CopyFileInfos(userID string, fileIds []string) ([]string, *model.AppError) {
 	ret := _m.Called(userID, fileIds)

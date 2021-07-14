@@ -5631,6 +5631,26 @@
     "translation": "We encountered an error updating the app."
   },
   {
+    "id": "app.plugin.apps_cache_create.app_error",
+    "translation": "Could not create cache."
+  },
+  {
+    "id": "app.plugin.apps_cache_delete.app_error",
+    "translation": "Can't delete apps cache entry."
+  },
+  {
+    "id": "app.plugin.apps_cache_get.app_error",
+    "translation": "Can't get apps cache entry."
+  },
+  {
+    "id": "app.plugin.apps_cache_not_available.app_error",
+    "translation": "No cache available."
+  },
+  {
+    "id": "app.plugin.apps_cache_set.app_error",
+    "translation": "Can't set apps cache entry."
+  },
+  {
     "id": "app.plugin.cluster.save_config.app_error",
     "translation": "The plugin configuration in your config.json file must be updated manually when using ReadOnlyConfig with clustering enabled."
   },

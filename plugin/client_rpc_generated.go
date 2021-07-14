@@ -5123,3 +5123,119 @@ func (s *apiRPCServer) RequestTrialLicense(args *Z_RequestTrialLicenseArgs, retu
 	}
 	return nil
 }
+
+type Z_AppsCacheSetArgs struct {
+	A string
+	B map[string][][]byte
+}
+
+type Z_AppsCacheSetReturns struct {
+	A *model.AppError
+}
+
+func (g *apiRPCClient) AppsCacheSet(appID string, objs map[string][][]byte) *model.AppError {
+	_args := &Z_AppsCacheSetArgs{appID, objs}
+	_returns := &Z_AppsCacheSetReturns{}
+	if err := g.client.Call("Plugin.AppsCacheSet", _args, _returns); err != nil {
+		log.Printf("RPC call to AppsCacheSet API failed: %s", err.Error())
+	}
+	return _returns.A
+}
+
+func (s *apiRPCServer) AppsCacheSet(args *Z_AppsCacheSetArgs, returns *Z_AppsCacheSetReturns) error {
+	if hook, ok := s.impl.(interface {
+		AppsCacheSet(appID string, objs map[string][][]byte) *model.AppError
+	}); ok {
+		returns.A = hook.AppsCacheSet(args.A, args.B)
+	} else {
+		return encodableError(fmt.Errorf("API AppsCacheSet called but not implemented."))
+	}
+	return nil
+}
+
+type Z_AppsCacheGetArgs struct {
+	A string
+	B string
+}
+
+type Z_AppsCacheGetReturns struct {
+	A [][]byte
+	B *model.AppError
+}
+
+func (g *apiRPCClient) AppsCacheGet(appID string, key string) ([][]byte, *model.AppError) {
+	_args := &Z_AppsCacheGetArgs{appID, key}
+	_returns := &Z_AppsCacheGetReturns{}
+	if err := g.client.Call("Plugin.AppsCacheGet", _args, _returns); err != nil {
+		log.Printf("RPC call to AppsCacheGet API failed: %s", err.Error())
+	}
+	return _returns.A, _returns.B
+}
+
+func (s *apiRPCServer) AppsCacheGet(args *Z_AppsCacheGetArgs, returns *Z_AppsCacheGetReturns) error {
+	if hook, ok := s.impl.(interface {
+		AppsCacheGet(appID string, key string) ([][]byte, *model.AppError)
+	}); ok {
+		returns.A, returns.B = hook.AppsCacheGet(args.A, args.B)
+	} else {
+		return encodableError(fmt.Errorf("API AppsCacheGet called but not implemented."))
+	}
+	return nil
+}
+
+type Z_AppsCacheDeleteArgs struct {
+	A string
+	B string
+}
+
+type Z_AppsCacheDeleteReturns struct {
+	A *model.AppError
+}
+
+func (g *apiRPCClient) AppsCacheDelete(appID string, key string) *model.AppError {
+	_args := &Z_AppsCacheDeleteArgs{appID, key}
+	_returns := &Z_AppsCacheDeleteReturns{}
+	if err := g.client.Call("Plugin.AppsCacheDelete", _args, _returns); err != nil {
+		log.Printf("RPC call to AppsCacheDelete API failed: %s", err.Error())
+	}
+	return _returns.A
+}
+
+func (s *apiRPCServer) AppsCacheDelete(args *Z_AppsCacheDeleteArgs, returns *Z_AppsCacheDeleteReturns) error {
+	if hook, ok := s.impl.(interface {
+		AppsCacheDelete(appID string, key string) *model.AppError
+	}); ok {
+		returns.A = hook.AppsCacheDelete(args.A, args.B)
+	} else {
+		return encodableError(fmt.Errorf("API AppsCacheDelete called but not implemented."))
+	}
+	return nil
+}
+
+type Z_AppsCacheDeleteAllArgs struct {
+	A string
+}
+
+type Z_AppsCacheDeleteAllReturns struct {
+	A *model.AppError
+}
+
+func (g *apiRPCClient) AppsCacheDeleteAll(appID string) *model.AppError {
+	_args := &Z_AppsCacheDeleteAllArgs{appID}
+	_returns := &Z_AppsCacheDeleteAllReturns{}
+	if err := g.client.Call("Plugin.AppsCacheDeleteAll", _args, _returns); err != nil {
+		log.Printf("RPC call to AppsCacheDeleteAll API failed: %s", err.Error())
+	}
+	return _returns.A
+}
+
+func (s *apiRPCServer) AppsCacheDeleteAll(args *Z_AppsCacheDeleteAllArgs, returns *Z_AppsCacheDeleteAllReturns) error {
+	if hook, ok := s.impl.(interface {
+		AppsCacheDeleteAll(appID string) *model.AppError
+	}); ok {
+		returns.A = hook.AppsCacheDeleteAll(args.A)
+	} else {
+		return encodableError(fmt.Errorf("API AppsCacheDeleteAll called but not implemented."))
+	}
+	return nil
+}

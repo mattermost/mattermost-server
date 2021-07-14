@@ -394,6 +394,7 @@ func (s *SqlGroupStore) UpsertMember(groupID string, userID string) (*model.Grou
 		GroupId:  groupID,
 		UserId:   userID,
 		CreateAt: model.GetMillis(),
+		DeleteAt: 0,
 	}
 
 	if err := member.IsValid(); err != nil {
@@ -405,32 +406,25 @@ func (s *SqlGroupStore) UpsertMember(groupID string, userID string) (*model.Grou
 		return nil, errors.Wrapf(err, "failed to get UserGroup with groupId=%s and userId=%s", groupID, userID)
 	}
 
-	var retrievedMember *model.GroupMember
-	if err := s.GetReplica().SelectOne(&retrievedMember, "SELECT * FROM GroupMembers WHERE GroupId = :GroupId AND UserId = :UserId", map[string]interface{}{"GroupId": member.GroupId, "UserId": member.UserId}); err != nil {
-		if err != sql.ErrNoRows {
-			return nil, errors.Wrapf(err, "failed to get GroupMember with groupId=%s and userId=%s", groupID, userID)
-		}
+	query := s.getQueryBuilder().
+		Insert("GroupMembers").
+		Columns("GroupId", "UserId", "CreateAt", "DeleteAt").
+		Values(member.GroupId, member.UserId, member.CreateAt, member.DeleteAt)
+
+	if s.DriverName() == model.DATABASE_DRIVER_MYSQL {
+		query = query.SuffixExpr(sq.Expr("ON DUPLICATE KEY UPDATE CreateAt = ?, DeleteAt = ?", member.CreateAt, member.DeleteAt))
+	} else if s.DriverName() == model.DATABASE_DRIVER_POSTGRES {
+		query = query.SuffixExpr(sq.Expr("ON CONFLICT (groupid, userid) DO UPDATE SET CreateAt = ?, DeleteAt = ?", member.CreateAt, member.DeleteAt))
 	}
 
-	if retrievedMember == nil {
-		if err := s.GetMaster().Insert(member); err != nil {
-			if IsUniqueConstraintError(err, []string{"GroupId", "UserId", "groupmembers_pkey", "PRIMARY"}) {
-				return nil, store.NewErrInvalidInput("Member", "<groupId, userId>", fmt.Sprintf("<%s, %s>", groupID, userID))
-			}
-			return nil, errors.Wrap(err, "failed to save Member")
-		}
-	} else {
-		member.DeleteAt = 0
-		var rowsChanged int64
-		var err error
-		if rowsChanged, err = s.GetMaster().Update(member); err != nil {
-			return nil, errors.Wrapf(err, "failed to update GroupMember with groupId=%s and userId=%s", groupID, userID)
-		}
-		if rowsChanged > 1 {
-			return nil, errors.Wrapf(err, "multiple GroupMembers were updated: %d", rowsChanged)
-		}
+	queryString, args, err := query.ToSql()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate sqlquery")
 	}
 
+	if _, err = s.GetMaster().Exec(queryString, args...); err != nil {
+		return nil, errors.Wrap(err, "failed to save GroupMember")
+	}
 	return member, nil
 }
 

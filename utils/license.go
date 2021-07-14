@@ -23,13 +23,13 @@ import (
 )
 
 var publicKey []byte = []byte(`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyZmShlU8Z8HdG0IWSZ8r
-tSyzyxrXkJjsFUf0Ke7bm/TLtIggRdqOcUF3XEWqQk5RGD5vuq7Rlg1zZqMEBk8N
-EZeRhkxyaZW8pLjxwuBUOnXfJew31+gsTNdKZzRjrvPumKr3EtkleuoxNdoatu4E
-HrKmR/4Yi71EqAvkhk7ZjQFuF0osSWJMEEGGCSUYQnTEqUzcZSh1BhVpkIkeu8Kk
-1wCtptODixvEujgqVe+SrE3UlZjBmPjC/CL+3cYmufpSNgcEJm2mwsdaXp2OPpfn
-a0v85XL6i9ote2P+fLZ3wX9EoioHzgdgB7arOxY50QRJO7OyCqpKFKv6lRWTXuSt
-hwIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwVMaUtQMFtQsRoa2FQd+
+17+acMRMqzPsFTJEix7n+tA8ieCAX0lvNBOjVh8lrt/AUe7B3ZJ0HE6v8xuKj9YA
+zUqV8R27UmnIxf5TCXFWrt+fnzX31yLjqK4Fd6JmiDheUatd1hG+gkScMAPuj+Xw
+4O+V5sMwaVusytVgmehqcVKYrKpDyhBDUEbDRbKKbP4YAHbmNs3AzlGBbQtvc1fi
+0ww7oNKs9cZVcCIeNdwbkXmf8pK5zSXqVsmyPyH3Ue8M6JMNGuPGh1fyHRhFdIiD
+lxd7LBKSh7BTjbRtG9DEt1dyMnYQDgRVAdpururuK/otowCowr6X/Etnk2NNeXcZ
+4QIDAQAB
 -----END PUBLIC KEY-----`)
 
 var LicenseValidator LicenseValidatorIface

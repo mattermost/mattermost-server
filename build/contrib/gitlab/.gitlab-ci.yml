@@ -1,0 +1,61 @@
+lint:
+  allow_failure: true
+  image: golangci/golangci-lint
+  script:
+    - GO111MODULE=off GOBIN=$PWD/bin go get -u github.com/mattermost/mattermost-govet
+    - make config-reset
+    - make check-style
+
+test-quick:
+  image: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    TEST_DATABASE_MYSQL_DSN: "mmuser:mostest@tcp(mysql:3306)/mattermost_test?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s&multiStatements=true"
+    TEST_DATABASE_POSTGRESQL_DSN: "postgres://mmuser:mostest@postgres:5432/mattermost_test?sslmode=disable&connect_timeout=10"
+    TEST_DATABASE_MYSQL_ROOT_PASSWD: "mostest"
+  services:
+    - docker:dind
+  before_script:
+    - apk add --no-cache bash docker-compose go make
+    - make start-docker
+  script:
+    - docker run
+      --env MM_NO_DOCKER=true
+      --env-file "build/dotenv/test.env"
+      --mount "type=bind,source=$PWD,target=$PWD"
+      --network "$CI_PROJECT_NAME"_mm-test
+      docker
+        /bin/sh -c "
+          cd $PWD;
+          apk add --no-cache bash docker-compose go mailcap make;
+          make test-server-quick;
+        "
+
+test-full:
+  rules:
+  - if: '$CI_COMMIT_REF_NAME == "master"'
+  image: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    TEST_DATABASE_MYSQL_DSN: "mmuser:mostest@tcp(mysql:3306)/mattermost_test?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s&multiStatements=true"
+    TEST_DATABASE_POSTGRESQL_DSN: "postgres://mmuser:mostest@postgres:5432/mattermost_test?sslmode=disable&connect_timeout=10"
+    TEST_DATABASE_MYSQL_ROOT_PASSWD: "mostest"
+  services:
+    - docker:dind
+  before_script:
+    - apk add --no-cache bash docker-compose go make
+    - make start-docker
+  script:
+    - docker run
+      --env MM_NO_DOCKER=true
+      --env-file "build/dotenv/test.env"
+      --mount "type=bind,source=$PWD,target=$PWD"
+      --network "$CI_PROJECT_NAME"_mm-test
+      docker
+        /bin/sh -c "
+          cd $PWD;
+          apk add --no-cache bash docker-compose go mailcap make;
+          make test-server;
+        "

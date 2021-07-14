@@ -70,6 +70,7 @@ func getMockStore() *mocks.Store {
 	mockStore.On("Webhook").Return(&mockWebhookStore)
 
 	fakeEmoji := model.Emoji{Id: "123", Name: "name123"}
+	fakeEmoji2 := model.Emoji{Id: "321", Name: "name321"}
 	ctxEmoji := model.Emoji{Id: "master", Name: "name123"}
 	mockEmojiStore := mocks.EmojiStore{}
 	mockEmojiStore.On("Get", mock.Anything, "123", true).Return(&fakeEmoji, nil)
@@ -80,6 +81,8 @@ func getMockStore() *mocks.Store {
 	mockEmojiStore.On("GetByName", mock.Anything, "name123", false).Return(&fakeEmoji, nil)
 	mockEmojiStore.On("GetByName", context.Background(), "master", true).Return(&ctxEmoji, nil)
 	mockEmojiStore.On("GetByName", sqlstore.WithMaster(context.Background()), "master", false).Return(&ctxEmoji, nil)
+	mockEmojiStore.On("GetMultipleByName", []string{"name123"}).Return([]*model.Emoji{&fakeEmoji}, nil)
+	mockEmojiStore.On("GetMultipleByName", []string{"name321"}).Return([]*model.Emoji{&fakeEmoji2}, nil)
 	mockEmojiStore.On("Delete", &fakeEmoji, int64(0)).Return(nil)
 	mockEmojiStore.On("Delete", &ctxEmoji, int64(0)).Return(nil)
 	mockStore.On("Emoji").Return(&mockEmojiStore)

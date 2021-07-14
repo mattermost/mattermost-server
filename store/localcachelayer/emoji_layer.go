@@ -97,6 +97,36 @@ func (es *LocalCacheEmojiStore) GetByName(ctx context.Context, name string, allo
 	return emoji, err
 }
 
+func (es *LocalCacheEmojiStore) GetMultipleByName(names []string) ([]*model.Emoji, error) {
+	emojis := []*model.Emoji{}
+	remainingEmojiNames := []string{}
+
+	for _, emojiName := range names {
+		if emoji, ok := es.getFromCacheByName(emojiName); ok {
+			emojis = append(emojis, emoji)
+		} else {
+			remainingEmojiNames = append(remainingEmojiNames, emojiName)
+		}
+	}
+
+	if es.rootStore.metrics != nil {
+		es.rootStore.metrics.AddMemCacheHitCounter("Multiple emoji by name", float64(len(emojis)))
+		es.rootStore.metrics.AddMemCacheMissCounter("Multiple emoji by name", float64(len(remainingEmojiNames)))
+	}
+
+	if len(remainingEmojiNames) > 0 {
+		remainingEmojis, err := es.EmojiStore.GetMultipleByName(remainingEmojiNames)
+		if err != nil {
+			return nil, err
+		}
+		for _, emoji := range remainingEmojis {
+			es.addToCache(emoji)
+			emojis = append(emojis, emoji)
+		}
+	}
+	return emojis, nil
+}
+
 func (es *LocalCacheEmojiStore) Delete(emoji *model.Emoji, time int64) error {
 	err := es.EmojiStore.Delete(emoji, time)
 

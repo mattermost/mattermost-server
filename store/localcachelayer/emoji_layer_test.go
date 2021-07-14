@@ -182,4 +182,22 @@ func TestEmojiStoreCache(t *testing.T) {
 		cachedStore.Emoji().GetByName(context.Background(), "master", true)
 		mockStore.Emoji().(*mocks.EmojiStore).AssertNumberOfCalls(t, "GetByName", 2)
 	})
+
+	t.Run("call multiple by name", func(t *testing.T) {
+		mockStore := getMockStore()
+		mockCacheProvider := getMockCacheProvider()
+		cachedStore, err := NewLocalCacheLayer(mockStore, nil, nil, mockCacheProvider)
+		require.NoError(t, err)
+
+		cachedStore.Emoji().GetMultipleByName([]string{"name123"})
+		mockStore.Emoji().(*mocks.EmojiStore).AssertNumberOfCalls(t, "GetMultipleByName", 1)
+		mockStore.Emoji().(*mocks.EmojiStore).AssertCalled(t, "GetMultipleByName", []string{"name123"})
+		cachedStore.Emoji().GetMultipleByName([]string{"name123"})
+		mockStore.Emoji().(*mocks.EmojiStore).AssertNumberOfCalls(t, "GetMultipleByName", 1)
+		cachedStore.Emoji().GetMultipleByName([]string{"name123", "name321"})
+		mockStore.Emoji().(*mocks.EmojiStore).AssertNumberOfCalls(t, "GetMultipleByName", 2)
+		mockStore.Emoji().(*mocks.EmojiStore).AssertCalled(t, "GetMultipleByName", []string{"name321"})
+		cachedStore.Emoji().GetMultipleByName([]string{"name321", "name123"})
+		mockStore.Emoji().(*mocks.EmojiStore).AssertNumberOfCalls(t, "GetMultipleByName", 2)
+	})
 }

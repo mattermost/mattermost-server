@@ -107,7 +107,7 @@ jobs:
 
   check-app-layers:
     docker:
-      - image: mattermost/mattermost-build-server:20201119_golang-1.15.5
+      - image: mattermost/mattermost-build-server:20210709_golang-1.16.5
     working_directory: ~/mattermost
     steps:
       - attach_workspace:
@@ -120,7 +120,7 @@ jobs:
 
   check-store-layers:
     docker:
-      - image: mattermost/mattermost-build-server:20201119_golang-1.15.5
+      - image: mattermost/mattermost-build-server:20210709_golang-1.16.5
     working_directory: ~/mattermost
     steps:
       - attach_workspace:
@@ -133,7 +133,7 @@ jobs:
 
   check-mocks:
     docker:
-      - image: mattermost/mattermost-build-server:20201119_golang-1.15.5
+      - image: mattermost/mattermost-build-server:20210709_golang-1.16.5
     working_directory: ~/mattermost
     steps:
       - attach_workspace:
@@ -146,7 +146,7 @@ jobs:
 
   check-migrations:
     docker:
-      - image: mattermost/mattermost-build-server:20201119_golang-1.15.5
+      - image: mattermost/mattermost-build-server:20210709_golang-1.16.5
     working_directory: ~/mattermost
     steps:
       - attach_workspace:
@@ -172,7 +172,7 @@ jobs:
   # Dedicate job for mattermost-vet to make more clear when the job fails
   check-mattermost-vet:
     docker:
-      - image: mattermost/mattermost-build-server:20201119_golang-1.15.5
+      - image: mattermost/mattermost-build-server:20210709_golang-1.16.5
     working_directory: ~/mattermost
     steps:
       - attach_workspace:
@@ -223,7 +223,7 @@ jobs:
 
   build:
     docker:
-      - image: mattermost/mattermost-build-server:20201119_golang-1.15.5
+      - image: mattermost/mattermost-build-server:20210709_golang-1.16.5
     resource_class: xlarge
     working_directory: ~/mattermost
     steps:
@@ -287,7 +287,7 @@ jobs:
               --env MM_SQLSETTINGS_DRIVERNAME=<<parameters.dbdriver>> \
               -v ~/mattermost:/mattermost \
               -w /mattermost/mattermost-server \
-              mattermost/mattermost-build-server:20201119_golang-1.15.5 \
+              mattermost/mattermost-build-server:20210709_golang-1.16.5 \
               bash -c "ulimit -n 8096; make test-server<< parameters.racemode >> BUILD_NUMBER=$CIRCLE_BRANCH-$CIRCLE_PREVIOUS_BUILD_NUM TESTFLAGS= TESTFLAGSEE=" \
               bash -c scripts/diff-email-templates.sh
           no_output_timeout: 2h
@@ -352,7 +352,7 @@ jobs:
               --env MM_SQLSETTINGS_DRIVERNAME=postgres \
               -v ~/mattermost:/mattermost \
               -w /mattermost/mattermost-server \
-              mattermost/mattermost-build-server:20201119_golang-1.15.5 \
+              mattermost/mattermost-build-server:20210709_golang-1.16.5 \
               bash -c "ulimit -n 8096; make ARGS='version' run-cli && make MM_SQLSETTINGS_DATASOURCE='postgres://mmuser:mostest@postgres:5432/latest?sslmode=disable&connect_timeout=10' ARGS='version' run-cli"
 
             echo "Ignoring known mismatch: ChannelMembers.MentionCountRoot"
@@ -390,7 +390,7 @@ jobs:
               --env MM_SQLSETTINGS_DRIVERNAME=mysql \
               -v ~/mattermost:/mattermost \
               -w /mattermost/mattermost-server \
-              mattermost/mattermost-build-server:20201119_golang-1.15.5 \
+              mattermost/mattermost-build-server:20210709_golang-1.16.5 \
               bash -c "ulimit -n 8096; make ARGS='version' run-cli && make MM_SQLSETTINGS_DATASOURCE='mmuser:mostest@tcp(mysql:3306)/latest?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s' ARGS='version' run-cli"
 
 

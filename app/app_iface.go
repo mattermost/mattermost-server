@@ -420,7 +420,7 @@ type AppIface interface {
 	AttachSessionCookies(c *request.Context, w http.ResponseWriter, r *http.Request)
 	AuthenticateUserForLogin(c *request.Context, id, loginId, password, mfaToken, cwsToken string, ldapOnly bool) (user *model.User, err *model.AppError)
 	AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, code, state, redirectUri string) (io.ReadCloser, string, map[string]string, *model.User, *model.AppError)
-	AutocompleteChannels(teamID string, term string) (*model.ChannelList, *model.AppError)
+	AutocompleteChannels(teamID string, userID string, term string) (*model.ChannelList, *model.AppError)
 	AutocompleteChannelsForSearch(teamID string, userID string, term string) (*model.ChannelList, *model.AppError)
 	AutocompleteUsersInChannel(teamID string, channelID string, term string, options *model.UserSearchOptions) (*model.UserAutocompleteInChannel, *model.AppError)
 	AutocompleteUsersInTeam(teamID string, term string, options *model.UserSearchOptions) (*model.UserAutocompleteInTeam, *model.AppError)

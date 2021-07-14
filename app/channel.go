@@ -2677,11 +2677,11 @@ func (a *App) sendWebSocketPostUnreadEvent(channelUnread *model.ChannelUnreadAt,
 	a.Publish(message)
 }
 
-func (a *App) AutocompleteChannels(teamID string, term string) (*model.ChannelList, *model.AppError) {
+func (a *App) AutocompleteChannels(teamID string, userID string, term string) (*model.ChannelList, *model.AppError) {
 	includeDeleted := *a.Config().TeamSettings.ExperimentalViewArchivedChannels
 	term = strings.TrimSpace(term)
 
-	channelList, err := a.Srv().Store.Channel().AutocompleteInTeam(teamID, term, includeDeleted)
+	channelList, err := a.Srv().Store.Channel().AutocompleteInTeam(teamID, userID, term, includeDeleted)
 	if err != nil {
 		return nil, model.NewAppError("AutocompleteChannels", "app.channel.search.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}

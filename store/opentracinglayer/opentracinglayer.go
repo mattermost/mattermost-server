@@ -570,7 +570,7 @@ func (s *OpenTracingLayerChannelStore) AnalyticsTypeCount(teamID string, channel
 	return result, err
 }
 
-func (s *OpenTracingLayerChannelStore) AutocompleteInTeam(teamID string, term string, includeDeleted bool) (*model.ChannelList, error) {
+func (s *OpenTracingLayerChannelStore) AutocompleteInTeam(teamID string, userID string, term string, includeDeleted bool) (*model.ChannelList, error) {
 	origCtx := s.Root.Store.Context()
 	span, newCtx := tracing.StartSpanWithParentByContext(s.Root.Store.Context(), "ChannelStore.AutocompleteInTeam")
 	s.Root.Store.SetContext(newCtx)
@@ -579,7 +579,7 @@ func (s *OpenTracingLayerChannelStore) AutocompleteInTeam(teamID string, term st
 	}()
 
 	defer span.Finish()
-	result, err := s.ChannelStore.AutocompleteInTeam(teamID, term, includeDeleted)
+	result, err := s.ChannelStore.AutocompleteInTeam(teamID, userID, term, includeDeleted)
 	if err != nil {
 		span.LogFields(spanlog.Error(err))
 		ext.Error.Set(span, true)

@@ -36,17 +36,15 @@ func (c *SearchChannelStore) deleteChannelIndex(channel *model.Channel) {
 }
 
 func (c *SearchChannelStore) indexChannel(channel *model.Channel) {
-	if channel.Type == model.CHANNEL_OPEN {
-		for _, engine := range c.rootStore.searchEngine.GetActiveEngines() {
-			if engine.IsIndexingEnabled() {
-				runIndexFn(engine, func(engineCopy searchengine.SearchEngineInterface) {
-					if err := engineCopy.IndexChannel(channel); err != nil {
-						mlog.Warn("Encountered error indexing channel", mlog.String("channel_id", channel.Id), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
-						return
-					}
-					mlog.Debug("Indexed channel in search engine", mlog.String("search_engine", engineCopy.GetName()), mlog.String("channel_id", channel.Id))
-				})
-			}
+	for _, engine := range c.rootStore.searchEngine.GetActiveEngines() {
+		if engine.IsIndexingEnabled() {
+			runIndexFn(engine, func(engineCopy searchengine.SearchEngineInterface) {
+				if err := engineCopy.IndexChannel(channel); err != nil {
+					mlog.Warn("Encountered error indexing channel", mlog.String("channel_id", channel.Id), mlog.String("search_engine", engineCopy.GetName()), mlog.Err(err))
+					return
+				}
+				mlog.Debug("Indexed channel in search engine", mlog.String("search_engine", engineCopy.GetName()), mlog.String("channel_id", channel.Id))
+			})
 		}
 	}
 }
@@ -132,7 +130,7 @@ func (c *SearchChannelStore) SaveDirectChannel(directchannel *model.Channel, mem
 	return channel, err
 }
 
-func (c *SearchChannelStore) AutocompleteInTeam(teamId string, term string, includeDeleted bool) (*model.ChannelList, error) {
+func (c *SearchChannelStore) AutocompleteInTeam(teamId string, userId string, term string, includeDeleted bool) (*model.ChannelList, error) {
 	var channelList *model.ChannelList
 	var err error
 
@@ -152,7 +150,7 @@ func (c *SearchChannelStore) AutocompleteInTeam(teamId string, term string, incl
 
 	if allFailed {
 		mlog.Debug("Using database search because no other search engine is available")
-		channelList, err = c.ChannelStore.AutocompleteInTeam(teamId, term, includeDeleted)
+		channelList, err = c.ChannelStore.AutocompleteInTeam(teamId, userId, term, includeDeleted)
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to autocomplete channels in team")
 		}

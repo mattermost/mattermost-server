@@ -5065,6 +5065,14 @@ func testChannelStoreSearchInTeam(t *testing.T, ss store.Store) {
 	_, nErr = ss.Channel().Save(&o4, -1)
 	require.NoError(t, nErr)
 
+	m4 := model.ChannelMember{
+		ChannelId:   o4.Id,
+		UserId:      model.NewId(),
+		NotifyProps: model.GetDefaultChannelNotifyProps(),
+	}
+	_, err = ss.Channel().SaveMember(&m4)
+	require.NoError(t, err)
+
 	o5 := model.Channel{
 		TeamId:      teamId,
 		DisplayName: "Channel C",
@@ -5100,6 +5108,14 @@ func testChannelStoreSearchInTeam(t *testing.T, ss store.Store) {
 	}
 	_, nErr = ss.Channel().Save(&o8, -1)
 	require.NoError(t, nErr)
+
+	m5 := model.ChannelMember{
+		ChannelId:   o8.Id,
+		UserId:      model.NewId(),
+		NotifyProps: model.GetDefaultChannelNotifyProps(),
+	}
+	_, err = ss.Channel().SaveMember(&m5)
+	require.NoError(t, err)
 
 	o9 := model.Channel{
 		TeamId:      teamId,
@@ -5151,7 +5167,7 @@ func testChannelStoreSearchInTeam(t *testing.T, ss store.Store) {
 	nErr = ss.Channel().Delete(o13.Id, o13.DeleteAt)
 	require.NoError(t, nErr, "channel should have been deleted")
 
-	testCases := []struct {
+	testCasesSearchInTeam := []struct {
 		Description     string
 		TeamId          string
 		Term            string
@@ -5172,24 +5188,48 @@ func testChannelStoreSearchInTeam(t *testing.T, ss store.Store) {
 		{"pipe ignored", teamId, "town square |", false, &model.ChannelList{&o9}},
 	}
 
-	for name, search := range map[string]func(teamId string, term string, includeDeleted bool) (*model.ChannelList, error){
-		"AutocompleteInTeam": ss.Channel().AutocompleteInTeam,
-		"SearchInTeam":       ss.Channel().SearchInTeam,
-	} {
-		for _, testCase := range testCases {
-			t.Run(name+"/"+testCase.Description, func(t *testing.T) {
-				channels, err := search(testCase.TeamId, testCase.Term, testCase.IncludeDeleted)
-				require.NoError(t, err)
+	for _, testCase := range testCasesSearchInTeam {
+		t.Run("SearchInTeam/"+testCase.Description, func(t *testing.T) {
+			channels, err := ss.Channel().SearchInTeam(testCase.TeamId, testCase.Term, testCase.IncludeDeleted)
+			require.NoError(t, err)
 
-				// AutoCompleteInTeam doesn't currently sort its output results.
-				if name == "AutocompleteInTeam" {
-					sort.Sort(ByChannelDisplayName(*channels))
-				}
-
-				require.Equal(t, testCase.ExpectedResults, channels)
-			})
-		}
+			require.Equal(t, testCase.ExpectedResults, channels)
+		})
 	}
+
+	testCasesAutocompleteInTeam := []struct {
+		Description     string
+		TeamId          string
+		UserId          string
+		Term            string
+		IncludeDeleted  bool
+		ExpectedResults *model.ChannelList
+	}{
+		{"ChannelA", teamId, m1.UserId, "ChannelA", false, &model.ChannelList{&o1, &o3}},
+		{"ChannelA, include deleted", teamId, m1.UserId, "ChannelA", true, &model.ChannelList{&o1, &o3, &o13}},
+		{"ChannelA, other team", otherTeamId, m3.UserId, "ChannelA", false, &model.ChannelList{&o2}},
+		{"empty string", teamId, m1.UserId, "", false, &model.ChannelList{&o1, &o3, &o12, &o11, &o7, &o6, &o10, &o9}},
+		{"no matches", teamId, m1.UserId, "blargh", false, &model.ChannelList{}},
+		{"prefix", teamId, m1.UserId, "off-", false, &model.ChannelList{&o7, &o6}},
+		{"full match with dash", teamId, m1.UserId, "off-topic", false, &model.ChannelList{&o6}},
+		{"town square", teamId, m1.UserId, "town square", false, &model.ChannelList{&o9}},
+		{"the in name", teamId, m1.UserId, "thename", false, &model.ChannelList{&o10}},
+		{"Mobile", teamId, m1.UserId, "Mobile", false, &model.ChannelList{&o11}},
+		{"search purpose", teamId, m1.UserId, "now searchable", false, &model.ChannelList{&o12}},
+		{"pipe ignored", teamId, m1.UserId, "town square |", false, &model.ChannelList{&o9}},
+		{"Channel B (private)", teamId, m4.UserId, "Channel B", false, &model.ChannelList{&o4}},
+		{"off limit (private)", teamId, m5.UserId, "off limit", false, &model.ChannelList{&o8}},
+	}
+
+	for _, testCase := range testCasesAutocompleteInTeam {
+		t.Run("AutocompleteInTeam/"+testCase.Description, func(t *testing.T) {
+			channels, err := ss.Channel().AutocompleteInTeam(testCase.TeamId, testCase.UserId, testCase.Term, testCase.IncludeDeleted)
+			require.NoError(t, err)
+
+			require.Equal(t, testCase.ExpectedResults, channels)
+		})
+	}
+
 }
 
 func testChannelStoreSearchForUserInTeam(t *testing.T, ss store.Store) {

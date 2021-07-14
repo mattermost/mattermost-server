@@ -3148,8 +3148,8 @@ func TestAutocompleteChannels(t *testing.T) {
 			"Basic town-square",
 			th.BasicTeam.Id,
 			"town",
-			[]string{"town-square"},
-			[]string{"off-topic", "town", "tower"},
+			[]string{"town-square", "town"},
+			[]string{"off-topic", "tower"},
 		},
 		{
 			"Basic off-topic",
@@ -3162,8 +3162,8 @@ func TestAutocompleteChannels(t *testing.T) {
 			"Basic town square and off topic",
 			th.BasicTeam.Id,
 			"tow",
-			[]string{"town-square", "tower"},
-			[]string{"off-topic", "town"},
+			[]string{"town-square", "tower", "town"},
+			[]string{"off-topic"},
 		},
 	} {
 		t.Run(tc.description, func(t *testing.T) {

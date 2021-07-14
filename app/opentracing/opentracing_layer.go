@@ -768,7 +768,7 @@ func (a *OpenTracingAppLayer) AuthorizeOAuthUser(w http.ResponseWriter, r *http.
 	return resultVar0, resultVar1, resultVar2, resultVar3, resultVar4
 }
 
-func (a *OpenTracingAppLayer) AutocompleteChannels(teamID string, term string) (*model.ChannelList, *model.AppError) {
+func (a *OpenTracingAppLayer) AutocompleteChannels(teamID string, userID string, term string) (*model.ChannelList, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.AutocompleteChannels")
 
@@ -780,7 +780,7 @@ func (a *OpenTracingAppLayer) AutocompleteChannels(teamID string, term string) (
 	}()
 
 	defer span.Finish()
-	resultVar0, resultVar1 := a.app.AutocompleteChannels(teamID, term)
+	resultVar0, resultVar1 := a.app.AutocompleteChannels(teamID, userID, term)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))

@@ -2427,48 +2427,64 @@ func (s SqlChannelStore) GetMembersForUserWithPagination(teamId, userId string, 
 	return dbMembers.ToModel(), nil
 }
 
-func (s SqlChannelStore) AutocompleteInTeam(teamId string, term string, includeDeleted bool) (*model.ChannelList, error) {
-	deleteFilter := "AND Channels.DeleteAt = 0"
+func (s SqlChannelStore) AutocompleteInTeam(teamId string, userId string, term string, includeDeleted bool) (*model.ChannelList, error) {
+	deleteFilter := "AND c.DeleteAt = 0"
 	if includeDeleted {
 		deleteFilter = ""
 	}
 
-	queryFormat := `
-		SELECT
-			Channels.*
-		FROM
-			Channels
-		JOIN
-			PublicChannels c ON (c.Id = Channels.Id)
-		WHERE
-			Channels.TeamId = :TeamId
-			` + deleteFilter + `
-			%v
-		LIMIT ` + strconv.Itoa(model.CHANNEL_SEARCH_DEFAULT_LIMIT)
+	publicChannels, publicErr := s.performSearch(`
+	SELECT
+		Channels.*
+	FROM
+		Channels
+	JOIN
+		Channels c ON (c.Id = Channels.Id)
+	WHERE
+		c.TeamId = :TeamId
+		`+deleteFilter+`
+		SEARCH_CLAUSE
+		AND c.Type != 'P'
+	ORDER BY c.DisplayName
+	LIMIT 100
+	`, term, map[string]interface{}{
+		"TeamId": teamId,
+	})
 
-	var channels model.ChannelList
+	privateChannels, privateErr := s.performSearch(`
+	SELECT
+		Channels.*
+	FROM
+		Channels
+	JOIN
+		Channels c ON (c.Id = Channels.Id)
+	WHERE
+		c.TeamId = :TeamId
+		`+deleteFilter+`
+		SEARCH_CLAUSE
+		AND c.Type = 'P'
+		AND c.Id IN (SELECT ChannelId FROM ChannelMembers WHERE UserId = :UserId)
+	ORDER BY c.DisplayName
+	LIMIT 100
+	`, term, map[string]interface{}{
+		"TeamId": teamId,
+		"UserId": userId,
+	})
 
-	if likeClause, likeTerm := s.buildLIKEClause(term, "c.Name, c.DisplayName, c.Purpose"); likeClause == "" {
-		if _, err := s.GetReplica().Select(&channels, fmt.Sprintf(queryFormat, ""), map[string]interface{}{"TeamId": teamId}); err != nil {
-			return nil, errors.Wrapf(err, "failed to find Channels with term='%s'", term)
-		}
-	} else {
-		// Using a UNION results in index_merge and fulltext queries and is much faster than the ref
-		// query you would get using an OR of the LIKE and full-text clauses.
-		fulltextClause, fulltextTerm := s.buildFulltextClause(term, "c.Name, c.DisplayName, c.Purpose")
-		likeQuery := fmt.Sprintf(queryFormat, "AND "+likeClause)
-		fulltextQuery := fmt.Sprintf(queryFormat, "AND "+fulltextClause)
-		query := fmt.Sprintf("(%v) UNION (%v) LIMIT 50", likeQuery, fulltextQuery)
-
-		if _, err := s.GetReplica().Select(&channels, query, map[string]interface{}{"TeamId": teamId, "LikeTerm": likeTerm, "FulltextTerm": fulltextTerm}); err != nil {
-			return nil, errors.Wrapf(err, "failed to find Channels with term='%s'", term)
-		}
+	outputErr := publicErr
+	if privateErr != nil {
+		outputErr = privateErr
 	}
 
-	sort.Slice(channels, func(a, b int) bool {
-		return strings.ToLower(channels[a].DisplayName) < strings.ToLower(channels[b].DisplayName)
-	})
-	return &channels, nil
+	if outputErr != nil {
+		return nil, outputErr
+	}
+
+	output := *publicChannels
+	output = append(output, *privateChannels...)
+
+	return &output, nil
+
 }
 
 func (s SqlChannelStore) AutocompleteInTeamForSearch(teamId string, userId string, term string, includeDeleted bool) (*model.ChannelList, error) {

@@ -223,7 +223,7 @@ type ChannelStore interface {
 	AnalyticsTypeCount(teamID string, channelType string) (int64, error)
 	GetMembersForUser(teamID string, userID string) (*model.ChannelMembers, error)
 	GetMembersForUserWithPagination(teamID, userID string, page, perPage int) (*model.ChannelMembers, error)
-	AutocompleteInTeam(teamID string, term string, includeDeleted bool) (*model.ChannelList, error)
+	AutocompleteInTeam(teamID string, userID string, term string, includeDeleted bool) (*model.ChannelList, error)
 	AutocompleteInTeamForSearch(teamID string, userID string, term string, includeDeleted bool) (*model.ChannelList, error)
 	SearchAllChannels(term string, opts ChannelSearchOpts) (*model.ChannelListWithTeamData, int64, error)
 	SearchInTeam(teamID string, term string, includeDeleted bool) (*model.ChannelList, error)

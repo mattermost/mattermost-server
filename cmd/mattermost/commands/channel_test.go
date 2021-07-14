@@ -41,16 +41,16 @@ func TestRemoveChannel(t *testing.T) {
 
 	t.Run("should remove user from channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		isMember, _ := th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
+		isMember, _ := th.App.UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
 		assert.True(t, isMember)
 
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		isMember, _ = th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
+		isMember, _ = th.App.UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
 		assert.False(t, isMember)
 	})
 
 	t.Run("should not fail removing non member user from channel", func(t *testing.T) {
-		isMember, _ := th.App.Srv().Store.Channel().UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
+		isMember, _ := th.App.UserBelongsToChannels(th.BasicUser2.Id, []string{channel.Id})
 		assert.False(t, isMember)
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
 	})
@@ -62,22 +62,25 @@ func TestRemoveChannel(t *testing.T) {
 	t.Run("should remove all users from channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser.Email)
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		count, _ := th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		count, _ := th.App.GetChannelMemberCount(channel.Id)
 		assert.Equal(t, count, int64(2))
 
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, "--all-users")
-		count, _ = th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		th.App.ClearChannelCaches()
+		count, _ = th.App.GetChannelMemberCount(channel.Id)
 		assert.Equal(t, count, int64(0))
 	})
 
 	t.Run("should remove multiple users from channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser.Email)
 		th.CheckCommand(t, "channel", "add", th.BasicTeam.Name+":"+channel.Name, th.BasicUser2.Email)
-		count, _ := th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		th.App.ClearChannelCaches()
+		count, _ := th.App.GetChannelMemberCount(channel.Id)
 		assert.Equal(t, count, int64(2))
 
 		th.CheckCommand(t, "channel", "remove", th.BasicTeam.Name+":"+channel.Name, th.BasicUser.Email, th.BasicUser2.Email)
-		count, _ = th.App.Srv().Store.Channel().GetMemberCount(channel.Id, false)
+		th.App.ClearChannelCaches()
+		count, _ = th.App.GetChannelMemberCount(channel.Id)
 		assert.Equal(t, count, int64(0))
 	})
 }
@@ -154,7 +157,8 @@ func TestCreateChannel(t *testing.T) {
 
 	t.Run("should create public channel", func(t *testing.T) {
 		th.CheckCommand(t, "channel", "create", "--display_name", commonName, "--team", th.BasicTeam.Name, "--name", commonName)
-		channel, _ := th.App.Srv().Store.Channel().GetByName(team.Id, commonName, false)
+		channel, err := th.App.GetChannelByName(commonName, team.Id, false)
+		require.Nil(t, err)
 		assert.Equal(t, commonName, channel.Name)
 		assert.Equal(t, model.CHANNEL_OPEN, channel.Type)
 	})
@@ -162,7 +166,8 @@ func TestCreateChannel(t *testing.T) {
 	t.Run("should create private channel", func(t *testing.T) {
 		name := commonName + "-private"
 		th.CheckCommand(t, "channel", "create", "--display_name", name, "--team", th.BasicTeam.Name, "--name", name, "--private")
-		channel, _ := th.App.Srv().Store.Channel().GetByName(team.Id, name, false)
+		channel, err := th.App.GetChannelByName(name, team.Id, false)
+		require.Nil(t, err)
 		assert.Equal(t, name, channel.Name)
 		assert.Equal(t, model.CHANNEL_PRIVATE, channel.Type)
 	})
@@ -170,7 +175,8 @@ func TestCreateChannel(t *testing.T) {
 	t.Run("should create channel with header and purpose", func(t *testing.T) {
 		name := commonName + "-withhp"
 		th.CheckCommand(t, "channel", "create", "--display_name", name, "--team", th.BasicTeam.Name, "--name", name, "--header", "this is a header", "--purpose", "this is the purpose")
-		channel, _ := th.App.Srv().Store.Channel().GetByName(team.Id, name, false)
+		channel, err := th.App.GetChannelByName(name, team.Id, false)
+		require.Nil(t, err)
 		assert.Equal(t, name, channel.Name)
 		assert.Equal(t, model.CHANNEL_OPEN, channel.Type)
 		assert.Equal(t, "this is a header", channel.Header)
@@ -319,8 +325,8 @@ func TestModifyChannel(t *testing.T) {
 	channel2 := th.CreatePrivateChannel()
 
 	th.CheckCommand(t, "channel", "modify", "--public", th.BasicTeam.Name+":"+channel1.Name, "--username", th.BasicUser2.Email)
-	res, err := th.App.Srv().Store.Channel().Get(channel1.Id, false)
-	require.NoError(t, err)
+	res, err := th.App.GetChannel(channel1.Id)
+	require.Nil(t, err)
 	assert.Equal(t, model.CHANNEL_OPEN, res.Type)
 
 	// should fail because user doesn't exist
@@ -330,8 +336,8 @@ func TestModifyChannel(t *testing.T) {
 	pchannel2 := th.CreatePublicChannel()
 
 	th.CheckCommand(t, "channel", "modify", "--private", th.BasicTeam.Name+":"+pchannel1.Name, "--username", th.BasicUser2.Email)
-	res, err = th.App.Srv().Store.Channel().Get(pchannel1.Id, false)
-	require.NoError(t, err)
+	res, err = th.App.GetChannel(pchannel1.Id)
+	require.Nil(t, err)
 	assert.Equal(t, model.CHANNEL_PRIVATE, res.Type)
 
 	// should fail because user doesn't exist

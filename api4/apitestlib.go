@@ -1100,9 +1100,8 @@ func (th *TestHelper) cleanupTestFile(info *model.FileInfo) error {
 func (th *TestHelper) MakeUserChannelAdmin(user *model.User, channel *model.Channel) {
 	utils.DisableDebugLogForTest()
 
-	if cm, err := th.App.Srv().Store.Channel().GetMember(context.Background(), channel.Id, user.Id); err == nil {
-		cm.SchemeAdmin = true
-		if _, err = th.App.Srv().Store.Channel().UpdateMember(cm); err != nil {
+	if cm, err := th.App.GetChannelMember(context.Background(), channel.Id, user.Id); err == nil {
+		if _, err = th.App.UpdateChannelMemberSchemeRoles(channel.Id, user.Id, cm.SchemeGuest, cm.SchemeUser, true); err != nil {
 			utils.EnableDebugLogForTest()
 			panic(err)
 		}

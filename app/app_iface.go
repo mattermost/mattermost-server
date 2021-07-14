@@ -447,6 +447,7 @@ type AppIface interface {
 	CheckUserPreflightAuthenticationCriteria(user *model.User, mfaToken string) *model.AppError
 	CheckValidDomains(team *model.Team) *model.AppError
 	CheckWebConn(userID, connectionID string) *CheckConnResult
+	ClearChannelCaches()
 	ClearChannelMembersCache(channelID string)
 	ClearSessionCacheForAllUsers()
 	ClearSessionCacheForAllUsersSkipClusterSend()
@@ -877,6 +878,7 @@ type AppIface interface {
 	PatchUser(userID string, patch *model.UserPatch, asAdmin bool) (*model.User, *model.AppError)
 	PermanentDeleteAllUsers(c *request.Context) *model.AppError
 	PermanentDeleteChannel(channel *model.Channel) *model.AppError
+	PermanentDeleteMembersByChannel(channelId string) *model.AppError
 	PermanentDeleteTeam(team *model.Team) *model.AppError
 	PermanentDeleteTeamId(teamID string) *model.AppError
 	PermanentDeleteUser(c *request.Context, user *model.User) *model.AppError
@@ -1042,6 +1044,7 @@ type AppIface interface {
 	UnregisterPluginCommands(pluginID string)
 	UpdateActive(c *request.Context, user *model.User, active bool) (*model.User, *model.AppError)
 	UpdateChannelLastViewedAt(channelIDs []string, userID string) *model.AppError
+	UpdateChannelMember(member *model.ChannelMember) (*model.ChannelMember, *model.AppError)
 	UpdateChannelMemberNotifyProps(data map[string]string, channelID string, userID string) (*model.ChannelMember, *model.AppError)
 	UpdateChannelMemberRoles(channelID string, userID string, newRoles string) (*model.ChannelMember, *model.AppError)
 	UpdateChannelMemberSchemeRoles(channelID string, userID string, isSchemeGuest bool, isSchemeUser bool, isSchemeAdmin bool) (*model.ChannelMember, *model.AppError)
@@ -1095,6 +1098,7 @@ type AppIface interface {
 	UploadMultipartFiles(c *request.Context, teamID string, channelID string, userID string, fileHeaders []*multipart.FileHeader, clientIds []string, now time.Time) (*model.FileUploadResponse, *model.AppError)
 	UpsertGroupMember(groupID string, userID string) (*model.GroupMember, *model.AppError)
 	UpsertGroupSyncable(groupSyncable *model.GroupSyncable) (*model.GroupSyncable, *model.AppError)
+	UserBelongsToChannels(userID string, channelIDs []string) (bool, *model.AppError)
 	UserCanSeeOtherUser(userID string, otherUserId string) (bool, *model.AppError)
 	VerifyEmailFromToken(userSuppliedTokenString string) *model.AppError
 	VerifyUserEmail(userID, email string) *model.AppError

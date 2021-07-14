@@ -165,7 +165,7 @@ func manualTest(c *web.Context, w http.ResponseWriter, r *http.Request) {
 
 func getChannelID(a app.AppIface, channelname string, teamid string, userid string) (string, bool) {
 	// Grab all the channels
-	channels, err := a.Srv().Store.Channel().GetChannels(teamid, userid, false, 0)
+	channels, err := a.GetChannelsForUser(teamid, userid, false, 0)
 	if err != nil {
 		mlog.Debug("Unable to get channels")
 		return "", false

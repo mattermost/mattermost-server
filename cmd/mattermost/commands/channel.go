@@ -278,7 +278,7 @@ func removeUserFromChannel(a *app.App, channel *model.Channel, user *model.User,
 }
 
 func removeAllUsersFromChannel(a *app.App, channel *model.Channel) {
-	if err := a.Srv().Store.Channel().PermanentDeleteMembersByChannel(channel.Id); err != nil {
+	if err := a.PermanentDeleteMembersByChannel(channel.Id); err != nil {
 		CommandPrintErrorln("Unable to remove all users from " + channel.Name + ". Error: " + err.Error())
 		return
 	}
@@ -336,7 +336,7 @@ func archiveChannelsCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find channel '" + args[i] + "'")
 			continue
 		}
-		if err := a.Srv().Store.Channel().Delete(channel.Id, model.GetMillis()); err != nil {
+		if err := a.DeleteChannel(request.EmptyContext(), channel, ""); err != nil {
 			CommandPrintErrorln("Unable to archive channel '" + channel.Name + "' error: " + err.Error())
 			continue
 		}
@@ -479,10 +479,15 @@ func listChannelsCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find team '" + args[i] + "'")
 			continue
 		}
-		if channels, chanErr := a.Srv().Store.Channel().GetAll(team.Id); chanErr != nil {
+		if channels, chanErr := a.GetAllChannels(0, 999999, model.ChannelSearchOpts{
+			TeamIds:        []string{team.Id},
+			IncludeDeleted: true,
+			Public:         true,
+			Private:        true,
+		}); chanErr != nil {
 			CommandPrintErrorln("Unable to list channels for '" + args[i] + "'")
 		} else {
-			for _, channel := range channels {
+			for _, channel := range *channels {
 				output := channel.Name
 				if channel.DeleteAt > 0 {
 					output += " (archived)"
@@ -511,7 +516,7 @@ func restoreChannelsCmdF(command *cobra.Command, args []string) error {
 			CommandPrintErrorln("Unable to find channel '" + args[i] + "'")
 			continue
 		}
-		if err := a.Srv().Store.Channel().SetDeleteAt(channel.Id, 0, model.GetMillis()); err != nil {
+		if _, err := a.RestoreChannel(request.EmptyContext(), channel, ""); err != nil {
 			CommandPrintErrorln("Unable to restore channel '" + args[i] + "'")
 			continue
 		}

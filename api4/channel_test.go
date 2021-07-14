@@ -1718,7 +1718,7 @@ func TestDeleteChannel2(t *testing.T) {
 	// successful delete by channel admin
 	th.MakeUserChannelAdmin(user, publicChannel6)
 	th.MakeUserChannelAdmin(user, privateChannel7)
-	th.App.Srv().Store.Channel().ClearCaches()
+	th.App.ClearChannelCaches()
 
 	_, resp = Client.DeleteChannel(publicChannel6.Id)
 	CheckNoError(t, resp)
@@ -4197,8 +4197,8 @@ func TestRootMentionsCount(t *testing.T) {
 	channel := th.BasicChannel
 
 	// initially, MentionCountRoot is 0 in the database
-	channelMember, err := th.App.Srv().Store.Channel().GetMember(context.Background(), channel.Id, user.Id)
-	require.NoError(t, err)
+	channelMember, aErr := th.App.GetChannelMember(context.Background(), channel.Id, user.Id)
+	require.Nil(t, aErr)
 	require.Equal(t, int64(0), channelMember.MentionCountRoot)
 	require.Equal(t, int64(0), channelMember.MentionCount)
 
@@ -4218,8 +4218,8 @@ func TestRootMentionsCount(t *testing.T) {
 	// regular count stays the same
 	require.Equal(t, int64(2), channelUnread.MentionCount)
 	// validate that DB is updated
-	channelMember, err = th.App.Srv().Store.Channel().GetMember(context.Background(), channel.Id, user.Id)
-	require.NoError(t, err)
+	channelMember, aErr = th.App.GetChannelMember(context.Background(), channel.Id, user.Id)
+	require.Nil(t, aErr)
 	require.EqualValues(t, int64(1), channelMember.MentionCountRoot)
 
 	// validate that Team level counts are calculated

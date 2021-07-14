@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/mattermost/mattermost-server/v5/app/request"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
@@ -402,16 +403,20 @@ func TestGetChannelsForScheme(t *testing.T) {
 		Type:        model.CHANNEL_OPEN,
 	}
 
-	channel1, errCh := th.App.Srv().Store.Channel().Save(channel1, 1000000)
-	assert.NoError(t, errCh)
+	th.App.UpdateConfig(func(c *model.Config) {
+		*c.TeamSettings.MaxChannelsPerTeam = 1000000
+	})
+
+	channel1, errCh := th.App.CreateChannel(request.EmptyContext(), channel1, false)
+	assert.Nil(t, errCh)
 
 	l2, r2 := th.SystemAdminClient.GetChannelsForScheme(scheme1.Id, 0, 100)
 	CheckNoError(t, r2)
 	assert.Zero(t, len(l2))
 
 	channel1.SchemeId = &scheme1.Id
-	channel1, err := th.App.Srv().Store.Channel().Update(channel1)
-	assert.NoError(t, err)
+	channel1, appErr := th.App.UpdateChannel(channel1)
+	assert.Nil(t, appErr)
 
 	l3, r3 := th.SystemAdminClient.GetChannelsForScheme(scheme1.Id, 0, 100)
 	CheckNoError(t, r3)
@@ -425,8 +430,8 @@ func TestGetChannelsForScheme(t *testing.T) {
 		Type:        model.CHANNEL_OPEN,
 		SchemeId:    &scheme1.Id,
 	}
-	channel2, nErr := th.App.Srv().Store.Channel().Save(channel2, 1000000)
-	assert.NoError(t, nErr)
+	channel2, nErr := th.App.CreateChannel(request.EmptyContext(), channel2, false)
+	assert.Nil(t, nErr)
 
 	l4, r4 := th.SystemAdminClient.GetChannelsForScheme(scheme1.Id, 0, 100)
 	CheckNoError(t, r4)
@@ -690,14 +695,20 @@ func TestDeleteScheme(t *testing.T) {
 		assert.Zero(t, role6.DeleteAt)
 
 		// Make sure this scheme is in use by a team.
-		channel, err := th.App.Srv().Store.Channel().Save(&model.Channel{
+		ch := &model.Channel{
 			TeamId:      model.NewId(),
 			DisplayName: model.NewId(),
 			Name:        model.NewId(),
 			Type:        model.CHANNEL_OPEN,
 			SchemeId:    &s1.Id,
-		}, -1)
-		assert.NoError(t, err)
+		}
+
+		th.App.UpdateConfig(func(c *model.Config) {
+			*c.TeamSettings.MaxChannelsPerTeam = -1
+		})
+
+		channel, appErr := th.App.CreateChannel(request.EmptyContext(), ch, false)
+		assert.Nil(t, appErr)
 
 		// Delete the Scheme.
 		_, r3 := th.SystemAdminClient.DeleteScheme(s1.Id)

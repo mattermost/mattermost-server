@@ -1935,7 +1935,7 @@ func (a *App) UserCanSeeOtherUser(userID string, otherUserId string) (bool, *mod
 	}
 
 	if len(restrictions.Channels) > 0 {
-		result, err := a.userBelongsToChannels(otherUserId, restrictions.Channels)
+		result, err := a.UserBelongsToChannels(otherUserId, restrictions.Channels)
 		if err != nil {
 			return false, err
 		}
@@ -1947,10 +1947,10 @@ func (a *App) UserCanSeeOtherUser(userID string, otherUserId string) (bool, *mod
 	return false, nil
 }
 
-func (a *App) userBelongsToChannels(userID string, channelIDs []string) (bool, *model.AppError) {
+func (a *App) UserBelongsToChannels(userID string, channelIDs []string) (bool, *model.AppError) {
 	belongs, err := a.Srv().Store.Channel().UserBelongsToChannels(userID, channelIDs)
 	if err != nil {
-		return false, model.NewAppError("userBelongsToChannels", "app.channel.user_belongs_to_channels.app_error", nil, err.Error(), http.StatusInternalServerError)
+		return false, model.NewAppError("UserBelongsToChannels", "app.channel.user_belongs_to_channels.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
 
 	return belongs, nil

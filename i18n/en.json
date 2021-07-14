@@ -4615,6 +4615,10 @@
     "translation": "Unable to delete the channel."
   },
   {
+    "id": "app.channel.permanent_delete_member.app_error",
+    "translation": "Unable delete channel member."
+  },
+  {
     "id": "app.channel.permanent_delete_members_by_user.app_error",
     "translation": "Unable to remove the channel member."
   },

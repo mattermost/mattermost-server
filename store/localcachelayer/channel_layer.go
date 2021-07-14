@@ -50,6 +50,7 @@ func (s LocalCacheChannelStore) ClearCaches() {
 	s.rootStore.doClearCacheCluster(s.rootStore.channelPinnedPostCountsCache)
 	s.rootStore.doClearCacheCluster(s.rootStore.channelGuestCountCache)
 	s.rootStore.doClearCacheCluster(s.rootStore.channelByIdCache)
+	s.rootStore.doClearCacheCluster(s.rootStore.channelMembersNotifyPropsForChannelCache)
 	s.ChannelStore.ClearCaches()
 	if s.rootStore.metrics != nil {
 		s.rootStore.metrics.IncrementMemCacheInvalidationCounter("Channel Pinned Post Counts - Purge")
@@ -117,6 +118,22 @@ func (s LocalCacheChannelStore) GetGuestCount(channelId string, allowFromCache b
 	}
 
 	return count, err
+}
+
+func (s LocalCacheChannelStore) GetAllChannelMembersNotifyPropsForChannel(channelId string, allowFromCache bool) (map[string]model.StringMap, error) {
+	if allowFromCache {
+		var cacheItem map[string]model.StringMap
+		if err := s.rootStore.doStandardReadCache(s.rootStore.channelMembersNotifyPropsForChannelCache, channelId, &cacheItem); err == nil {
+			return cacheItem, nil
+		}
+	}
+
+	propsForChannel, err := s.ChannelStore.GetAllChannelMembersNotifyPropsForChannel(channelId, allowFromCache)
+	if allowFromCache && err == nil {
+		s.rootStore.doStandardAddToCache(s.rootStore.channelMembersNotifyPropsForChannelCache, channelId, propsForChannel)
+	}
+
+	return propsForChannel, err
 }
 
 func (s LocalCacheChannelStore) GetMemberCountFromCache(channelId string) int64 {

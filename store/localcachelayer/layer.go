@@ -85,11 +85,12 @@ type LocalCacheStore struct {
 	emojiCacheById     cache.Cache
 	emojiIdCacheByName cache.Cache
 
-	channel                      LocalCacheChannelStore
-	channelMemberCountsCache     cache.Cache
-	channelGuestCountCache       cache.Cache
-	channelPinnedPostCountsCache cache.Cache
-	channelByIdCache             cache.Cache
+	channel                                  LocalCacheChannelStore
+	channelMemberCountsCache                 cache.Cache
+	channelGuestCountCache                   cache.Cache
+	channelPinnedPostCountsCache             cache.Cache
+	channelByIdCache                         cache.Cache
+	channelMembersNotifyPropsForChannelCache cache.Cache
 
 	webhook      LocalCacheWebhookStore
 	webhookCache cache.Cache
@@ -237,6 +238,15 @@ func NewLocalCacheLayer(baseStore store.Store, metrics einterfaces.MetricsInterf
 	}); err != nil {
 		return
 	}
+	if localCacheStore.channelMembersNotifyPropsForChannelCache, err = cacheProvider.NewCache(&cache.CacheOptions{
+		Size:                   model.SESSION_CACHE_SIZE,
+		Name:                   "channelMembersNotifyPropsForChannel",
+		DefaultExpiry:          ChannelCacheSec * time.Second,
+		InvalidateClusterEvent: model.CLUSTER_EVENT_INVALIDATE_CACHE_FOR_CHANNEL_MEMBERS_NOTIFY_PROPS,
+	}); err != nil {
+		return
+	}
+
 	localCacheStore.channel = LocalCacheChannelStore{ChannelStore: baseStore.Channel(), rootStore: &localCacheStore}
 
 	// Posts
@@ -438,6 +448,7 @@ func (s *LocalCacheStore) Invalidate() {
 	s.doClearCacheCluster(s.channelPinnedPostCountsCache)
 	s.doClearCacheCluster(s.channelGuestCountCache)
 	s.doClearCacheCluster(s.channelByIdCache)
+	s.doClearCacheCluster(s.channelMembersNotifyPropsForChannelCache)
 	s.doClearCacheCluster(s.postLastPostsCache)
 	s.doClearCacheCluster(s.termsOfServiceCache)
 	s.doClearCacheCluster(s.lastPostTimeCache)

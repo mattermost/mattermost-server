@@ -1830,20 +1830,6 @@ type allChannelMemberNotifyProps struct {
 }
 
 func (s SqlChannelStore) GetAllChannelMembersNotifyPropsForChannel(channelId string, allowFromCache bool) (map[string]model.StringMap, error) {
-	if allowFromCache {
-		var cacheItem map[string]model.StringMap
-		if err := allChannelMembersNotifyPropsForChannelCache.Get(channelId, &cacheItem); err == nil {
-			if s.metrics != nil {
-				s.metrics.IncrementMemCacheHitCounter("All Channel Members Notify Props for Channel")
-			}
-			return cacheItem, nil
-		}
-	}
-
-	if s.metrics != nil {
-		s.metrics.IncrementMemCacheMissCounter("All Channel Members Notify Props for Channel")
-	}
-
 	var data []allChannelMemberNotifyProps
 	_, err := s.GetReplica().Select(&data, `
 		SELECT UserId, NotifyProps
@@ -1863,6 +1849,41 @@ func (s SqlChannelStore) GetAllChannelMembersNotifyPropsForChannel(channelId str
 
 	return props, nil
 }
+
+// func (s SqlChannelStore) GetAllChannelMembersNotifyPropsForChannel(channelId string, allowFromCache bool) (map[string]model.StringMap, error) {
+// 	if allowFromCache {
+// 		var cacheItem map[string]model.StringMap
+// 		if err := allChannelMembersNotifyPropsForChannelCache.Get(channelId, &cacheItem); err == nil {
+// 			if s.metrics != nil {
+// 				s.metrics.IncrementMemCacheHitCounter("All Channel Members Notify Props for Channel")
+// 			}
+// 			return cacheItem, nil
+// 		}
+// 	}
+
+// 	if s.metrics != nil {
+// 		s.metrics.IncrementMemCacheMissCounter("All Channel Members Notify Props for Channel")
+// 	}
+
+// 	var data []allChannelMemberNotifyProps
+// 	_, err := s.GetReplica().Select(&data, `
+// 		SELECT UserId, NotifyProps
+// 		FROM ChannelMembers
+// 		WHERE ChannelId = :ChannelId`, map[string]interface{}{"ChannelId": channelId})
+
+// 	if err != nil {
+// 		return nil, errors.Wrapf(err, "failed to find data from ChannelMembers with channelId=%s", channelId)
+// 	}
+
+// 	props := make(map[string]model.StringMap)
+// 	for i := range data {
+// 		props[data[i].UserId] = data[i].NotifyProps
+// 	}
+
+// 	allChannelMembersNotifyPropsForChannelCache.SetWithExpiry(channelId, props, AllChannelMembersNotifyPropsForChannelCacheDuration)
+
+// 	return props, nil
+// }
 
 //nolint:unparam
 func (s SqlChannelStore) InvalidateMemberCount(channelId string) {

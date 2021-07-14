@@ -30,7 +30,7 @@ func TestCreateBot(t *testing.T) {
 				OwnerId:     th.BasicUser.Id,
 			})
 			require.NotNil(t, err)
-			require.Equal(t, "model.user.is_valid.username.app_error", err.Id)
+			require.Equal(t, "model.bot.is_valid.username.app_error", err.Id)
 		})
 
 		t.Run("relative to bot", func(t *testing.T) {
@@ -58,6 +58,18 @@ func TestCreateBot(t *testing.T) {
 			require.NotNil(t, err)
 			require.Nil(t, bot)
 			require.Equal(t, "model.user.is_valid.email.app_error", err.Id)
+		})
+
+		t.Run("username missing", func(t *testing.T) {
+			th := Setup(t).InitBasic()
+			defer th.TearDown()
+			bot, err := th.App.CreateBot(th.Context, &model.Bot{
+				Description: "a bot",
+				OwnerId:     th.BasicUser.Id,
+			})
+			require.NotNil(t, err)
+			require.Nil(t, bot)
+			require.Equal(t, "model.bot.is_valid.username.app_error", err.Id)
 		})
 	})
 

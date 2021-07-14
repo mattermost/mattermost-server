@@ -463,7 +463,7 @@ func (a *App) buildPostReplies(postID string, withAttachments bool) ([]ReplyImpo
 			if appErr != nil {
 				return nil, nil, appErr
 			}
-			replyImportObject.Attachments = &attachments
+			replyImportObject.Attachments = &postAttachments
 			if withAttachments && len(postAttachments) > 0 {
 				attachments = append(attachments, postAttachments...)
 			}

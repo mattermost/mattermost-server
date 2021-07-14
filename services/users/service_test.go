@@ -11,6 +11,9 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	_, err := New(ServiceConfig{})
 	require.Error(t, err)
 

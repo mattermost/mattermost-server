@@ -38,6 +38,8 @@ cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RX
 cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9ullr3+Kg0=
 code.sajari.com/docconv v1.1.1-0.20200701232649-d9ea05fbd50a h1:e0dRHyAfGcext3/lnwfsl81PKJRNgLyA843n72mPCes=
 code.sajari.com/docconv v1.1.1-0.20200701232649-d9ea05fbd50a/go.mod h1:DooS873W9YwUjTwEYGpg55aDlvnx1VcEdr7IJ9rEW8g=
+code.sajari.com/docconv v1.1.1-0.20210427001343-7b3472bc323a h1:AEvqb7V5SSC89lAp9UQd7ytVVLm6f4AQbtzr9lk0bFg=
+code.sajari.com/docconv v1.1.1-0.20210427001343-7b3472bc323a/go.mod h1:KPNt2zuWplps1W0TpOb6ltHj4Xu+j6h7a+YkqGHrxQE=
 contrib.go.opencensus.io/exporter/ocagent v0.4.9/go.mod h1:ueLzZcP7LPhPulEBukGn4aLh7Mx9YJwpVJ9nL2FYltw=
 dmitri.shuralyov.com/app/changes v0.0.0-20180602232624-0a106ad413e3/go.mod h1:Yl+fi1br7+Rr3LqpNJf1/uxUdtRUV+Tnj0o93V2B9MU=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=

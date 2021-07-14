@@ -3,7 +3,7 @@ module github.com/mattermost/mattermost-server/v5
 go 1.15
 
 require (
-	code.sajari.com/docconv v1.1.1-0.20200701232649-d9ea05fbd50a
+	code.sajari.com/docconv v1.1.1-0.20210427001343-7b3472bc323a
 	github.com/HdrHistogram/hdrhistogram-go v0.9.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/squirrel v1.5.0

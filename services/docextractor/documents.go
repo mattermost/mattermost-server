@@ -31,7 +31,14 @@ func (de *documentExtractor) Match(filename string) bool {
 	return ok
 }
 
-func (de *documentExtractor) Extract(filename string, r io.ReadSeeker) (string, error) {
+func (de *documentExtractor) Extract(filename string, r io.ReadSeeker) (out string, outErr error) {
+	defer func() {
+		if r := recover(); r != nil {
+			out = ""
+			outErr = errors.New("error extracting document text")
+		}
+	}()
+
 	extension := strings.TrimPrefix(path.Ext(filename), ".")
 	converter, ok := doconvConverterByExtensions[extension]
 	if !ok {

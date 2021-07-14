@@ -28,7 +28,7 @@ func ConvertRTF(r io.Reader) (string, map[string]string, error) {
 		if parts := strings.SplitN(line, ":", 2); len(parts) > 1 {
 			meta[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
 		}
-		if len(line) > 4 && line[:4] != "### " {
+		if !strings.HasPrefix(line, "### ") {
 			output += line + "\n"
 		}
 	}

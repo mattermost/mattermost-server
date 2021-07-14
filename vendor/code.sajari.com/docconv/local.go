@@ -25,7 +25,7 @@ func NewLocalFile(r io.Reader) (*LocalFile, error) {
 		}, nil
 	}
 
-	f, err := ioutil.TempFile(os.TempDir(), "/docconv")
+	f, err := ioutil.TempFile(os.TempDir(), "docconv")
 	if err != nil {
 		return nil, fmt.Errorf("error creating temporary file: %v", err)
 	}

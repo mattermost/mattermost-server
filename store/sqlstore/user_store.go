@@ -1440,20 +1440,37 @@ var spaceFulltextSearchChar = []string{
 }
 
 func generateSearchQuery(query sq.SelectBuilder, terms []string, fields []string, isPostgreSQL bool) sq.SelectBuilder {
-	for _, term := range terms {
-		searchFields := []string{}
-		termArgs := []interface{}{}
-		for _, field := range fields {
-			if isPostgreSQL {
-				searchFields = append(searchFields, fmt.Sprintf("lower(%s) LIKE lower(?) escape '*' ", field))
-			} else {
-				searchFields = append(searchFields, fmt.Sprintf("%s LIKE ? escape '*' ", field))
-			}
-			termArgs = append(termArgs, fmt.Sprintf("%s%%", strings.TrimLeft(term, "@")))
-		}
-		query = query.Where(fmt.Sprintf("(%s)", strings.Join(searchFields, " OR ")), termArgs...)
+	escapedFields := make([]string, len(fields))
+	for i, field := range fields {
+		escapedFields[i] = "`" + field + "`"
 	}
 
+	if isPostgreSQL {
+		return generatePostgresSearchQuery(query, terms, escapedFields)
+	}
+	return generateMySQLSearchQuery(query, terms, escapedFields)
+}
+
+func generatePostgresSearchQuery(query sq.SelectBuilder, terms []string, fields []string) sq.SelectBuilder {
+	processedTerms := make([]string, len(terms))
+	for i, term := range terms {
+		processedTerms[i] = strings.TrimLeft(term, "@") + ":*"
+	}
+
+	query = query.Where(
+		fmt.Sprintf("((to_tsvector('english', %s)) @@ to_tsquery('english', ?))", strings.Join(fields, " || ' ' || ")),
+		strings.Join(processedTerms, " & "))
+	return query
+}
+
+func generateMySQLSearchQuery(query sq.SelectBuilder, terms []string, fields []string) sq.SelectBuilder {
+	processedTerms := make([]string, len(terms))
+	for i, term := range terms {
+		processedTerms[i] = "+" + strings.TrimLeft(term, "@") + "*"
+	}
+	query = query.Where(
+		fmt.Sprintf("MATCH (%s) AGAINST(? IN BOOLEAN MODE)", strings.Join(fields, ", ")),
+		strings.Join(processedTerms, ""))
 	return query
 }
 

@@ -19,6 +19,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -529,4 +531,137 @@ func DoPostActionRequestFromJson(data io.Reader) *DoPostActionRequest {
 	var o *DoPostActionRequest
 	json.NewDecoder(data).Decode(&o)
 	return o
+}
+
+func (r *OpenDialogRequest) IsValid() error {
+	if r.URL == "" || !IsValidHttpUrl(r.URL) {
+		return errors.New("Invalid URL")
+	}
+
+	if r.TriggerId == "" {
+		return errors.New("Empty trigger id")
+	}
+
+	return r.Dialog.isValid()
+}
+
+func (d *Dialog) isValid() error {
+	if d.Title == "" || len(d.Title) > 24 {
+		return errors.New("invalid dialog title")
+	}
+
+	if d.IconURL != "" && !IsValidHttpUrl(d.IconURL) {
+		return errors.New("invalid icon url")
+	}
+
+	if len(d.Elements) > 5 {
+		return errors.New("The maximum number of dialog elements is 5")
+	}
+
+	if len(d.Elements) != 0 {
+		elementMap := make(map[string]bool)
+
+		for i := 0; i < len(d.Elements); i++ {
+			if elementMap[d.Elements[i].DisplayName] {
+				return errors.New("duplicate dialog element name")
+			}
+			elementMap[d.Elements[i].DisplayName] = true
+
+			err := d.Elements[i].isValid()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (d *DialogElement) isValid() error {
+	textSubTypeMap := map[string]bool{
+		"":         true,
+		"text":     true,
+		"email":    true,
+		"number":   true,
+		"tel":      true,
+		"url":      true,
+		"password": true,
+	}
+
+	if d.MinLength < 0 {
+		return errors.New("invalid minLength")
+	}
+	if d.MaxLength < 0 {
+		return errors.New("invalid maxlength")
+	}
+	if d.MinLength > d.MaxLength {
+		return errors.New("minLength should not be greater then maxlength")
+	}
+
+	switch d.Type {
+	case "text":
+		if len(d.Default) > 150 {
+			return errors.New("invalid default text")
+		}
+		if len(d.Placeholder) > 150 {
+			return errors.New("invalid placeholder")
+		}
+		if len(d.Placeholder) > 150 {
+			return errors.New("invalid default string")
+		}
+		if _, ok := textSubTypeMap[d.Type]; !ok {
+			return errors.New("invalid subtype")
+		}
+
+	case "textarea":
+		if len(d.Default) > 3000 {
+			return errors.New("invalid default text")
+		}
+		if len(d.Placeholder) > 3000 {
+			return errors.New("invalid placeholder")
+		}
+		if len(d.Placeholder) > 3000 {
+			return errors.New("invalid default string")
+		}
+		if _, ok := textSubTypeMap[d.Type]; !ok {
+			return errors.New("invalid subtype")
+		}
+
+	case "select":
+		if len(d.Default) > 3000 {
+			return errors.New("invalid default string")
+		}
+		if len(d.Placeholder) > 3000 {
+			return errors.New("invalid placeholder")
+		}
+
+	case "checkbox":
+		if len(d.Default) > 150 {
+			return errors.New("invalid default string")
+		}
+		if len(d.Placeholder) > 150 {
+			return errors.New("invalid placeholder")
+		}
+		if d.Default != "" && d.Default != "true" && d.Default != "false" {
+			return errors.New("invalid default")
+		}
+	case "radio":
+		if len(d.Default) > 150 {
+			return errors.New("invalid default string")
+		}
+
+	}
+
+	if len(d.DisplayName) > 24 {
+		return errors.New("invalid display name")
+	}
+
+	if len(d.Name) > 300 {
+		return errors.New("invalid dialog element name")
+	}
+
+	if len(d.HelpText) > 150 {
+		return errors.New("invalid help text")
+	}
+
+	return nil
 }

@@ -575,6 +575,10 @@ func (a *App) OpenInteractiveDialog(request model.OpenDialogRequest) *model.AppE
 		return err
 	}
 
+	if dialogErr := request.IsValid(); dialogErr != nil {
+		return model.NewAppError("OpenInteractiveDialog", "interactive_message.invalid_request", nil, dialogErr.Error(), http.StatusBadRequest)
+	}
+
 	request.TriggerId = clientTriggerId
 
 	jsonRequest, _ := json.Marshal(request)

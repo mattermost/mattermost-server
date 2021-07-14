@@ -7603,6 +7603,10 @@
     "translation": "Failed to sign generated trigger ID for interactive dialog."
   },
   {
+    "id": "interactive_message.invalid_request",
+    "translation": "Invalid interactive dialog payload."
+  },
+  {
     "id": "jobs.request_cancellation.status.error",
     "translation": "Could not request cancellation for job that is not in a cancelable state."
   },

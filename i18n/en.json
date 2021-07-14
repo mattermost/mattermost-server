@@ -8704,7 +8704,7 @@
   },
   {
     "id": "model.post.is_valid.props.app_error",
-    "translation": "Invalid props."
+    "translation": "Invalid props. The props must contain less than {{.POST_PROPS_MAX_RUNES}} characters."
   },
   {
     "id": "model.post.is_valid.root_id.app_error",

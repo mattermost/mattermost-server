@@ -364,7 +364,7 @@ func (o *Post) IsValid(maxPostSize int) *AppError {
 	}
 
 	if utf8.RuneCountInString(StringInterfaceToJson(o.GetProps())) > POST_PROPS_MAX_RUNES {
-		return NewAppError("Post.IsValid", "model.post.is_valid.props.app_error", nil, "id="+o.Id, http.StatusBadRequest)
+		return NewAppError("Post.IsValid", "model.post.is_valid.props.app_error", map[string]interface{}{"POST_PROPS_MAX_RUNES": POST_PROPS_MAX_RUNES}, "id="+o.Id, http.StatusBadRequest)
 	}
 
 	return nil

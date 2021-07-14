@@ -22,14 +22,24 @@ import (
 	"github.com/mattermost/mattermost-server/v5/utils/fileutils"
 )
 
+//var publicKey []byte = []byte(`-----BEGIN PUBLIC KEY-----
+//MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszVAB/0WgtXml1iUYhUu
+//YFKS8qyJVgic2gMz9PSvXV3pK5/dGecKvnZtojKciHLAHLMkTI/21DviJ54gmXco
+//PcHm5LysaxUSsqphdN2+1+PY/+MCP33W4RX0lY+r3jxWdMhES3du8hz6vsQhJfb9
+//ofOvU3ca/keAMHbSLKOQjNE8GFiP3tj30dm+FgYJaLUHw7O7NlwlEmCWq3UyR6zO
+//y3R8MXmX8mfaCYzQg/APRIg1dBAhSjGM7pUrTUPXg3jnVVnBWdSqMtn/BxNEeGMi
+//i1bETEpLHvINLFmnIt77OsADEGvd9fuzdjBU+UvMEB0uWoWZQ5iYw2Td0LKwJqbI
+//OwIDAQAB
+//-----END PUBLIC KEY-----`)
+
 var publicKey []byte = []byte(`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyZmShlU8Z8HdG0IWSZ8r
-tSyzyxrXkJjsFUf0Ke7bm/TLtIggRdqOcUF3XEWqQk5RGD5vuq7Rlg1zZqMEBk8N
-EZeRhkxyaZW8pLjxwuBUOnXfJew31+gsTNdKZzRjrvPumKr3EtkleuoxNdoatu4E
-HrKmR/4Yi71EqAvkhk7ZjQFuF0osSWJMEEGGCSUYQnTEqUzcZSh1BhVpkIkeu8Kk
-1wCtptODixvEujgqVe+SrE3UlZjBmPjC/CL+3cYmufpSNgcEJm2mwsdaXp2OPpfn
-a0v85XL6i9ote2P+fLZ3wX9EoioHzgdgB7arOxY50QRJO7OyCqpKFKv6lRWTXuSt
-hwIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszVAB/0WgtXml1iUYhUu
+YFKS8qyJVgic2gMz9PSvXV3pK5/dGecKvnZtojKciHLAHLMkTI/21DviJ54gmXco
+PcHm5LysaxUSsqphdN2+1+PY/+MCP33W4RX0lY+r3jxWdMhES3du8hz6vsQhJfb9
+ofOvU3ca/keAMHbSLKOQjNE8GFiP3tj30dm+FgYJaLUHw7O7NlwlEmCWq3UyR6zO
+y3R8MXmX8mfaCYzQg/APRIg1dBAhSjGM7pUrTUPXg3jnVVnBWdSqMtn/BxNEeGMi
+i1bETEpLHvINLFmnIt77OsADEGvd9fuzdjBU+UvMEB0uWoWZQ5iYw2Td0LKwJqbI
+OwIDAQAB
 -----END PUBLIC KEY-----`)
 
 var LicenseValidator LicenseValidatorIface

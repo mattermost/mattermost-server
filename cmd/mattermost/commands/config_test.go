@@ -444,7 +444,7 @@ func TestConfigShow(t *testing.T) {
 		// Filter out the test headers
 		var filteredOutput []string
 		for _, line := range strings.Split(output, "\n") {
-			if strings.HasPrefix(line, "---") || strings.HasPrefix(line, "===") || strings.HasPrefix(line, "PASS") || strings.HasPrefix(line, "coverage:") {
+			if strings.HasPrefix(line, "---") || strings.HasPrefix(line, "===") || strings.HasPrefix(line, "PASS") || strings.HasPrefix(line, "coverage:") || strings.Contains(line, "Loading environment variable") {
 				continue
 			}
 

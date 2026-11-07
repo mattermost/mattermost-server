@@ -15,6 +15,8 @@ When plugins act as an HTTP server, they serve requests from Mattermost clients 
 
 Since these requests are just HTTP requests, anyone can send them to the plugin. Hence, the plugin must make sure the requests are authentic. The Mattermost Server sets the HTTP header ``Mattermost-User-Id`` when the request is made by an authenticated client. If the plugin is expecting the request to come from an authenticated Mattermost user, and the ``Mattermost-User-Id`` is blank, it's the plugin's responsibility to reject the request.
 
+On a post action request, ``Mattermost-User-Id`` is the user who triggered the action. That user can be a different user than the author of the post.
+
 From Mattermost v9.4, external systems can use the ``Authorization`` header to authenticate with the plugin. HTTP requests to server-side plugins can use an ``Authorization`` header in the request for the plugin to use, and the header value will be present in the request received by the plugin, as long as the token provided in the header is not a user token issued by the Mattermost server. This is useful for connecting external systems that require authentication through an Authorization header with their own token.
 
 ## How should plugins handle request cancellation?

@@ -325,7 +325,7 @@ Display helpful text when users hover over the button. Available in Mattermost v
 The actions are backed by an integration that handles HTTP POST requests when users select the message button. The URL parameter determines where this action is sent. The request contains an `application/json` JSON string. As of 5.14, relative URLs are accepted, simplifying the workflow when a plugin handles the action.
 
 **Context**<br/>
-The requests sent to the specified URL contain the user ID, post ID, channel ID, team ID, and any context that was provided in the action definition. If the post was of type `Message Menus`, then context also contains the `selected_option` field with the user-selected option value. The post ID can be used to, for example, delete or edit the post after selecting a message button.
+The requests sent to the specified URL contain the user ID, post ID, channel ID, team ID, and any context that was provided in the action definition. The user ID is the user who triggered the action and can be a different user than the post author. When the action URL is a plugin route, the same user is sent in the ``Mattermost-User-Id`` header. If the post was of type `Message Menus`, then context also contains the `selected_option` field with the user-selected option value. The post ID can be used to, for example, delete or edit the post after selecting a message button.
   
 A simple example of a request is given below:
 

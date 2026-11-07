@@ -78,6 +78,9 @@ database:
   longest_query_duration_seconds: 7.25 # point-in-time; max age of any active query right now
   waiting_for_lock_count: 5 # point-in-time count of backends waiting on a Lock wait_event_type
   posts_dead_tuples: 9 # n_dead_tup for the posts table from pg_stat_user_tables
+  posts_live_tuples: 41 # n_live_tup for the posts table from pg_stat_user_tables; an estimate
+  posts_vacuum_in_progress: true # whether a VACUUM, VACUUM FULL or CLUSTER of posts is running
+  posts_last_vacuum: 2026-07-09T11:12:13Z # last manual vacuum on posts; null if never manually vacuumed (then omitted)
   posts_last_autovacuum: 2026-07-10T12:13:14Z # last autovacuum on posts; null if never autovacuumed (then omitted)
 file_store:
   file_status: OK

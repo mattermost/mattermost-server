@@ -108,6 +108,7 @@ func TestRegistered(t *testing.T) {
 		{"DB_HA_FAILOVER_STORM_RISK", healthcheck.SeverityWarning, healthcheck.VolatilityTopology, "SqlSettings.MaxOpenConns", false},
 		{"DB_POSTGRES_UNSUPPORTED", healthcheck.SeverityWarning, healthcheck.VolatilityStable, "Database.Version", false},
 		{"DB_POOL_SATURATED", healthcheck.SeverityCritical, healthcheck.VolatilityThreshold, "SqlSettings.MaxOpenConns", true},
+		{"DB_POSTS_DEAD_TUPLES", healthcheck.SeverityWarning, healthcheck.VolatilityThreshold, "Database.PostsDeadTuples", false},
 		{"DB_REPLICA_UNUSED", healthcheck.SeverityWarning, healthcheck.VolatilityProbe, "SqlSettings.DataSourceReplicas", false},
 		{"DB_IDLE_EXCEEDS_OPEN", healthcheck.SeverityInfo, healthcheck.VolatilityStable, "SqlSettings.MaxIdleConns", false},
 	}

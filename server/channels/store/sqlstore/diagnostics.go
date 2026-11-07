@@ -160,17 +160,48 @@ WHERE datname = current_database()`
 
 func collectPGStatUserTablesDiagnostics(ctx context.Context, db *sqlx.DB, diagnostics *store.DatabaseDiagnostics) error {
 	var row struct {
-		NDeadTup       int64        `db:"n_dead_tup"`
-		LastAutovacuum sql.NullTime `db:"last_autovacuum"`
+		NDeadTup         int64        `db:"n_dead_tup"`
+		NLiveTup         int64        `db:"n_live_tup"`
+		VacuumInProgress bool         `db:"vacuum_in_progress"`
+		LastVacuum       sql.NullTime `db:"last_vacuum"`
+		LastAutovacuum   sql.NullTime `db:"last_autovacuum"`
 	}
 
+	// A plain VACUUM reports to pg_stat_progress_vacuum and holds ShareUpdateExclusiveLock on the table.
+	// VACUUM FULL and CLUSTER rewrite the table, report to pg_stat_progress_cluster, and hold
+	// AccessExclusiveLock. Both progress views hide relid and command from other roles unless the
+	// caller has pg_read_all_stats, so identify the table through the process's granted relation lock.
 	const query = `
 SELECT
-    n_dead_tup,
-    last_autovacuum
-FROM pg_stat_user_tables
-WHERE lower(relname) = 'posts'
-  AND schemaname = current_schema()
+    stats.n_dead_tup,
+    stats.n_live_tup,
+    EXISTS (
+        SELECT 1
+        FROM (
+            SELECT pid, datid, 'ShareUpdateExclusiveLock' AS lock_mode
+            FROM pg_stat_progress_vacuum
+            UNION ALL
+            SELECT pid, datid, 'AccessExclusiveLock' AS lock_mode
+            FROM pg_stat_progress_cluster
+        ) AS progress
+        JOIN pg_locks AS locks ON
+            locks.pid = progress.pid
+            AND locks.database = progress.datid
+            AND locks.mode = progress.lock_mode
+        WHERE progress.datid = (
+            SELECT oid
+            FROM pg_database
+            WHERE datname = current_database()
+        )
+          AND locks.locktype = 'relation'
+          AND locks.relation = stats.relid
+          AND locks.granted
+    ) AS vacuum_in_progress,
+    stats.last_vacuum,
+    stats.last_autovacuum
+FROM pg_stat_user_tables AS stats
+WHERE lower(stats.relname) = 'posts'
+  AND stats.schemaname = current_schema()
 LIMIT 1`
 
 	if err := db.GetContext(ctx, &row, query); err != nil {
@@ -181,6 +212,12 @@ LIMIT 1`
 	}
 
 	diagnostics.PostsDeadTuples = &row.NDeadTup
+	diagnostics.PostsLiveTuples = &row.NLiveTup
+	diagnostics.PostsVacuumInProgress = &row.VacuumInProgress
+	if row.LastVacuum.Valid {
+		ts := row.LastVacuum.Time.UTC()
+		diagnostics.PostsLastVacuum = &ts
+	}
 	if row.LastAutovacuum.Valid {
 		ts := row.LastAutovacuum.Time.UTC()
 		diagnostics.PostsLastAutovacuum = &ts

@@ -18,6 +18,7 @@ func init() {
 		dbHAFailoverStormRisk,
 		dbPostgresUnsupported,
 		dbPoolSaturated,
+		dbPostsDeadTuples,
 		dbReplicaUnused,
 		dbIdleExceedsOpen,
 	)

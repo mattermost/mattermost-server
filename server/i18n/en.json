@@ -14722,6 +14722,36 @@
     "description": "Health dashboard finding title when the database runs a PostgreSQL version older than Mattermost supports. 'PostgreSQL' is a product name and should not be translated."
   },
   {
+    "id": "health.rule.db_posts_dead_tuples.in_progress",
+    "translation": "PostgreSQL is currently vacuuming the Posts table. Let that vacuum finish before evaluating whether another vacuum is needed.",
+    "description": "Health dashboard status when the PostgreSQL Posts table has many dead tuples but a vacuum is already running. 'PostgreSQL', 'Posts' and 'vacuum' are technical terms and should not be translated."
+  },
+  {
+    "id": "health.rule.db_posts_dead_tuples.message.blocked",
+    "translation": "The Posts table has {{.dead_tuples}} estimated dead tuples ({{.dead_percent}}% of an estimated {{.live_tuples}} live rows), even though it was last vacuumed at {{.last_vacuum}}. Vacuum is running but most likely cannot remove them because something is holding back cleanup, such as a long-running or idle-in-transaction session, an inactive replication slot, or an abandoned prepared transaction. Table and index bloat can degrade query performance and increase disk use.",
+    "description": "Health dashboard finding detail when the PostgreSQL Posts table has many dead tuples although it was vacuumed recently; {{.dead_tuples}}, {{.dead_percent}} and {{.live_tuples}} are numbers, and {{.last_vacuum}} is an RFC 3339 timestamp. 'Posts', 'vacuum' and 'dead tuples' are PostgreSQL technical terms and should not be translated. 'idle-in-transaction', 'replication slot' and 'prepared transaction' are PostgreSQL technical terms and should not be translated."
+  },
+  {
+    "id": "health.rule.db_posts_dead_tuples.message.never",
+    "translation": "The Posts table has {{.dead_tuples}} estimated dead tuples ({{.dead_percent}}% of an estimated {{.live_tuples}} live rows), and PostgreSQL has no record of it being vacuumed since its statistics were last reset. Autovacuum does not appear to be keeping up with this table. Table and index bloat can degrade query performance and increase disk use.",
+    "description": "Health dashboard finding detail when the PostgreSQL Posts table has many dead tuples and has no recorded vacuum; {{.dead_tuples}}, {{.dead_percent}} and {{.live_tuples}} are numbers. 'Posts', 'vacuum' and 'dead tuples' are PostgreSQL technical terms and should not be translated. 'Autovacuum' is a PostgreSQL technical term and should not be translated."
+  },
+  {
+    "id": "health.rule.db_posts_dead_tuples.message.stale",
+    "translation": "The Posts table has {{.dead_tuples}} estimated dead tuples ({{.dead_percent}}% of an estimated {{.live_tuples}} live rows), and its most recent vacuum was {{.age_days}} days ago at {{.last_vacuum}}. Autovacuum does not appear to be keeping up with this table. Table and index bloat can degrade query performance and increase disk use.",
+    "description": "Health dashboard finding detail when the PostgreSQL Posts table has many dead tuples and has not been vacuumed recently; {{.dead_tuples}}, {{.dead_percent}}, {{.live_tuples}} and {{.age_days}} are numbers, and {{.last_vacuum}} is an RFC 3339 timestamp. 'Posts', 'vacuum' and 'dead tuples' are PostgreSQL technical terms and should not be translated. 'Autovacuum' is a PostgreSQL technical term and should not be translated."
+  },
+  {
+    "id": "health.rule.db_posts_dead_tuples.remediation",
+    "translation": "If pg_stat_progress_vacuum shows a vacuum running on Posts, let it finish, since starting a manual VACUUM cancels it. If Posts was vacuumed recently, find what is holding back cleanup and end or remove it: long-running or idle-in-transaction sessions in pg_stat_activity, inactive replication slots in pg_replication_slots, and old prepared transactions in pg_prepared_xacts. The next vacuum can then remove the dead tuples. If Posts has not been vacuumed recently, verify autovacuum is enabled globally and for Posts, and check PostgreSQL logs for canceled autovacuum jobs. If autovacuum cannot keep up, lower autovacuum_vacuum_scale_factor for Posts and raise autovacuum_vacuum_cost_limit and autovacuum_work_mem as capacity allows, then schedule a targeted VACUUM (ANALYZE) on Posts during low traffic. Avoid VACUUM FULL unless you plan for its exclusive lock and extra disk space; if available, pg_repack is a lower-lock alternative.",
+    "description": "Health dashboard fix-it step when the PostgreSQL Posts table has many dead tuples, covering both a vacuum that cannot remove them and a vacuum that has not run recently. 'pg_stat_progress_vacuum', 'pg_stat_activity', 'pg_replication_slots', 'pg_prepared_xacts', 'Posts', 'PostgreSQL', 'VACUUM', 'idle-in-transaction', 'autovacuum', 'autovacuum_vacuum_scale_factor', 'autovacuum_vacuum_cost_limit', 'autovacuum_work_mem', 'VACUUM (ANALYZE)', 'VACUUM FULL' and 'pg_repack' are technical terms and should not be translated."
+  },
+  {
+    "id": "health.rule.db_posts_dead_tuples.title",
+    "translation": "Posts table has many dead tuples",
+    "description": "Health dashboard finding title when the PostgreSQL Posts table has many dead tuples that vacuum has not removed. 'Posts' and 'dead tuples' are PostgreSQL technical terms and should not be translated."
+  },
+  {
     "id": "health.rule.db_query_timeout_high.message",
     "translation": "QueryTimeout is set to {{.timeout}} seconds. Long timeouts let runaway queries hold locks for the full duration, blocking autovacuum, schema migrations, and writers behind the same row. This compounds risk on busy databases without read replicas.",
     "description": "Health dashboard finding detail when the database query timeout is high; {{.timeout}} is a number of seconds. 'QueryTimeout' is a setting name and 'autovacuum' is a PostgreSQL process; do not translate them."

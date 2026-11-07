@@ -59,6 +59,11 @@ database:
   replica_connections_closed_max_idle: 0 # cumulative across all replicas
   replica_connections_closed_max_lifetime: 0 # cumulative across all replicas
   replicas_online: 0
+  posts_dead_tuples: 120000
+  posts_live_tuples: 184201
+  posts_vacuum_in_progress: false
+  posts_last_vacuum: 2026-09-10T10:00:00Z
+  posts_last_autovacuum: 2026-09-01T10:00:00Z
 file_store:
   file_status: OK
   file_driver: local

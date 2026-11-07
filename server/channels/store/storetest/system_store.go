@@ -4,6 +4,7 @@
 package storetest
 
 import (
+	"strconv"
 	"sync"
 	"testing"
 
@@ -23,6 +24,71 @@ func TestSystemStore(t *testing.T, rctx request.CTX, ss store.Store) {
 		testInsertIfExists(t, rctx, ss)
 	})
 	t.Run("GetByNameNoEntries", func(t *testing.T) { testSystemStoreGetByNameNoEntries(t, rctx, ss) })
+	t.Run("TryClaimIfOlderThan", func(t *testing.T) { testSystemStoreTryClaimIfOlderThan(t, rctx, ss) })
+	t.Run("DeleteIfValueEquals", func(t *testing.T) { testSystemStoreDeleteIfValueEquals(t, rctx, ss) })
+}
+
+func testSystemStoreTryClaimIfOlderThan(t *testing.T, rctx request.CTX, ss store.Store) {
+	name := model.NewId()
+
+	// Real millisecond timestamps throughout, as every production caller
+	// provides -- the WHERE clause compares the stored value against
+	// (now - minAgeMillis), so an unrealistic tiny literal like "1" would
+	// always read as "ancient" and defeat the cooldown check being tested
+	// here regardless of minAgeMillis.
+	firstValue := strconv.FormatInt(model.GetMillis(), 10)
+	claimed, err := ss.System().TryClaimIfOlderThan(name, firstValue, 60000)
+	require.NoError(t, err)
+	assert.True(t, claimed, "an absent row must always be claimable")
+
+	secondValue := strconv.FormatInt(model.GetMillis(), 10)
+	claimed, err = ss.System().TryClaimIfOlderThan(name, secondValue, 60000)
+	require.NoError(t, err)
+	assert.False(t, claimed, "a fresh claim must refuse a second claim within the cooldown")
+
+	got, err := ss.System().GetByName(name)
+	require.NoError(t, err)
+	assert.Equal(t, firstValue, got.Value, "a refused claim must not overwrite the winning claim's value")
+
+	// Backdate the row past the cooldown window directly, then confirm a new
+	// claim is allowed and does overwrite the value.
+	require.NoError(t, ss.System().Update(&model.System{Name: name, Value: "0"}))
+	thirdValue := strconv.FormatInt(model.GetMillis(), 10)
+	claimed, err = ss.System().TryClaimIfOlderThan(name, thirdValue, 60000)
+	require.NoError(t, err)
+	assert.True(t, claimed, "a claim older than the cooldown must be claimable again")
+
+	got, err = ss.System().GetByName(name)
+	require.NoError(t, err)
+	assert.Equal(t, thirdValue, got.Value)
+
+	t.Run("a malformed marker is treated as expired, not a permanent error", func(t *testing.T) {
+		malformed := model.NewId()
+		require.NoError(t, ss.System().Save(&model.System{Name: malformed, Value: "not-a-number"}))
+
+		claimed, err := ss.System().TryClaimIfOlderThan(malformed, "1", 60000)
+		require.NoError(t, err, "a non-numeric existing value must not make the claim error out")
+		assert.True(t, claimed, "a malformed marker must be treated as old enough to claim, matching the pre-atomic-claim ParseInt-failure behavior")
+	})
+}
+
+func testSystemStoreDeleteIfValueEquals(t *testing.T, rctx request.CTX, ss store.Store) {
+	name := model.NewId()
+	require.NoError(t, ss.System().Save(&model.System{Name: name, Value: "original"}))
+
+	deleted, err := ss.System().DeleteIfValueEquals(name, "not-the-current-value")
+	require.NoError(t, err)
+	assert.False(t, deleted, "a mismatched expected value must not delete anything")
+
+	_, err = ss.System().GetByName(name)
+	assert.NoError(t, err, "the row must still be there after a refused delete")
+
+	deleted, err = ss.System().DeleteIfValueEquals(name, "original")
+	require.NoError(t, err)
+	assert.True(t, deleted)
+
+	_, err = ss.System().GetByName(name)
+	assert.Error(t, err, "the row must be gone after a matched delete")
 }
 
 func testSystemStore(t *testing.T, rctx request.CTX, ss store.Store) {

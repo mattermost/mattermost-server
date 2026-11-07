@@ -41,6 +41,17 @@ type Props = {
     ordered?: boolean;
 
     disabled?: boolean;
+
+    // The persisted linked channel field's ID (undefined in create mode) and
+    // the attribute's display name, forwarded to the Required toggle's
+    // missing-values banner (MM-70717).
+    channelFieldId?: string;
+    attributeDisplayName?: string;
+
+    // The persisted channel field's update_at. A host that stays on the page
+    // after Save changes it, which refetches the saved Required state and
+    // the missing-values count.
+    channelFieldUpdateAt?: number;
 };
 
 /**
@@ -49,7 +60,7 @@ type Props = {
  * Global Attributes owns the real "Applies to" card, which does not exist yet.
  * Delete this file when it lands; ChannelsResourceRow is the part that survives.
  */
-const AppliesToCard = ({channelResource, onChannelResourceChange, onChannelResourceRemove, readOnlyResources = [], ordered, disabled}: Props) => {
+const AppliesToCard = ({channelResource, onChannelResourceChange, onChannelResourceRemove, readOnlyResources = [], ordered, disabled, channelFieldId, attributeDisplayName, channelFieldUpdateAt}: Props) => {
     return (
         <AdminPanel
             id='applies_to'
@@ -84,6 +95,9 @@ const AppliesToCard = ({channelResource, onChannelResourceChange, onChannelResou
                         onRemove={onChannelResourceRemove ?? (() => onChannelResourceChange(null))}
                         ordered={ordered}
                         disabled={disabled}
+                        channelFieldId={channelFieldId}
+                        attributeDisplayName={attributeDisplayName}
+                        channelFieldUpdateAt={channelFieldUpdateAt}
                     />
                 </div>
             )}

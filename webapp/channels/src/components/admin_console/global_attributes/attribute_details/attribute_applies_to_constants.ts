@@ -73,6 +73,11 @@ export type AttributeAppliesToChannelItemProps = AttributeAppliesToItemProps & {
     // Whether the attribute is rank-typed, which is what makes the directional
     // change policies meaningful.
     ordered?: boolean;
+
+    // The persisted linked channel field's ID, for the Required toggle's
+    // missing-values banner (MM-70717). Undefined in create mode.
+    channelFieldId?: string;
+    attributeDisplayName?: string;
 };
 
 // Shared between AttributeAppliesTo (which owns the button) and AttributeDetails

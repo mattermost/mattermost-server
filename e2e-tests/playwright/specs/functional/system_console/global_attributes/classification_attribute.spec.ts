@@ -118,7 +118,7 @@ test.describe(
             await pw.ensureFeatureFlag(FEATURE_FLAGS);
             const {adminUser, adminClient} = await requireGlobalAttributesEnabled(pw);
 
-            const {levels} = await setupClassificationWithChannelField(adminClient);
+            await setupClassificationWithChannelField(adminClient);
             const {team} = await pw.initSetup();
 
             const {channelsPage} = await pw.testBrowser.login(adminUser);
@@ -126,30 +126,42 @@ test.describe(
             await channelsPage.toBeVisible();
 
             // * Optional attributes are not asked for at creation, so Create is free
-            let modal = await channelsPage.openNewChannelModal();
+            const modal = await channelsPage.openNewChannelModal();
             await modal.fillDisplayName(`Optional Classification ${pw.random.id()}`);
             await expect(channelsPage.page.getByTestId('channelAttribute-classification')).toHaveCount(0);
             await expect(modal.createButton).toBeEnabled();
             await modal.cancel();
+        });
 
-            // # Mark it required on its attribute page
-            const {systemConsolePage} = await pw.testBrowser.login(adminUser);
-            await systemConsolePage.globalAttributes.gotoClassificationAttribute();
-            await systemConsolePage.globalAttributes.appliesToChannels.setRequired(true);
-            await systemConsolePage.globalAttributes.saveInPlace();
+        /**
+         * @objective Verify a channel classification field already marked required
+         * demands a level before Create is enabled. The console toggle flow itself is
+         * covered by required_gate.spec.ts.
+         *
+         * The helper creates the field optional, backfills every active channel with a
+         * level, then PATCHes it to required. The server rejects that transition while
+         * any active channel lacks a value, so the backfill is what lets it through on a
+         * shared e2e server.
+         */
+        test('demands a classification level at creation once the field is required', async ({pw}) => {
+            await pw.ensureFeatureFlag(FEATURE_FLAGS);
+            const {adminUser, adminClient} = await requireGlobalAttributesEnabled(pw);
 
-            const asAdmin = await pw.testBrowser.login(adminUser);
-            await asAdmin.channelsPage.goto(team.name);
-            await asAdmin.channelsPage.toBeVisible();
+            const {levels} = await setupClassificationWithChannelField(adminClient, undefined, true);
+            const {team} = await pw.initSetup();
 
-            modal = await asAdmin.channelsPage.openNewChannelModal();
+            const {channelsPage} = await pw.testBrowser.login(adminUser);
+            await channelsPage.goto(team.name);
+            await channelsPage.toBeVisible();
+
+            const modal = await channelsPage.openNewChannelModal();
             await modal.fillDisplayName(`Required Classification ${pw.random.id()}`);
 
             // * Now it is asked for, and holds up Create until a level is chosen
-            await expect(asAdmin.channelsPage.page.getByTestId('channelAttribute-classification')).toBeVisible();
+            await expect(channelsPage.page.getByTestId('channelAttribute-classification')).toBeVisible();
             await expect(modal.createButton).toBeDisabled();
-            await asAdmin.channelsPage.page.getByTestId('channelAttribute-classification').click();
-            await asAdmin.channelsPage.page.getByText(levels[0].name, {exact: true}).click();
+            await channelsPage.page.getByTestId('channelAttribute-classification').click();
+            await channelsPage.page.getByText(levels[0].name, {exact: true}).click();
             await expect(modal.createButton).toBeEnabled();
         });
 
@@ -242,6 +254,44 @@ test.describe(
             await expect(page.getByTestId('saveSetting')).toBeDisabled();
 
             expect(await findChannelField(adminClient, 'classification')).toBeUndefined();
+        });
+
+        /**
+         * @objective Verify the missing-values banner and the notify preview call the
+         * attribute Classification, as the page does, rather than "this attribute" or
+         * its internal name.
+         */
+        test('names Classification in the missing-values banner and the notify preview', async ({pw}) => {
+            await pw.ensureFeatureFlag(FEATURE_FLAGS);
+            const {adminUser, adminClient} = await requireGlobalAttributesEnabled(pw);
+
+            await setupClassificationWithChannelField(adminClient);
+            const {team} = await pw.initSetup();
+
+            // A channel with no classification, so the banner has something to count.
+            await adminClient.createChannel({
+                team_id: team.id,
+                name: `classification-missing-${pw.random.id()}`,
+                display_name: 'Classification Missing',
+                type: 'O',
+            } as Parameters<typeof adminClient.createChannel>[0]);
+
+            const {systemConsolePage} = await pw.testBrowser.login(adminUser);
+            const {globalAttributes} = systemConsolePage;
+            const {appliesToChannels} = globalAttributes;
+
+            await globalAttributes.gotoClassificationAttribute();
+
+            // * The banner names Classification
+            await expect(appliesToChannels.missingValuesBanner).toContainText('a Classification value');
+            await expect(appliesToChannels.missingValuesBanner).not.toContainText('this attribute');
+
+            // * So does the notify preview, formatted rather than as markdown
+            const modal = await appliesToChannels.openNotifyChannelAdminsModal();
+            await expect(modal.container).toContainText('a Classification value');
+            await expect(modal.messagePreview.locator('strong')).toHaveText('Classification');
+            await expect(modal.messagePreview).not.toContainText('**');
+            await modal.cancel();
         });
     },
 );

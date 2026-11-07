@@ -64,6 +64,7 @@ import SwitchProductMenu from './channels/switch_product_menu';
 import TeamMenu from './channels/team_menu';
 import TeamSettingsModal from './channels/team_settings/team_settings_modal';
 import ThreadFooter from './channels/thread_footer';
+import UnarchiveChannelModal from './channels/unarchive_channel_modal';
 import UserProfilePopover from './channels/user_profile_popover';
 import WysiwygEditor from './channels/wysiwyg_editor';
 // Burn-on-Read Components
@@ -158,6 +159,7 @@ const components = {
     TeamMenu,
     TeamSettingsModal,
     ThreadFooter,
+    UnarchiveChannelModal,
     UserProfilePopover,
     WysiwygEditor,
 
@@ -255,6 +257,7 @@ export {
     TeamMenu,
     TeamSettingsModal,
     ThreadFooter,
+    UnarchiveChannelModal,
     UserProfilePopover,
     WysiwygEditor,
 

@@ -1390,6 +1390,29 @@ func (s SqlChannelStore) GetAllChannelsCount(opts store.ChannelSearchOpts) (int6
 	return count, nil
 }
 
+// channelMissingPropertyValueFilter LEFT JOINs PropertyValues (aliased pv)
+// against a "c"-aliased Channels query and restricts to channels with no
+// value or a normalized-empty jsonb value (null/""/[]), matching
+// model.IsEmptyPropertyValue. Shared by every "channel missing a required
+// attribute value" query so the definition of "missing" can't drift between
+// them. DeleteAt is checked in the ON clause (not WHERE) so the LEFT JOIN
+// semantics are preserved and the idx_propertyvalues_unique partial index can
+// cover the probe.
+func channelMissingPropertyValueFilter(query sq.SelectBuilder, groupID, fieldID string) sq.SelectBuilder {
+	return query.
+		LeftJoin(`PropertyValues AS pv
+			ON pv.TargetId = c.Id
+		   AND pv.TargetType = ?
+		   AND pv.GroupId = ?
+		   AND pv.FieldId = ?
+		   AND pv.DeleteAt = 0`,
+			model.PropertyValueTargetTypeChannel, groupID, fieldID).
+		Where(sq.Or{
+			sq.Expr("pv.Id IS NULL"),
+			sq.Expr(`pv.Value IN ('null'::jsonb, '""'::jsonb, '[]'::jsonb)`),
+		})
+}
+
 func (s SqlChannelStore) getAllChannelsQuery(opts store.ChannelSearchOpts, forCount bool) sq.SelectBuilder {
 	var selectQuery sq.SelectBuilder
 	if forCount {
@@ -1413,12 +1436,31 @@ func (s SqlChannelStore) getAllChannelsQuery(opts store.ChannelSearchOpts, forCo
 		From("Channels AS c").
 		Where(sq.Eq{"c.Type": []model.ChannelType{model.ChannelTypePrivate, model.ChannelTypeOpen}})
 
-	if !forCount {
+	missingPropertyValueFilter := opts.MissingPropertyValueFieldID != "" && opts.MissingPropertyValueGroupID != ""
+
+	// The count skips the Teams join for every other caller; the missing-value
+	// filter keeps it so its count agrees with the list it paginates and with
+	// the other missing-value queries.
+	if !forCount || missingPropertyValueFilter {
 		query = query.Join("Teams ON Teams.Id = c.TeamId")
 	}
 
 	if !opts.IncludeDeleted {
 		query = query.Where(sq.Eq{"c.DeleteAt": int(0)})
+	}
+
+	if opts.ExcludeRemote {
+		// local channels either have a SharedChannels record with home set to
+		// true, or don't have a SharedChannels record at all
+		query = query.LeftJoin("SharedChannels ON c.Id = SharedChannels.ChannelId").
+			Where(sq.Or{
+				sq.Eq{"SharedChannels.Home": true},
+				sq.Eq{"SharedChannels.ChannelId": nil},
+			})
+	}
+
+	if missingPropertyValueFilter {
+		query = channelMissingPropertyValueFilter(query, opts.MissingPropertyValueGroupID, opts.MissingPropertyValueFieldID)
 	}
 
 	if opts.NotAssociatedToGroup != "" {
@@ -4097,6 +4139,160 @@ func (s SqlChannelStore) GetMembersInfoByChannelIds(channelIDs []string) (map[st
 	}
 
 	return userInfo, nil
+}
+
+func (s SqlChannelStore) GetChannelAdminsInfoByChannelIds(channelIDs []string) (map[string][]*model.User, error) {
+	if len(channelIDs) == 0 {
+		return map[string][]*model.User{}, nil
+	}
+
+	query := s.getQueryBuilder().
+		Select("cm.ChannelId, u.Id, u.Username, u.FirstName, u.LastName, u.Nickname").
+		From("ChannelMembers AS cm").
+		Join("Users AS u ON u.Id = cm.UserId").
+		LeftJoin("Bots AS b ON b.UserId = u.Id").
+		Where(sq.Eq{"cm.ChannelId": channelIDs}).
+		Where(sq.Eq{"cm.SchemeAdmin": true}).
+		Where(sq.Eq{"u.DeleteAt": 0}).
+		Where(sq.Expr("b.UserId IS NULL"))
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, errors.Wrap(err, "GetChannelAdminsInfoByChannelIds_ToSql")
+	}
+
+	res := []*struct {
+		model.User
+		ChannelId string
+	}{}
+	if err := s.GetReplica().Select(&res, sql, args...); err != nil {
+		return nil, errors.Wrap(err, "failed to find channel admins")
+	}
+
+	// An empty result is a legitimate answer -- some or all of the requested
+	// channels may have no channel admin -- not an error.
+	admins := make(map[string][]*model.User)
+	for _, item := range res {
+		admins[item.ChannelId] = append(admins[item.ChannelId], &item.User)
+	}
+
+	return admins, nil
+}
+
+func (s SqlChannelStore) GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID string, limit, offset int) ([]*model.ChannelAttributeAdminAssignment, error) {
+	query := s.getQueryBuilder().
+		Select("cm.UserId, u.Username, u.Locale, c.Id AS ChannelId, c.Name AS ChannelName, c.DisplayName AS ChannelDisplayName, c.TeamId, t.Name AS TeamName").
+		From("Channels AS c").
+		Join("ChannelMembers AS cm ON cm.ChannelId = c.Id AND cm.SchemeAdmin = true").
+		Join("Users AS u ON u.Id = cm.UserId AND u.DeleteAt = 0").
+		Join("Teams AS t ON t.Id = c.TeamId").
+		LeftJoin("Bots AS b ON b.UserId = u.Id").
+		LeftJoin("SharedChannels ON c.Id = SharedChannels.ChannelId").
+		Where(sq.Eq{"c.DeleteAt": 0}).
+		Where(sq.Eq{"c.Type": []model.ChannelType{model.ChannelTypePrivate, model.ChannelTypeOpen}}).
+		Where(sq.Or{
+			sq.Eq{"SharedChannels.Home": true},
+			sq.Eq{"SharedChannels.ChannelId": nil},
+		}).
+		Where(sq.Expr("b.UserId IS NULL")).
+		// A stable, total order is required for offset pagination to make
+		// sense across calls -- otherwise two pages could overlap or skip
+		// rows the way an unordered query's page boundaries would.
+		// DisplayName alone is not unique, so ties on it can land on either
+		// side of an OFFSET boundary from one call to the next; c.Id breaks
+		// the tie deterministically.
+		OrderBy("cm.UserId, c.DisplayName, c.Id").
+		Limit(uint64(limit)).
+		Offset(uint64(offset))
+
+	// An empty fieldID is "create mode": the attribute has no ID yet, so every
+	// active, local channel counts (nothing can have a value for a field that
+	// doesn't exist). Otherwise, restrict to channels missing a value for it.
+	if fieldID != "" {
+		query = channelMissingPropertyValueFilter(query, groupID, fieldID)
+	}
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, errors.Wrap(err, "GetChannelAdminsForChannelsMissingPropertyValue_ToSql")
+	}
+
+	var rows []*model.ChannelAttributeAdminAssignment
+	if err := s.GetReplica().Select(&rows, sql, args...); err != nil {
+		return nil, errors.Wrap(err, "failed to find channel admin assignments for channels missing a property value")
+	}
+
+	return rows, nil
+}
+
+func (s SqlChannelStore) CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID, fieldID string) (int64, int64, error) {
+	query := s.getQueryBuilder().
+		Select("COUNT(DISTINCT cm.UserId) AS UniqueAdminCount, COUNT(DISTINCT c.Id) AS ChannelsWithAdminCount").
+		From("Channels AS c").
+		Join("ChannelMembers AS cm ON cm.ChannelId = c.Id AND cm.SchemeAdmin = true").
+		Join("Users AS u ON u.Id = cm.UserId AND u.DeleteAt = 0").
+		Join("Teams AS t ON t.Id = c.TeamId").
+		LeftJoin("Bots AS b ON b.UserId = u.Id").
+		LeftJoin("SharedChannels ON c.Id = SharedChannels.ChannelId").
+		Where(sq.Eq{"c.DeleteAt": 0}).
+		Where(sq.Eq{"c.Type": []model.ChannelType{model.ChannelTypePrivate, model.ChannelTypeOpen}}).
+		Where(sq.Or{
+			sq.Eq{"SharedChannels.Home": true},
+			sq.Eq{"SharedChannels.ChannelId": nil},
+		}).
+		Where(sq.Expr("b.UserId IS NULL"))
+
+	// An empty fieldID is "create mode" -- see the identical comment in
+	// GetChannelAdminsForChannelsMissingPropertyValue.
+	if fieldID != "" {
+		query = channelMissingPropertyValueFilter(query, groupID, fieldID)
+	}
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "CountChannelAdminAssignmentsForChannelsMissingPropertyValue_ToSql")
+	}
+
+	var result struct {
+		UniqueAdminCount       int64
+		ChannelsWithAdminCount int64
+	}
+	if err := s.GetReplica().Get(&result, sql, args...); err != nil {
+		return 0, 0, errors.Wrap(err, "failed to count channel admin assignments for channels missing a property value")
+	}
+
+	return result.UniqueAdminCount, result.ChannelsWithAdminCount, nil
+}
+
+func (s SqlChannelStore) ExistsChannelMissingPropertyValue(groupID, fieldID string) (bool, error) {
+	// Deliberately not reusing getAllChannelsQuery(opts, true): forCount=true
+	// still evaluates count(c.Id) over every matching row, so a LIMIT 1 on top
+	// of it would not short-circuit. This selects a single lightweight column
+	// so the planner can stop at the first match.
+	inner := s.getQueryBuilder().
+		Select("1").
+		From("Channels AS c").
+		Join("Teams ON Teams.Id = c.TeamId").
+		LeftJoin("SharedChannels ON c.Id = SharedChannels.ChannelId").
+		Where(sq.Eq{"c.DeleteAt": 0}).
+		Where(sq.Eq{"c.Type": []model.ChannelType{model.ChannelTypePrivate, model.ChannelTypeOpen}}).
+		Where(sq.Or{
+			sq.Eq{"SharedChannels.Home": true},
+			sq.Eq{"SharedChannels.ChannelId": nil},
+		})
+	inner = channelMissingPropertyValueFilter(inner, groupID, fieldID).Limit(1)
+
+	sql, args, err := inner.ToSql()
+	if err != nil {
+		return false, errors.Wrap(err, "ExistsChannelMissingPropertyValue_ToSql")
+	}
+
+	var exists bool
+	if err := s.GetReplica().Get(&exists, "SELECT EXISTS ("+sql+")", args...); err != nil {
+		return false, errors.Wrap(err, "failed to check for channels missing a property value")
+	}
+
+	return exists, nil
 }
 
 func (s SqlChannelStore) GetChannelsByScheme(schemeId string, offset int, limit int) (model.ChannelList, error) {

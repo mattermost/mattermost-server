@@ -18,10 +18,13 @@ import {
     deleteAttributeField,
     deleteLinkedAttributeField,
     fetchAttributeField,
+    fetchChannelsMissingValue,
+    fetchChannelsMissingValueSummary,
     fetchLinkedFieldsForTemplate,
     findNameConflicts,
     isAttributeFieldType,
     linkedFieldsByResourceType,
+    notifyChannelAdminsOfMissingValue,
     syncUserAttributeFieldDelete,
     syncUserAttributeFieldUpsert,
     updateAttributeField,
@@ -745,6 +748,72 @@ describe('global_attributes/utils', () => {
             expect(byType.user?.id).toBe('u1');
             expect(byType.channel?.id).toBe('c1');
             expect(byType.post).toBeUndefined();
+        });
+    });
+
+    // MM-70717
+    describe('fetchChannelsMissingValueSummary', () => {
+        it('passes the access_control group and the given field id through to Client4', async () => {
+            const getSummary = jest.spyOn(Client4, 'getChannelAttributeComplianceSummary').mockResolvedValue({
+                required: false,
+                missing_channel_count: 0,
+                shared_channel_count: 0,
+                unique_admin_count: 0,
+                channels_without_admin_count: 0,
+                message_preview: '',
+            });
+
+            await fetchChannelsMissingValueSummary('field1');
+
+            expect(getSummary).toHaveBeenCalledWith('access_control', 'field1');
+        });
+
+        it('passes fieldId through as undefined in create mode', async () => {
+            const getSummary = jest.spyOn(Client4, 'getChannelAttributeComplianceSummary').mockResolvedValue({
+                required: false,
+                missing_channel_count: 0,
+                shared_channel_count: 0,
+                unique_admin_count: 0,
+                channels_without_admin_count: 0,
+                message_preview: '',
+            });
+
+            await fetchChannelsMissingValueSummary(undefined);
+
+            expect(getSummary).toHaveBeenCalledWith('access_control', undefined);
+        });
+    });
+
+    describe('fetchChannelsMissingValue', () => {
+        it('passes the group, field id, page and per_page through to Client4', async () => {
+            const getChannels = jest.spyOn(Client4, 'getChannelsMissingAttributeValue').mockResolvedValue({channels: [], total_count: 0});
+
+            await fetchChannelsMissingValue('field1', 2, 20);
+
+            expect(getChannels).toHaveBeenCalledWith('access_control', 'field1', 2, 20);
+        });
+
+        it('defaults per_page when not given', async () => {
+            const getChannels = jest.spyOn(Client4, 'getChannelsMissingAttributeValue').mockResolvedValue({channels: [], total_count: 0});
+
+            await fetchChannelsMissingValue('field1', 0);
+
+            expect(getChannels).toHaveBeenCalledWith('access_control', 'field1', 0, expect.any(Number));
+        });
+    });
+
+    describe('notifyChannelAdminsOfMissingValue', () => {
+        it('passes the access_control group and field id through to Client4', async () => {
+            const notify = jest.spyOn(Client4, 'notifyChannelAdminsOfMissingAttributeValue').mockResolvedValue({
+                queued_admin_count: 0,
+                queued_channel_count: 0,
+                channels_without_admin_count: 0,
+                truncated: false,
+            });
+
+            await notifyChannelAdminsOfMissingValue('field1');
+
+            expect(notify).toHaveBeenCalledWith('access_control', 'field1');
         });
     });
 

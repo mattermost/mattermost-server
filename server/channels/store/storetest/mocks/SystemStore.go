@@ -15,6 +15,34 @@ type SystemStore struct {
 	mock.Mock
 }
 
+// DeleteIfValueEquals provides a mock function with given fields: name, expectedValue
+func (_m *SystemStore) DeleteIfValueEquals(name string, expectedValue string) (bool, error) {
+	ret := _m.Called(name, expectedValue)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteIfValueEquals")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (bool, error)); ok {
+		return rf(name, expectedValue)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
+		r0 = rf(name, expectedValue)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(name, expectedValue)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Get provides a mock function with no fields
 func (_m *SystemStore) Get() (model.StringMap, error) {
 	ret := _m.Called()
@@ -229,6 +257,34 @@ func (_m *SystemStore) SaveOrUpdate(system *model.System) error {
 	}
 
 	return r0
+}
+
+// TryClaimIfOlderThan provides a mock function with given fields: name, value, minAgeMillis
+func (_m *SystemStore) TryClaimIfOlderThan(name string, value string, minAgeMillis int64) (bool, error) {
+	ret := _m.Called(name, value, minAgeMillis)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TryClaimIfOlderThan")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, int64) (bool, error)); ok {
+		return rf(name, value, minAgeMillis)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, int64) bool); ok {
+		r0 = rf(name, value, minAgeMillis)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, int64) error); ok {
+		r1 = rf(name, value, minAgeMillis)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Update provides a mock function with given fields: system

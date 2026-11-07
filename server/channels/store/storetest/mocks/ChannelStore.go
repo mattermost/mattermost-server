@@ -268,6 +268,41 @@ func (_m *ChannelStore) ClearSidebarOnTeamLeave(userID string, teamID string) er
 	return r0
 }
 
+// CountChannelAdminAssignmentsForChannelsMissingPropertyValue provides a mock function with given fields: groupID, fieldID
+func (_m *ChannelStore) CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID string, fieldID string) (int64, int64, error) {
+	ret := _m.Called(groupID, fieldID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CountChannelAdminAssignmentsForChannelsMissingPropertyValue")
+	}
+
+	var r0 int64
+	var r1 int64
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, string) (int64, int64, error)); ok {
+		return rf(groupID, fieldID)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) int64); ok {
+		r0 = rf(groupID, fieldID)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) int64); ok {
+		r1 = rf(groupID, fieldID)
+	} else {
+		r1 = ret.Get(1).(int64)
+	}
+
+	if rf, ok := ret.Get(2).(func(string, string) error); ok {
+		r2 = rf(groupID, fieldID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // CountPostsAfter provides a mock function with given fields: channelID, timestamp, excludedUserID
 func (_m *ChannelStore) CountPostsAfter(channelID string, timestamp int64, excludedUserID string) (int, int, error) {
 	ret := _m.Called(channelID, timestamp, excludedUserID)
@@ -498,6 +533,34 @@ func (_m *ChannelStore) DeleteSidebarChannelsByPreferences(preferences model.Pre
 	}
 
 	return r0
+}
+
+// ExistsChannelMissingPropertyValue provides a mock function with given fields: groupID, fieldID
+func (_m *ChannelStore) ExistsChannelMissingPropertyValue(groupID string, fieldID string) (bool, error) {
+	ret := _m.Called(groupID, fieldID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExistsChannelMissingPropertyValue")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (bool, error)); ok {
+		return rf(groupID, fieldID)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
+		r0 = rf(groupID, fieldID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(groupID, fieldID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Get provides a mock function with given fields: id, allowFromCache
@@ -911,6 +974,66 @@ func (_m *ChannelStore) GetByNamesIncludeDeleted(teamID string, names []string, 
 
 	if rf, ok := ret.Get(1).(func(string, []string, bool) error); ok {
 		r1 = rf(teamID, names, allowFromCache)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetChannelAdminsForChannelsMissingPropertyValue provides a mock function with given fields: groupID, fieldID, limit, offset
+func (_m *ChannelStore) GetChannelAdminsForChannelsMissingPropertyValue(groupID string, fieldID string, limit int, offset int) ([]*model.ChannelAttributeAdminAssignment, error) {
+	ret := _m.Called(groupID, fieldID, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetChannelAdminsForChannelsMissingPropertyValue")
+	}
+
+	var r0 []*model.ChannelAttributeAdminAssignment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, int, int) ([]*model.ChannelAttributeAdminAssignment, error)); ok {
+		return rf(groupID, fieldID, limit, offset)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, int, int) []*model.ChannelAttributeAdminAssignment); ok {
+		r0 = rf(groupID, fieldID, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*model.ChannelAttributeAdminAssignment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, int, int) error); ok {
+		r1 = rf(groupID, fieldID, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetChannelAdminsInfoByChannelIds provides a mock function with given fields: channelIDs
+func (_m *ChannelStore) GetChannelAdminsInfoByChannelIds(channelIDs []string) (map[string][]*model.User, error) {
+	ret := _m.Called(channelIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetChannelAdminsInfoByChannelIds")
+	}
+
+	var r0 map[string][]*model.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func([]string) (map[string][]*model.User, error)); ok {
+		return rf(channelIDs)
+	}
+	if rf, ok := ret.Get(0).(func([]string) map[string][]*model.User); ok {
+		r0 = rf(channelIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string][]*model.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func([]string) error); ok {
+		r1 = rf(channelIDs)
 	} else {
 		r1 = ret.Error(1)
 	}

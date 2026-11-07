@@ -4275,6 +4275,21 @@
     "description": "API error when the JSON patch body for updating a custom property field is invalid; 'patch' is a partial-update noun."
   },
   {
+    "id": "api.property_field.missing_values.legacy_field.app_error",
+    "translation": "Cannot look up compliance data for a v1 property field via this API.",
+    "description": "API error when the System Console asks which channels are missing a value for a channel attribute, but the attribute is a legacy (v1) property field that this compliance lookup does not support."
+  },
+  {
+    "id": "api.property_field.missing_values.no_permission.app_error",
+    "translation": "You do not have permission to view this property field's compliance data.",
+    "description": "API error when a user without permission asks which channels are missing a value for a channel attribute (the list of non-compliant channels and their admins is admin-only)."
+  },
+  {
+    "id": "api.property_field.notify_missing_values.throttled.app_error",
+    "translation": "A reminder was sent for this attribute recently. Please try again later.",
+    "description": "API error when an admin clicks Notify to remind channel admins about a missing channel attribute value, but a reminder for the same attribute was already sent within the cooldown period."
+  },
+  {
     "id": "api.property_field.object_type_mismatch.app_error",
     "translation": "Property field object type does not match URL.",
     "description": "API error when the property field's object type differs from the type segment in the request URL; developer-leaning register."
@@ -4343,6 +4358,11 @@
     "id": "api.property_field.permissions.field_write_none.app_error",
     "translation": "The permissions object must let system administrators edit the field, so its field write level cannot be none.",
     "description": "API error (400) when a request to create or update a custom property field (e.g. a channel attribute) submits permissions whose field write level is none, which would leave no system administrator able to edit or delete the field."
+  },
+  {
+    "id": "api.property_field.required.channels_missing_values.app_error",
+    "translation": "This attribute can't be marked as required yet because some active channels don't have a value for it. Notify the channel admins, then try again.",
+    "description": "API error when an admin tries to mark a channel attribute as Required while some active channels have no value for it; the admin must notify the channel admins and wait for values to be set first."
   },
   {
     "id": "api.property_field.update.no_field_permission.app_error",
@@ -7300,6 +7320,11 @@
     "description": "API error returned when listing the channels that use a given permissions scheme fails; 'scheme' is the permissions-scheme feature term."
   },
   {
+    "id": "app.channel.get_channel_admins.app_error",
+    "translation": "Unable to look up channel admins.",
+    "description": "Server error when looking up the channel admins of channels that are missing a value for a channel attribute fails."
+  },
+  {
     "id": "app.channel.get_channels.get.app_error",
     "translation": "Unable to get the channels.",
     "description": "API error returned when fetching a user's channel list fails due to a server error."
@@ -7490,6 +7515,36 @@
     "description": "Error from the advanced-permissions migration job when reading a batch of channel members from the database fails; visible in the jobs table/logs."
   },
   {
+    "id": "app.channel.missing_property_values.app_error",
+    "translation": "Unable to look up channels missing a value for this attribute.",
+    "description": "Server error when checking whether any active channel is missing a value for a channel attribute fails, e.g. while marking the attribute as Required."
+  },
+  {
+    "id": "app.channel.missing_property_values.count.app_error",
+    "translation": "Unable to count channels missing a value for this attribute.",
+    "description": "Server error when counting the channels that are missing a value for a channel attribute fails."
+  },
+  {
+    "id": "app.channel.missing_property_values.count_all.app_error",
+    "translation": "Unable to count all channels missing a value for this attribute.",
+    "description": "Server error when counting all channels (local and shared) that are missing a value for a channel attribute fails."
+  },
+  {
+    "id": "app.channel.missing_property_values.count_local.app_error",
+    "translation": "Unable to count local channels missing a value for this attribute.",
+    "description": "Server error when counting the local (non-shared) channels that are missing a value for a channel attribute fails."
+  },
+  {
+    "id": "app.channel.missing_property_values.list.app_error",
+    "translation": "Unable to list channels missing a value for this attribute.",
+    "description": "Server error when listing the channels that are missing a value for a channel attribute fails, e.g. in the System Console channel list modal."
+  },
+  {
+    "id": "app.channel.missing_property_values.remote_channels.app_error",
+    "translation": "Unable to look up remote channels missing a value for this attribute.",
+    "description": "Server error when looking up which of the channels missing a value for a channel attribute are shared (remote) channels fails."
+  },
+  {
     "id": "app.channel.move_channel.members_do_not_match.error",
     "translation": "Unable to move a channel unless all its members are already members of the destination team.",
     "description": "API error returned when moving a channel to another team is blocked because some channel members are not members of the destination team."
@@ -7663,6 +7718,41 @@
     "id": "app.channel.user_belongs_to_channels.app_error",
     "translation": "Unable to determine if the user belongs to a list of channels.",
     "description": "API error when checking whether a user is a member of any of a given list of channels fails."
+  },
+  {
+    "id": "app.channel_attributes.notify_assignment_counts.app_error",
+    "translation": "Unable to count the channel admins and channels affected by this attribute.",
+    "description": "Server error when counting the channel admins and channels to notify about a missing channel attribute value fails."
+  },
+  {
+    "id": "app.channel_attributes.notify_assignments.app_error",
+    "translation": "Unable to look up the channel admins to notify about this attribute.",
+    "description": "Server error when looking up which channel admins to send a direct-message reminder to about a missing channel attribute value fails."
+  },
+  {
+    "id": "app.channel_attributes.notify_missing_value.dm",
+    "translation": "You're a channel admin for channels that are missing a required channel attribute.\n\nPlease set **{{.AttributeName}}** in the following channels:\n{{.ChannelList}}",
+    "description": "Direct message from the system bot to a channel admin listing their channels that have no value for a required channel attribute; {{.AttributeName}} is the attribute's name and {{.ChannelList}} is a Markdown bullet list of channel links. Keep the Markdown formatting."
+  },
+  {
+    "id": "app.channel_attributes.notify_missing_value.dm_channel_line",
+    "translation": "\n- [{{.ChannelDisplayName}}]({{.ChannelLink}})",
+    "description": "One Markdown bullet line in the channel-admin reminder direct message, linking to a channel that is missing a channel attribute value; keep the leading newline, the dash and the [text](link) syntax."
+  },
+  {
+    "id": "app.channel_attributes.notify_missing_value.dm_more",
+    "translation": "\n- _and {{.Count}} more channels_",
+    "description": "Last Markdown bullet line in the channel-admin reminder direct message when there are too many channels to list; {{.Count}} is the number of channels not shown. Keep the leading newline, the dash and the underscores (italics)."
+  },
+  {
+    "id": "app.channel_attributes.notify_missing_value.preview",
+    "translation": "Please set a value for **{{.AttributeName}}** on your channels. A system administrator needs every channel to have this attribute before it can be marked Required.",
+    "description": "Preview, shown to the system admin before confirming Notify, of the reminder sent to channel admins about a channel attribute missing a value; {{.AttributeName}} is the attribute's name. Keep the Markdown bold markers."
+  },
+  {
+    "id": "app.channel_attributes.notify_throttle_claim.app_error",
+    "translation": "Unable to claim the notification cooldown for this attribute.",
+    "description": "Server error when reserving the cooldown that prevents reminders about a missing channel attribute value from being sent too often fails."
   },
   {
     "id": "app.channel_guard.invalid_channel.app_error",

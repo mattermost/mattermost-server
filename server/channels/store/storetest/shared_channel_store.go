@@ -31,6 +31,7 @@ func TestSharedChannelStore(t *testing.T, rctx request.CTX, ss store.Store, s Sq
 	t.Run("GetSharedChannelRemotes", func(t *testing.T) { testGetSharedChannelRemotes(t, rctx, ss) })
 	t.Run("GetRemotesStatus", func(t *testing.T) { testGetRemotesStatus(t, rctx, ss) })
 	t.Run("HasRemote", func(t *testing.T) { testHasRemote(t, rctx, ss) })
+	t.Run("GetRemoteChannelIds", func(t *testing.T) { testGetRemoteChannelIds(t, rctx, ss) })
 	t.Run("GetRemoteForUser", func(t *testing.T) { testGetRemoteForUser(t, rctx, ss) })
 	t.Run("UpdateSharedChannelRemoteNextSyncAt", func(t *testing.T) { testUpdateSharedChannelRemoteCursor(t, rctx, ss) })
 	t.Run("UpdateGlobalUserSyncCursor", func(t *testing.T) { testUpdateGlobalUserSyncCursor(t, rctx, ss) })
@@ -182,6 +183,48 @@ func testHasSharedChannel(t *testing.T, rctx request.CTX, ss store.Store) {
 		exists, err := ss.SharedChannel().HasChannel(model.NewId())
 		require.NoError(t, err)
 		assert.False(t, exists)
+	})
+}
+
+// testGetRemoteChannelIds covers SharedChannelStore.GetRemoteChannelIds,
+// added for MM-70717's shared/remote channel exclusion (D7).
+func testGetRemoteChannelIds(t *testing.T, rctx request.CTX, ss store.Store) {
+	homeChannel, err := createTestChannel(ss, rctx, "home_"+model.NewId())
+	require.NoError(t, err)
+	_, err = ss.SharedChannel().Save(&model.SharedChannel{
+		ChannelId: homeChannel.Id,
+		TeamId:    homeChannel.TeamId,
+		CreatorId: model.NewId(),
+		ShareName: "home_share_" + model.NewId(),
+		Home:      true,
+	})
+	require.NoError(t, err)
+
+	remoteChannel, err := createTestChannel(ss, rctx, "remote_"+model.NewId())
+	require.NoError(t, err)
+	_, err = ss.SharedChannel().Save(&model.SharedChannel{
+		ChannelId: remoteChannel.Id,
+		TeamId:    remoteChannel.TeamId,
+		CreatorId: model.NewId(),
+		ShareName: "remote_share_" + model.NewId(),
+		Home:      false,
+		RemoteId:  model.NewId(),
+	})
+	require.NoError(t, err)
+
+	unsharedChannel, err := createTestChannel(ss, rctx, "unshared_"+model.NewId())
+	require.NoError(t, err)
+
+	t.Run("returns only the remote (non-home) channel", func(t *testing.T) {
+		ids, err := ss.SharedChannel().GetRemoteChannelIds([]string{homeChannel.Id, remoteChannel.Id, unsharedChannel.Id})
+		require.NoError(t, err)
+		assert.ElementsMatch(t, []string{remoteChannel.Id}, ids)
+	})
+
+	t.Run("empty input returns no error", func(t *testing.T) {
+		ids, err := ss.SharedChannel().GetRemoteChannelIds([]string{})
+		require.NoError(t, err)
+		assert.Empty(t, ids)
 	})
 }
 

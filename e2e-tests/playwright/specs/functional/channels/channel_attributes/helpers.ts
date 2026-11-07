@@ -44,6 +44,51 @@ export function attributeName(suffix: string, uniqueId: string): string {
     return `${FIELD_PREFIX}_${suffix}_${uniqueId}`.replace(/[^A-Za-z0-9_]/g, '_');
 }
 
+export async function backfillChannelAttribute(
+    adminClient: Client4,
+    field: PropertyField,
+    value: unknown,
+): Promise<void> {
+    const perPage = 200;
+    let page = 0;
+    let visited = 0;
+    const localChannelIDs: string[] = [];
+
+    for (;;) {
+        const result = await adminClient.getChannelsMissingAttributeValue(GROUP, field.id, page, perPage);
+        for (const channel of result.channels) {
+            if (channel.is_local) {
+                localChannelIDs.push(channel.channel_id);
+            }
+        }
+
+        visited += result.channels.length;
+        if (visited >= result.total_count || result.channels.length < perPage) {
+            break;
+        }
+        page++;
+    }
+
+    // Collect every page before writing values. Updating while traversing an
+    // offset-paginated "missing" result would remove rows from earlier pages
+    // and cause later offsets to skip channels.
+    for (const channelID of localChannelIDs) {
+        await setChannelValue(adminClient, channelID, field, value);
+    }
+}
+
+export async function backfillAndRequireChannelAttribute(
+    adminClient: Client4,
+    field: PropertyField,
+    value: unknown,
+): Promise<PropertyField> {
+    await backfillChannelAttribute(adminClient, field, value);
+
+    return adminClient.patchPropertyField(GROUP, 'channel', field.id, {
+        attrs: {...field.attrs, required: true},
+    });
+}
+
 export async function createAttribute(
     adminClient: Client4,
     name: string,
@@ -78,7 +123,8 @@ export async function createAttribute(
             ...(optionColors?.[optionName] ? {color: optionColors[optionName]} : {}),
         }));
     }
-    if (required !== undefined) {
+    const requiresBackfill = objectType === 'channel' && required === true;
+    if (required !== undefined && !requiresBackfill) {
         attrs.required = required;
     }
     if (editable !== undefined) {
@@ -95,7 +141,24 @@ export async function createAttribute(
         field.attrs = attrs;
     }
 
-    return adminClient.createPropertyField(GROUP, objectType, field as Parameters<Client4['createPropertyField']>[2]);
+    const created = await adminClient.createPropertyField(
+        GROUP,
+        objectType,
+        field as Parameters<Client4['createPropertyField']>[2],
+    );
+    if (!requiresBackfill) {
+        return created;
+    }
+
+    const createdOptions = (created.attrs?.options ?? []) as Array<{id: string}>;
+    let backfillValue: unknown = 'e2e backfill';
+    if (created.type === 'select') {
+        backfillValue = createdOptions[0].id;
+    } else if (created.type === 'multiselect') {
+        backfillValue = [createdOptions[0].id];
+    }
+
+    return backfillAndRequireChannelAttribute(adminClient, created, backfillValue);
 }
 
 // Sets up channel state without driving the UI.

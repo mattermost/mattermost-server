@@ -7,7 +7,7 @@ import type {Channel} from '@mattermost/types/channels';
 import type {Group} from '@mattermost/types/groups';
 import type {Scheme} from '@mattermost/types/schemes';
 
-import {renderWithContext, waitFor} from 'tests/react_testing_utils';
+import {renderWithContext, screen, userEvent, waitFor} from 'tests/react_testing_utils';
 import {TestHelper} from 'utils/test_helper';
 
 import ChannelDetails from './channel_details';
@@ -17,6 +17,10 @@ jest.mock('utils/browser_history', () => ({
 }));
 
 jest.mock('./channel_members', () => () => <div>{'ChannelMembers'}</div>);
+
+jest.mock('./channel_attributes_settings', () => (props: {onChange: (values: Record<string, string>) => void}) => (
+    <button onClick={() => props.onChange({field1: 'value1'})}>{'EditChannelAttribute'}</button>
+));
 
 const mockChannelLevelAccessRules = jest.fn();
 jest.mock('./channel_level_access_rules', () => {
@@ -123,6 +127,7 @@ describe('admin_console/team_channel_settings/channel/ChannelDetails', () => {
         searchUsersForExpression: jest.fn().mockResolvedValue({data: {users: [], total: 0}}),
         getChannelMembers: jest.fn().mockResolvedValue({data: []}),
         getProfilesByIds: jest.fn().mockResolvedValue({data: []}),
+        patchChannelAttributeValues: jest.fn().mockResolvedValue({data: []}),
     };
 
     test('should match snapshot', () => {
@@ -290,5 +295,39 @@ describe('admin_console/team_channel_settings/channel/ChannelDetails', () => {
         const calls = mockChannelLevelAccessRules.mock.calls;
         const lastCall = calls[calls.length - 1][0];
         expect(lastCall.userAttributes.map((attr: {name: string}) => attr.name)).not.toContain('network_name');
+    });
+
+    test('stops the save at a failed attribute patch so later steps cannot replace its error', async () => {
+        const patchChannelAttributeValues = jest.fn().mockResolvedValue({error: {message: 'attribute save failed'}});
+        const patchChannel = jest.fn().mockResolvedValue({error: {message: 'channel patch failed'}});
+        const setNavigationBlocked = jest.fn();
+
+        renderWithContext(
+            <ChannelDetails
+                teamScheme={teamScheme}
+                groups={groups}
+                team={team}
+                totalGroups={groups.length}
+                actions={{...actions, patchChannelAttributeValues, patchChannel, setNavigationBlocked}}
+                channel={testChannel}
+                channelID={testChannel.id}
+                allGroups={allGroups}
+                channelPermissions={[]}
+                guestAccountsEnabled={true}
+                channelModerationEnabled={false}
+                channelGroupsEnabled={false}
+                abacSupported={false}
+                channelAttributesEnabled={true}
+                isDisabled={false}
+            />,
+        );
+
+        await userEvent.click(screen.getByRole('button', {name: 'EditChannelAttribute'}));
+        await userEvent.click(screen.getByTestId('saveSetting'));
+
+        await waitFor(() => expect(screen.getByText('attribute save failed')).toBeInTheDocument());
+        expect(patchChannelAttributeValues).toHaveBeenCalledWith(testChannel.id, [{field_id: 'field1', value: 'value1'}]);
+        expect(patchChannel).not.toHaveBeenCalled();
+        expect(setNavigationBlocked).toHaveBeenLastCalledWith(true);
     });
 });

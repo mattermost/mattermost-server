@@ -352,9 +352,11 @@ func TestCreateChannelWithPropertyValues(t *testing.T) {
 
 	// Required attributes are system-wide, so one left behind by a subtest would
 	// have to be satisfied by every later one. Each field lives for one subtest.
+	// Fields are seeded through the property service: App.CreatePropertyField
+	// refuses one created already required while any active channel lacks a value.
 	createField := func(t *testing.T, fieldType model.PropertyFieldType, level model.PermissionLevel, attrs model.StringInterface) *model.PropertyField {
 		t.Helper()
-		field, fieldErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+		field, fieldErr := th.App.Srv().PropertyService().CreatePropertyField(th.Context, &model.PropertyField{
 			Name:              "f_" + model.NewId(),
 			Type:              fieldType,
 			GroupID:           group.ID,
@@ -364,8 +366,8 @@ func TestCreateChannelWithPropertyValues(t *testing.T) {
 			PermissionValues:  &level,
 			PermissionOptions: &memberLevel,
 			Attrs:             attrs,
-		}, false, "")
-		require.Nil(t, fieldErr)
+		})
+		require.NoError(t, fieldErr)
 		t.Cleanup(func() {
 			require.Nil(t, th.App.DeletePropertyField(th.Context, group.ID, field.ID, true, ""))
 		})
@@ -575,7 +577,7 @@ func TestCreateChannelWithPropertyValues(t *testing.T) {
 			require.Nil(t, th.App.DeletePropertyField(th.Context, group.ID, templateField.ID, true, ""))
 		})
 
-		classificationField, fieldErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+		classificationField, classificationErr := th.App.Srv().PropertyService().CreatePropertyField(th.Context, &model.PropertyField{
 			Name:             "classification",
 			Type:             model.PropertyFieldTypeSelect,
 			GroupID:          group.ID,
@@ -587,8 +589,8 @@ func TestCreateChannelWithPropertyValues(t *testing.T) {
 			Attrs: model.StringInterface{
 				model.PropertyFieldAttrRequired: true,
 			},
-		}, false, "")
-		require.Nil(t, fieldErr)
+		})
+		require.NoError(t, classificationErr)
 		t.Cleanup(func() {
 			require.Nil(t, th.App.DeletePropertyField(th.Context, group.ID, classificationField.ID, true, ""))
 		})
@@ -715,7 +717,7 @@ func TestCreateChannelWithPropertyValues(t *testing.T) {
 			require.Nil(t, th.App.DeletePropertyField(th.Context, group.ID, templateField.ID, true, ""))
 		})
 
-		classificationField, fieldErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+		classificationField, classificationErr := th.App.Srv().PropertyService().CreatePropertyField(th.Context, &model.PropertyField{
 			Name:             "classification",
 			Type:             model.PropertyFieldTypeSelect,
 			GroupID:          group.ID,
@@ -727,8 +729,8 @@ func TestCreateChannelWithPropertyValues(t *testing.T) {
 			Attrs: model.StringInterface{
 				model.PropertyFieldAttrRequired: true,
 			},
-		}, false, "")
-		require.Nil(t, fieldErr)
+		})
+		require.NoError(t, classificationErr)
 		t.Cleanup(func() {
 			require.Nil(t, th.App.DeletePropertyField(th.Context, group.ID, classificationField.ID, true, ""))
 		})

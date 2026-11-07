@@ -30,6 +30,7 @@ import {getHistory} from 'utils/browser_history';
 import Constants, {JobTypes} from 'utils/constants';
 
 import {ChannelAccessControl} from './channel_access_control_policy';
+import ChannelAttributesSettings from './channel_attributes_settings';
 import {ChannelGroups} from './channel_groups';
 import ChannelLevelAccessRules from './channel_level_access_rules';
 import ChannelMembers from './channel_members';
@@ -57,6 +58,7 @@ export interface ChannelDetailsProps {
     channelModerationEnabled: boolean;
     channelGroupsEnabled: boolean;
     abacSupported: boolean;
+    channelAttributesEnabled?: boolean;
     isDisabled?: boolean;
     actions: ChannelDetailsActions;
 }
@@ -104,6 +106,11 @@ interface ChannelDetailsState {
     userAttributes: UserPropertyField[];
     attributesLoaded: boolean;
 
+    // Channel attributes section (System Console bulk-remediation surface).
+    // Pending edits are batched under the page's own Save, keyed by field id;
+    // a null value means "clear this field".
+    channelAttributeValues: Record<string, string | string[] | null>;
+
     // Access rules confirmation modal state
     showAccessRulesConfirmModal: boolean;
     accessRulesUsersToAdd: string[];
@@ -145,6 +152,7 @@ export type ChannelDetailsActions = {
     searchUsersForExpression: (expression: string, term: string, after: string, limit: number, channelId?: string) => Promise<ActionResult>;
     getChannelMembers: (channelId: string, page?: number, perPage?: number) => Promise<ActionResult>;
     getProfilesByIds: (userIds: string[]) => Promise<ActionResult>;
+    patchChannelAttributeValues: (channelId: string, values: Array<{field_id: string; value: unknown}>) => Promise<ActionResult>;
 };
 
 export default class ChannelDetails extends React.PureComponent<ChannelDetailsProps, ChannelDetailsState> {
@@ -187,6 +195,7 @@ export default class ChannelDetails extends React.PureComponent<ChannelDetailsPr
             channelRulesHaveChanges: false,
             userAttributes: [],
             attributesLoaded: false,
+            channelAttributeValues: {},
 
             // Access rules confirmation modal state
             showAccessRulesConfirmModal: false,
@@ -206,6 +215,7 @@ export default class ChannelDetails extends React.PureComponent<ChannelDetailsPr
                 isDefault: channel?.name === Constants.DEFAULT_CHANNEL,
                 isLocalArchived: channel?.delete_at !== 0,
                 policyToggled: channel?.policy_enforced || false,
+                channelAttributeValues: {},
             });
 
             // Load user attributes and policies if ABAC is supported
@@ -529,6 +539,22 @@ export default class ChannelDetails extends React.PureComponent<ChannelDetailsPr
             this.setState({serverError, saving: false, saveNeeded});
             actions.setNavigationBlocked(saveNeeded);
             return;
+        }
+
+        const {channelAttributeValues} = this.state;
+        if (Object.keys(channelAttributeValues).length > 0) {
+            const attributeResult = await actions.patchChannelAttributeValues(
+                channel.id,
+                Object.entries(channelAttributeValues).map(([fieldId, value]) => ({field_id: fieldId, value})),
+            );
+            if ('error' in attributeResult) {
+                serverError = <FormError error={attributeResult.error.message}/>;
+                saveNeeded = true;
+                this.setState({serverError, saving: false, saveNeeded});
+                actions.setNavigationBlocked(saveNeeded);
+                return;
+            }
+            this.setState({channelAttributeValues: {}});
         }
 
         let privacyChangePromise;
@@ -1036,6 +1062,11 @@ export default class ChannelDetails extends React.PureComponent<ChannelDetailsPr
         this.setState(newState);
     };
 
+    private handleChannelAttributeValuesChange = (values: Record<string, string | string[] | null>) => {
+        this.setState({channelAttributeValues: values, saveNeeded: true});
+        this.props.actions.setNavigationBlocked(true);
+    };
+
     private onPolicySelected = (policy: AccessControlPolicy) => {
         const {accessControlPolicies} = this.state;
 
@@ -1465,6 +1496,14 @@ export default class ChannelDetails extends React.PureComponent<ChannelDetailsPr
                             onConfirm={this.handleSubmit}
                             onCancel={this.hideArchiveConfirmModal}
                         />
+                        {!isLocalArchived && this.props.channelAttributesEnabled && (
+                            <ChannelAttributesSettings
+                                key={channel.id}
+                                channelId={channel.id}
+                                isDisabled={this.props.isDisabled}
+                                onChange={this.handleChannelAttributeValuesChange}
+                            />
+                        )}
                         {!isLocalArchived && nonArchivedContent}
                     </div>
                 </div>

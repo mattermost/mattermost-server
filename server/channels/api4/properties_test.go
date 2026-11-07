@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/mattermost/mattermost/server/public/model"
@@ -9297,5 +9298,216 @@ func TestPatchPropertyFieldNullGrantsEcho(t *testing.T) {
 		require.Nil(t, appErr)
 		require.Nil(t, stored.Permissions.Grants)
 		require.Equal(t, field.Attrs[model.PropertyFieldAttributeOptions], stored.Attrs[model.PropertyFieldAttributeOptions])
+	})
+}
+
+// TestPatchPropertyFieldRequiredChannelsMissingValuesGate covers
+// checkRequiredAttributeTransition (MM-70717): PATCHing a channel attribute's
+// attrs.required from false to true must be rejected with 409 while any
+// active channel lacks a value for it.
+//
+// Only the *blocking* direction is asserted against an exact channel
+// population: any Mattermost test server already has at least one active
+// channel (InitBasic's defaults, if nothing else), and the field ID used in
+// each subtest is freshly generated, so that pre-existing channel is
+// guaranteed to have no value for it. The reverse ("succeeds once every
+// channel has a value") is not asserted here -- it would require every
+// channel already in the shared test database to carry a value for this
+// field, which this suite cannot control -- and is instead covered at the
+// store layer (storetest.testChannelStoreExistsChannelMissingPropertyValue),
+// which starts from a clean, fully-controlled Channels table.
+func TestPatchPropertyFieldRequiredChannelsMissingValuesGate(t *testing.T) {
+	mainHelper.Parallel(t)
+	th := SetupConfig(t, func(cfg *model.Config) {
+		cfg.FeatureFlags.ChannelAttributes = true
+		cfg.FeatureFlags.ChannelAttributesRequired = true
+	}).InitBasic(t)
+	th.App.Srv().SetLicense(model.NewTestLicenseSKU(model.LicenseShortSkuEnterpriseAdvanced))
+
+	group, appErr := th.App.GetPropertyGroup(th.Context, model.AccessControlPropertyGroupName)
+	require.Nil(t, appErr)
+
+	newField := func(t *testing.T, objectType string, required bool) *model.PropertyField {
+		t.Helper()
+		// "a" prefix: field names in this group are validated as CEL
+		// identifiers (must start with a letter/underscore), which
+		// model.NewId() alone does not always satisfy.
+		attrs := model.StringInterface{}
+		if required {
+			// Create the field through the normal App path first so all defaults
+			// are populated, then establish the already-required fixture directly
+			// in the store. Creating it required through App is intentionally
+			// blocked by the transition gate under test.
+			field, appErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+				Name:       "a" + model.NewId(),
+				Type:       model.PropertyFieldTypeText,
+				GroupID:    group.ID,
+				ObjectType: objectType,
+				TargetType: "system",
+				Attrs:      attrs,
+			}, false, "")
+			require.Nil(t, appErr)
+
+			field.Attrs[model.PropertyFieldAttrRequired] = true
+			updated, err := th.App.Srv().Store().PropertyField().Update(group.ID, []*model.PropertyField{field}, nil)
+			require.NoError(t, err)
+			return updated[0]
+		}
+
+		field, appErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+			Name:       "a" + model.NewId(),
+			Type:       model.PropertyFieldTypeText,
+			GroupID:    group.ID,
+			ObjectType: objectType,
+			TargetType: "system",
+			Attrs:      attrs,
+		}, false, "")
+		require.Nil(t, appErr)
+		return field
+	}
+
+	t.Run("blocks turning required on while an active channel lacks a value", func(t *testing.T) {
+		field := newField(t, model.PropertyFieldObjectTypeChannel, false)
+
+		patch := &model.PropertyFieldPatch{Attrs: &model.StringInterface{"required": true}}
+		_, resp, err := th.SystemAdminClient.PatchPropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, field.ID, patch)
+		require.Error(t, err)
+		CheckErrorID(t, err, "api.property_field.required.channels_missing_values.app_error")
+		require.Equal(t, http.StatusConflict, resp.StatusCode)
+
+		reloaded, appErr := th.App.GetPropertyField(th.Context, group.ID, field.ID)
+		require.Nil(t, appErr)
+		require.False(t, model.IsPropertyFieldRequired(reloaded), "the field must be unchanged in the database after a rejected patch")
+	})
+
+	t.Run("an already-required field accepts an unrelated attribute change", func(t *testing.T) {
+		field := newField(t, model.PropertyFieldObjectTypeChannel, true)
+
+		patch := &model.PropertyFieldPatch{Attrs: &model.StringInterface{"display_name": "Renamed"}}
+		updated, resp, err := th.SystemAdminClient.PatchPropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, field.ID, patch)
+		require.NoError(t, err)
+		CheckOKStatus(t, resp)
+		assert.True(t, model.IsPropertyFieldRequired(updated), "required must be untouched by a patch that never mentions it")
+	})
+
+	t.Run("re-sending required=true unchanged succeeds", func(t *testing.T) {
+		field := newField(t, model.PropertyFieldObjectTypeChannel, true)
+
+		patch := &model.PropertyFieldPatch{Attrs: &model.StringInterface{"required": true}}
+		_, resp, err := th.SystemAdminClient.PatchPropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, field.ID, patch)
+		require.NoError(t, err)
+		CheckOKStatus(t, resp)
+	})
+
+	t.Run("flipping required back to false always succeeds -- the escape hatch", func(t *testing.T) {
+		field := newField(t, model.PropertyFieldObjectTypeChannel, true)
+
+		patch := &model.PropertyFieldPatch{Attrs: &model.StringInterface{"required": false}}
+		updated, resp, err := th.SystemAdminClient.PatchPropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, field.ID, patch)
+		require.NoError(t, err)
+		CheckOKStatus(t, resp)
+		assert.False(t, model.IsPropertyFieldRequired(updated))
+	})
+
+	t.Run("the same toggle on a user-object-type field is unaffected", func(t *testing.T) {
+		field := newField(t, model.PropertyFieldObjectTypeUser, false)
+
+		patch := &model.PropertyFieldPatch{Attrs: &model.StringInterface{"required": true}}
+		updated, resp, err := th.SystemAdminClient.PatchPropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeUser, field.ID, patch)
+		require.NoError(t, err)
+		CheckOKStatus(t, resp)
+		assert.True(t, model.IsPropertyFieldRequired(updated))
+	})
+
+	t.Run("non-HTTP callers (plugin/local) are blocked too, not just the api4 handler", func(t *testing.T) {
+		field := newField(t, model.PropertyFieldObjectTypeChannel, false)
+		field.Attrs["required"] = true
+
+		_, _, appErr := th.App.UpdatePropertyField(th.Context, group.ID, field, false, "")
+		require.NotNil(t, appErr)
+		assert.Equal(t, http.StatusConflict, appErr.StatusCode)
+	})
+
+	t.Run("with required enforcement disabled the disabled error wins over the missing-values gate", func(t *testing.T) {
+		th.App.UpdateConfig(func(cfg *model.Config) { cfg.FeatureFlags.ChannelAttributesRequired = false })
+		defer th.App.UpdateConfig(func(cfg *model.Config) { cfg.FeatureFlags.ChannelAttributesRequired = true })
+
+		field := newField(t, model.PropertyFieldObjectTypeChannel, false)
+
+		patch := &model.PropertyFieldPatch{Attrs: &model.StringInterface{"required": true}}
+		_, resp, err := th.SystemAdminClient.PatchPropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, field.ID, patch)
+		require.Error(t, err)
+		CheckErrorID(t, err, "app.property_field.required_disabled.app_error")
+		require.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	})
+}
+
+// TestCreatePropertyFieldRequiredChannelsMissingValuesGate verifies callers
+// cannot bypass the false-to-true update gate by creating a field already
+// required. A new field has no ID and therefore no existing channel can hold
+// a value for it, so required creation is blocked whenever active local
+// channels exist.
+func TestCreatePropertyFieldRequiredChannelsMissingValuesGate(t *testing.T) {
+	mainHelper.Parallel(t)
+	th := SetupConfig(t, func(cfg *model.Config) {
+		cfg.FeatureFlags.ChannelAttributes = true
+		cfg.FeatureFlags.ChannelAttributesRequired = true
+	}).InitBasic(t)
+	th.App.Srv().SetLicense(model.NewTestLicenseSKU(model.LicenseShortSkuEnterpriseAdvanced))
+
+	group, appErr := th.App.GetPropertyGroup(th.Context, model.AccessControlPropertyGroupName)
+	require.Nil(t, appErr)
+
+	t.Run("blocks creating a channel-object field already required", func(t *testing.T) {
+		_, resp, err := th.SystemAdminClient.CreatePropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, &model.PropertyField{
+			Name:       "a" + model.NewId(),
+			Type:       model.PropertyFieldTypeText,
+			ObjectType: model.PropertyFieldObjectTypeChannel,
+			TargetType: "system",
+			Attrs:      model.StringInterface{"required": true},
+		})
+		require.Error(t, err)
+		CheckErrorID(t, err, "api.property_field.required.channels_missing_values.app_error")
+		require.Equal(t, http.StatusConflict, resp.StatusCode)
+	})
+
+	t.Run("creating without required succeeds", func(t *testing.T) {
+		field, resp, err := th.SystemAdminClient.CreatePropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeChannel, &model.PropertyField{
+			Name:       "a" + model.NewId(),
+			Type:       model.PropertyFieldTypeText,
+			ObjectType: model.PropertyFieldObjectTypeChannel,
+			TargetType: "system",
+		})
+		require.NoError(t, err)
+		CheckCreatedStatus(t, resp)
+		assert.False(t, model.IsPropertyFieldRequired(field))
+	})
+
+	t.Run("required=true on a user-object-type field is unaffected", func(t *testing.T) {
+		field, resp, err := th.SystemAdminClient.CreatePropertyField(context.Background(), group.Name, model.PropertyFieldObjectTypeUser, &model.PropertyField{
+			// User-object (CPA) field names are validated as CEL identifiers,
+			// which model.NewId() alone does not always satisfy.
+			Name:       "a" + model.NewId(),
+			Type:       model.PropertyFieldTypeText,
+			ObjectType: model.PropertyFieldObjectTypeUser,
+			TargetType: "system",
+			Attrs:      model.StringInterface{"required": true},
+		})
+		require.NoError(t, err)
+		CheckCreatedStatus(t, resp)
+		assert.True(t, model.IsPropertyFieldRequired(field))
+	})
+
+	t.Run("non-HTTP callers (plugin/local) are blocked too, not just the api4 handler", func(t *testing.T) {
+		_, appErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+			Name:       "a" + model.NewId(),
+			Type:       model.PropertyFieldTypeText,
+			GroupID:    group.ID,
+			ObjectType: model.PropertyFieldObjectTypeChannel,
+			TargetType: "system",
+			Attrs:      model.StringInterface{"required": true},
+		}, false, "")
+		require.NotNil(t, appErr)
+		assert.Equal(t, http.StatusConflict, appErr.StatusCode)
 	})
 }

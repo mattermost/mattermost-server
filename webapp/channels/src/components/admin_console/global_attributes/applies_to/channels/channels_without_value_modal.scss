@@ -1,0 +1,133 @@
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
+.ChannelsWithoutValueModal {
+    width: 760px;
+    min-width: 760px;
+
+    .GenericModal__body {
+        max-height: 480px;
+        padding-top: 0;
+        overflow-y: auto;
+    }
+
+    .GenericModal__header {
+        display: flex;
+        align-items: baseline;
+    }
+
+    &__header-divider {
+        display: inline-block;
+        width: 1px;
+        height: 16px;
+        margin: 0 12px;
+        background: rgba(var(--center-channel-color-rgb), 0.16);
+    }
+
+    &__header-count {
+        color: rgba(var(--center-channel-color-rgb), 0.56);
+        font-size: 14px;
+        font-weight: 400;
+        white-space: nowrap;
+    }
+
+    &__filters {
+        display: flex;
+        margin-bottom: 12px;
+        gap: 8px;
+
+        button {
+            padding: 4px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+
+            &.active {
+                font-weight: 600;
+            }
+        }
+    }
+
+    &__channel-cell {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 6px;
+
+        svg {
+            flex-shrink: 0;
+        }
+
+        a {
+            display: inline-flex;
+            overflow: hidden;
+            min-width: 0;
+            align-items: center;
+            gap: 4px;
+
+            span {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+    }
+
+    &__table {
+        width: 100%;
+        table-layout: fixed;
+
+        thead th {
+            padding: 8px 4px 10px;
+            border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
+            color: rgba(var(--center-channel-color-rgb), 0.56);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-align: left;
+            text-transform: uppercase;
+
+            &:first-child {
+                width: 40%;
+                padding-right: 24px;
+            }
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        td {
+            padding: 12px 4px;
+            text-align: left;
+            vertical-align: middle;
+
+            &:first-child {
+                padding-right: 24px;
+            }
+        }
+    }
+
+    &__empty,
+    &__error {
+        padding: 24px 0;
+        text-align: center;
+    }
+
+    &__footer {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    &__pagination {
+        display: flex;
+        gap: 8px;
+    }
+}

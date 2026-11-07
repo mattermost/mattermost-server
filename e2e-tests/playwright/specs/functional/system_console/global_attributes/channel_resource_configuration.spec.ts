@@ -43,11 +43,15 @@ test.describe(
                 const {systemConsolePage} = await pw.testBrowser.login(adminUser);
 
                 // # Apply it to channels, required, shown in the header and the banner
-                name = await configureChannelAttribute(systemConsolePage, {
-                    displayName,
-                    required: true,
-                    displayLocations: ['display_label_header', 'display_banner_top'],
-                });
+                name = await configureChannelAttribute(
+                    systemConsolePage,
+                    {
+                        displayName,
+                        required: true,
+                        displayLocations: ['display_label_header', 'display_banner_top'],
+                    },
+                    adminClient,
+                );
 
                 // * The linked channel field carries every configured key
                 const channelField = await findChannelField(adminClient, name);
@@ -85,13 +89,17 @@ test.describe(
             try {
                 const {systemConsolePage} = await pw.testBrowser.login(adminUser);
 
-                name = await configureChannelAttribute(systemConsolePage, {
-                    displayName: `Caveat ${suffix}`,
-                    type: 'Select',
-                    options: ['NOFORN'],
-                    required: true,
-                    displayLocations: ['display_label_header'],
-                });
+                name = await configureChannelAttribute(
+                    systemConsolePage,
+                    {
+                        displayName: `Caveat ${suffix}`,
+                        type: 'Select',
+                        options: ['NOFORN'],
+                        required: true,
+                        displayLocations: ['display_label_header'],
+                    },
+                    adminClient,
+                );
 
                 // # Create a channel as the same admin, who is a member of a team
                 const {team} = await pw.initSetup();
@@ -131,13 +139,17 @@ test.describe(
             try {
                 const {systemConsolePage} = await pw.testBrowser.login(adminUser);
 
-                name = await configureChannelAttribute(systemConsolePage, {
-                    displayName: `Marking ${suffix}`,
-                    type: 'Select',
-                    options: ['RESTRICTED'],
-                    required: true,
-                    displayLocations: ['display_banner_top'],
-                });
+                name = await configureChannelAttribute(
+                    systemConsolePage,
+                    {
+                        displayName: `Marking ${suffix}`,
+                        type: 'Select',
+                        options: ['RESTRICTED'],
+                        required: true,
+                        displayLocations: ['display_banner_top'],
+                    },
+                    adminClient,
+                );
 
                 const {team} = await pw.initSetup();
                 const {channelsPage} = await pw.testBrowser.login(adminUser);
@@ -173,12 +185,16 @@ test.describe(
             try {
                 const {systemConsolePage} = await pw.testBrowser.login(adminUser);
 
-                name = await configureChannelAttribute(systemConsolePage, {
-                    displayName: `Quiet ${suffix}`,
-                    type: 'Select',
-                    options: ['QUIET'],
-                    required: true,
-                });
+                name = await configureChannelAttribute(
+                    systemConsolePage,
+                    {
+                        displayName: `Quiet ${suffix}`,
+                        type: 'Select',
+                        options: ['QUIET'],
+                        required: true,
+                    },
+                    adminClient,
+                );
 
                 const {team} = await pw.initSetup();
                 const {channelsPage} = await pw.testBrowser.login(adminUser);
@@ -229,13 +245,17 @@ test.describe(
             try {
                 const {systemConsolePage} = await pw.testBrowser.login(adminUser);
 
-                name = await configureChannelAttribute(systemConsolePage, {
-                    displayName: `Locked ${suffix}`,
-                    type: 'Select',
-                    options: ['FINAL'],
-                    required: true,
-                    changePolicy: 'Cannot be changed once set',
-                });
+                name = await configureChannelAttribute(
+                    systemConsolePage,
+                    {
+                        displayName: `Locked ${suffix}`,
+                        type: 'Select',
+                        options: ['FINAL'],
+                        required: true,
+                        changePolicy: 'Cannot be changed once set',
+                    },
+                    adminClient,
+                );
 
                 // * The console wrote both keys: change_policy, and the editable key the
                 // * channel UI still reads
@@ -282,12 +302,16 @@ test.describe(
             try {
                 const {systemConsolePage} = await pw.testBrowser.login(adminUser);
 
-                name = await configureChannelAttribute(systemConsolePage, {
-                    displayName: `Restricted ${suffix}`,
-                    type: 'Select',
-                    options: ['SET'],
-                    required: true,
-                });
+                name = await configureChannelAttribute(
+                    systemConsolePage,
+                    {
+                        displayName: `Restricted ${suffix}`,
+                        type: 'Select',
+                        options: ['SET'],
+                        required: true,
+                    },
+                    adminClient,
+                );
 
                 const channelField = await findChannelField(adminClient, name);
                 expect(channelField?.permission_values).toBe('admin');

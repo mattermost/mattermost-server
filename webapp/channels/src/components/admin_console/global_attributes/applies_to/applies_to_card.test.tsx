@@ -7,8 +7,19 @@ import {renderWithContext, screen, userEvent, within} from 'tests/react_testing_
 
 import AppliesToCard from './applies_to_card';
 import {DEFAULT_CHANNEL_RESOURCE_CONFIG} from './channels';
+import useChannelMissingValues from './channels/use_channel_missing_values';
+
+// Isolates this suite from the MM-70717 missing-values fetch -- covered by
+// use_channel_missing_values.test.ts and channels_resource_settings.test.tsx.
+jest.mock('./channels/use_channel_missing_values');
+
+const mockUseChannelMissingValues = jest.mocked(useChannelMissingValues);
 
 describe('AppliesToCard', () => {
+    beforeEach(() => {
+        mockUseChannelMissingValues.mockReturnValue({loading: false, failed: false, summary: null, reload: jest.fn()});
+    });
+
     it('starts with no resource and offers to add one', () => {
         renderWithContext(
             <AppliesToCard

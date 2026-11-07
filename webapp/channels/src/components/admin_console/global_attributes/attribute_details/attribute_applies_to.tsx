@@ -78,6 +78,12 @@ type Props = {
     // Resources this server may offer. Channels is dropped below Enterprise
     // Advanced, or with the ChannelAttributes flag off.
     allowedTypes?: ResourceObjectType[];
+
+    // Channels only: the persisted linked channel field's ID (undefined in
+    // create mode) and the attribute's own display name, both forwarded to
+    // the Required toggle's missing-values banner (MM-70717).
+    channelFieldId?: string;
+    attributeDisplayName?: string;
 };
 
 // Every entry here must implement AttributeAppliesToItemProps exactly --
@@ -116,6 +122,8 @@ function AttributeAppliesTo({
     onChannelResourceChange,
     ordered,
     allowedTypes = ALL_RESOURCE_TYPES,
+    channelFieldId,
+    attributeDisplayName,
 }: Props): JSX.Element {
     const {formatMessage} = useIntl();
 
@@ -214,6 +222,8 @@ function AttributeAppliesTo({
                                             lockedTooltip={lockedTooltip}
                                             removeLockedTooltip={removeLockedTooltips?.[type]}
                                             onRemove={() => onRemove(type)}
+                                            channelFieldId={channelFieldId}
+                                            attributeDisplayName={attributeDisplayName}
                                         />
                                     );
                                 }

@@ -9,6 +9,13 @@ import AttributeAppliesTo from './attribute_applies_to';
 import type {ResourceObjectType} from './attribute_applies_to_constants';
 
 import {DEFAULT_CHANNEL_RESOURCE_CONFIG} from '../applies_to/channels';
+import useChannelMissingValues from '../applies_to/channels/use_channel_missing_values';
+
+// Isolates this suite from the MM-70717 missing-values fetch -- covered by
+// use_channel_missing_values.test.ts and channels_resource_settings.test.tsx.
+jest.mock('../applies_to/channels/use_channel_missing_values');
+
+const mockUseChannelMissingValues = jest.mocked(useChannelMissingValues);
 
 describe('AttributeAppliesTo', () => {
     const onAdd = jest.fn();
@@ -16,6 +23,7 @@ describe('AttributeAppliesTo', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockUseChannelMissingValues.mockReturnValue({loading: false, failed: false, summary: null, reload: jest.fn()});
     });
 
     const renderComponent = (props: Partial<React.ComponentProps<typeof AttributeAppliesTo>> = {}) => {

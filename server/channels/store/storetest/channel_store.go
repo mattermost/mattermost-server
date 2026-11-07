@@ -65,6 +65,46 @@ func cleanupChannels(t *testing.T, rctx request.CTX, ss store.Store) {
 	}
 }
 
+// saveChannelWithoutTeam saves a channel whose team row does not exist.
+// cleanupChannels lists through a Teams join and can't see such a channel,
+// so it is permanently deleted when the test ends instead of leaking into
+// later subtests.
+func saveChannelWithoutTeam(t *testing.T, rctx request.CTX, ss store.Store, displayName string) *model.Channel {
+	t.Helper()
+	channel, err := ss.Channel().Save(rctx, &model.Channel{
+		TeamId:      model.NewId(),
+		DisplayName: displayName,
+		Name:        NewTestID(),
+		Type:        model.ChannelTypeOpen,
+	}, -1)
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, ss.Channel().PermanentDelete(rctx, channel.Id))
+	})
+	return channel
+}
+
+// saveRemoteSharedChannel marks channel as shared from a remote (non-home).
+// The row is removed when the test ends: a later cleanupChannels permanently
+// deletes the channel but not its SharedChannels row, and an orphaned row
+// breaks clearSharedChannels in TestSharedChannelStore.
+func saveRemoteSharedChannel(t *testing.T, ss store.Store, channel *model.Channel) {
+	t.Helper()
+	_, err := ss.SharedChannel().Save(&model.SharedChannel{
+		ChannelId: channel.Id,
+		TeamId:    channel.TeamId,
+		CreatorId: model.NewId(),
+		ShareName: "testremote" + model.NewId(),
+		Home:      false,
+		RemoteId:  model.NewId(),
+	})
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		_, err := ss.SharedChannel().Delete(channel.Id)
+		assert.NoError(t, err)
+	})
+}
+
 func channelToJSON(t *testing.T, channel *model.Channel) string {
 	t.Helper()
 	js, err := json.Marshal(channel)
@@ -145,6 +185,13 @@ func TestChannelStore(t *testing.T, rctx request.CTX, ss store.Store, s SqlStore
 	t.Run("GetMembersByIds", func(t *testing.T) { testChannelStoreGetMembersByIds(t, rctx, ss) })
 	t.Run("GetMembersByChannelIds", func(t *testing.T) { testChannelStoreGetMembersByChannelIds(t, rctx, ss) })
 	t.Run("GetMembersInfoByChannelIds", func(t *testing.T) { testChannelStoreGetMembersInfoByChannelIds(t, rctx, ss) })
+	t.Run("GetAllChannelsMissingPropertyValue", func(t *testing.T) { testChannelStoreGetAllChannelsMissingPropertyValue(t, rctx, ss) })
+	t.Run("GetChannelAdminsInfoByChannelIds", func(t *testing.T) { testChannelStoreGetChannelAdminsInfoByChannelIds(t, rctx, ss) })
+	t.Run("GetChannelAdminsForChannelsMissingPropertyValue", func(t *testing.T) { testChannelStoreGetChannelAdminsForChannelsMissingPropertyValue(t, rctx, ss) })
+	t.Run("CountChannelAdminAssignmentsForChannelsMissingPropertyValue", func(t *testing.T) {
+		testChannelStoreCountChannelAdminAssignmentsForChannelsMissingPropertyValue(t, rctx, ss)
+	})
+	t.Run("ExistsChannelMissingPropertyValue", func(t *testing.T) { testChannelStoreExistsChannelMissingPropertyValue(t, rctx, ss) })
 	t.Run("SearchGroupChannels", func(t *testing.T) { testChannelStoreSearchGroupChannels(t, rctx, ss) })
 	t.Run("AnalyticsDeletedTypeCount", func(t *testing.T) { testChannelStoreAnalyticsDeletedTypeCount(t, rctx, ss) })
 	t.Run("GetPinnedPosts", func(t *testing.T) { testChannelStoreGetPinnedPosts(t, rctx, ss) })
@@ -7686,6 +7733,464 @@ func testChannelStoreGetMembersInfoByChannelIds(t *testing.T, rctx request.CTX, 
 		var nfErr *store.ErrNotFound
 		require.True(t, errors.As(err, &nfErr))
 	})
+}
+
+// testChannelStoreGetAllChannelsMissingPropertyValue covers the
+// MissingPropertyValueGroupID/FieldID filter added to
+// store.ChannelSearchOpts for MM-70717 -- the shared builder behind
+// GetAllChannels/GetAllChannelsCount and the required-attribute gate.
+func testChannelStoreGetAllChannelsMissingPropertyValue(t *testing.T, rctx request.CTX, ss store.Store) {
+	// The missing-value filter scans every active channel in the store, not
+	// just ones this test creates, so leftover channels from earlier tests
+	// would otherwise be reported as missing this fresh field too.
+	cleanupChannels(t, rctx, ss)
+
+	team, err := ss.Team().Save(&model.Team{
+		DisplayName: "Name",
+		Name:        NewTestID(),
+		Email:       MakeEmail(),
+		Type:        model.TeamOpen,
+	})
+	require.NoError(t, err)
+
+	groupID := model.NewId()
+	fieldID := model.NewId()
+	otherFieldID := model.NewId()
+
+	newChannel := func(name string) *model.Channel {
+		c, cErr := ss.Channel().Save(rctx, &model.Channel{
+			TeamId:      team.Id,
+			DisplayName: name,
+			Name:        NewTestID(),
+			Type:        model.ChannelTypeOpen,
+		}, -1)
+		require.NoError(t, cErr)
+		return c
+	}
+
+	putValue := func(channelID string, field string, value string) *model.PropertyValue {
+		pv, pvErr := ss.PropertyValue().Create(&model.PropertyValue{
+			TargetID:   channelID,
+			TargetType: model.PropertyValueTargetTypeChannel,
+			GroupID:    groupID,
+			FieldID:    field,
+			Value:      json.RawMessage(value),
+		})
+		require.NoError(t, pvErr)
+		return pv
+	}
+
+	noValue := newChannel("NoValue" + model.NewId())
+
+	nullValue := newChannel("NullValue" + model.NewId())
+	putValue(nullValue.Id, fieldID, "null")
+
+	emptyString := newChannel("EmptyString" + model.NewId())
+	putValue(emptyString.Id, fieldID, `""`)
+
+	emptyArray := newChannel("EmptyArray" + model.NewId())
+	putValue(emptyArray.Id, fieldID, "[]")
+
+	hasValue := newChannel("HasValue" + model.NewId())
+	putValue(hasValue.Id, fieldID, `"some text"`)
+
+	softDeletedValue := newChannel("SoftDeletedValue" + model.NewId())
+	pv := putValue(softDeletedValue.Id, fieldID, `"some text"`)
+	require.NoError(t, ss.PropertyValue().Delete(groupID, pv.ID))
+
+	wrongField := newChannel("WrongField" + model.NewId())
+	putValue(wrongField.Id, otherFieldID, `"some text"`)
+
+	archived := newChannel("Archived" + model.NewId())
+	putValue(archived.Id, fieldID, "null")
+	require.NoError(t, ss.Channel().Delete(archived.Id, model.GetMillis()))
+
+	noTeam := saveChannelWithoutTeam(t, rctx, ss, "NoTeam"+model.NewId())
+
+	opts := store.ChannelSearchOpts{
+		MissingPropertyValueGroupID: groupID,
+		MissingPropertyValueFieldID: fieldID,
+	}
+
+	list, nErr := ss.Channel().GetAllChannels(0, 100, opts)
+	require.NoError(t, nErr)
+
+	missingIDs := make([]string, 0, len(list))
+	for _, c := range list {
+		missingIDs = append(missingIDs, c.Id)
+	}
+
+	assert.ElementsMatch(t, []string{noValue.Id, nullValue.Id, emptyString.Id, emptyArray.Id, softDeletedValue.Id, wrongField.Id}, missingIDs)
+	assert.NotContains(t, missingIDs, hasValue.Id, "a channel with a real value must not be reported as missing")
+	assert.NotContains(t, missingIDs, archived.Id, "archived channels are excluded from the gate regardless of their value")
+	assert.NotContains(t, missingIDs, noTeam.Id, "a channel without a team is excluded")
+
+	count, nErr := ss.Channel().GetAllChannelsCount(opts)
+	require.NoError(t, nErr)
+	assert.EqualValues(t, len(list), count, "GetAllChannelsCount must agree with len(GetAllChannels) for the same opts")
+
+	t.Run("pagination returns disjoint, complete pages", func(t *testing.T) {
+		page0, nErr := ss.Channel().GetAllChannels(0, 3, opts)
+		require.NoError(t, nErr)
+		page1, nErr := ss.Channel().GetAllChannels(3, 3, opts)
+		require.NoError(t, nErr)
+
+		seen := map[string]bool{}
+		for _, c := range append(page0, page1...) {
+			assert.False(t, seen[c.Id], "channel %s returned on more than one page", c.Id)
+			seen[c.Id] = true
+		}
+		assert.Len(t, seen, len(missingIDs))
+	})
+}
+
+// testChannelStoreGetChannelAdminsInfoByChannelIds covers
+// ChannelStore.GetChannelAdminsInfoByChannelIds, added for MM-70717.
+func testChannelStoreGetChannelAdminsInfoByChannelIds(t *testing.T, rctx request.CTX, ss store.Store) {
+	admin, err := ss.User().Save(rctx, &model.User{Username: "admin" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+
+	member, err := ss.User().Save(rctx, &model.User{Username: "member" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+
+	deactivatedAdmin, err := ss.User().Save(rctx, &model.User{Username: "deactivated" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+	deactivatedAdmin.DeleteAt = model.GetMillis()
+	_, err = ss.User().Update(rctx, deactivatedAdmin, true)
+	require.NoError(t, err)
+
+	channelWithAdmin, err := ss.Channel().Save(rctx, &model.Channel{TeamId: model.NewId(), DisplayName: model.NewId(), Name: model.NewId(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	channelWithNoAdmin, err := ss.Channel().Save(rctx, &model.Channel{TeamId: model.NewId(), DisplayName: model.NewId(), Name: model.NewId(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: channelWithAdmin.Id, UserId: admin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: channelWithAdmin.Id, UserId: member.Id, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: channelWithAdmin.Id, UserId: deactivatedAdmin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: channelWithNoAdmin.Id, UserId: member.Id, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+
+	t.Run("returns only active, non-bot channel admins", func(t *testing.T) {
+		result, nErr := ss.Channel().GetChannelAdminsInfoByChannelIds([]string{channelWithAdmin.Id, channelWithNoAdmin.Id})
+		require.NoError(t, nErr)
+
+		require.Len(t, result[channelWithAdmin.Id], 1)
+		assert.Equal(t, admin.Id, result[channelWithAdmin.Id][0].Id)
+	})
+
+	t.Run("a channel with no qualifying admin is absent from the map, not an error", func(t *testing.T) {
+		result, nErr := ss.Channel().GetChannelAdminsInfoByChannelIds([]string{channelWithNoAdmin.Id})
+		require.NoError(t, nErr)
+		_, ok := result[channelWithNoAdmin.Id]
+		assert.False(t, ok)
+	})
+
+	t.Run("empty input returns an empty map, no error", func(t *testing.T) {
+		result, nErr := ss.Channel().GetChannelAdminsInfoByChannelIds([]string{})
+		require.NoError(t, nErr)
+		assert.Empty(t, result)
+	})
+}
+
+// testChannelStoreGetChannelAdminsForChannelsMissingPropertyValue covers
+// ChannelStore.GetChannelAdminsForChannelsMissingPropertyValue, the notify
+// fan-out's source query, added for MM-70717.
+func testChannelStoreGetChannelAdminsForChannelsMissingPropertyValue(t *testing.T, rctx request.CTX, ss store.Store) {
+	// Same reasoning as testChannelStoreGetAllChannelsMissingPropertyValue:
+	// this scans every active channel, so leftover channels from earlier
+	// tests (with their own scheme admins) would pollute the result set.
+	cleanupChannels(t, rctx, ss)
+
+	team, err := ss.Team().Save(&model.Team{DisplayName: "Name", Name: NewTestID(), Email: MakeEmail(), Type: model.TeamOpen})
+	require.NoError(t, err)
+
+	groupID := model.NewId()
+	fieldID := model.NewId()
+
+	admin, err := ss.User().Save(rctx, &model.User{Username: "admin" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+
+	// Admin of three channels missing the value.
+	channels := make([]*model.Channel, 3)
+	for i := range channels {
+		c, cErr := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: fmt.Sprintf("Missing%d_%s", i, model.NewId()), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+		require.NoError(t, cErr)
+		channels[i] = c
+		_, mErr := ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: c.Id, UserId: admin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+		require.NoError(t, mErr)
+	}
+
+	// A channel where this admin also has a value already set -- must not appear.
+	compliantChannel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: "Compliant" + model.NewId(), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: compliantChannel.Id, UserId: admin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	_, err = ss.PropertyValue().Create(&model.PropertyValue{
+		TargetID: compliantChannel.Id, TargetType: model.PropertyValueTargetTypeChannel,
+		GroupID: groupID, FieldID: fieldID, Value: json.RawMessage(`"set"`),
+	})
+	require.NoError(t, err)
+
+	// An archived channel missing the value -- must not appear (D1).
+	archivedChannel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: "Archived" + model.NewId(), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: archivedChannel.Id, UserId: admin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	require.NoError(t, ss.Channel().Delete(archivedChannel.Id, model.GetMillis()))
+
+	// A remote (non-home) shared channel missing the value -- must not
+	// appear either (D7): shared/remote channels are excluded from the
+	// gate/notify fan-out, shown only informationally in the list modal.
+	remoteChannel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: "Remote" + model.NewId(), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: remoteChannel.Id, UserId: admin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	saveRemoteSharedChannel(t, ss, remoteChannel)
+
+	rows, nErr := ss.Channel().GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID, 1000, 0)
+	require.NoError(t, nErr)
+
+	gotChannelIDs := make([]string, 0, len(rows))
+	for _, row := range rows {
+		assert.Equal(t, admin.Id, row.UserId)
+		gotChannelIDs = append(gotChannelIDs, row.ChannelId)
+	}
+
+	wantIDs := []string{channels[0].Id, channels[1].Id, channels[2].Id}
+	assert.ElementsMatch(t, wantIDs, gotChannelIDs)
+
+	t.Run("limit truncates", func(t *testing.T) {
+		rows, nErr := ss.Channel().GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID, 1, 0)
+		require.NoError(t, nErr)
+		assert.Len(t, rows, 1)
+	})
+
+	t.Run("offset pages through the full result set without overlap or gaps", func(t *testing.T) {
+		var paged []string
+		for offset := 0; ; offset += 1 {
+			page, nErr := ss.Channel().GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID, 1, offset)
+			require.NoError(t, nErr)
+			if len(page) == 0 {
+				break
+			}
+			paged = append(paged, page[0].ChannelId)
+		}
+		assert.ElementsMatch(t, wantIDs, paged, "paging one row at a time must reconstruct exactly the same set as one unpaged call")
+	})
+
+	t.Run("empty fieldID (create mode) returns every active channel the admin is scheme-admin of", func(t *testing.T) {
+		rows, nErr := ss.Channel().GetChannelAdminsForChannelsMissingPropertyValue(groupID, "", 1000, 0)
+		require.NoError(t, nErr)
+
+		gotIDs := make([]string, 0, len(rows))
+		for _, row := range rows {
+			gotIDs = append(gotIDs, row.ChannelId)
+		}
+		// All active channels this admin administers, including the one with a
+		// value already set -- create mode has no field to check a value against.
+		assert.Contains(t, gotIDs, channels[0].Id)
+		assert.Contains(t, gotIDs, compliantChannel.Id)
+		assert.NotContains(t, gotIDs, archivedChannel.Id)
+		assert.NotContains(t, gotIDs, remoteChannel.Id)
+	})
+
+	t.Run("ties on DisplayName are broken by ChannelId, so page-size-1 pagination never skips or duplicates a row", func(t *testing.T) {
+		// Unshare before the wipe: cleanupChannels drops the channel but not
+		// its SharedChannels row.
+		_, err := ss.SharedChannel().Delete(remoteChannel.Id)
+		require.NoError(t, err)
+		cleanupChannels(t, rctx, ss)
+
+		tieGroupID := model.NewId()
+		tieFieldID := model.NewId()
+
+		tieAdmin, tErr := ss.User().Save(rctx, &model.User{Username: "tieadmin" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+		require.NoError(t, tErr)
+
+		// Same DisplayName on every channel -- the tiebreaker under test is
+		// exercised only when the column the old ORDER BY relied on cannot
+		// distinguish the rows itself.
+		const sharedDisplayName = "Tied Display Name"
+		tieChannels := make([]*model.Channel, 5)
+		for i := range tieChannels {
+			c, cErr := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: sharedDisplayName, Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+			require.NoError(t, cErr)
+			tieChannels[i] = c
+			_, mErr := ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: c.Id, UserId: tieAdmin.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+			require.NoError(t, mErr)
+		}
+
+		wantOrderedIDs := make([]string, len(tieChannels))
+		for i, c := range tieChannels {
+			wantOrderedIDs[i] = c.Id
+		}
+		slices.Sort(wantOrderedIDs)
+
+		var paged []string
+		for offset := 0; ; offset++ {
+			page, nErr := ss.Channel().GetChannelAdminsForChannelsMissingPropertyValue(tieGroupID, tieFieldID, 1, offset)
+			require.NoError(t, nErr)
+			if len(page) == 0 {
+				break
+			}
+			require.Len(t, page, 1)
+			paged = append(paged, page[0].ChannelId)
+		}
+
+		// Exact order, not just set membership: a stable ORDER BY must hand
+		// back the same ChannelId-sorted sequence one row at a time as the
+		// tiebreaker (c.Id) dictates, with nothing skipped or repeated across
+		// the OFFSET boundaries.
+		assert.Equal(t, wantOrderedIDs, paged)
+	})
+}
+
+// testChannelStoreCountChannelAdminAssignmentsForChannelsMissingPropertyValue
+// covers ChannelStore.CountChannelAdminAssignmentsForChannelsMissingPropertyValue,
+// the exact aggregate the compliance summary and notify counts read instead of
+// deriving from GetChannelAdminsForChannelsMissingPropertyValue's row list,
+// which a large install can truncate (see the exact call sites' comments).
+func testChannelStoreCountChannelAdminAssignmentsForChannelsMissingPropertyValue(t *testing.T, rctx request.CTX, ss store.Store) {
+	cleanupChannels(t, rctx, ss)
+
+	team, err := ss.Team().Save(&model.Team{DisplayName: "Name", Name: NewTestID(), Email: MakeEmail(), Type: model.TeamOpen})
+	require.NoError(t, err)
+
+	groupID := model.NewId()
+	fieldID := model.NewId()
+
+	adminA, err := ss.User().Save(rctx, &model.User{Username: "admina" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+	adminB, err := ss.User().Save(rctx, &model.User{Username: "adminb" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+
+	// Three channels admin A administers, all missing the value.
+	channels := make([]*model.Channel, 3)
+	for i := range channels {
+		c, cErr := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: fmt.Sprintf("CountMissing%d_%s", i, model.NewId()), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+		require.NoError(t, cErr)
+		channels[i] = c
+		_, mErr := ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: c.Id, UserId: adminA.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+		require.NoError(t, mErr)
+	}
+
+	// A fourth channel, administered by a second admin, also missing the
+	// value -- pushes the fixture past what a small row-limit would capture,
+	// so this proves the aggregate stays exact where the row list would not.
+	fourth, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: "CountMissingFourth" + model.NewId(), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: fourth.Id, UserId: adminB.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+
+	// A fifth channel, administered by a third admin, is a remote shared
+	// channel and must not count at all (D7) -- neither its admin nor
+	// itself.
+	adminC, err := ss.User().Save(rctx, &model.User{Username: "adminc" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+	remoteChannel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: "CountMissingRemote" + model.NewId(), Name: NewTestID(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: remoteChannel.Id, UserId: adminC.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+	saveRemoteSharedChannel(t, ss, remoteChannel)
+
+	// A sixth channel whose team row does not exist, with its own admin,
+	// must not count either -- same as the notify rows, which join Teams.
+	adminD, err := ss.User().Save(rctx, &model.User{Username: "admind" + model.NewId(), Email: MakeEmail(), Nickname: model.NewId()})
+	require.NoError(t, err)
+	noTeamChannel := saveChannelWithoutTeam(t, rctx, ss, "CountMissingNoTeam"+model.NewId())
+	_, err = ss.Channel().SaveMember(rctx, &model.ChannelMember{ChannelId: noTeamChannel.Id, UserId: adminD.Id, SchemeAdmin: true, NotifyProps: model.GetDefaultChannelNotifyProps()})
+	require.NoError(t, err)
+
+	uniqueAdminCount, channelsWithAdminCount, err := ss.Channel().CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, err)
+	assert.EqualValues(t, 2, uniqueAdminCount, "neither the remote channel's admin nor the teamless channel's admin may be counted")
+	assert.EqualValues(t, 4, channelsWithAdminCount, "neither the remote channel nor the teamless channel may be counted")
+
+	t.Run("stays exact where the row-limited list would already be truncated", func(t *testing.T) {
+		rows, nErr := ss.Channel().GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID, 1, 0)
+		require.NoError(t, nErr)
+		require.Len(t, rows, 1, "sanity check: the row list is indeed truncated at this limit")
+
+		uniqueAdminCount, channelsWithAdminCount, cErr := ss.Channel().CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID, fieldID)
+		require.NoError(t, cErr)
+		assert.EqualValues(t, 2, uniqueAdminCount, "the aggregate must not be affected by any row-list limit")
+		assert.EqualValues(t, 4, channelsWithAdminCount, "the aggregate must not be affected by any row-list limit")
+	})
+}
+
+// testChannelStoreExistsChannelMissingPropertyValue covers
+// ChannelStore.ExistsChannelMissingPropertyValue, the required-attribute
+// gate's existence check, added for MM-70717.
+func testChannelStoreExistsChannelMissingPropertyValue(t *testing.T, rctx request.CTX, ss store.Store) {
+	// This is a global existence check across every active channel, so a
+	// leftover channel from an earlier test would make "no channel is
+	// missing this field" untestable without a clean slate.
+	cleanupChannels(t, rctx, ss)
+
+	team, err := ss.Team().Save(&model.Team{DisplayName: "Name", Name: NewTestID(), Email: MakeEmail(), Type: model.TeamOpen})
+	require.NoError(t, err)
+
+	groupID := model.NewId()
+	fieldID := model.NewId()
+
+	exists, nErr := ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.False(t, exists, "no channels exist yet")
+
+	// A channel whose team row does not exist is not counted, same as the
+	// channel list and notify queries, which inner-join Teams.
+	saveChannelWithoutTeam(t, rctx, ss, model.NewId())
+
+	exists, nErr = ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.False(t, exists, "a channel without a team does not count")
+
+	channel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: model.NewId(), Name: model.NewId(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+
+	exists, nErr = ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.True(t, exists, "the new channel has no value for this field")
+
+	_, err = ss.PropertyValue().Create(&model.PropertyValue{
+		TargetID: channel.Id, TargetType: model.PropertyValueTargetTypeChannel,
+		GroupID: groupID, FieldID: fieldID, Value: json.RawMessage(`"set"`),
+	})
+	require.NoError(t, err)
+
+	exists, nErr = ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.False(t, exists, "the only channel now has a value")
+
+	// A second channel with no value at all -- exists must flip back to true.
+	secondChannel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: model.NewId(), Name: model.NewId(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+
+	exists, nErr = ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.True(t, exists, "the second channel has no value for this field")
+
+	// Archiving the only channel missing a value must flip exists back to
+	// false: archived channels are excluded from the gate (D1).
+	require.NoError(t, ss.Channel().Delete(secondChannel.Id, model.GetMillis()))
+
+	exists, nErr = ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.False(t, exists, "the only channel missing a value is archived, so it does not count")
+
+	// A remote (non-home) shared channel missing a value must not count
+	// either -- shared/remote channels are excluded from the gate (D7),
+	// shown only informationally in the channel-list modal.
+	remoteChannel, err := ss.Channel().Save(rctx, &model.Channel{TeamId: team.Id, DisplayName: model.NewId(), Name: model.NewId(), Type: model.ChannelTypeOpen}, -1)
+	require.NoError(t, err)
+	saveRemoteSharedChannel(t, ss, remoteChannel)
+
+	exists, nErr = ss.Channel().ExistsChannelMissingPropertyValue(groupID, fieldID)
+	require.NoError(t, nErr)
+	assert.False(t, exists, "the only channel missing a value is a remote shared channel, so it does not count")
 }
 
 func testChannelStoreSearchGroupChannels(t *testing.T, rctx request.CTX, ss store.Store) {

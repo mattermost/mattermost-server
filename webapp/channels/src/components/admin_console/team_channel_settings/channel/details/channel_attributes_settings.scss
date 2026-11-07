@@ -1,0 +1,117 @@
+.ChannelAttributesSettings {
+    display: grid;
+    column-gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 20px;
+
+    &__row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        label {
+            font-weight: 600;
+        }
+    }
+
+    &__input {
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+        border-radius: 4px;
+        background: var(--center-channel-bg);
+        color: var(--center-channel-color);
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.64;
+        }
+    }
+
+    // Matches the bordered, chevroned trigger the graph/hierarchical picker
+    // (Global Attributes, Channel Info) already renders for its own fields.
+    &__select {
+        display: flex;
+        width: 100%;
+        min-height: 40px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: start;
+        padding: 4px 12px;
+        border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+        border-radius: 4px;
+        background: var(--center-channel-bg);
+        color: inherit;
+        cursor: pointer;
+        font-weight: normal;
+        text-align: left;
+
+        &:hover:not(:disabled) {
+            border-color: rgba(var(--center-channel-color-rgb), 0.24);
+        }
+
+        &[aria-expanded='true'] {
+            border-color: var(--button-bg);
+            box-shadow: inset 0 0 0 1px var(--button-bg);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.64;
+        }
+    }
+
+    &__selectInner {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+
+        > svg {
+            flex-shrink: 0;
+            color: rgba(var(--center-channel-color-rgb), 0.64);
+        }
+    }
+
+    &__placeholder {
+        color: rgba(var(--center-channel-color-rgb), 0.64);
+    }
+
+    // Every selected value gets its own pill and wraps onto new lines, same as
+    // the Options tag editor on the Global Attributes "Manage Attributes" page.
+    &__chips {
+        display: flex;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    &__chip {
+        display: flex;
+        height: 24px;
+        align-items: center;
+        border-radius: 4px;
+        background-color: rgba(var(--center-channel-color-rgb), 0.08);
+    }
+
+    &__chipLabel {
+        padding: 0 4px 0 8px;
+        font-size: 12px;
+    }
+
+    &__chipRemove {
+        display: flex;
+        align-items: center;
+        padding: 0 4px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(var(--center-channel-color-rgb), 0.16);
+        }
+    }
+
+    &__readOnly {
+        color: rgba(var(--center-channel-color-rgb), 0.75);
+    }
+}

@@ -1534,6 +1534,22 @@ func (s *TimerLayerChannelStore) ClearSidebarOnTeamLeave(userID string, teamID s
 	return err
 }
 
+func (s *TimerLayerChannelStore) CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID string, fieldID string) (int64, int64, error) {
+	start := time.Now()
+
+	result, resultVar1, err := s.ChannelStore.CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID, fieldID)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.CountChannelAdminAssignmentsForChannelsMissingPropertyValue", success, elapsed)
+	}
+	return result, resultVar1, err
+}
+
 func (s *TimerLayerChannelStore) CountPostsAfter(channelID string, timestamp int64, excludedUserID string) (int, int, error) {
 	start := time.Now()
 
@@ -1676,6 +1692,22 @@ func (s *TimerLayerChannelStore) DeleteSidebarChannelsByPreferences(preferences 
 		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.DeleteSidebarChannelsByPreferences", success, elapsed)
 	}
 	return err
+}
+
+func (s *TimerLayerChannelStore) ExistsChannelMissingPropertyValue(groupID string, fieldID string) (bool, error) {
+	start := time.Now()
+
+	result, err := s.ChannelStore.ExistsChannelMissingPropertyValue(groupID, fieldID)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.ExistsChannelMissingPropertyValue", success, elapsed)
+	}
+	return result, err
 }
 
 func (s *TimerLayerChannelStore) Get(id string, allowFromCache bool) (*model.Channel, error) {
@@ -1898,6 +1930,38 @@ func (s *TimerLayerChannelStore) GetByNamesIncludeDeleted(teamID string, names [
 			success = "true"
 		}
 		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetByNamesIncludeDeleted", success, elapsed)
+	}
+	return result, err
+}
+
+func (s *TimerLayerChannelStore) GetChannelAdminsForChannelsMissingPropertyValue(groupID string, fieldID string, limit int, offset int) ([]*model.ChannelAttributeAdminAssignment, error) {
+	start := time.Now()
+
+	result, err := s.ChannelStore.GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID, limit, offset)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetChannelAdminsForChannelsMissingPropertyValue", success, elapsed)
+	}
+	return result, err
+}
+
+func (s *TimerLayerChannelStore) GetChannelAdminsInfoByChannelIds(channelIDs []string) (map[string][]*model.User, error) {
+	start := time.Now()
+
+	result, err := s.ChannelStore.GetChannelAdminsInfoByChannelIds(channelIDs)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("ChannelStore.GetChannelAdminsInfoByChannelIds", success, elapsed)
 	}
 	return result, err
 }
@@ -12015,6 +12079,22 @@ func (s *TimerLayerSharedChannelStore) GetRemoteByIdsFromMaster(channelID string
 	return result, err
 }
 
+func (s *TimerLayerSharedChannelStore) GetRemoteChannelIds(channelIDs []string) ([]string, error) {
+	start := time.Now()
+
+	result, err := s.SharedChannelStore.GetRemoteChannelIds(channelIDs)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("SharedChannelStore.GetRemoteChannelIds", success, elapsed)
+	}
+	return result, err
+}
+
 func (s *TimerLayerSharedChannelStore) GetRemoteForUser(remoteID string, userID string, includeDeleted bool) (*model.RemoteCluster, error) {
 	start := time.Now()
 
@@ -12479,6 +12559,22 @@ func (s *TimerLayerStatusStore) UpdateLastActivityAt(userID string, lastActivity
 	return err
 }
 
+func (s *TimerLayerSystemStore) DeleteIfValueEquals(name string, expectedValue string) (bool, error) {
+	start := time.Now()
+
+	result, err := s.SystemStore.DeleteIfValueEquals(name, expectedValue)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("SystemStore.DeleteIfValueEquals", success, elapsed)
+	}
+	return result, err
+}
+
 func (s *TimerLayerSystemStore) Get() (model.StringMap, error) {
 	start := time.Now()
 
@@ -12605,6 +12701,22 @@ func (s *TimerLayerSystemStore) SaveOrUpdate(system *model.System) error {
 		s.Root.Metrics.ObserveStoreMethodDuration("SystemStore.SaveOrUpdate", success, elapsed)
 	}
 	return err
+}
+
+func (s *TimerLayerSystemStore) TryClaimIfOlderThan(name string, value string, minAgeMillis int64) (bool, error) {
+	start := time.Now()
+
+	result, err := s.SystemStore.TryClaimIfOlderThan(name, value, minAgeMillis)
+
+	elapsed := float64(time.Since(start)) / float64(time.Second)
+	if s.Root.Metrics != nil {
+		success := "false"
+		if err == nil {
+			success = "true"
+		}
+		s.Root.Metrics.ObserveStoreMethodDuration("SystemStore.TryClaimIfOlderThan", success, elapsed)
+	}
+	return result, err
 }
 
 func (s *TimerLayerSystemStore) Update(system *model.System) error {

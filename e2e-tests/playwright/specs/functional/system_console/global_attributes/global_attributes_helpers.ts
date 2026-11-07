@@ -50,6 +50,14 @@ export async function requireGlobalAttributesEnabled(pw: PlaywrightExtended) {
     return {adminUser, adminClient};
 }
 
+export async function setGlobalAttributesFeatureFlag(adminClient: Client4, enabled: boolean) {
+    await adminClient.patchConfig({
+        FeatureFlags: {
+            GlobalAttributes: enabled,
+        },
+    } as Parameters<Client4['patchConfig']>[0]);
+}
+
 /**
  * Precondition for hierarchical (graph) authoring, on top of
  * {@link requireGlobalAttributesEnabled}'s license check. Does not enable

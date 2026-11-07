@@ -551,7 +551,11 @@ func TestCreateChannelWithUserIgnoresRequiredAttributesWithNoValues(t *testing.T
 	require.Nil(t, appErr)
 
 	memberLevel := model.PermissionLevelMember
-	field, appErr := th.App.CreatePropertyField(th.Context, &model.PropertyField{
+
+	// Seeded through the property service: App.CreatePropertyField refuses a
+	// field created already required while any active channel lacks a value,
+	// and this test is about creating a channel once such a field exists.
+	field, err := th.App.Srv().PropertyService().CreatePropertyField(th.Context, &model.PropertyField{
 		Name:              "f_" + model.NewId(),
 		Type:              model.PropertyFieldTypeText,
 		GroupID:           group.ID,
@@ -563,8 +567,8 @@ func TestCreateChannelWithUserIgnoresRequiredAttributesWithNoValues(t *testing.T
 		Attrs: model.StringInterface{
 			model.PropertyFieldAttrRequired: true,
 		},
-	}, false, "")
-	require.Nil(t, appErr)
+	})
+	require.NoError(t, err)
 	t.Cleanup(func() {
 		require.Nil(t, th.App.DeletePropertyField(th.Context, group.ID, field.ID, true, ""))
 	})

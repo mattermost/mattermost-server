@@ -194,6 +194,14 @@ const (
 	AuditEventPatchPropertyValues = "patchPropertyValues" // update property values for target
 )
 
+// Channel Attribute Compliance
+const (
+	AuditEventGetPropertyFieldMissingValues      = "getPropertyFieldMissingValues"      // list channels missing a value for a channel attribute
+	AuditEventGetPropertyFieldComplianceSummary  = "getPropertyFieldComplianceSummary"  // get channel attribute compliance summary
+	AuditEventGetPropertyFieldsComplianceSummary = "getPropertyFieldsComplianceSummary" // get compliance summary for a not-yet-created channel attribute
+	AuditEventNotifyPropertyFieldMissingValues   = "notifyPropertyFieldMissingValues"   // notify channel admins of a missing channel attribute value
+)
+
 // Data Retention Policies
 const (
 	AuditEventAddChannelsToPolicy      = "addChannelsToPolicy"      // add channels to data retention policy

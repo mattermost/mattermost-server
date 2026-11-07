@@ -137,6 +137,28 @@ func (s SqlSharedChannelStore) HasChannel(channelID string) (bool, error) {
 	return exists, nil
 }
 
+func (s SqlSharedChannelStore) GetRemoteChannelIds(channelIDs []string) ([]string, error) {
+	if len(channelIDs) == 0 {
+		return nil, nil
+	}
+
+	query := s.getQueryBuilder().
+		Select("ChannelId").
+		From("SharedChannels").
+		Where(sq.Eq{"ChannelId": channelIDs, "Home": false})
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, errors.Wrap(err, "GetRemoteChannelIds_ToSql")
+	}
+
+	var ids []string
+	if err := s.GetReplica().Select(&ids, sql, args...); err != nil {
+		return nil, errors.Wrap(err, "failed to find remote channel ids")
+	}
+	return ids, nil
+}
+
 // GetAll fetches a paginated list of shared channels filtered by SharedChannelSearchOpts.
 func (s SqlSharedChannelStore) GetAll(offset, limit int, opts model.SharedChannelFilterOpts) ([]*model.SharedChannel, error) {
 	if opts.ExcludeHome && opts.ExcludeRemote {

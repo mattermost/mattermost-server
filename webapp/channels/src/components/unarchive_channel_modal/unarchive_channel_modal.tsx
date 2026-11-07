@@ -1,19 +1,26 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {type JSX} from 'react';
-import {Modal} from 'react-bootstrap';
+import React, {useState} from 'react';
 import {FormattedMessage, defineMessage} from 'react-intl';
 
-import {Button} from '@mattermost/compass-ui/components/button';
+import {GenericModal} from '@mattermost/components';
 import type {Channel} from '@mattermost/types/channels';
 
 import type {ActionResult} from 'mattermost-redux/types/actions';
+import {getPropertyFieldLabel} from 'mattermost-redux/utils/property_utils';
+
+import AlertBanner from 'components/alert_banner';
+import useMissingRequiredChannelAttributes from 'components/common/hooks/useMissingRequiredChannelAttributes';
 
 import type {KindMessages} from 'utils/channel_kind';
 import Constants from 'utils/constants';
 
 import type {ChannelKind} from 'types/store/plugins';
+
+export type ChannelDetailsActions = {
+    unarchiveChannel: (channelId: string) => Promise<ActionResult>;
+};
 
 type Props = {
     onExited: () => void;
@@ -24,93 +31,105 @@ type Props = {
     actions: ChannelDetailsActions;
 };
 
-type State = {
-    show: boolean;
-};
+export default function UnarchiveChannelModal({onExited, channel, channelKind = 'channel', actions}: Props) {
+    const [show, setShow] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [serverError, setServerError] = useState<string | undefined>();
 
-export type ChannelDetailsActions = {
-    unarchiveChannel: (channelId: string) => Promise<ActionResult>;
-};
+    // Advisory only -- see the hook's doc comment. Never blocks the restore;
+    // it only changes the copy and the confirm button label.
+    const {missing} = useMissingRequiredChannelAttributes(channel.id);
 
-export default class UnarchiveChannelModal extends React.PureComponent<Props, State> {
-    constructor(props: Props) {
-        super(props);
-
-        this.state = {show: true};
-    }
-
-    handleUnarchive = (): void => {
-        if (this.props.channel.id.length !== Constants.CHANNEL_ID_LENGTH) {
+    const handleUnarchive = async () => {
+        if (channel.id.length !== Constants.CHANNEL_ID_LENGTH) {
             return;
         }
-        this.props.actions.unarchiveChannel(this.props.channel.id);
-        this.onHide();
+
+        setSubmitting(true);
+        setServerError(undefined);
+
+        const result = await actions.unarchiveChannel(channel.id);
+        if (result.error) {
+            setServerError(result.error.message);
+            setSubmitting(false);
+            return;
+        }
+
+        setShow(false);
     };
 
-    onHide = (): void => {
-        this.setState({show: false});
+    const handleHide = () => {
+        setShow(false);
     };
 
-    render(): JSX.Element {
-        const {channelKind = 'channel'} = this.props;
-
-        return (
-            <Modal
-                dialogClassName='a11y__modal'
-                show={this.state.show}
-                onHide={this.onHide}
-                onExited={this.props.onExited}
-                role='none'
-                aria-labelledby='unarchiveChannelModalLabel'
-                id='unarchiveChannelModal'
-            >
-                <Modal.Header closeButton={true}>
-                    <Modal.Title
-                        componentClass='h1'
-                        id='unarchiveChannelModalLabel'
-                    >
-                        <FormattedMessage {...messages.title[channelKind]}/>
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className='alert alert-danger'>
+    return (
+        <GenericModal
+            id='unarchiveChannelModal'
+            className='a11y__modal'
+            show={show}
+            onHide={handleHide}
+            onExited={onExited}
+            ariaLabel='unarchive_channel_modal'
+            modalHeaderText={<FormattedMessage {...messages.title[channelKind]}/>}
+            handleCancel={handleHide}
+            handleConfirm={handleUnarchive}
+            autoCloseOnConfirmButton={false}
+            isConfirmDisabled={submitting}
+            destructive={true}
+            autoFocusConfirmButton={true}
+            confirmButtonText={missing.length > 0 ? (
+                <FormattedMessage
+                    id='unarchive_channel.missing_attributes.confirm'
+                    defaultMessage='Unarchive anyway'
+                />
+            ) : (
+                <FormattedMessage
+                    id='unarchive_channel.del'
+                    defaultMessage='Unarchive'
+                />
+            )}
+            cancelButtonText={(
+                <FormattedMessage
+                    id='unarchive_channel.cancel'
+                    defaultMessage='Cancel'
+                />
+            )}
+            errorText={serverError}
+            compassDesign={true}
+        >
+            <div className='alert alert-danger'>
+                <FormattedMessage
+                    {...messages.question[channelKind]}
+                    values={{
+                        display_name: channel.display_name,
+                        b: (chunks: React.ReactNode) => <b>{chunks}</b>,
+                    }}
+                />
+            </div>
+            {missing.length > 0 && (
+                <AlertBanner
+                    id='unarchiveChannelModalMissingAttributes'
+                    mode='warning'
+                    title={(
                         <FormattedMessage
-                            {...messages.question[channelKind]}
+                            id='unarchive_channel.missing_attributes.title'
+                            defaultMessage='Missing required attribute values'
+                        />
+                    )}
+                    message={(
+                        <FormattedMessage
+                            id='unarchive_channel.missing_attributes.body'
+                            defaultMessage='This channel has no value for {attributes}. {count, plural, one {That attribute is} other {Those attributes are}} required. You can set the {count, plural, one {value} other {values}} after restoring the channel.'
                             values={{
-                                display_name: this.props.channel.display_name,
-                                b: (chunks) => <b>{chunks}</b>,
+                                attributes: missing.map((field) => getPropertyFieldLabel(field)).join(', '),
+                                count: missing.length,
                             }}
                         />
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button
-                        type='button'
-                        emphasis='tertiary'
-                        onClick={this.onHide}
-                    >
-                        <FormattedMessage
-                            id='unarchive_channel.cancel'
-                            defaultMessage='Cancel'
-                        />
-                    </Button>
-                    <Button
-                        type='button'
-                        data-dismiss='modal'
-                        onClick={this.handleUnarchive}
-                        autoFocus={true}
-                        id='unarchiveChannelModalDeleteButton'
-                        destructive={true}
-                    >
-                        <FormattedMessage
-                            id='unarchive_channel.del'
-                            defaultMessage='Unarchive'
-                        />
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        );
-    }
+                    )}
+                />
+            )}
+        </GenericModal>
+    );
 }
 
 /* eslint-disable formatjs/enforce-placeholders -- values are passed where each message is rendered */

@@ -306,6 +306,28 @@ type ChannelStore interface {
 	GetMembersByIds(channelID string, userIds []string) (model.ChannelMembers, error)
 	GetMembersByChannelIds(channelIds []string, userID string) (model.ChannelMembers, error)
 	GetMembersInfoByChannelIds(channelIDs []string) (map[string][]*model.User, error)
+	// GetChannelAdminsInfoByChannelIds returns active, non-bot channel admins for
+	// each channel, keyed by channel ID. Channels with no qualifying admin are
+	// absent from the map.
+	GetChannelAdminsInfoByChannelIds(channelIDs []string) (map[string][]*model.User, error)
+	// GetChannelAdminsForChannelsMissingPropertyValue returns one page of rows,
+	// one per (channel admin, affected channel) pair across every active,
+	// local channel missing a value for the given field, in a stable order
+	// (UserId, then channel DisplayName) so repeated calls with increasing
+	// offset page through the full result set without overlap or gaps.
+	GetChannelAdminsForChannelsMissingPropertyValue(groupID, fieldID string, limit, offset int) ([]*model.ChannelAttributeAdminAssignment, error)
+	// CountChannelAdminAssignmentsForChannelsMissingPropertyValue returns the
+	// exact number of distinct channel admins and the exact number of distinct
+	// affected channels with at least one admin, across every active, local
+	// channel missing a value for the given field. Unlike
+	// GetChannelAdminsForChannelsMissingPropertyValue this is never capped: it
+	// aggregates in the database rather than materializing rows, so the
+	// summary's counts stay exact even when the assignment fan-out used for
+	// actual delivery is truncated.
+	CountChannelAdminAssignmentsForChannelsMissingPropertyValue(groupID, fieldID string) (uniqueAdminCount int64, channelsWithAdminCount int64, err error)
+	// ExistsChannelMissingPropertyValue reports whether any active, local channel
+	// lacks a value for the given field. Used by the required-attribute gate.
+	ExistsChannelMissingPropertyValue(groupID, fieldID string) (bool, error)
 	GetChannelUnread(channelID, userID string) (*model.ChannelUnread, error)
 	GetChannelsWithUnreadsAndWithMentions(rctx request.CTX, channelIDs []string, userID string, userNotifyProps model.StringMap) ([]string, []string, map[string]int64, error)
 	GetTeamChannelsWithUnreadAndMentions(rctx request.CTX, teamID string, userID string, userNotifyProps model.StringMap) ([]string, []string, map[string]int64, error)
@@ -675,6 +697,17 @@ type SystemStore interface {
 	GetByNameWithContext(rctx request.CTX, name string) (*model.System, error)
 	PermanentDeleteByName(name string) (*model.System, error)
 	InsertIfExists(system *model.System) (*model.System, error)
+	// TryClaimIfOlderThan atomically claims name for a cooldown/throttle: it
+	// sets Value only if the row is absent or its existing value (read as a
+	// millisecond timestamp) is at least minAgeMillis old, and reports
+	// whether this call is the one that set it. See the sqlstore doc comment
+	// for why this must be one statement rather than a read then a write.
+	TryClaimIfOlderThan(name, value string, minAgeMillis int64) (bool, error)
+	// DeleteIfValueEquals atomically deletes name's row only if its current
+	// Value still equals expectedValue, and reports whether it deleted
+	// anything. Releases a TryClaimIfOlderThan claim without a TOCTOU gap --
+	// see the sqlstore doc comment.
+	DeleteIfValueEquals(name, expectedValue string) (bool, error)
 }
 
 type WebhookStore interface {
@@ -1089,6 +1122,9 @@ type SharedChannelStore interface {
 	Save(sc *model.SharedChannel) (*model.SharedChannel, error)
 	Get(channelID string) (*model.SharedChannel, error)
 	HasChannel(channelID string) (bool, error)
+	// GetRemoteChannelIds returns, from the given channel IDs, those that are
+	// remote (received from another cluster) rather than homed locally.
+	GetRemoteChannelIds(channelIDs []string) ([]string, error)
 	GetAll(offset, limit int, opts model.SharedChannelFilterOpts) ([]*model.SharedChannel, error)
 	GetAllCount(opts model.SharedChannelFilterOpts) (int64, error)
 	Update(sc *model.SharedChannel) (*model.SharedChannel, error)
@@ -1465,6 +1501,12 @@ type ChannelSearchOpts struct {
 	AccessControlPolicyEnforced        bool
 	ExcludeAccessControlPolicyEnforced bool
 	ParentAccessControlPolicyId        string
+
+	// MissingPropertyValueGroupID/FieldID restrict results to channels with no set
+	// value for the given field. Both must be set together. A row that exists but
+	// holds null/""/[] counts as missing, matching model.IsEmptyPropertyValue.
+	MissingPropertyValueGroupID string
+	MissingPropertyValueFieldID string
 }
 
 func (c *ChannelSearchOpts) IsPaginated() bool {

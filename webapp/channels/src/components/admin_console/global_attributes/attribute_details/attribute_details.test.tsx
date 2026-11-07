@@ -48,6 +48,18 @@ describe('AttributeDetails', () => {
         jest.clearAllMocks();
         jest.restoreAllMocks();
 
+        // The Channels row's missing-values banner (MM-70717) fetches on
+        // every expand; stub it to zero so it never blocks the Required
+        // toggle in the tests below, none of which are about that fetch.
+        jest.spyOn(Client4, 'getChannelAttributeComplianceSummary').mockResolvedValue({
+            required: false,
+            missing_channel_count: 0,
+            shared_channel_count: 0,
+            unique_admin_count: 0,
+            channels_without_admin_count: 0,
+            message_preview: '',
+        });
+
         // The page lists user fields and templates on mount to resolve name
         // conflicts, whatever else a test is about. Unmocked that reaches the
         // network, and every case here would log the rejection the page catches.

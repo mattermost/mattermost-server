@@ -66,6 +66,7 @@ export default class ChannelsPage {
     readonly userGroupsModal;
     readonly leaveTeamModal;
     readonly archivedChannelMessage;
+    readonly unarchiveChannelModal;
     readonly switchProductMenu;
 
     readonly postContainer;
@@ -153,6 +154,7 @@ export default class ChannelsPage {
         // Posts
         this.postContainer = page.getByTestId('post-message-text');
         this.archivedChannelMessage = page.locator('#channelArchivedMessage');
+        this.unarchiveChannelModal = new components.UnarchiveChannelModal(page.locator('#unarchiveChannelModal'));
 
         // Search results
         this.searchResultsContainer = page.locator('#search-items-container');
@@ -307,6 +309,20 @@ export default class ChannelsPage {
         await channelMenu.archiveToggle.click();
         await this.page.getByRole('button', {name: 'Archive', exact: true}).click();
         await expect(this.archivedChannelMessage).toBeVisible();
+    }
+
+    /**
+     * Opens the Unarchive confirmation from the channel header menu. The menu
+     * item's accessible name flips between "Archive Channel" and "Unarchive
+     * Channel" depending on the channel's current state -- this only makes
+     * sense to call while viewing an already-archived channel.
+     */
+    async openUnarchiveChannelModal() {
+        const channelMenu = await this.openChannelMenu();
+        await channelMenu.archiveToggle.click();
+        await this.unarchiveChannelModal.toBeVisible();
+
+        return this.unarchiveChannelModal;
     }
 
     /**

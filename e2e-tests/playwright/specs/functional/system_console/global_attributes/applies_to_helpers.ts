@@ -6,6 +6,8 @@ import type {PropertyField} from '@mattermost/types/properties';
 
 import type {SystemConsolePage} from '@mattermost/playwright-lib';
 
+import {backfillAndRequireChannelAttribute} from '../../channels/channel_attributes/helpers';
+
 const PROPERTY_GROUP = 'access_control';
 
 export type ChannelDisplayLocation = 'display_label_header' | 'display_banner_top';
@@ -46,6 +48,7 @@ export function derivedAttributeName(displayName: string): string {
 export async function configureChannelAttribute(
     systemConsolePage: SystemConsolePage,
     {displayName, type, options = [], required = false, changePolicy, displayLocations = []}: ChannelAttributeConfig,
+    adminClient?: Client4,
 ): Promise<string> {
     const {globalAttributes} = systemConsolePage;
     const {attributeAppliesToChannels} = globalAttributes;
@@ -61,7 +64,9 @@ export async function configureChannelAttribute(
     }
 
     await attributeAppliesToChannels.addResource();
-    await attributeAppliesToChannels.setRequired(required);
+    if (!required) {
+        await attributeAppliesToChannels.setRequired(false);
+    }
     if (changePolicy) {
         await attributeAppliesToChannels.setChangePolicy(changePolicy);
     }
@@ -69,7 +74,26 @@ export async function configureChannelAttribute(
 
     await globalAttributes.save();
 
-    return derivedAttributeName(displayName);
+    const name = derivedAttributeName(displayName);
+    if (required) {
+        if (!adminClient) {
+            throw new Error('adminClient is required to backfill a required channel attribute');
+        }
+        const field = await findChannelField(adminClient, name);
+        if (!field) {
+            throw new Error(`channel property field ${name} not found`);
+        }
+        const fieldOptions = (field.attrs?.options ?? []) as Array<{id: string}>;
+        let backfillValue: unknown = 'e2e backfill';
+        if (field.type === 'select') {
+            backfillValue = fieldOptions[0].id;
+        } else if (field.type === 'multiselect') {
+            backfillValue = [fieldOptions[0].id];
+        }
+        await backfillAndRequireChannelAttribute(adminClient, field, backfillValue);
+    }
+
+    return name;
 }
 
 export async function findChannelField(adminClient: Client4, name: string): Promise<PropertyField | undefined> {

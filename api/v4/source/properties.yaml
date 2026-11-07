@@ -283,6 +283,50 @@
           $ref: "#/components/responses/NotFound"
         "501":
           $ref: "#/components/responses/NotImplemented"
+  "/api/v4/properties/groups/{group_name}/{object_type}/fields/missing_values/summary":
+    get:
+      tags:
+        - properties
+      summary: Summarize channels missing a value for a new channel attribute
+      description: >
+        Returns counts for the active channels that would lack a value for a
+        channel attribute that has not been created yet.
+
+        ##### Permissions
+
+        Must have `manage_system` permission. Requires the `ChannelAttributes`
+        feature flag and an Enterprise Advanced license.
+      operationId: GetChannelAttributeComplianceSummaryForNewField
+      parameters:
+        - name: group_name
+          in: path
+          description: The name of the property group. Only `access_control` is supported.
+          required: true
+          schema:
+            type: string
+        - name: object_type
+          in: path
+          description: The type of object the property field applies to. Only `channel` is supported.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelAttributeComplianceSummary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
   "/api/v4/properties/groups/{group_name}/fields/search":
     post:
       tags:
@@ -1050,6 +1094,175 @@
             application/json:
               schema:
                 $ref: "#/components/schemas/AppError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+  "/api/v4/properties/groups/{group_name}/{object_type}/fields/{field_id}/missing_values":
+    get:
+      tags:
+        - properties
+      summary: List channels missing a value for a channel attribute
+      description: >
+        Lists the active channels that have no value for the channel attribute,
+        with each channel's admins. Shared channels are included for information
+        but are marked with `is_local: false` and do not block making the
+        attribute required.
+
+        ##### Permissions
+
+        Must have permission to edit the property field. Requires the
+        `ChannelAttributes` feature flag and an Enterprise Advanced license.
+      operationId: GetChannelsMissingAttributeValue
+      parameters:
+        - name: group_name
+          in: path
+          description: The name of the property group. Only `access_control` is supported.
+          required: true
+          schema:
+            type: string
+        - name: object_type
+          in: path
+          description: The type of object the property field applies to. Only `channel` is supported.
+          required: true
+          schema:
+            type: string
+        - name: field_id
+          in: path
+          description: Property field ID
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: The page to select.
+          schema:
+            type: integer
+            default: 0
+        - name: per_page
+          in: query
+          description: The number of channels per page.
+          schema:
+            type: integer
+            default: 60
+      responses:
+        "200":
+          description: Channels missing a value retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelsMissingAttributeValueList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+  "/api/v4/properties/groups/{group_name}/{object_type}/fields/{field_id}/missing_values/summary":
+    get:
+      tags:
+        - properties
+      summary: Summarize channels missing a value for a channel attribute
+      description: >
+        Returns how many active channels have no value for the channel attribute,
+        how many channel admins could be notified, and a preview of the message
+        they would receive.
+
+        ##### Permissions
+
+        Must have permission to edit the property field. Requires the
+        `ChannelAttributes` feature flag and an Enterprise Advanced license.
+      operationId: GetChannelAttributeComplianceSummary
+      parameters:
+        - name: group_name
+          in: path
+          description: The name of the property group. Only `access_control` is supported.
+          required: true
+          schema:
+            type: string
+        - name: object_type
+          in: path
+          description: The type of object the property field applies to. Only `channel` is supported.
+          required: true
+          schema:
+            type: string
+        - name: field_id
+          in: path
+          description: Property field ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelAttributeComplianceSummary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+  "/api/v4/properties/groups/{group_name}/{object_type}/fields/{field_id}/missing_values/notify":
+    post:
+      tags:
+        - properties
+      summary: Notify channel admins about a missing channel attribute value
+      description: >
+        Sends a direct message from the system bot to the admins of every active
+        channel that has no value for the channel attribute. Messages are sent
+        in the background after the response. Can be sent at most once an hour
+        per attribute.
+
+        ##### Permissions
+
+        Must have permission to edit the property field. Requires the
+        `ChannelAttributes` feature flag and an Enterprise Advanced license.
+      operationId: NotifyChannelAdminsOfMissingAttributeValue
+      parameters:
+        - name: group_name
+          in: path
+          description: The name of the property group. Only `access_control` is supported.
+          required: true
+          schema:
+            type: string
+        - name: object_type
+          in: path
+          description: The type of object the property field applies to. Only `channel` is supported.
+          required: true
+          schema:
+            type: string
+        - name: field_id
+          in: path
+          description: Property field ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Notification accepted and queued for background delivery
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelAttributeNotifyResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "501":
           $ref: "#/components/responses/NotImplemented"
   "/api/v4/properties/groups/{group_name}/{object_type}/values/{target_id}":

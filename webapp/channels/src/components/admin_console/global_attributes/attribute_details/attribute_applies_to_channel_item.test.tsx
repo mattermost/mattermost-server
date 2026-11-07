@@ -10,6 +10,13 @@ import {renderWithContext, screen, userEvent} from 'tests/react_testing_utils';
 import AttributeAppliesToChannelItem from './attribute_applies_to_channel_item';
 
 import {DEFAULT_CHANNEL_RESOURCE_CONFIG} from '../applies_to/channels';
+import useChannelMissingValues from '../applies_to/channels/use_channel_missing_values';
+
+// Isolates this suite from the MM-70717 missing-values fetch -- covered by
+// use_channel_missing_values.test.ts and channels_resource_settings.test.tsx.
+jest.mock('../applies_to/channels/use_channel_missing_values');
+
+const mockUseChannelMissingValues = jest.mocked(useChannelMissingValues);
 
 describe('AttributeAppliesToChannelItem', () => {
     const onRemove = jest.fn();
@@ -17,6 +24,7 @@ describe('AttributeAppliesToChannelItem', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockUseChannelMissingValues.mockReturnValue({loading: false, failed: false, summary: null, reload: jest.fn()});
     });
 
     const renderComponent = (props: Partial<React.ComponentProps<typeof AttributeAppliesToChannelItem>> = {}) => {

@@ -92,7 +92,7 @@ The web app isn't exposed directly, it's exposed via the server. So if both serv
     {"AndroidLatestVersion":"","AndroidMinVersion":"","DesktopLatestVersion":"","DesktopMinVersion":"","IosLatestVersion":"","IosMinVersion":"","status":"OK"}
     ```
 
-1. Set up up your admin user using mmctl:
+1. Set up your admin user using mmctl:
 
    ```sh
    bin/mmctl user create --local --email ADMIN_EMAIL --username ADMIN_USERNAME --password ADMIN_PASSWORD --system-admin
@@ -201,7 +201,7 @@ The `make package` command will package the application and place it under the `
 
     Alternately, you can enter `http://localhost:8065/api/v4/system/ping` in a web browser.
 
-1. Set up up your admin user using mmctl:
+1. Set up your admin user using mmctl:
 
    ```sh
    bin/mmctl user create --local --email ADMIN_EMAIL --username ADMIN_USERNAME --password ADMIN_PASSWORD --system-admin
